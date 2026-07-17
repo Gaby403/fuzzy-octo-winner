@@ -1,0 +1,48 @@
+{
+  "version": "0.4",
+  "title": "Studio Tabi — Global Head",
+  "type": "section",
+  "content": [
+    {
+      "id": "4decf990",
+      "elType": "section",
+      "isInner": false,
+      "settings": {
+        "stretch_section": "section-stretched",
+        "content_width": "full",
+        "padding": {
+          "top": "0",
+          "right": "0",
+          "bottom": "0",
+          "left": "0",
+          "unit": "px",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "d2a1301e",
+          "elType": "column",
+          "isInner": false,
+          "settings": {
+            "_column_size": 100,
+            "_inline_size": null
+          },
+          "elements": [
+            {
+              "id": "84e665fd",
+              "elType": "widget",
+              "widgetType": "html",
+              "isInner": false,
+              "settings": {
+                "html": "<!-- ╔══════════════════════════════════════════════════════════╗\n     ║  STUDIO TABI — GLOBAL HEAD                               ║\n     ║  Elementor → Custom Code → Before </head>               ║\n     ╚══════════════════════════════════════════════════════════╝ -->\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\" />\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin />\n<link href=\"https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&family=Roboto+Condensed:wght@700;900&family=Be+Vietnam+Pro:wght@400;500;600&display=swap\" rel=\"stylesheet\" />\n<style>\n  :root {\n    --tabi-red:   #F20C25;\n    --tabi-white: #EFEFEF;\n    --tabi-black: #111111;\n    --tabi-pad:   clamp(20px, 4vw, 82px);\n  }\n  /* Utility reveal */\n  .tabi-reveal { opacity: 0; transform: translateY(24px); transition: opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1); }\n  .tabi-reveal.is-visible { opacity: 1; transform: translateY(0); }\n  /* Clip-up headline */\n  .tabi-hl-wrap { overflow: hidden; line-height: .88; display: block; }\n  .tabi-hl-line { display: block; transform: translateY(110%); transition: transform .9s cubic-bezier(.16,1,.3,1); }\n  .tabi-hl-line.is-visible { transform: translateY(0); }\n  .tabi-hl-line--red { color: var(--tabi-red); }\n  /* Pillar / Stat bar wipe */\n  .tabi-bar-fill { position:absolute;inset:0;transform-origin:left;transform:scaleX(0);transition:transform .6s cubic-bezier(.16,1,.3,1); }\n  .tabi-bar-fill.is-visible { transform:scaleX(1); }\n</style>"
+              },
+              "elements": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "page_settings": {}
+}

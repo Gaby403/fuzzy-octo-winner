@@ -1,0 +1,218 @@
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  STUDIO TABI — 02 ABOUT                                  ║
+     ║  Elementor: HTML widget (largura total, sem padding)     ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<style>
+  .tabi-about *{box-sizing:border-box;}
+  .tabi-about{background-color:#111111;font-family:'Be Vietnam Pro',sans-serif;position:relative;overflow:hidden;}
+  .tabi-about__kanji-bg{position:absolute;font-family:'Noto Serif JP',serif;font-weight:900;font-size:clamp(200px,36vw,640px);line-height:1;letter-spacing:-.12em;color:#EFEFEF;opacity:.055;right:-4%;top:8%;user-select:none;pointer-events:none;will-change:transform,opacity;}
+  .tabi-about__divider{width:100%;height:1px;background-color:rgba(239,239,239,.08);}
+  .tabi-about__upper{padding:clamp(56px,9vw,130px) clamp(20px,4vw,82px) 0;position:relative;z-index:1;}
+  .tabi-about__eyebrow{display:flex;align-items:center;gap:10px;font-size:9px;font-weight:600;letter-spacing:.17em;color:rgba(239,239,239,.40);margin-bottom:clamp(24px,4vw,40px);}
+  .tabi-about__eyebrow-dot{width:7px;height:7px;border-radius:50%;background-color:#F20C25;flex-shrink:0;transform:scale(0);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+  .tabi-about__eyebrow-dot.is-visible{transform:scale(1);}
+  .tabi-about__grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,100px);align-items:start;}
+  .tabi-about__headline{font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:clamp(42px,5.4vw,92px);letter-spacing:-.05em;text-transform:uppercase;margin:0;display:flex;flex-direction:column;gap:.06em;}
+  .tabi-about__copy{display:flex;flex-direction:column;gap:clamp(20px,4vw,56px);}
+  .tabi-about__p{font-size:clamp(13px,1vw,17px);font-weight:400;line-height:1.72;color:rgba(239,239,239,.62);margin:0;}
+  .tabi-link-btn{display:inline-flex;align-items:center;gap:10px;font-size:9.5px;font-weight:600;letter-spacing:.13em;color:#F20C25;background:transparent;border:none;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;padding:0;transition:gap .22s;}
+  .tabi-link-btn:hover{gap:18px;}
+  .tabi-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,3vw,48px);padding:clamp(48px,8vw,110px) clamp(20px,4vw,82px);position:relative;z-index:1;}
+  .tabi-stat{display:flex;flex-direction:column;gap:12px;}
+  .tabi-stat__bar{position:relative;height:1px;background-color:rgba(239,239,239,.08);margin-bottom:8px;}
+  .tabi-stat__bar-fill{position:absolute;inset:0;background-color:#F20C25;transform-origin:left;transform:scaleX(0);transition:transform .6s cubic-bezier(.16,1,.3,1);}
+  .tabi-stat__bar-fill.is-visible{transform:scaleX(1);}
+  .tabi-stat__number{font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:clamp(36px,4.5vw,72px);line-height:.85;letter-spacing:-.04em;color:#EFEFEF;display:flex;align-items:baseline;gap:2px;}
+  .tabi-stat__label{font-size:10px;font-weight:600;letter-spacing:.14em;color:rgba(239,239,239,.40);}
+  .tabi-mid-divider{margin:0 clamp(20px,4vw,82px);height:1px;background-color:rgba(239,239,239,.08);position:relative;z-index:1;}
+  .tabi-pillars{padding:0 clamp(20px,4vw,82px) clamp(64px,10vw,140px);position:relative;z-index:1;}
+  .tabi-pillars__header{display:flex;align-items:center;justify-content:space-between;padding-top:48px;padding-bottom:8px;}
+  .tabi-pillars__label{font-size:9px;letter-spacing:.17em;font-weight:600;color:rgba(239,239,239,.30);}
+  .tabi-pillars__count{font-size:9px;letter-spacing:.10em;font-weight:500;color:rgba(239,239,239,.20);}
+  .tabi-pillar{position:relative;}
+  .tabi-pillar__bar{position:relative;height:1px;background-color:rgba(239,239,239,.08);}
+  .tabi-pillar__bar-fill{position:absolute;inset:0;background-color:rgba(239,239,239,.22);transform-origin:left;transform:scaleX(0);transition:transform .7s cubic-bezier(.16,1,.3,1);}
+  .tabi-pillar__bar-fill.is-visible{transform:scaleX(1);}
+  .tabi-pillar__body{display:flex;align-items:flex-start;gap:20px;padding:32px 0;}
+  .tabi-pillar__index{font-size:9px;font-weight:600;letter-spacing:.14em;color:#F20C25;padding-top:3px;flex-shrink:0;opacity:0;transition:opacity .4s .2s;}
+  .tabi-pillar.is-visible .tabi-pillar__index{opacity:1;}
+  .tabi-pillar__content{flex:1;}
+  .tabi-pillar__title-clip{overflow:hidden;}
+  .tabi-pillar__title{display:block;font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:clamp(16px,1.6vw,26px);letter-spacing:-.03em;text-transform:uppercase;color:#EFEFEF;line-height:1;transform:translateY(105%);transition:transform .7s cubic-bezier(.16,1,.3,1) .18s;}
+  .tabi-pillar.is-visible .tabi-pillar__title{transform:translateY(0);}
+  .tabi-pillar__text{font-size:clamp(11px,.85vw,14px);font-weight:400;line-height:1.65;color:rgba(239,239,239,.48);margin-top:10px;opacity:0;transform:translateY(8px);transition:opacity .7s .30s,transform .7s .30s;}
+  .tabi-pillar.is-visible .tabi-pillar__text{opacity:1;transform:translateY(0);}
+  .tabi-pillar__arrow{color:rgba(239,239,239,.18);font-size:13px;flex-shrink:0;padding-top:3px;opacity:0;transform:translateX(-6px);transition:opacity .5s .38s,transform .5s .38s;}
+  .tabi-pillar.is-visible .tabi-pillar__arrow{opacity:1;transform:translateX(0);}
+  .tabi-reveal{opacity:0;transform:translateY(24px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1);}
+  .tabi-reveal.is-visible{opacity:1;transform:translateY(0);}
+  .tabi-hl-wrap{overflow:hidden;line-height:.88;display:block;}
+  .tabi-hl-line{display:block;color:#EFEFEF;transform:translateY(110%);transition:transform .9s cubic-bezier(.16,1,.3,1);}
+  .tabi-hl-line--red{color:#F20C25;}
+  .tabi-hl-line.is-visible{transform:translateY(0);}
+  @media(max-width:767px){
+    .tabi-about__grid{grid-template-columns:1fr;}
+    .tabi-stats{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+
+<section class="tabi-about" id="tabiAbout">
+  <div class="tabi-about__kanji-bg" id="tabiAboutKanji" aria-hidden="true">&#36861;&#34955;</div>
+  <div class="tabi-about__divider"></div>
+  <div class="tabi-about__upper">
+    <div class="tabi-about__eyebrow tabi-reveal">
+      <span class="tabi-about__eyebrow-dot" id="tabiAboutDot"></span>
+      <span>STUDIO TABI &mdash; SOBRE N&Oacute;S</span>
+    </div>
+    <div class="tabi-about__grid">
+      <h2 class="tabi-about__headline">
+        <span class="tabi-hl-wrap"><span class="tabi-hl-line" style="transition-delay:.05s">N&Atilde;O FAZEMOS</span></span>
+        <span class="tabi-hl-wrap"><span class="tabi-hl-line" style="transition-delay:.12s">SITES.</span></span>
+        <span class="tabi-hl-wrap"><span class="tabi-hl-line tabi-hl-line--red" style="transition-delay:.19s">CONSTRU&Iacute;MOS</span></span>
+        <span class="tabi-hl-wrap"><span class="tabi-hl-line" style="transition-delay:.26s">PRESEN&Ccedil;A.</span></span>
+      </h2>
+      <div class="tabi-about__copy">
+        <p class="tabi-about__p tabi-reveal" style="transition-delay:.12s">O Studio Tabi nasceu da convic&ccedil;&atilde;o de que presen&ccedil;a digital &eacute; um ativo estrat&eacute;gico &mdash; n&atilde;o uma despesa de comunica&ccedil;&atilde;o. Reunimos designers, estrategistas e engenheiros que recusam a mediocridade do &ldquo;bom o suficiente&rdquo;.</p>
+        <p class="tabi-about__p tabi-reveal" style="transition-delay:.18s">Cada projeto come&ccedil;a com uma pergunta simples: como esse neg&oacute;cio quer ser percebido daqui a cinco anos? A resposta guia cada decis&atilde;o criativa, t&eacute;cnica e estrat&eacute;gica que tomamos.</p>
+        <div class="tabi-reveal" style="transition-delay:.24s">
+          <button class="tabi-link-btn">CONHE&Ccedil;A NOSSA HIST&Oacute;RIA <span>&#8594;</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tabi-stats">
+    <div class="tabi-stat" data-target="7" data-delay="0">
+      <div class="tabi-stat__bar"><div class="tabi-stat__bar-fill"></div></div>
+      <div class="tabi-stat__number"><span class="tabi-stat__val">0</span><span>+</span></div>
+      <div class="tabi-stat__label">ANOS DE MERCADO</div>
+    </div>
+    <div class="tabi-stat" data-target="120" data-delay=".12">
+      <div class="tabi-stat__bar"><div class="tabi-stat__bar-fill"></div></div>
+      <div class="tabi-stat__number"><span class="tabi-stat__val">0</span><span>+</span></div>
+      <div class="tabi-stat__label">PROJETOS ENTREGUES</div>
+    </div>
+    <div class="tabi-stat" data-target="98" data-delay=".24">
+      <div class="tabi-stat__bar"><div class="tabi-stat__bar-fill"></div></div>
+      <div class="tabi-stat__number"><span class="tabi-stat__val">0</span><span>%</span></div>
+      <div class="tabi-stat__label">TAXA DE RETEN&Ccedil;&Atilde;O</div>
+    </div>
+    <div class="tabi-stat" data-target="3" data-delay=".36">
+      <div class="tabi-stat__bar"><div class="tabi-stat__bar-fill"></div></div>
+      <div class="tabi-stat__number"><span class="tabi-stat__val">0</span><span>&times;</span></div>
+      <div class="tabi-stat__label">RETORNO M&Eacute;DIO EM 12M</div>
+    </div>
+  </div>
+  <div class="tabi-mid-divider"></div>
+  <div class="tabi-pillars">
+    <div class="tabi-pillars__header tabi-reveal">
+      <span class="tabi-pillars__label">COMO TRABALHAMOS</span>
+      <span class="tabi-pillars__count">04 PILARES</span>
+    </div>
+    <div class="tabi-pillar">
+      <div class="tabi-pillar__bar"><div class="tabi-pillar__bar-fill"></div></div>
+      <div class="tabi-pillar__body">
+        <span class="tabi-pillar__index">01</span>
+        <div class="tabi-pillar__content">
+          <div class="tabi-pillar__title-clip"><span class="tabi-pillar__title">Identidade que comunica</span></div>
+          <p class="tabi-pillar__text">Marcas que carregam inten&ccedil;&atilde;o em cada detalhe &mdash; do logotipo ao tom de voz. Constru&iacute;mos sistemas visuais que resistem ao tempo e crescem com o neg&oacute;cio.</p>
+        </div>
+        <span class="tabi-pillar__arrow">&#8594;</span>
+      </div>
+    </div>
+    <div class="tabi-pillar">
+      <div class="tabi-pillar__bar"><div class="tabi-pillar__bar-fill"></div></div>
+      <div class="tabi-pillar__body">
+        <span class="tabi-pillar__index">02</span>
+        <div class="tabi-pillar__content">
+          <div class="tabi-pillar__title-clip"><span class="tabi-pillar__title">Estrat&eacute;gia orientada a dado</span></div>
+          <p class="tabi-pillar__text">Decis&otilde;es criativas fundamentadas em comportamento real do usu&aacute;rio, benchmarks de mercado e m&eacute;tricas de convers&atilde;o. Beleza sem prop&oacute;sito n&atilde;o nos interessa.</p>
+        </div>
+        <span class="tabi-pillar__arrow">&#8594;</span>
+      </div>
+    </div>
+    <div class="tabi-pillar">
+      <div class="tabi-pillar__bar"><div class="tabi-pillar__bar-fill"></div></div>
+      <div class="tabi-pillar__body">
+        <span class="tabi-pillar__index">03</span>
+        <div class="tabi-pillar__content">
+          <div class="tabi-pillar__title-clip"><span class="tabi-pillar__title">Desenvolvimento de precis&atilde;o</span></div>
+          <p class="tabi-pillar__text">Interfaces que performam t&atilde;o bem quanto parecem. C&oacute;digo limpo, acess&iacute;vel e preparado para escala &mdash; entregue em ciclos previs&iacute;veis.</p>
+        </div>
+        <span class="tabi-pillar__arrow">&#8594;</span>
+      </div>
+    </div>
+    <div class="tabi-pillar">
+      <div class="tabi-pillar__bar"><div class="tabi-pillar__bar-fill"></div></div>
+      <div class="tabi-pillar__body">
+        <span class="tabi-pillar__index">04</span>
+        <div class="tabi-pillar__content">
+          <div class="tabi-pillar__title-clip"><span class="tabi-pillar__title">Parceria de longo prazo</span></div>
+          <p class="tabi-pillar__text">N&atilde;o entregamos projetos e desaparecemos. Acompanhamos a evolu&ccedil;&atilde;o da sua presen&ccedil;a digital como extens&atilde;o do seu time interno.</p>
+        </div>
+        <span class="tabi-pillar__arrow">&#8594;</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var aboutEl=document.getElementById('tabiAbout');
+  if(!aboutEl)return;
+  function io(els,cb,margin){
+    var obs=new IntersectionObserver(function(en){
+      en.forEach(function(e){if(!e.isIntersecting)return;cb(e.target);obs.unobserve(e.target);});
+    },{rootMargin:margin||'-60px 0px'});
+    els.forEach(function(el){obs.observe(el);});
+  }
+  // Reveals
+  io(aboutEl.querySelectorAll('.tabi-reveal'),function(el){el.classList.add('is-visible');});
+  io(aboutEl.querySelectorAll('.tabi-hl-line'),function(el){el.classList.add('is-visible');},'-40px 0px');
+  io(aboutEl.querySelectorAll('.tabi-pillar'),function(el){
+    el.classList.add('is-visible');
+    var f=el.querySelector('.tabi-pillar__bar-fill');if(f)f.classList.add('is-visible');
+  },'-50px 0px');
+  // Eyebrow dot
+  var dot=document.getElementById('tabiAboutDot');
+  if(dot){io([dot.closest('.tabi-about__eyebrow')||dot],function(){dot.classList.add('is-visible');});}
+  // Stats counters
+  aboutEl.querySelectorAll('.tabi-stat').forEach(function(s){
+    var target=parseInt(s.dataset.target,10)||0;
+    var delay=parseFloat(s.dataset.delay||'0');
+    var fill=s.querySelector('.tabi-stat__bar-fill');
+    var val=s.querySelector('.tabi-stat__val');
+    var done=false;
+    var obs=new IntersectionObserver(function(en){
+      if(!en[0].isIntersecting||done)return;done=true;
+      setTimeout(function(){
+        if(fill)fill.classList.add('is-visible');
+        if(!val)return;
+        var t0=performance.now(),dur=1400;
+        (function tick(now){var t=Math.min((now-t0)/dur,1);val.textContent=Math.round(target*(1-Math.pow(1-t,3)));if(t<1)requestAnimationFrame(tick);})(performance.now());
+      },delay*1000);
+      obs.disconnect();
+    },{rootMargin:'-60px 0px'});
+    obs.observe(s);
+  });
+  // Kanji parallax (needs GSAP)
+  var kanji=document.getElementById('tabiAboutKanji');
+  function initKanji(){
+    if(!window.gsap||!window.ScrollTrigger)return;
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.create({trigger:aboutEl,start:'top bottom',end:'bottom top',onUpdate:function(s){
+      var p=s.progress;
+      kanji.style.transform='translateY('+((p*-18)+8)+'%) rotate('+((p*4)-2)+'deg)';
+      kanji.style.opacity=p<.15?(p/.15)*.055:p>.7?((1-p)/.3)*.055:.055;
+    }});
+  }
+  function loadST(cb){
+    var G='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js';
+    var ST='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js';
+    function ls(src,next){if(document.querySelector('script[src="'+src+'"]')){next&&next();return;}var s=document.createElement('script');s.src=src;s.onload=next||null;document.head.appendChild(s);}
+    if(window.gsap&&window.ScrollTrigger){cb();}
+    else if(window.gsap){ls(ST,cb);}
+    else{ls(G,function(){ls(ST,cb);});}
+  }
+  if(kanji)loadST(initKanji);
+})();
+</script>
