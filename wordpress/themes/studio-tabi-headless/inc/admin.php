@@ -73,6 +73,35 @@ function tabi_results_from_input( $rin ) {
 	return tabi_pairs_to_array( sanitize_textarea_field( (string) $rin ), 'label', 'value' );
 }
 
+/** Lê a galeria (lista de URLs) de um projeto. */
+function tabi_gallery_from_input( $in ) {
+	$out = array();
+	foreach ( (array) $in as $u ) {
+		$u = esc_url_raw( trim( (string) $u ) );
+		if ( '' !== $u ) { $out[] = $u; }
+	}
+	return $out;
+}
+
+/** Extrai [cor inicial, cor final, ângulo] de um gradiente CSS (fallback: da cor de destaque). */
+function tabi_parse_gradient( $bg, $accent ) {
+	$c1 = '#1A0505'; $c2 = '#0D0A0A'; $ang = 135;
+	if ( preg_match( '/(\d{1,3})deg/', (string) $bg, $m ) ) {
+		$ang = min( 360, (int) $m[1] );
+	}
+	if ( preg_match_all( '/#([0-9a-fA-F]{6})/', (string) $bg, $mm ) && count( $mm[1] ) >= 2 ) {
+		$c1 = '#' . $mm[1][0];
+		$c2 = '#' . $mm[1][ count( $mm[1] ) - 1 ];
+	} else {
+		preg_match_all( '/#([0-9a-fA-F]{6})/', tabi_gradient_from_accent( $accent ), $m2 );
+		if ( count( $m2[1] ) >= 2 ) {
+			$c1 = '#' . $m2[1][0];
+			$c2 = '#' . $m2[1][ count( $m2[1] ) - 1 ];
+		}
+	}
+	return array( $c1, $c2, $ang );
+}
+
 /** Monta o array de conteúdo a partir do formulário estruturado. */
 function tabi_content_from_form( $in ) {
 	$content = array();
@@ -121,8 +150,11 @@ function tabi_content_from_form( $in ) {
 	foreach ( array_values( (array) ( $in['projects'] ?? array() ) ) as $row ) {
 		if ( '' === trim( $row['name'] ?? '' ) ) { continue; }
 		$accent = sanitize_text_field( $row['accent'] ?? '#F20C25' );
+		$slug   = sanitize_title( $row['slug'] ?? '' );
+		if ( '' === $slug ) { $slug = sanitize_title( $row['name'] ?? '' ); }
 		$projects[] = array(
 			'id'       => str_pad( (string) ( count( $projects ) + 1 ), 2, '0', STR_PAD_LEFT ),
+			'slug'     => $slug,
 			'name'     => sanitize_text_field( $row['name'] ?? '' ),
 			'category' => sanitize_text_field( $row['category'] ?? '' ),
 			'year'     => sanitize_text_field( $row['year'] ?? '' ),
@@ -130,6 +162,7 @@ function tabi_content_from_form( $in ) {
 			'accent'   => $accent,
 			'featured' => ! empty( $row['featured'] ),
 			'imageUrl' => esc_url_raw( $row['imageUrl'] ?? '' ),
+			'gallery'  => tabi_gallery_from_input( $row['gallery'] ?? array() ),
 			'detail'   => array(
 				'client'      => sanitize_text_field( $row['client'] ?? ( $row['name'] ?? '' ) ),
 				'scope'       => tabi_lines_to_array( sanitize_textarea_field( $row['scope'] ?? '' ) ),
@@ -258,7 +291,11 @@ function tabi_project_fields( $i, $p ) {
 			<?php tabi_field_color( "tabi[projects][$i][accent]", __( 'Cor de destaque', 'studio-tabi-headless' ), $p['accent'] ?? '#F20C25' ); ?>
 		</div>
 
-		<?php tabi_field_image( "tabi[projects][$i][imageUrl]", __( 'Imagem do projeto', 'studio-tabi-headless' ), $p['imageUrl'] ?? '' ); ?>
+		<?php tabi_field_text( "tabi[projects][$i][slug]", __( 'Endereço da página (slug)', 'studio-tabi-headless' ), $p['slug'] ?? '', __( 'Vira /projeto/nome. Deixe em branco para gerar do nome.', 'studio-tabi-headless' ), 'text', 'nuvem-finance' ); ?>
+
+		<?php tabi_field_image( "tabi[projects][$i][imageUrl]", __( 'Imagem de capa', 'studio-tabi-headless' ), $p['imageUrl'] ?? '' ); ?>
+
+		<?php tabi_field_gallery( "tabi[projects][$i][gallery]", __( 'Galeria da página do projeto', 'studio-tabi-headless' ), (array) ( $p['gallery'] ?? array() ) ); ?>
 
 		<p class="tabi-field tabi-check">
 			<label><input type="checkbox" name="tabi[projects][<?php echo esc_attr( $i ); ?>][featured]" value="1" <?php checked( ! empty( $p['featured'] ) ); ?> /> <?php esc_html_e( 'Destacar este projeto', 'studio-tabi-headless' ); ?></label>
@@ -289,12 +326,43 @@ function tabi_project_fields( $i, $p ) {
 			</div>
 		</details>
 
-		<details class="tabi-sub">
-			<summary><?php esc_html_e( 'Aparência avançada', 'studio-tabi-headless' ); ?></summary>
-			<div class="tabi-sub-inside">
-				<?php tabi_field_text( "tabi[projects][$i][bg]", __( 'Fundo do card (CSS)', 'studio-tabi-headless' ), $p['bg'] ?? '', __( 'Deixe em branco para gerar automaticamente a partir da cor de destaque.', 'studio-tabi-headless' ) ); ?>
-			</div>
-		</details>
+		<?php tabi_field_gradient( "tabi[projects][$i][bg]", __( 'Fundo do card (gradiente)', 'studio-tabi-headless' ), $p['bg'] ?? '', $p['accent'] ?? '#F20C25' ); ?>
+	</div>
+	<?php
+}
+
+/** Galeria: várias imagens via Biblioteca de Mídia, com miniaturas. */
+function tabi_field_gallery( $name, $label, $items ) {
+	?>
+	<div class="tabi-field tabi-gallery" data-name="<?php echo esc_attr( $name ); ?>">
+		<span class="tabi-label"><?php echo esc_html( $label ); ?></span>
+		<div class="tabi-gallery-items">
+			<?php foreach ( $items as $url ) : ?>
+				<span class="tabi-gallery-item">
+					<img src="<?php echo esc_url( $url ); ?>" alt="" />
+					<input type="hidden" name="<?php echo esc_attr( $name ); ?>[]" value="<?php echo esc_attr( $url ); ?>" />
+					<button type="button" class="tabi-gallery-remove" title="<?php esc_attr_e( 'Remover', 'studio-tabi-headless' ); ?>">✕</button>
+				</span>
+			<?php endforeach; ?>
+		</div>
+		<button type="button" class="button tabi-gallery-add"><?php esc_html_e( '+ Adicionar imagens', 'studio-tabi-headless' ); ?></button>
+	</div>
+	<?php
+}
+
+/** Construtor de gradiente: duas cores + ângulo + prévia; grava o CSS no campo oculto. */
+function tabi_field_gradient( $name, $label, $bg, $accent ) {
+	list( $c1, $c2, $ang ) = tabi_parse_gradient( $bg, $accent );
+	?>
+	<div class="tabi-field tabi-grad">
+		<span class="tabi-label"><?php echo esc_html( $label ); ?></span>
+		<div class="tabi-grad-row">
+			<label class="tabi-grad-ctl"><?php esc_html_e( 'Cor inicial', 'studio-tabi-headless' ); ?><input type="color" class="tabi-grad-c1" value="<?php echo esc_attr( $c1 ); ?>" /></label>
+			<label class="tabi-grad-ctl"><?php esc_html_e( 'Cor final', 'studio-tabi-headless' ); ?><input type="color" class="tabi-grad-c2" value="<?php echo esc_attr( $c2 ); ?>" /></label>
+			<label class="tabi-grad-ctl"><?php esc_html_e( 'Ângulo', 'studio-tabi-headless' ); ?><input type="number" class="tabi-grad-ang" min="0" max="360" value="<?php echo esc_attr( $ang ); ?>" /></label>
+		</div>
+		<div class="tabi-grad-preview"></div>
+		<input type="hidden" class="tabi-grad-out" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $bg ); ?>" />
 	</div>
 	<?php
 }
@@ -356,6 +424,15 @@ function tabi_render_admin_page() {
 		.tabi-result-row .tabi-result-value { max-width:140px; flex:0 0 140px; }
 		.tabi-remove-inline { color:#b32d2e; text-decoration:none; font-weight:700; padding:0 6px; }
 		.tabi-savebar { position:sticky; bottom:0; background:rgba(255,255,255,.96); border-top:1px solid #dcdcde; padding:12px 0; margin-top:10px; z-index:10; }
+		.tabi-gallery-items { display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 8px; }
+		.tabi-gallery-item { position:relative; width:72px; height:72px; border-radius:6px; overflow:hidden; border:1px solid #ddd; }
+		.tabi-gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
+		.tabi-gallery-remove { position:absolute; top:2px; right:2px; background:rgba(0,0,0,.6); color:#fff; border:none; border-radius:4px; width:18px; height:18px; line-height:1; cursor:pointer; font-size:11px; }
+		.tabi-grad-row { display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end; margin:6px 0; }
+		.tabi-grad-ctl { display:flex; flex-direction:column; font-size:11px; color:#555; gap:4px; }
+		.tabi-grad-ctl input[type=color] { width:48px; height:32px; padding:0; border:1px solid #ccc; border-radius:4px; cursor:pointer; background:none; }
+		.tabi-grad-ctl input[type=number] { width:80px; }
+		.tabi-grad-preview { height:56px; border-radius:6px; border:1px solid #ddd; margin-top:4px; }
 	</style>
 
 	<div class="wrap tabi-wrap">
@@ -509,7 +586,24 @@ function tabi_render_admin_page() {
 				text.addEventListener('input', function () { if (/^#[0-9a-fA-F]{6}$/.test(text.value)) picker.value = text.value; });
 			});
 		}
+		// Construtor de gradiente: compõe o CSS a partir de 2 cores + ângulo.
+		function bindGrad(scope) {
+			(scope || document).querySelectorAll('.tabi-grad').forEach(function (w) {
+				if (w.dataset.bound) return;
+				w.dataset.bound = '1';
+				var c1 = w.querySelector('.tabi-grad-c1'), c2 = w.querySelector('.tabi-grad-c2'),
+				    ang = w.querySelector('.tabi-grad-ang'), out = w.querySelector('.tabi-grad-out'),
+				    prev = w.querySelector('.tabi-grad-preview');
+				function upd() {
+					var g = 'linear-gradient(' + (ang.value || 135) + 'deg, ' + c1.value + ' 0%, ' + c2.value + ' 100%)';
+					out.value = g; prev.style.background = g;
+				}
+				[c1, c2, ang].forEach(function (el) { el.addEventListener('input', upd); });
+				upd();
+			});
+		}
 		bindColor(document);
+		bindGrad(document);
 
 		// Botões "+ Adicionar" (seções de nível superior).
 		document.querySelectorAll('.tabi-add-row').forEach(function (btn) {
@@ -519,6 +613,7 @@ function tabi_render_admin_page() {
 				var container = document.getElementById(btn.dataset.target);
 				container.insertAdjacentHTML('beforeend', html);
 				bindColor(container.lastElementChild);
+				bindGrad(container.lastElementChild);
 			});
 		});
 
@@ -569,6 +664,34 @@ function tabi_render_admin_page() {
 				mr.style.display = 'none';
 				return;
 			}
+
+			// Galeria: adicionar imagens (seleção múltipla).
+			var ga = e.target.closest('.tabi-gallery-add');
+			if (ga && window.wp && wp.media) {
+				e.preventDefault();
+				var gal = ga.closest('.tabi-gallery');
+				var name = gal.dataset.name;
+				var proj = gal.closest('.tabi-project');
+				if (proj) { name = 'tabi[projects][' + proj.dataset.proj + '][gallery]'; }
+				var list = gal.querySelector('.tabi-gallery-items');
+				var frame = wp.media({ title: 'Selecionar imagens', multiple: true, library: { type: 'image' }, button: { text: 'Adicionar à galeria' } });
+				frame.on('select', function () {
+					frame.state().get('selection').toJSON().forEach(function (att) {
+						var span = document.createElement('span');
+						span.className = 'tabi-gallery-item';
+						span.innerHTML = '<img src="' + att.url + '" alt="" />' +
+							'<input type="hidden" name="' + name + '[]" value="' + att.url + '" />' +
+							'<button type="button" class="tabi-gallery-remove">✕</button>';
+						list.appendChild(span);
+					});
+				});
+				frame.open();
+				return;
+			}
+
+			// Galeria: remover imagem.
+			var gr = e.target.closest('.tabi-gallery-remove');
+			if (gr) { e.preventDefault(); gr.closest('.tabi-gallery-item').remove(); return; }
 		});
 	})();
 	</script>

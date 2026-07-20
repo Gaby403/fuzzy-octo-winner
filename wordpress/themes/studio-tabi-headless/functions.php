@@ -57,3 +57,28 @@ add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
 	}
 	return $tag;
 }, 10, 3 );
+
+/**
+ * Rotas do SPA: faz o WordPress servir o app (status 200) para as páginas
+ * internas /servicos, /blog, /blog/..., /projeto/... . O React Router assume
+ * a renderização a partir do caminho.
+ */
+function tabi_register_routes() {
+	add_rewrite_rule( '^(servicos|blog|projeto)(/.*)?/?$', 'index.php', 'top' );
+}
+add_action( 'init', 'tabi_register_routes' );
+
+// Regenera as regras ao ativar o tema.
+add_action( 'after_switch_theme', function () {
+	tabi_register_routes();
+	flush_rewrite_rules();
+} );
+
+// Aviso: as rotas exigem links permanentes "bonitos" (não "Simples/Plain").
+add_action( 'admin_notices', function () {
+	if ( '' === get_option( 'permalink_structure' ) ) {
+		echo '<div class="notice notice-warning"><p><strong>Studio Tabi:</strong> ';
+		echo esc_html__( 'defina os Links Permanentes como “Nome do post” em Configurações → Links Permanentes para as páginas internas (serviços, projetos, blog) funcionarem.', 'studio-tabi-headless' );
+		echo '</p></div>';
+	}
+} );

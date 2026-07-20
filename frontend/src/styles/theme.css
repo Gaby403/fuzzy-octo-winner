@@ -179,3 +179,43 @@
     line-height: 1.5;
   }
 }
+
+/* ── Conteúdo de post do blog (HTML vindo do WordPress) ── */
+.tabi-post-body {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.8;
+  color: rgba(239, 239, 239, 0.75);
+}
+.tabi-post-body > * { margin: 0 0 1.3em; }
+.tabi-post-body h2,
+.tabi-post-body h3,
+.tabi-post-body h4 {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #efefef;
+  line-height: 1.2;
+  margin: 1.8em 0 0.6em;
+}
+.tabi-post-body h2 { font-size: clamp(22px, 2.4vw, 32px); }
+.tabi-post-body h3 { font-size: clamp(19px, 2vw, 26px); }
+.tabi-post-body a { color: #f20c25; text-decoration: underline; }
+.tabi-post-body img { max-width: 100%; height: auto; border-radius: 8px; display: block; }
+.tabi-post-body ul,
+.tabi-post-body ol { padding-left: 1.4em; }
+.tabi-post-body li { margin: 0.4em 0; }
+.tabi-post-body blockquote {
+  border-left: 3px solid #f20c25;
+  padding-left: 1.2em;
+  margin-left: 0;
+  color: rgba(239, 239, 239, 0.6);
+  font-style: italic;
+}
+.tabi-post-body strong { color: #efefef; }
+.tabi-post-body code {
+  background: #1a1a1a;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}

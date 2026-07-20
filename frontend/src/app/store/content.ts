@@ -14,6 +14,7 @@ export interface SiteContent {
   services: { num: string; title: string; body: string }[]
   projects: {
     id: string
+    slug?: string
     name: string
     category: string
     year: string
@@ -21,6 +22,7 @@ export interface SiteContent {
     accent: string
     featured: boolean
     imageUrl?: string
+    gallery?: string[]
     detail: {
       client: string
       scope: string[]
@@ -71,7 +73,7 @@ export const DEFAULT_CONTENT: SiteContent = {
   ],
   projects: [
     {
-      id: "01", name: "Nuvem Finance", category: "Branding & UI", year: "2025",
+      id: "01", slug: "nuvem-finance", name: "Nuvem Finance", category: "Branding & UI", year: "2025",
       bg: "linear-gradient(135deg,#1A0505 0%,#2D0A0A 50%,#1A0A14 100%)", accent: "#F20C25", featured: true,
       detail: {
         client: "Nuvem Finance", scope: ["Identidade Visual", "UI/UX Design", "Design System"], duration: "14 semanas",
@@ -82,7 +84,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       },
     },
     {
-      id: "02", name: "FlowDesk", category: "Produto SaaS", year: "2025",
+      id: "02", slug: "flowdesk", name: "FlowDesk", category: "Produto SaaS", year: "2025",
       bg: "linear-gradient(135deg,#06061A 0%,#0A0A2D 50%,#060F1A 100%)", accent: "#5B7FFF", featured: true,
       detail: {
         client: "FlowDesk", scope: ["Produto SaaS", "UX Research", "Prototipação", "Dev Front-end"], duration: "22 semanas",
@@ -93,7 +95,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       },
     },
     {
-      id: "03", name: "Maison Lux", category: "E-commerce", year: "2024",
+      id: "03", slug: "maison-lux", name: "Maison Lux", category: "E-commerce", year: "2024",
       bg: "linear-gradient(135deg,#0F0D08 0%,#1A1408 50%,#0D0B06 100%)", accent: "#C4A45A", featured: false,
       detail: {
         client: "Maison Lux", scope: ["E-commerce", "UI Design", "Motion Design"], duration: "10 semanas",
@@ -104,7 +106,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       },
     },
     {
-      id: "04", name: "Vitalize App", category: "Mobile UI", year: "2024",
+      id: "04", slug: "vitalize-app", name: "Vitalize App", category: "Mobile UI", year: "2024",
       bg: "linear-gradient(135deg,#060F08 0%,#081A0A 50%,#060D07 100%)", accent: "#3DBF72", featured: false,
       detail: {
         client: "Vitalize", scope: ["Mobile UI", "iOS & Android", "Ilustração"], duration: "8 semanas",

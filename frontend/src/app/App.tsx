@@ -9,7 +9,7 @@ import {
   useMotionTemplate,
   useInView,
 } from "motion/react"
-import { RouterProvider, createBrowserRouter } from "react-router"
+import { RouterProvider, createBrowserRouter, Link, useNavigate, useParams } from "react-router"
 import { useContent, type SiteContent } from "./store/content"
 import Root from "./Root"
 import Admin from "./pages/Admin"
@@ -38,7 +38,13 @@ function TabiMark({ width = 120, color = "#111111", opacity = 1, style }: {
     </svg>
   )
 }
-const NAV_LINKS = ["TRABALHOS", "SERVIÇOS", "SOBRE", "CONTATO"]
+const NAV_LINKS: { label: string; to: string }[] = [
+  { label: "TRABALHOS", to: "/#trabalhos" },
+  { label: "SERVIÇOS", to: "/servicos" },
+  { label: "BLOG", to: "/blog" },
+  { label: "SOBRE", to: "/#sobre" },
+  { label: "CONTATO", to: "/#contato" },
+]
 
 const MOUNTAIN_PATHS = {
   haze:   "M0 900 L0 480 C100 474 188 485 274 469 C360 453 436 473 516 448 C596 422 663 444 735 408 C794 378 838 344 879 303 C919 263 953 232 987 205 C1019 180 1047 187 1074 218 C1103 251 1128 274 1159 295 C1192 318 1218 308 1249 279 C1278 252 1306 255 1334 284 C1365 317 1392 337 1426 351 C1460 365 1487 350 1515 322 C1542 295 1572 306 1600 342 L1600 900 Z",
@@ -49,6 +55,18 @@ const MOUNTAIN_PATHS = {
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * Math.max(0, Math.min(1, t))
+}
+
+// Slug amigável para URL a partir de um texto (fallback quando o projeto não tem slug).
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+}
+function projSlug(p: { slug?: string; name: string }) {
+  return p.slug && p.slug.trim() ? p.slug.trim() : slugify(p.name)
 }
 
 // ── Responsive CSS injected as a style tag so !important can override inline styles ──
@@ -162,6 +180,17 @@ export function HomeSite() {
   const heroRef = useRef<HTMLElement>(null)
   const heroHeightRef = useRef(800)
   const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
+
+  // Navegação da nav: âncoras (/#id) rolam a home; demais viram rota.
+  const go = useCallback((to: string) => {
+    setMenuOpen(false)
+    if (to.startsWith("/#")) {
+      const el = document.getElementById(to.slice(2))
+      if (el) { el.scrollIntoView({ behavior: "smooth" }); return }
+    }
+    navigate(to)
+  }, [navigate])
 
   useEffect(() => {
     const el = heroRef.current
@@ -377,9 +406,9 @@ export function HomeSite() {
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-8">
               {NAV_LINKS.map((item) => (
-                <span key={item} className="cursor-pointer opacity-50 hover:opacity-100 transition-opacity duration-200"
+                <span key={item.label} onClick={() => go(item.to)} className="cursor-pointer opacity-50 hover:opacity-100 transition-opacity duration-200"
                   style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em" }}>
-                  {item}
+                  {item.label}
                 </span>
               ))}
             </div>
@@ -436,7 +465,7 @@ export function HomeSite() {
               <nav className="flex flex-col gap-1 flex-1">
                 {NAV_LINKS.map((item, i) => (
                   <motion.button
-                    key={item}
+                    key={item.label}
                     className="text-left bg-transparent border-none cursor-pointer group flex items-center gap-3 py-4 border-b"
                     style={{
                       fontFamily: '"Roboto Condensed", sans-serif',
@@ -450,13 +479,13 @@ export function HomeSite() {
                     initial={{ x: 24, opacity: 0 }}
                     animate={{ x: menuOpen ? 0 : 24, opacity: menuOpen ? 1 : 0 }}
                     transition={{ duration: 0.4, delay: menuOpen ? 0.12 + i * 0.06 : 0, ease: [0.16, 1, 0.3, 1] }}
-                    onClick={() => setMenuOpen(false)}
+                    onClick={() => go(item.to)}
                     whileHover={{ x: 6 } as any}
                   >
                     <span style={{ fontSize: 8, color: RED, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 600, letterSpacing: "0.1em", opacity: 0.7 }}>
                       0{i + 1}
                     </span>
-                    {item}
+                    {item.label}
                   </motion.button>
                 ))}
               </nav>
@@ -725,7 +754,7 @@ function AboutSection() {
   const pad = "clamp(20px, 4vw, 82px)"
 
   return (
-    <section ref={sectionRef} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
+    <section id="sobre" ref={sectionRef} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
 
       {/* Brand mark background */}
       <motion.div aria-hidden="true" className="absolute pointer-events-none"
@@ -925,40 +954,22 @@ type Project = SiteContent["projects"][0]
 // PROJECT DETAIL PAGE
 // ─────────────────────────────────────────────────────────────────────────────
 
-function ProjectDetail({ proj, onClose, onPrev, onNext }: {
+function ProjectPageBody({ proj, prevSlug, nextSlug }: {
   proj: Project
-  onClose: () => void
-  onPrev: () => void
-  onNext: () => void
+  prevSlug: string
+  nextSlug: string
 }) {
   const detail = proj.detail
+  const gallery = proj.gallery ?? []
   const pad = "clamp(20px, 5vw, 90px)"
-  const scrollRef = useRef<HTMLDivElement>(null)
-
-  // Close on Escape
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
-    window.addEventListener("keydown", handler)
-    // Lock body scroll
-    document.body.style.overflow = "hidden"
-    return () => {
-      window.removeEventListener("keydown", handler)
-      document.body.style.overflow = ""
-    }
-  }, [onClose])
-
-  // Reset scroll on project change
-  useEffect(() => { scrollRef.current?.scrollTo(0, 0) }, [proj.id])
 
   const stagger = (i: number) => ({ initial: { opacity: 0, y: 28 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.75, delay: 0.18 + i * 0.08, ease: EASE_OUT_EXPO } })
 
   return (
     <motion.div
-      ref={scrollRef}
-      style={{ position: "fixed", inset: 0, zIndex: 200, overflowY: "auto", backgroundColor: "#080808", fontFamily: '"Be Vietnam Pro", sans-serif' }}
+      style={{ backgroundColor: "#080808", fontFamily: '"Be Vietnam Pro", sans-serif' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
       transition={{ duration: 0.35 }}
     >
       {/* ── Hero ── */}
@@ -986,12 +997,12 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
           ))}
         </div>
         {/* Back button */}
-        <button
-          onClick={onClose}
-          style={{ position: "absolute", top: "clamp(18px, 3vw, 32px)", left: pad, background: "rgba(0,0,0,0.45)", border: "1px solid rgba(239,239,239,0.14)", borderRadius: 999, color: WHITE, fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", padding: "10px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: '"Be Vietnam Pro", sans-serif', backdropFilter: "blur(8px)" }}
+        <Link
+          to="/#trabalhos"
+          style={{ position: "absolute", top: "clamp(18px, 3vw, 32px)", left: pad, background: "rgba(0,0,0,0.45)", border: "1px solid rgba(239,239,239,0.14)", borderRadius: 999, color: WHITE, fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", padding: "10px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: '"Be Vietnam Pro", sans-serif', backdropFilter: "blur(8px)", textDecoration: "none" }}
         >
           ← VOLTAR
-        </button>
+        </Link>
         {/* Title */}
         <div style={{ position: "absolute", bottom: "clamp(32px, 5vw, 56px)", left: pad }}>
           <motion.p {...stagger(0)} style={{ margin: "0 0 8px", fontSize: 9, fontWeight: 600, letterSpacing: "0.16em", color: `${proj.accent}` }}>
@@ -1099,30 +1110,47 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
           </div>
         </motion.div>
 
+        {/* Gallery */}
+        {gallery.length > 0 && (
+          <motion.div {...stagger(7)} style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}>
+            <p style={{ margin: "0 0 32px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>GALERIA</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "clamp(12px, 1.6vw, 20px)" }}>
+              {gallery.map((url, i) => (
+                <motion.div
+                  key={url + i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: (i % 2) * 0.08, ease: EASE_OUT_EXPO }}
+                  style={{ borderRadius: 8, overflow: "hidden", border: "1px solid rgba(239,239,239,0.08)", aspectRatio: "4/3", background: "#0D0D0D" }}
+                >
+                  <img src={url} alt={`${proj.name} — imagem ${i + 1}`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Navigation between projects */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "clamp(24px,3vw,40px)", borderTop: "1px solid rgba(239,239,239,0.08)" }}>
-          <button
-            onClick={onPrev}
-            style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10, padding: 0, transition: "color 0.2s" }}
-            onMouseEnter={e => (e.currentTarget.style.color = WHITE)}
-            onMouseLeave={e => (e.currentTarget.style.color = "rgba(239,239,239,0.40)")}
+          <Link
+            to={`/projeto/${prevSlug}`}
+            style={{ textDecoration: "none", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10 }}
           >
             ← PROJETO ANTERIOR
-          </button>
-          <button
-            onClick={onClose}
-            style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.25)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", padding: 0 }}
+          </Link>
+          <Link
+            to="/#trabalhos"
+            style={{ textDecoration: "none", color: "rgba(239,239,239,0.25)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em" }}
           >
             TODOS OS PROJETOS
-          </button>
-          <button
-            onClick={onNext}
-            style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10, padding: 0, transition: "color 0.2s" }}
-            onMouseEnter={e => (e.currentTarget.style.color = WHITE)}
-            onMouseLeave={e => (e.currentTarget.style.color = "rgba(239,239,239,0.40)")}
+          </Link>
+          <Link
+            to={`/projeto/${nextSlug}`}
+            style={{ textDecoration: "none", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10 }}
           >
             PRÓXIMO PROJETO →
-          </button>
+          </Link>
         </div>
       </div>
     </motion.div>
@@ -1210,33 +1238,16 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
 
 function ProjectsSection() {
   const { content } = useContent()
+  const navigate = useNavigate()
   const projects = content.projects
   const pad = "clamp(20px, 4vw, 82px)"
   const featured = projects.filter(p => p.featured)
   const smaller  = projects.filter(p => !p.featured)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const selectedProj = projects.find(p => p.id === selectedId) ?? null
-
-  const handleClose = useCallback(() => setSelectedId(null), [])
-  const handlePrev = useCallback(() => {
-    if (!selectedId) return
-    const idx = projects.findIndex(p => p.id === selectedId)
-    setSelectedId(projects[(idx - 1 + projects.length) % projects.length].id)
-  }, [selectedId, projects])
-  const handleNext = useCallback(() => {
-    if (!selectedId) return
-    const idx = projects.findIndex(p => p.id === selectedId)
-    setSelectedId(projects[(idx + 1) % projects.length].id)
-  }, [selectedId, projects])
+  const open = (p: Project) => navigate(`/projeto/${projSlug(p)}`)
 
   return (
     <>
-    <AnimatePresence>
-      {selectedProj && (
-        <ProjectDetail key={selectedProj.id} proj={selectedProj} onClose={handleClose} onPrev={handlePrev} onNext={handleNext} />
-      )}
-    </AnimatePresence>
-    <section style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative" }}>
+    <section id="trabalhos" style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative" }}>
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }} />
 
       <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad} 0`, position: "relative", zIndex: 1 }}>
@@ -1272,7 +1283,7 @@ function ProjectsSection() {
         className="grid grid-cols-1 md:grid-cols-2"
         style={{ padding: `0 ${pad}`, gap: "clamp(12px, 1.5vw, 20px)", marginBottom: "clamp(12px, 1.5vw, 20px)" }}
       >
-        {featured.map((p, i) => <ProjectCard key={p.id} proj={p as Project} index={i} onClick={() => setSelectedId(p.id)} />)}
+        {featured.map((p, i) => <ProjectCard key={p.id} proj={p as Project} index={i} onClick={() => open(p as Project)} />)}
       </div>
 
       {/* Smaller 3-col grid (last item is a CTA card) */}
@@ -1280,7 +1291,7 @@ function ProjectsSection() {
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
         style={{ padding: `0 ${pad} clamp(64px, 10vw, 120px)`, gap: "clamp(12px, 1.5vw, 20px)" }}
       >
-        {smaller.map((p, i) => <ProjectCard key={p.id} proj={p as Project} index={i + 2} onClick={() => setSelectedId(p.id)} />)}
+        {smaller.map((p, i) => <ProjectCard key={p.id} proj={p as Project} index={i + 2} onClick={() => open(p as Project)} />)}
 
         {/* CTA card */}
         <Reveal delay={0.3}>
@@ -1449,7 +1460,7 @@ function SiteFooter() {
   ]
 
   return (
-    <footer ref={ref} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
+    <footer id="contato" ref={ref} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.10)" }} />
 
       {/* Brand mark background */}
@@ -1580,12 +1591,254 @@ function SiteFooter() {
   )
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SUB-PAGES (Serviços, Projeto, Blog)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Cabeçalho fixo simples, reutilizado nas páginas internas.
+function SubHeader() {
+  const pad = "clamp(20px, 4vw, 82px)"
+  const navigate = useNavigate()
+  const go = (to: string) => {
+    if (to.startsWith("/#")) { navigate("/"); setTimeout(() => { const el = document.getElementById(to.slice(2)); if (el) el.scrollIntoView({ behavior: "smooth" }) }, 60); return }
+    navigate(to)
+  }
+  return (
+    <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(17,17,17,0.85)", backdropFilter: "blur(10px)", borderBottom: "1px solid rgba(239,239,239,0.08)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: `clamp(14px,2vw,20px) ${pad}` }}>
+        <Link to="/" style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(13px, 1.2vw, 19px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, textDecoration: "none" }}>
+          STUDIO TABI
+        </Link>
+        <nav className="hidden sm:flex items-center gap-8">
+          {NAV_LINKS.map(item => (
+            <span key={item.label} onClick={() => go(item.to)} className="cursor-pointer" style={{ color: "rgba(239,239,239,0.55)", fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+              {item.label}
+            </span>
+          ))}
+        </nav>
+        <Link to="/" className="sm:hidden" style={{ color: "rgba(239,239,239,0.55)", fontSize: 9, fontWeight: 600, letterSpacing: "0.13em", textDecoration: "none", fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+          ← INÍCIO
+        </Link>
+      </div>
+    </header>
+  )
+}
+
+// Rola ao topo sempre que a rota muda.
+function ScrollTop() {
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+  return null
+}
+
+function ServicesPage() {
+  const { content } = useContent()
+  const pad = "clamp(20px, 4vw, 82px)"
+  return (
+    <div style={{ background: BLACK, minHeight: "100svh", color: WHITE }}>
+      <ScrollTop />
+      <SubHeader />
+      <section style={{ fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+        <div style={{ padding: `clamp(48px, 8vw, 110px) ${pad} 0` }}>
+          <div className="flex items-center gap-3 mb-8" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
+            <span className="block rounded-full" style={{ width: 7, height: 7, backgroundColor: RED }} />
+            <span>STUDIO TABI — SERVIÇOS</span>
+          </div>
+          <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 6vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 clamp(16px,2vw,24px)", lineHeight: 0.85 }}>
+            O que<br />entregamos.
+          </h1>
+          <p style={{ maxWidth: 640, fontSize: "clamp(14px,1.1vw,18px)", lineHeight: 1.7, color: "rgba(239,239,239,0.55)", margin: "0 0 clamp(40px,6vw,72px)" }}>
+            Design, estratégia e tecnologia sob um mesmo teto. Cada serviço é pensado para mover o ponteiro do seu negócio.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ padding: `0 ${pad} clamp(64px,10vw,120px)`, gap: "0 clamp(24px,3vw,48px)" }}>
+          {content.services.map((s, i) => (
+            <ServiceCard key={s.num} num={s.num} title={s.title} body={s.body} delay={i * 0.06} />
+          ))}
+        </div>
+      </section>
+      <SiteFooter />
+    </div>
+  )
+}
+
+function ProjectPage() {
+  const { content } = useContent()
+  const { slug } = useParams()
+  const projects = content.projects
+  const idx = projects.findIndex(p => projSlug(p) === slug)
+  const proj = idx >= 0 ? projects[idx] : null
+
+  if (!proj) {
+    return (
+      <div style={{ background: BLACK, minHeight: "100svh", color: WHITE }}>
+        <ScrollTop />
+        <SubHeader />
+        <div style={{ padding: "clamp(80px,14vw,160px) clamp(20px,4vw,82px)", textAlign: "center", fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+          <p style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(28px,4vw,52px)", textTransform: "uppercase", letterSpacing: "-0.04em" }}>Projeto não encontrado</p>
+          <Link to="/#trabalhos" style={{ color: RED, fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textDecoration: "none" }}>← VER TODOS OS PROJETOS</Link>
+        </div>
+        <SiteFooter />
+      </div>
+    )
+  }
+
+  const prevSlug = projSlug(projects[(idx - 1 + projects.length) % projects.length])
+  const nextSlug = projSlug(projects[(idx + 1) % projects.length])
+
+  return (
+    <div style={{ background: "#080808", minHeight: "100svh", color: WHITE }}>
+      <ScrollTop key={slug} />
+      <SubHeader />
+      <ProjectPageBody proj={proj as Project} prevSlug={prevSlug} nextSlug={nextSlug} />
+      <SiteFooter />
+    </div>
+  )
+}
+
+// ── Blog (posts nativos do WordPress via REST, mesma origem) ──
+interface WpPost {
+  slug: string
+  title: string
+  date: string
+  excerpt: string
+  content: string
+  image: string | null
+}
+
+function decodeEntities(s: string) {
+  const t = document.createElement("textarea")
+  t.innerHTML = s
+  return t.value
+}
+function stripTags(s: string) {
+  return s.replace(/<[^>]*>/g, "")
+}
+function formatDate(iso: string) {
+  try { return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) } catch { return "" }
+}
+
+function mapPost(p: any): WpPost {
+  const img = p?._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null
+  return {
+    slug: p.slug,
+    title: decodeEntities(p.title?.rendered ?? ""),
+    date: p.date ?? "",
+    excerpt: decodeEntities(stripTags(p.excerpt?.rendered ?? "")).trim(),
+    content: p.content?.rendered ?? "",
+    image: img,
+  }
+}
+
+function useWpPosts(slug?: string) {
+  const [posts, setPosts] = useState<WpPost[] | null>(null)
+  const [error, setError] = useState(false)
+  useEffect(() => {
+    let alive = true
+    const q = slug
+      ? `/wp-json/wp/v2/posts?_embed&slug=${encodeURIComponent(slug)}`
+      : `/wp-json/wp/v2/posts?_embed&per_page=12`
+    fetch(q)
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(data => { if (alive) setPosts((Array.isArray(data) ? data : []).map(mapPost)) })
+      .catch(() => { if (alive) { setPosts([]); setError(true) } })
+    return () => { alive = false }
+  }, [slug])
+  return { posts, error }
+}
+
+const BLOG_PAD = "clamp(20px, 4vw, 82px)"
+
+function BlogListPage() {
+  const { posts } = useWpPosts()
+  return (
+    <div style={{ background: BLACK, minHeight: "100svh", color: WHITE, fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+      <ScrollTop />
+      <SubHeader />
+      <section style={{ padding: `clamp(48px, 8vw, 110px) ${BLOG_PAD} clamp(64px,10vw,120px)` }}>
+        <div className="flex items-center gap-3 mb-8" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
+          <span className="block rounded-full" style={{ width: 7, height: 7, backgroundColor: RED }} />
+          <span>STUDIO TABI — BLOG</span>
+        </div>
+        <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 6vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 clamp(40px,6vw,72px)", lineHeight: 0.85 }}>
+          Ideias &<br />artigos.
+        </h1>
+
+        {posts === null ? (
+          <p style={{ color: "rgba(239,239,239,0.4)", fontSize: 13 }}>Carregando…</p>
+        ) : posts.length === 0 ? (
+          <div style={{ border: "1px solid rgba(239,239,239,0.10)", borderRadius: 8, padding: "clamp(32px,5vw,56px)", maxWidth: 560 }}>
+            <p style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 700, fontSize: 20, letterSpacing: "-0.02em", margin: "0 0 8px" }}>Nenhum post publicado ainda</p>
+            <p style={{ color: "rgba(239,239,239,0.5)", fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+              Publique posts no painel do WordPress (menu <strong>Posts</strong>) e eles aparecem aqui automaticamente.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "clamp(16px,2vw,28px)" }}>
+            {posts.map((p, i) => (
+              <motion.div
+                key={p.slug}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: (i % 3) * 0.06, ease: EASE_OUT_EXPO }}
+              >
+                <Link to={`/blog/${p.slug}`} style={{ textDecoration: "none", color: "inherit", display: "block", border: "1px solid rgba(239,239,239,0.10)", borderRadius: 8, overflow: "hidden", height: "100%" }}>
+                  <div style={{ aspectRatio: "16/10", background: p.image ? `#0D0D0D center/cover no-repeat url(${p.image})` : "linear-gradient(135deg,#1A0505,#2D0A0A)" }} />
+                  <div style={{ padding: "clamp(18px,2vw,24px)" }}>
+                    <p style={{ margin: "0 0 10px", fontSize: 8, fontWeight: 600, letterSpacing: "0.14em", color: RED, textTransform: "uppercase" }}>{formatDate(p.date)}</p>
+                    <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 700, fontSize: "clamp(17px,1.6vw,22px)", letterSpacing: "-0.02em", lineHeight: 1.15, margin: "0 0 10px" }}>{p.title}</h2>
+                    <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: "rgba(239,239,239,0.5)", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.excerpt}</p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </section>
+      <SiteFooter />
+    </div>
+  )
+}
+
+function BlogPostPage() {
+  const { slug } = useParams()
+  const { posts } = useWpPosts(slug)
+  const post = posts && posts.length ? posts[0] : null
+
+  return (
+    <div style={{ background: BLACK, minHeight: "100svh", color: WHITE, fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+      <ScrollTop key={slug} />
+      <SubHeader />
+      <article style={{ maxWidth: 760, margin: "0 auto", padding: `clamp(40px,6vw,80px) ${BLOG_PAD} clamp(64px,10vw,120px)` }}>
+        <Link to="/blog" style={{ color: "rgba(239,239,239,0.4)", fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", textDecoration: "none" }}>← BLOG</Link>
+        {posts === null ? (
+          <p style={{ color: "rgba(239,239,239,0.4)", fontSize: 13, marginTop: 32 }}>Carregando…</p>
+        ) : !post ? (
+          <p style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(24px,3vw,40px)", textTransform: "uppercase", marginTop: 32 }}>Post não encontrado</p>
+        ) : (
+          <>
+            <p style={{ margin: "28px 0 12px", fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", color: RED, textTransform: "uppercase" }}>{formatDate(post.date)}</p>
+            <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(30px,4.4vw,64px)", letterSpacing: "-0.04em", lineHeight: 0.95, textTransform: "uppercase", margin: "0 0 clamp(24px,3vw,40px)" }}>{post.title}</h1>
+            {post.image && <img src={post.image} alt={post.title} style={{ width: "100%", borderRadius: 8, marginBottom: "clamp(24px,3vw,40px)", display: "block" }} />}
+            <div className="tabi-post-body" dangerouslySetInnerHTML={{ __html: post.content }} />
+          </>
+        )}
+      </article>
+      <SiteFooter />
+    </div>
+  )
+}
+
 const router = createBrowserRouter([
   {
     path: "/",
     Component: Root,
     children: [
       { index: true, Component: HomeSite },
+      { path: "servicos", Component: ServicesPage },
+      { path: "projeto/:slug", Component: ProjectPage },
+      { path: "blog", Component: BlogListPage },
+      { path: "blog/:slug", Component: BlogPostPage },
       { path: "admin", Component: Admin },
     ],
   },
