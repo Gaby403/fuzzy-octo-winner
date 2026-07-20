@@ -23,6 +23,16 @@ add_action( 'after_setup_theme', function () {
 // Site full-bleed: sem a barra de admin empurrando o layout no front-end.
 add_filter( 'show_admin_bar', '__return_false' );
 
+// O HTML do site carrega o conteúdo injetado inline, então não pode ser
+// cacheado (senão edições no painel não aparecem). Os assets JS/CSS têm hash
+// no nome e continuam com cache normal.
+add_action( 'template_redirect', function () {
+	if ( is_admin() ) { return; }
+	nocache_headers();
+	header( 'X-LiteSpeed-Cache-Control: no-cache' );
+	do_action( 'litespeed_control_set_nocache', 'studio tabi: conteudo dinamico' );
+} );
+
 /**
  * Enfileira o bundle do app (JS + CSS gerados pelo Vite em /assets) e injeta
  * o conteúdo do site inline, antes do script, para o React consumir sem rede.

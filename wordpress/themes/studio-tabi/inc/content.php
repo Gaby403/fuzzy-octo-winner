@@ -89,5 +89,22 @@ function tabi_save_content( $content ) {
 	}
 
 	update_option( TABI_OPTION_CONTENT, $clean, false );
+	tabi_purge_caches();
 	return true;
+}
+
+/**
+ * Limpa os caches de página mais comuns após salvar, para o site refletir as
+ * alterações na hora (LiteSpeed é o padrão na Hostinger).
+ */
+function tabi_purge_caches() {
+	if ( function_exists( 'wp_cache_flush' ) ) { wp_cache_flush(); }
+	// LiteSpeed Cache
+	do_action( 'litespeed_purge_all' );
+	// WP Super Cache
+	do_action( 'wpsc_delete_cache' );
+	// W3 Total Cache
+	if ( function_exists( 'w3tc_flush_all' ) ) { w3tc_flush_all(); }
+	// WP Rocket
+	if ( function_exists( 'rocket_clean_domain' ) ) { rocket_clean_domain(); }
 }
