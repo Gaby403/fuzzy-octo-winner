@@ -27,6 +27,13 @@ add_action( 'admin_menu', function () {
 	);
 } );
 
+// Carrega a Biblioteca de Mídia só na nossa página de edição.
+add_action( 'admin_enqueue_scripts', function ( $hook ) {
+	if ( 'toplevel_page_tabi-content' === $hook ) {
+		wp_enqueue_media();
+	}
+} );
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Converte textarea "um item por linha" em array de strings. */
@@ -35,7 +42,7 @@ function tabi_lines_to_array( $raw ) {
 	return array_values( array_filter( $lines, function ( $l ) { return '' !== $l; } ) );
 }
 
-/** Converte textarea "Rótulo | Valor" (um por linha) em array de pares. */
+/** Converte textarea "Rótulo | Valor" (um por linha) em array de pares. Compat. */
 function tabi_pairs_to_array( $raw, $key_a, $key_b ) {
 	$out = array();
 	foreach ( tabi_lines_to_array( $raw ) as $line ) {
@@ -49,6 +56,21 @@ function tabi_pairs_to_array( $raw, $key_a, $key_b ) {
 function tabi_to_number( $raw ) {
 	$n = (float) str_replace( ',', '.', (string) $raw );
 	return ( $n === (float) (int) $n ) ? (int) $n : $n;
+}
+
+/** Lê os resultados de um projeto vindos como pares (label/value) ou texto legado. */
+function tabi_results_from_input( $rin ) {
+	$out = array();
+	if ( is_array( $rin ) ) {
+		foreach ( array_values( $rin ) as $r ) {
+			$label = sanitize_text_field( $r['label'] ?? '' );
+			$value = sanitize_text_field( $r['value'] ?? '' );
+			if ( '' === $label && '' === $value ) { continue; }
+			$out[] = array( 'label' => $label, 'value' => $value );
+		}
+		return $out;
+	}
+	return tabi_pairs_to_array( sanitize_textarea_field( (string) $rin ), 'label', 'value' );
 }
 
 /** Monta o array de conteúdo a partir do formulário estruturado. */
@@ -85,7 +107,7 @@ function tabi_content_from_form( $in ) {
 	);
 
 	$services = array();
-	foreach ( array_values( (array) ( $in['services'] ?? array() ) ) as $i => $row ) {
+	foreach ( array_values( (array) ( $in['services'] ?? array() ) ) as $row ) {
 		if ( '' === trim( $row['title'] ?? '' ) ) { continue; }
 		$services[] = array(
 			'num'   => str_pad( (string) ( count( $services ) + 1 ), 2, '0', STR_PAD_LEFT ),
@@ -98,13 +120,14 @@ function tabi_content_from_form( $in ) {
 	$projects = array();
 	foreach ( array_values( (array) ( $in['projects'] ?? array() ) ) as $row ) {
 		if ( '' === trim( $row['name'] ?? '' ) ) { continue; }
+		$accent = sanitize_text_field( $row['accent'] ?? '#F20C25' );
 		$projects[] = array(
 			'id'       => str_pad( (string) ( count( $projects ) + 1 ), 2, '0', STR_PAD_LEFT ),
 			'name'     => sanitize_text_field( $row['name'] ?? '' ),
 			'category' => sanitize_text_field( $row['category'] ?? '' ),
 			'year'     => sanitize_text_field( $row['year'] ?? '' ),
-			'bg'       => sanitize_text_field( $row['bg'] ?? '' ),
-			'accent'   => sanitize_text_field( $row['accent'] ?? '#F20C25' ),
+			'bg'       => '' !== trim( $row['bg'] ?? '' ) ? sanitize_text_field( $row['bg'] ) : tabi_gradient_from_accent( $accent ),
+			'accent'   => $accent,
 			'featured' => ! empty( $row['featured'] ),
 			'imageUrl' => esc_url_raw( $row['imageUrl'] ?? '' ),
 			'detail'   => array(
@@ -113,7 +136,7 @@ function tabi_content_from_form( $in ) {
 				'duration'    => sanitize_text_field( $row['duration'] ?? '' ),
 				'challenge'   => sanitize_textarea_field( $row['challenge'] ?? '' ),
 				'solution'    => sanitize_textarea_field( $row['solution'] ?? '' ),
-				'results'     => tabi_pairs_to_array( sanitize_textarea_field( $row['results'] ?? '' ), 'label', 'value' ),
+				'results'     => tabi_results_from_input( $row['results'] ?? array() ),
 				'mockupLines' => tabi_lines_to_array( sanitize_textarea_field( $row['mockupLines'] ?? '' ) ),
 			),
 		);
@@ -140,25 +163,139 @@ function tabi_content_from_form( $in ) {
 	return $content;
 }
 
+/** Gera um gradiente escuro a partir da cor de destaque (para o card do projeto). */
+function tabi_gradient_from_accent( $hex ) {
+	$hex = ltrim( (string) $hex, '#' );
+	if ( 3 === strlen( $hex ) ) {
+		$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+	}
+	if ( 6 !== strlen( $hex ) ) {
+		return 'linear-gradient(135deg,#1A0505 0%,#2D0A0A 50%,#1A0A14 100%)';
+	}
+	$r = hexdec( substr( $hex, 0, 2 ) );
+	$g = hexdec( substr( $hex, 2, 2 ) );
+	$b = hexdec( substr( $hex, 4, 2 ) );
+	// Mistura ~12% da cor com preto para um fundo escuro tonalizado.
+	$mix = function ( $c ) { return (int) round( $c * 0.12 ); };
+	$c1  = sprintf( '#%02X%02X%02X', $mix( $r ), $mix( $g ), $mix( $b ) );
+	$c2  = sprintf( '#%02X%02X%02X', (int) round( $r * 0.20 ), (int) round( $g * 0.20 ), (int) round( $b * 0.20 ) );
+	return "linear-gradient(135deg,{$c1} 0%,{$c2} 55%,#0D0A0A 100%)";
+}
+
 // ── Campos reutilizáveis ─────────────────────────────────────────────────────
 
-function tabi_field_text( $name, $label, $value, $hint = '', $type = 'text' ) {
+function tabi_field_text( $name, $label, $value, $hint = '', $type = 'text', $placeholder = '' ) {
 	?>
 	<p class="tabi-field">
-		<label><strong><?php echo esc_html( $label ); ?></strong><br/>
-		<input type="<?php echo esc_attr( $type ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" class="widefat" /></label>
+		<label><span class="tabi-label"><?php echo esc_html( $label ); ?></span>
+		<input type="<?php echo esc_attr( $type ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" placeholder="<?php echo esc_attr( $placeholder ); ?>" class="widefat" /></label>
 		<?php if ( $hint ) : ?><span class="description"><?php echo esc_html( $hint ); ?></span><?php endif; ?>
 	</p>
 	<?php
 }
 
-function tabi_field_textarea( $name, $label, $value, $hint = '', $rows = 3 ) {
+function tabi_field_textarea( $name, $label, $value, $hint = '', $rows = 3, $placeholder = '' ) {
 	?>
 	<p class="tabi-field">
-		<label><strong><?php echo esc_html( $label ); ?></strong><br/>
-		<textarea name="<?php echo esc_attr( $name ); ?>" rows="<?php echo (int) $rows; ?>" class="widefat"><?php echo esc_textarea( $value ); ?></textarea></label>
+		<label><span class="tabi-label"><?php echo esc_html( $label ); ?></span>
+		<textarea name="<?php echo esc_attr( $name ); ?>" rows="<?php echo (int) $rows; ?>" placeholder="<?php echo esc_attr( $placeholder ); ?>" class="widefat"><?php echo esc_textarea( $value ); ?></textarea></label>
 		<?php if ( $hint ) : ?><span class="description"><?php echo esc_html( $hint ); ?></span><?php endif; ?>
 	</p>
+	<?php
+}
+
+/** Seletor de cor (nativo) + campo de texto com o código, sincronizados. */
+function tabi_field_color( $name, $label, $value ) {
+	$value = $value ? $value : '#F20C25';
+	?>
+	<p class="tabi-field">
+		<label><span class="tabi-label"><?php echo esc_html( $label ); ?></span></label>
+		<span class="tabi-color">
+			<input type="color" class="tabi-color-picker" value="<?php echo esc_attr( $value ); ?>" />
+			<input type="text" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" class="tabi-color-text" />
+		</span>
+	</p>
+	<?php
+}
+
+/** Botão de escolher imagem na Biblioteca de Mídia, com prévia. */
+function tabi_field_image( $name, $label, $value ) {
+	?>
+	<div class="tabi-field tabi-media">
+		<span class="tabi-label"><?php echo esc_html( $label ); ?></span>
+		<div class="tabi-media-row">
+			<img class="tabi-media-preview" src="<?php echo esc_url( $value ); ?>" style="<?php echo $value ? '' : 'display:none;'; ?>" alt="" />
+			<input type="hidden" class="tabi-media-url" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
+			<button type="button" class="button tabi-media-btn"><?php esc_html_e( 'Escolher imagem', 'studio-tabi-headless' ); ?></button>
+			<button type="button" class="button-link tabi-media-remove" style="<?php echo $value ? '' : 'display:none;'; ?>"><?php esc_html_e( 'Remover', 'studio-tabi-headless' ); ?></button>
+		</div>
+	</div>
+	<?php
+}
+
+/** Uma linha de resultado (rótulo + valor). */
+function tabi_result_row( $proj, $res, $label = '', $value = '' ) {
+	?>
+	<div class="tabi-result-row">
+		<input type="text" name="tabi[projects][<?php echo esc_attr( $proj ); ?>][results][<?php echo esc_attr( $res ); ?>][label]" value="<?php echo esc_attr( $label ); ?>" placeholder="<?php esc_attr_e( 'Ex.: Aumento em conversão', 'studio-tabi-headless' ); ?>" />
+		<input type="text" name="tabi[projects][<?php echo esc_attr( $proj ); ?>][results][<?php echo esc_attr( $res ); ?>][value]" value="<?php echo esc_attr( $value ); ?>" placeholder="<?php esc_attr_e( 'Ex.: +38%', 'studio-tabi-headless' ); ?>" class="tabi-result-value" />
+		<button type="button" class="button-link-delete tabi-remove-inline" title="<?php esc_attr_e( 'Remover', 'studio-tabi-headless' ); ?>">✕</button>
+	</div>
+	<?php
+}
+
+/** Bloco completo de um projeto (usado na listagem e no template de novo item). */
+function tabi_project_fields( $i, $p ) {
+	$d = isset( $p['detail'] ) ? $p['detail'] : array();
+	?>
+	<div class="tabi-row tabi-project" data-proj="<?php echo esc_attr( $i ); ?>">
+		<button type="button" class="button-link-delete tabi-remove-row"><?php esc_html_e( 'Remover projeto', 'studio-tabi-headless' ); ?></button>
+
+		<div class="tabi-cols">
+			<?php tabi_field_text( "tabi[projects][$i][name]", __( 'Nome do projeto', 'studio-tabi-headless' ), $p['name'] ?? '' ); ?>
+			<?php tabi_field_text( "tabi[projects][$i][category]", __( 'Categoria', 'studio-tabi-headless' ), $p['category'] ?? '', '', 'text', 'Branding & UI' ); ?>
+			<?php tabi_field_text( "tabi[projects][$i][year]", __( 'Ano', 'studio-tabi-headless' ), $p['year'] ?? '', '', 'text', '2025' ); ?>
+			<?php tabi_field_color( "tabi[projects][$i][accent]", __( 'Cor de destaque', 'studio-tabi-headless' ), $p['accent'] ?? '#F20C25' ); ?>
+		</div>
+
+		<?php tabi_field_image( "tabi[projects][$i][imageUrl]", __( 'Imagem do projeto', 'studio-tabi-headless' ), $p['imageUrl'] ?? '' ); ?>
+
+		<p class="tabi-field tabi-check">
+			<label><input type="checkbox" name="tabi[projects][<?php echo esc_attr( $i ); ?>][featured]" value="1" <?php checked( ! empty( $p['featured'] ) ); ?> /> <?php esc_html_e( 'Destacar este projeto', 'studio-tabi-headless' ); ?></label>
+		</p>
+
+		<details class="tabi-sub">
+			<summary><?php esc_html_e( 'Detalhes do case (página do projeto)', 'studio-tabi-headless' ); ?></summary>
+			<div class="tabi-sub-inside">
+				<div class="tabi-cols">
+					<?php tabi_field_text( "tabi[projects][$i][client]", __( 'Cliente', 'studio-tabi-headless' ), $d['client'] ?? '' ); ?>
+					<?php tabi_field_text( "tabi[projects][$i][duration]", __( 'Duração', 'studio-tabi-headless' ), $d['duration'] ?? '', '', 'text', '14 semanas' ); ?>
+				</div>
+				<?php tabi_field_textarea( "tabi[projects][$i][scope]", __( 'Escopo', 'studio-tabi-headless' ), implode( "\n", (array) ( $d['scope'] ?? array() ) ), __( 'Um item por linha.', 'studio-tabi-headless' ), 3, "Identidade Visual\nUI/UX Design" ); ?>
+				<?php tabi_field_textarea( "tabi[projects][$i][challenge]", __( 'Desafio', 'studio-tabi-headless' ), $d['challenge'] ?? '', '', 4 ); ?>
+				<?php tabi_field_textarea( "tabi[projects][$i][solution]", __( 'Solução', 'studio-tabi-headless' ), $d['solution'] ?? '', '', 4 ); ?>
+
+				<div class="tabi-results">
+					<span class="tabi-label"><?php esc_html_e( 'Resultados', 'studio-tabi-headless' ); ?></span>
+					<div class="tabi-results-list">
+						<?php foreach ( (array) ( $d['results'] ?? array() ) as $j => $r ) : ?>
+							<?php tabi_result_row( $i, $j, $r['label'] ?? '', $r['value'] ?? '' ); ?>
+						<?php endforeach; ?>
+					</div>
+					<button type="button" class="button tabi-add-result"><?php esc_html_e( '+ Adicionar resultado', 'studio-tabi-headless' ); ?></button>
+				</div>
+
+				<?php tabi_field_textarea( "tabi[projects][$i][mockupLines]", __( 'Itens do menu (mockup)', 'studio-tabi-headless' ), implode( "\n", (array) ( $d['mockupLines'] ?? array() ) ), __( 'Um item por linha.', 'studio-tabi-headless' ), 4, "DASHBOARD\nRELATÓRIOS" ); ?>
+			</div>
+		</details>
+
+		<details class="tabi-sub">
+			<summary><?php esc_html_e( 'Aparência avançada', 'studio-tabi-headless' ); ?></summary>
+			<div class="tabi-sub-inside">
+				<?php tabi_field_text( "tabi[projects][$i][bg]", __( 'Fundo do card (CSS)', 'studio-tabi-headless' ), $p['bg'] ?? '', __( 'Deixe em branco para gerar automaticamente a partir da cor de destaque.', 'studio-tabi-headless' ) ); ?>
+			</div>
+		</details>
+	</div>
 	<?php
 }
 
@@ -181,73 +318,91 @@ function tabi_render_admin_page() {
 			$result = tabi_save_content( tabi_content_from_form( wp_unslash( (array) ( $_POST['tabi'] ?? array() ) ) ) );
 			$notice = is_wp_error( $result )
 				? array( 'error', $result->get_error_message() )
-				: array( 'success', __( 'Conteúdo salvo. O site já reflete as alterações.', 'studio-tabi-headless' ) );
+				: array( 'success', __( 'Conteúdo salvo! O site já está atualizado.', 'studio-tabi-headless' ) );
 		}
 	}
 
 	$c = tabi_get_content();
-
-	$pairs_to_text = function ( $pairs, $a, $b ) {
-		return implode( "\n", array_map( function ( $p ) use ( $a, $b ) {
-			return ( $p[ $a ] ?? '' ) . ' | ' . ( $p[ $b ] ?? '' );
-		}, (array) $pairs ) );
-	};
 	?>
 	<style>
-		.tabi-card { background: #fff; border: 1px solid #dcdcde; border-radius: 6px; margin: 0 0 14px; max-width: 900px; }
-		.tabi-card > summary { cursor: pointer; padding: 14px 18px; font-size: 15px; font-weight: 600; }
-		.tabi-card > .inside { padding: 4px 18px 16px; border-top: 1px solid #f0f0f1; }
-		.tabi-field { margin: 14px 0; }
-		.tabi-field .description { display: block; margin-top: 2px; }
-		.tabi-row { border: 1px solid #e2e2e5; border-radius: 6px; padding: 4px 14px 10px; margin: 10px 0; background: #fafafa; position: relative; }
-		.tabi-row .tabi-remove-row { position: absolute; top: 8px; right: 8px; }
-		.tabi-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
-		@media (max-width: 782px) { .tabi-cols { grid-template-columns: 1fr; } }
+		.tabi-wrap { max-width: 920px; }
+		.tabi-intro { background:#fff; border:1px solid #dcdcde; border-left:4px solid #2271b1; border-radius:6px; padding:12px 18px; margin:12px 0 18px; }
+		.tabi-card { background:#fff; border:1px solid #dcdcde; border-radius:8px; margin:0 0 14px; box-shadow:0 1px 1px rgba(0,0,0,.03); }
+		.tabi-card > summary { cursor:pointer; padding:16px 20px; font-size:15px; font-weight:600; list-style:none; display:flex; align-items:center; gap:10px; }
+		.tabi-card > summary::-webkit-details-marker { display:none; }
+		.tabi-card > summary::after { content:"⌄"; margin-left:auto; font-size:20px; color:#888; line-height:1; }
+		.tabi-card[open] > summary::after { content:"⌃"; }
+		.tabi-card > summary .tabi-emoji { font-size:18px; }
+		.tabi-card > .inside { padding:6px 20px 18px; border-top:1px solid #f0f0f1; }
+		.tabi-field { margin:14px 0; }
+		.tabi-label { display:block; font-weight:600; margin-bottom:4px; }
+		.tabi-field .description { display:block; margin-top:3px; color:#666; }
+		.tabi-check label { font-weight:600; }
+		.tabi-row { border:1px solid #e2e2e5; border-radius:8px; padding:12px 16px 14px; margin:12px 0; background:#fafafa; position:relative; }
+		.tabi-row .tabi-remove-row { position:absolute; top:10px; right:12px; font-size:12px; }
+		.tabi-cols { display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }
+		@media (max-width:782px){ .tabi-cols { grid-template-columns:1fr; } }
+		.tabi-add-row { margin-top:6px; }
+		.tabi-sub { margin:12px 0 0; border:1px dashed #d0d0d4; border-radius:6px; }
+		.tabi-sub > summary { cursor:pointer; padding:10px 14px; font-weight:600; color:#2271b1; }
+		.tabi-sub-inside { padding:4px 14px 12px; }
+		.tabi-color { display:flex; align-items:center; gap:8px; }
+		.tabi-color-picker { width:44px; height:32px; padding:0; border:1px solid #ccc; border-radius:4px; cursor:pointer; background:none; }
+		.tabi-color-text { width:110px; font-family:monospace; }
+		.tabi-media-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+		.tabi-media-preview { width:64px; height:64px; object-fit:cover; border-radius:6px; border:1px solid #ddd; }
+		.tabi-result-row { display:flex; align-items:center; gap:8px; margin:6px 0; }
+		.tabi-result-row input { flex:1; }
+		.tabi-result-row .tabi-result-value { max-width:140px; flex:0 0 140px; }
+		.tabi-remove-inline { color:#b32d2e; text-decoration:none; font-weight:700; padding:0 6px; }
+		.tabi-savebar { position:sticky; bottom:0; background:rgba(255,255,255,.96); border-top:1px solid #dcdcde; padding:12px 0; margin-top:10px; z-index:10; }
 	</style>
 
-	<div class="wrap">
-		<h1><?php esc_html_e( 'Conteúdo do Site — Studio Tabi', 'studio-tabi-headless' ); ?></h1>
+	<div class="wrap tabi-wrap">
+		<h1><?php esc_html_e( 'Conteúdo do Site', 'studio-tabi-headless' ); ?></h1>
 
 		<?php if ( $notice ) : ?>
 			<div class="notice notice-<?php echo esc_attr( $notice[0] ); ?> is-dismissible"><p><?php echo esc_html( $notice[1] ); ?></p></div>
 		<?php endif; ?>
 
-		<p><?php esc_html_e( 'Edite os textos do site abaixo e clique em "Salvar conteúdo". As alterações aparecem no site imediatamente.', 'studio-tabi-headless' ); ?></p>
+		<div class="tabi-intro">
+			<?php esc_html_e( 'Edite os textos e imagens do site nas seções abaixo. Clique em uma seção para abrir. Ao terminar, clique em "Salvar alterações" — o site é atualizado na hora.', 'studio-tabi-headless' ); ?>
+		</div>
 
 		<form method="post">
 			<?php wp_nonce_field( 'tabi_save_content' ); ?>
 			<input type="hidden" name="tabi_action" value="save" />
 
 			<details class="tabi-card" open>
-				<summary><?php esc_html_e( 'Hero (topo do site)', 'studio-tabi-headless' ); ?></summary>
+				<summary><span class="tabi-emoji">🏔️</span><?php esc_html_e( 'Topo do site (Hero)', 'studio-tabi-headless' ); ?></summary>
 				<div class="inside">
-					<?php tabi_field_textarea( 'tabi[hero][titleLines]', __( 'Título', 'studio-tabi-headless' ), implode( "\n", $c['hero']['titleLines'] ), __( 'Uma linha do título por linha do campo.', 'studio-tabi-headless' ), 3 ); ?>
+					<?php tabi_field_textarea( 'tabi[hero][titleLines]', __( 'Título principal', 'studio-tabi-headless' ), implode( "\n", $c['hero']['titleLines'] ), __( 'Uma linha do título por linha do campo.', 'studio-tabi-headless' ), 3 ); ?>
 					<?php tabi_field_textarea( 'tabi[hero][description]', __( 'Descrição', 'studio-tabi-headless' ), $c['hero']['description'], '', 3 ); ?>
 				</div>
 			</details>
 
 			<details class="tabi-card">
-				<summary><?php esc_html_e( 'Sobre', 'studio-tabi-headless' ); ?></summary>
+				<summary><span class="tabi-emoji">💬</span><?php esc_html_e( 'Sobre', 'studio-tabi-headless' ); ?></summary>
 				<div class="inside">
 					<?php tabi_field_textarea( 'tabi[about][paragraph1]', __( 'Parágrafo 1', 'studio-tabi-headless' ), $c['about']['paragraph1'], '', 4 ); ?>
 					<?php tabi_field_textarea( 'tabi[about][paragraph2]', __( 'Parágrafo 2', 'studio-tabi-headless' ), $c['about']['paragraph2'], '', 4 ); ?>
 
-					<h4><?php esc_html_e( 'Números (estatísticas)', 'studio-tabi-headless' ); ?></h4>
+					<h3><?php esc_html_e( 'Números', 'studio-tabi-headless' ); ?></h3>
 					<div id="tabi-stats">
 						<?php foreach ( $c['about']['stats'] as $i => $s ) : ?>
 							<div class="tabi-row">
 								<button type="button" class="button-link-delete tabi-remove-row"><?php esc_html_e( 'Remover', 'studio-tabi-headless' ); ?></button>
 								<div class="tabi-cols">
-									<?php tabi_field_text( "tabi[about][stats][$i][numeric]", __( 'Número', 'studio-tabi-headless' ), $s['numeric'] ); ?>
-									<?php tabi_field_text( "tabi[about][stats][$i][suffix]", __( 'Sufixo (+, %, ×…)', 'studio-tabi-headless' ), $s['suffix'] ); ?>
+									<?php tabi_field_text( "tabi[about][stats][$i][numeric]", __( 'Número', 'studio-tabi-headless' ), $s['numeric'], '', 'text', '120' ); ?>
+									<?php tabi_field_text( "tabi[about][stats][$i][suffix]", __( 'Símbolo', 'studio-tabi-headless' ), $s['suffix'], __( 'Ex.: +, %, ×', 'studio-tabi-headless' ), 'text', '+' ); ?>
 								</div>
-								<?php tabi_field_text( "tabi[about][stats][$i][label]", __( 'Rótulo', 'studio-tabi-headless' ), $s['label'] ); ?>
+								<?php tabi_field_text( "tabi[about][stats][$i][label]", __( 'Legenda', 'studio-tabi-headless' ), $s['label'], '', 'text', 'PROJETOS ENTREGUES' ); ?>
 							</div>
 						<?php endforeach; ?>
 					</div>
 					<button type="button" class="button tabi-add-row" data-target="tabi-stats" data-template="tpl-stat"><?php esc_html_e( '+ Adicionar número', 'studio-tabi-headless' ); ?></button>
 
-					<h4><?php esc_html_e( 'Pilares', 'studio-tabi-headless' ); ?></h4>
+					<h3><?php esc_html_e( 'Pilares', 'studio-tabi-headless' ); ?></h3>
 					<div id="tabi-pillars">
 						<?php foreach ( $c['about']['pillars'] as $i => $p ) : ?>
 							<div class="tabi-row">
@@ -262,7 +417,7 @@ function tabi_render_admin_page() {
 			</details>
 
 			<details class="tabi-card">
-				<summary><?php esc_html_e( 'Serviços', 'studio-tabi-headless' ); ?></summary>
+				<summary><span class="tabi-emoji">🛠️</span><?php esc_html_e( 'Serviços', 'studio-tabi-headless' ); ?></summary>
 				<div class="inside">
 					<div id="tabi-services">
 						<?php foreach ( $c['services'] as $i => $s ) : ?>
@@ -274,36 +429,16 @@ function tabi_render_admin_page() {
 						<?php endforeach; ?>
 					</div>
 					<button type="button" class="button tabi-add-row" data-target="tabi-services" data-template="tpl-service"><?php esc_html_e( '+ Adicionar serviço', 'studio-tabi-headless' ); ?></button>
-					<p class="description"><?php esc_html_e( 'A numeração (01, 02…) é gerada automaticamente pela ordem.', 'studio-tabi-headless' ); ?></p>
+					<p class="description"><?php esc_html_e( 'A numeração (01, 02…) é automática, conforme a ordem.', 'studio-tabi-headless' ); ?></p>
 				</div>
 			</details>
 
 			<details class="tabi-card">
-				<summary><?php esc_html_e( 'Projetos', 'studio-tabi-headless' ); ?></summary>
+				<summary><span class="tabi-emoji">📁</span><?php esc_html_e( 'Projetos', 'studio-tabi-headless' ); ?></summary>
 				<div class="inside">
 					<div id="tabi-projects">
-						<?php foreach ( $c['projects'] as $i => $p ) : $d = $p['detail']; ?>
-							<div class="tabi-row">
-								<button type="button" class="button-link-delete tabi-remove-row"><?php esc_html_e( 'Remover', 'studio-tabi-headless' ); ?></button>
-								<div class="tabi-cols">
-									<?php tabi_field_text( "tabi[projects][$i][name]", __( 'Nome', 'studio-tabi-headless' ), $p['name'] ); ?>
-									<?php tabi_field_text( "tabi[projects][$i][category]", __( 'Categoria', 'studio-tabi-headless' ), $p['category'] ); ?>
-									<?php tabi_field_text( "tabi[projects][$i][year]", __( 'Ano', 'studio-tabi-headless' ), $p['year'] ); ?>
-									<?php tabi_field_text( "tabi[projects][$i][accent]", __( 'Cor de destaque', 'studio-tabi-headless' ), $p['accent'], __( 'Ex.: #F20C25', 'studio-tabi-headless' ) ); ?>
-								</div>
-								<p class="tabi-field"><label><input type="checkbox" name="tabi[projects][<?php echo esc_attr( $i ); ?>][featured]" value="1" <?php checked( ! empty( $p['featured'] ) ); ?> /> <?php esc_html_e( 'Projeto em destaque', 'studio-tabi-headless' ); ?></label></p>
-								<?php tabi_field_text( "tabi[projects][$i][imageUrl]", __( 'Imagem (URL, opcional)', 'studio-tabi-headless' ), $p['imageUrl'] ?? '', __( 'Cole a URL de uma imagem da Biblioteca de Mídia.', 'studio-tabi-headless' ), 'url' ); ?>
-								<?php tabi_field_text( "tabi[projects][$i][bg]", __( 'Fundo (CSS, avançado)', 'studio-tabi-headless' ), $p['bg'] ); ?>
-								<div class="tabi-cols">
-									<?php tabi_field_text( "tabi[projects][$i][client]", __( 'Cliente', 'studio-tabi-headless' ), $d['client'] ); ?>
-									<?php tabi_field_text( "tabi[projects][$i][duration]", __( 'Duração', 'studio-tabi-headless' ), $d['duration'] ); ?>
-								</div>
-								<?php tabi_field_textarea( "tabi[projects][$i][scope]", __( 'Escopo', 'studio-tabi-headless' ), implode( "\n", $d['scope'] ), __( 'Um item por linha.', 'studio-tabi-headless' ), 3 ); ?>
-								<?php tabi_field_textarea( "tabi[projects][$i][challenge]", __( 'Desafio', 'studio-tabi-headless' ), $d['challenge'], '', 4 ); ?>
-								<?php tabi_field_textarea( "tabi[projects][$i][solution]", __( 'Solução', 'studio-tabi-headless' ), $d['solution'], '', 4 ); ?>
-								<?php tabi_field_textarea( "tabi[projects][$i][results]", __( 'Resultados', 'studio-tabi-headless' ), $pairs_to_text( $d['results'], 'label', 'value' ), __( 'Um por linha, no formato: Rótulo | Valor', 'studio-tabi-headless' ), 4 ); ?>
-								<?php tabi_field_textarea( "tabi[projects][$i][mockupLines]", __( 'Menu do mockup', 'studio-tabi-headless' ), implode( "\n", $d['mockupLines'] ), __( 'Um item por linha.', 'studio-tabi-headless' ), 4 ); ?>
-							</div>
+						<?php foreach ( $c['projects'] as $i => $p ) : ?>
+							<?php tabi_project_fields( $i, $p ); ?>
 						<?php endforeach; ?>
 					</div>
 					<button type="button" class="button tabi-add-row" data-target="tabi-projects" data-template="tpl-project"><?php esc_html_e( '+ Adicionar projeto', 'studio-tabi-headless' ); ?></button>
@@ -311,7 +446,7 @@ function tabi_render_admin_page() {
 			</details>
 
 			<details class="tabi-card">
-				<summary><?php esc_html_e( 'FAQ (perguntas frequentes)', 'studio-tabi-headless' ); ?></summary>
+				<summary><span class="tabi-emoji">❓</span><?php esc_html_e( 'Perguntas frequentes (FAQ)', 'studio-tabi-headless' ); ?></summary>
 				<div class="inside">
 					<div id="tabi-faq">
 						<?php foreach ( $c['faq'] as $i => $f ) : ?>
@@ -327,9 +462,9 @@ function tabi_render_admin_page() {
 			</details>
 
 			<details class="tabi-card">
-				<summary><?php esc_html_e( 'Rodapé', 'studio-tabi-headless' ); ?></summary>
+				<summary><span class="tabi-emoji">📮</span><?php esc_html_e( 'Rodapé e contato', 'studio-tabi-headless' ); ?></summary>
 				<div class="inside">
-					<?php tabi_field_text( 'tabi[footer][tagline]', __( 'Frase', 'studio-tabi-headless' ), $c['footer']['tagline'] ); ?>
+					<?php tabi_field_text( 'tabi[footer][tagline]', __( 'Frase do rodapé', 'studio-tabi-headless' ), $c['footer']['tagline'] ); ?>
 					<div class="tabi-cols">
 						<?php tabi_field_text( 'tabi[footer][email]', __( 'E-mail', 'studio-tabi-headless' ), $c['footer']['email'] ); ?>
 						<?php tabi_field_text( 'tabi[footer][phone]', __( 'Telefone', 'studio-tabi-headless' ), $c['footer']['phone'] ); ?>
@@ -338,38 +473,101 @@ function tabi_render_admin_page() {
 				</div>
 			</details>
 
-			<p class="submit">
-				<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'Salvar conteúdo', 'studio-tabi-headless' ); ?></button>
-			</p>
+			<div class="tabi-savebar">
+				<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'Salvar alterações', 'studio-tabi-headless' ); ?></button>
+			</div>
 		</form>
 
-		<form method="post" onsubmit="return confirm('<?php echo esc_js( __( 'Restaurar todo o conteúdo para os valores padrão?', 'studio-tabi-headless' ) ); ?>');">
+		<form method="post" onsubmit="return confirm('<?php echo esc_js( __( 'Restaurar todo o conteúdo para os valores padrão? Isso apaga suas edições.', 'studio-tabi-headless' ) ); ?>');" style="margin-top:16px;">
 			<?php wp_nonce_field( 'tabi_save_content' ); ?>
 			<input type="hidden" name="tabi_action" value="reset" />
 			<button type="submit" class="button"><?php esc_html_e( 'Restaurar padrão', 'studio-tabi-headless' ); ?></button>
 		</form>
 	</div>
 
-	<?php // Modelos de linha para os botões "+ Adicionar" ?>
-	<template id="tpl-stat"><div class="tabi-row"><button type="button" class="button-link-delete tabi-remove-row"><?php esc_html_e( 'Remover', 'studio-tabi-headless' ); ?></button><div class="tabi-cols"><?php tabi_field_text( 'tabi[about][stats][__INDEX__][numeric]', __( 'Número', 'studio-tabi-headless' ), '' ); tabi_field_text( 'tabi[about][stats][__INDEX__][suffix]', __( 'Sufixo (+, %, ×…)', 'studio-tabi-headless' ), '' ); ?></div><?php tabi_field_text( 'tabi[about][stats][__INDEX__][label]', __( 'Rótulo', 'studio-tabi-headless' ), '' ); ?></div></template>
+	<?php // ── Modelos (templates) para os botões "+ Adicionar" ── ?>
+	<template id="tpl-stat"><div class="tabi-row"><button type="button" class="button-link-delete tabi-remove-row"><?php esc_html_e( 'Remover', 'studio-tabi-headless' ); ?></button><div class="tabi-cols"><?php tabi_field_text( 'tabi[about][stats][__INDEX__][numeric]', __( 'Número', 'studio-tabi-headless' ), '', '', 'text', '120' ); tabi_field_text( 'tabi[about][stats][__INDEX__][suffix]', __( 'Símbolo', 'studio-tabi-headless' ), '', __( 'Ex.: +, %, ×', 'studio-tabi-headless' ), 'text', '+' ); ?></div><?php tabi_field_text( 'tabi[about][stats][__INDEX__][label]', __( 'Legenda', 'studio-tabi-headless' ), '' ); ?></div></template>
 	<template id="tpl-pillar"><div class="tabi-row"><button type="button" class="button-link-delete tabi-remove-row"><?php esc_html_e( 'Remover', 'studio-tabi-headless' ); ?></button><?php tabi_field_text( 'tabi[about][pillars][__INDEX__][title]', __( 'Título', 'studio-tabi-headless' ), '' ); tabi_field_textarea( 'tabi[about][pillars][__INDEX__][body]', __( 'Texto', 'studio-tabi-headless' ), '', '', 3 ); ?></div></template>
 	<template id="tpl-service"><div class="tabi-row"><button type="button" class="button-link-delete tabi-remove-row"><?php esc_html_e( 'Remover', 'studio-tabi-headless' ); ?></button><?php tabi_field_text( 'tabi[services][__INDEX__][title]', __( 'Título', 'studio-tabi-headless' ), '' ); tabi_field_textarea( 'tabi[services][__INDEX__][body]', __( 'Descrição', 'studio-tabi-headless' ), '', '', 3 ); ?></div></template>
-	<template id="tpl-project"><div class="tabi-row"><button type="button" class="button-link-delete tabi-remove-row"><?php esc_html_e( 'Remover', 'studio-tabi-headless' ); ?></button><div class="tabi-cols"><?php tabi_field_text( 'tabi[projects][__INDEX__][name]', __( 'Nome', 'studio-tabi-headless' ), '' ); tabi_field_text( 'tabi[projects][__INDEX__][category]', __( 'Categoria', 'studio-tabi-headless' ), '' ); tabi_field_text( 'tabi[projects][__INDEX__][year]', __( 'Ano', 'studio-tabi-headless' ), '' ); tabi_field_text( 'tabi[projects][__INDEX__][accent]', __( 'Cor de destaque', 'studio-tabi-headless' ), '#F20C25' ); ?></div><p class="tabi-field"><label><input type="checkbox" name="tabi[projects][__INDEX__][featured]" value="1" /> <?php esc_html_e( 'Projeto em destaque', 'studio-tabi-headless' ); ?></label></p><?php tabi_field_text( 'tabi[projects][__INDEX__][imageUrl]', __( 'Imagem (URL, opcional)', 'studio-tabi-headless' ), '' ); tabi_field_text( 'tabi[projects][__INDEX__][bg]', __( 'Fundo (CSS, avançado)', 'studio-tabi-headless' ), 'linear-gradient(135deg,#1A0505 0%,#2D0A0A 50%,#1A0A14 100%)' ); ?><div class="tabi-cols"><?php tabi_field_text( 'tabi[projects][__INDEX__][client]', __( 'Cliente', 'studio-tabi-headless' ), '' ); tabi_field_text( 'tabi[projects][__INDEX__][duration]', __( 'Duração', 'studio-tabi-headless' ), '' ); ?></div><?php tabi_field_textarea( 'tabi[projects][__INDEX__][scope]', __( 'Escopo', 'studio-tabi-headless' ), '', __( 'Um item por linha.', 'studio-tabi-headless' ), 3 ); tabi_field_textarea( 'tabi[projects][__INDEX__][challenge]', __( 'Desafio', 'studio-tabi-headless' ), '', '', 4 ); tabi_field_textarea( 'tabi[projects][__INDEX__][solution]', __( 'Solução', 'studio-tabi-headless' ), '', '', 4 ); tabi_field_textarea( 'tabi[projects][__INDEX__][results]', __( 'Resultados', 'studio-tabi-headless' ), '', __( 'Um por linha, no formato: Rótulo | Valor', 'studio-tabi-headless' ), 4 ); tabi_field_textarea( 'tabi[projects][__INDEX__][mockupLines]', __( 'Menu do mockup', 'studio-tabi-headless' ), '', __( 'Um item por linha.', 'studio-tabi-headless' ), 4 ); ?></div></template>
+	<template id="tpl-project"><?php tabi_project_fields( '__INDEX__', array( 'accent' => '#F20C25' ) ); ?></template>
 	<template id="tpl-faq"><div class="tabi-row"><button type="button" class="button-link-delete tabi-remove-row"><?php esc_html_e( 'Remover', 'studio-tabi-headless' ); ?></button><?php tabi_field_text( 'tabi[faq][__INDEX__][q]', __( 'Pergunta', 'studio-tabi-headless' ), '' ); tabi_field_textarea( 'tabi[faq][__INDEX__][a]', __( 'Resposta', 'studio-tabi-headless' ), '', '', 3 ); ?></div></template>
+	<template id="tpl-result"><?php tabi_result_row( '__PROJ__', '__RES__' ); ?></template>
 
 	<script>
 	(function () {
-		let n = 0;
+		function uid() { return 'x' + Date.now().toString(36) + Math.floor(Math.random() * 1e4); }
+
+		// Sincroniza o seletor de cor com o campo de texto (nos dois sentidos).
+		function bindColor(scope) {
+			(scope || document).querySelectorAll('.tabi-color').forEach(function (wrap) {
+				if (wrap.dataset.bound) return;
+				wrap.dataset.bound = '1';
+				var picker = wrap.querySelector('.tabi-color-picker');
+				var text = wrap.querySelector('.tabi-color-text');
+				if (!picker || !text) return;
+				picker.addEventListener('input', function () { text.value = picker.value.toUpperCase(); });
+				text.addEventListener('input', function () { if (/^#[0-9a-fA-F]{6}$/.test(text.value)) picker.value = text.value; });
+			});
+		}
+		bindColor(document);
+
+		// Botões "+ Adicionar" (seções de nível superior).
 		document.querySelectorAll('.tabi-add-row').forEach(function (btn) {
 			btn.addEventListener('click', function () {
-				const tpl = document.getElementById(btn.dataset.template);
-				const html = tpl.innerHTML.replaceAll('__INDEX__', 'new' + Date.now() + (n++));
-				document.getElementById(btn.dataset.target).insertAdjacentHTML('beforeend', html);
+				var tpl = document.getElementById(btn.dataset.template);
+				var html = tpl.innerHTML.replaceAll('__INDEX__', uid());
+				var container = document.getElementById(btn.dataset.target);
+				container.insertAdjacentHTML('beforeend', html);
+				bindColor(container.lastElementChild);
 			});
 		});
+
 		document.addEventListener('click', function (e) {
-			if (e.target.classList && e.target.classList.contains('tabi-remove-row')) {
-				e.target.closest('.tabi-row').remove();
+			// Remover item (linha).
+			var rm = e.target.closest('.tabi-remove-row');
+			if (rm) { e.preventDefault(); rm.closest('.tabi-row').remove(); return; }
+
+			// Adicionar resultado dentro de um projeto.
+			var ar = e.target.closest('.tabi-add-result');
+			if (ar) {
+				e.preventDefault();
+				var proj = ar.closest('.tabi-project').dataset.proj;
+				var tpl = document.getElementById('tpl-result');
+				var html = tpl.innerHTML.replaceAll('__PROJ__', proj).replaceAll('__RES__', uid());
+				ar.closest('.tabi-results').querySelector('.tabi-results-list').insertAdjacentHTML('beforeend', html);
+				return;
+			}
+
+			// Remover resultado.
+			var ri = e.target.closest('.tabi-remove-inline');
+			if (ri) { e.preventDefault(); ri.closest('.tabi-result-row').remove(); return; }
+
+			// Escolher imagem (Biblioteca de Mídia).
+			var mb = e.target.closest('.tabi-media-btn');
+			if (mb && window.wp && wp.media) {
+				e.preventDefault();
+				var wrap = mb.closest('.tabi-media');
+				var frame = wp.media({ title: 'Selecionar imagem', multiple: false, library: { type: 'image' }, button: { text: 'Usar esta imagem' } });
+				frame.on('select', function () {
+					var att = frame.state().get('selection').first().toJSON();
+					wrap.querySelector('.tabi-media-url').value = att.url;
+					var img = wrap.querySelector('.tabi-media-preview');
+					img.src = att.url; img.style.display = '';
+					wrap.querySelector('.tabi-media-remove').style.display = '';
+				});
+				frame.open();
+				return;
+			}
+
+			// Remover imagem.
+			var mr = e.target.closest('.tabi-media-remove');
+			if (mr) {
+				e.preventDefault();
+				var w = mr.closest('.tabi-media');
+				w.querySelector('.tabi-media-url').value = '';
+				w.querySelector('.tabi-media-preview').style.display = 'none';
+				mr.style.display = 'none';
+				return;
 			}
 		});
 	})();
@@ -411,9 +609,8 @@ function tabi_render_json_page() {
 		<?php endif; ?>
 
 		<p>
-			<?php esc_html_e( 'Edição direta do JSON completo servido em', 'studio-tabi-headless' ); ?>
-			<code><?php echo esc_html( $endpoint ); ?></code>.
-			<?php esc_html_e( 'Para edição comum, prefira a página "Conteúdo do Site".', 'studio-tabi-headless' ); ?>
+			<?php esc_html_e( 'Edição direta do JSON completo. Para edição comum, prefira a página "Conteúdo do Site".', 'studio-tabi-headless' ); ?>
+			<code><?php echo esc_html( $endpoint ); ?></code>
 		</p>
 
 		<form method="post">
