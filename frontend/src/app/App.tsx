@@ -519,34 +519,29 @@ export function HomeSite() {
               transition={{ duration: 0.75, delay: 0.55, ease: "easeOut" }}
             >
               <span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} />
-              <span>STUDIO TABI — DIGITAL STUDIO</span>
+              <span>{content.ui.heroEyebrow}</span>
             </motion.div>
 
             <h1
               className="hero-title m-0"
               style={{ fontFamily: '"Roboto Condensed", sans-serif', fontSize: "clamp(52px, 5.2vw, 100px)", fontWeight: 900, lineHeight: 0.79, letterSpacing: "-0.05em", textTransform: "uppercase", maxWidth: 760 }}
             >
-              {content.hero.titleLines.map((line, i) => (
-                <motion.span
-                  key={line}
-                  className="hero-title-line block"
-                  style={{ color: titleColor }}
-                  initial={{ y: "108%", opacity: 0 }}
-                  animate={{ y: "0%", opacity: 1 }}
-                  transition={{ duration: 1, delay: 0.25 + i * 0.07, ease: EASE_OUT_EXPO }}
-                >
-                  {line}
-                </motion.span>
-              ))}
-              <motion.span
-                className="hero-title-line block"
-                style={{ color: titleColor, whiteSpace: "nowrap" }}
-                initial={{ y: "108%", opacity: 0 }}
-                animate={{ y: "0%", opacity: 1 }}
-                transition={{ duration: 1, delay: 0.46, ease: EASE_OUT_EXPO }}
-              >
-                <strong style={{ font: "inherit", color: RED }}>DIGITAL.</strong>
-              </motion.span>
+              {content.hero.titleLines.map((raw, i) => {
+                const red = raw.startsWith("*") && raw.endsWith("*") && raw.length > 1
+                const line = red ? raw.slice(1, -1) : raw
+                return (
+                  <motion.span
+                    key={line + i}
+                    className="hero-title-line block"
+                    style={{ color: red ? RED : titleColor, whiteSpace: red ? "nowrap" : undefined }}
+                    initial={{ y: "108%", opacity: 0 }}
+                    animate={{ y: "0%", opacity: 1 }}
+                    transition={{ duration: 1, delay: 0.25 + i * 0.07, ease: EASE_OUT_EXPO }}
+                  >
+                    {red ? <strong style={{ font: "inherit", color: RED }}>{line}</strong> : line}
+                  </motion.span>
+                )
+              })}
             </h1>
 
             <motion.p
@@ -571,7 +566,7 @@ export function HomeSite() {
                 whileHover={{ backgroundColor: RED, color: WHITE }}
                 transition={{ duration: 0.22 }}
               >
-                VER PORTFÓLIO
+                {content.ui.heroCtaPrimary}
                 <span className="inline-block transition-transform duration-300 group-hover:translate-x-0.5" style={{ fontSize: 13 }}>→</span>
               </motion.button>
 
@@ -581,7 +576,7 @@ export function HomeSite() {
                 whileHover={{ opacity: 1 }}
                 transition={{ duration: 0.2 }}
               >
-                FALAR COM A EQUIPE
+                {content.ui.heroCtaSecondary}
               </motion.button>
             </motion.div>
           </div>
@@ -595,7 +590,7 @@ export function HomeSite() {
             transition={{ duration: 0.8, delay: 0.78 }}
           >
             <div className="flex items-center gap-2">
-              <span>SCROLL</span>
+              <span>{content.ui.heroScroll}</span>
               <motion.span
                 style={{ color: RED, fontSize: 15 }}
                 animate={{ y: [0, 4, 0] }}
@@ -648,6 +643,24 @@ function HeadlineLine({ children, delay, color = WHITE }: { children: React.Reac
       </motion.span>
     </div>
   )
+}
+
+// Renderiza um título multilinha (uma linha por \n). Linhas entre *asteriscos*
+// saem em vermelho. Usado para deixar todos os títulos editáveis pelo painel.
+function renderHeadline(text: string, startDelay = 0.05) {
+  return (text || "")
+    .split("\n")
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map((line, i) => {
+      const red = line.startsWith("*") && line.endsWith("*") && line.length > 1
+      const clean = red ? line.slice(1, -1) : line
+      return (
+        <HeadlineLine key={i + clean} delay={startDelay + i * 0.07} color={red ? RED : WHITE}>
+          {clean}
+        </HeadlineLine>
+      )
+    })
 }
 
 // ── Animated counter stat ────────────────────────────────────────────────────
@@ -773,7 +786,7 @@ function AboutSection() {
             <motion.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }}
               initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }}
               transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
-            <span>STUDIO TABI — SOBRE NÓS</span>
+            <span>{content.ui.aboutEyebrow}</span>
           </div>
         </Reveal>
 
@@ -781,10 +794,7 @@ function AboutSection() {
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(32px, 6vw, 100px)", alignItems: "start" }}>
 
           <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(42px, 5.4vw, 92px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, display: "flex", flexDirection: "column", gap: "0.06em" }}>
-            <HeadlineLine delay={0.05}>NÃO FAZEMOS</HeadlineLine>
-            <HeadlineLine delay={0.12}>SITES.</HeadlineLine>
-            <HeadlineLine delay={0.19} color={RED}>CONSTRUÍMOS</HeadlineLine>
-            <HeadlineLine delay={0.26}>PRESENÇA.</HeadlineLine>
+            {renderHeadline(content.ui.aboutTitle)}
           </h2>
 
           <div className="flex flex-col" style={{ gap: "clamp(24px, 4vw, 56px)" }}>
@@ -898,6 +908,7 @@ function ServiceCard({ num, title, body, delay }: { num: string; title: string; 
 
 function ServicesSection() {
   const { content } = useContent()
+  const navigate = useNavigate()
   const pad = "clamp(20px, 4vw, 82px)"
   return (
     <section style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
@@ -912,22 +923,22 @@ function ServicesSection() {
         <Reveal delay={0}>
           <div className="flex items-center gap-3 mb-8 md:mb-12" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
             <motion.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
-            <span>STUDIO TABI — SERVIÇOS</span>
+            <span>{content.ui.servicesEyebrow}</span>
           </div>
         </Reveal>
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-0" style={{ marginBottom: "clamp(40px, 6vw, 80px)" }}>
           <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
-            <HeadlineLine delay={0.05}>O QUE</HeadlineLine>
-            <HeadlineLine delay={0.12}>ENTREGAMOS.</HeadlineLine>
+            {renderHeadline(content.ui.servicesTitle)}
           </h2>
           <Reveal delay={0.18}>
             <motion.button
+              onClick={() => navigate("/servicos")}
               style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", paddingBottom: 8 }}
               whileHover={{ gap: "18px" } as any}
               transition={{ duration: 0.22 }}
             >
-              VER TODOS OS SERVIÇOS <span style={{ fontSize: 13 }}>→</span>
+              {content.ui.servicesCta} <span style={{ fontSize: 13 }}>→</span>
             </motion.button>
           </Reveal>
         </div>
@@ -959,6 +970,7 @@ function ProjectPageBody({ proj, prevSlug, nextSlug }: {
   prevSlug: string
   nextSlug: string
 }) {
+  const { content } = useContent()
   const detail = proj.detail
   const gallery = proj.gallery ?? []
   const pad = "clamp(20px, 5vw, 90px)"
@@ -1053,14 +1065,14 @@ function ProjectPageBody({ proj, prevSlug, nextSlug }: {
         {/* Two columns: Challenge + Solution */}
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(32px, 5vw, 72px)", marginBottom: "clamp(56px, 8vw, 100px)" }}>
           <motion.div {...stagger(4)}>
-            <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>O DESAFIO</p>
+            <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{content.ui.projectChallengeLabel}</p>
             <div style={{ width: 32, height: 2, backgroundColor: proj.accent, marginBottom: 24 }} />
             <p style={{ fontSize: "clamp(14px, 1.1vw, 17px)", fontWeight: 400, lineHeight: 1.78, color: "rgba(239,239,239,0.65)", margin: 0 }}>
               {detail.challenge}
             </p>
           </motion.div>
           <motion.div {...stagger(5)}>
-            <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>A SOLUÇÃO</p>
+            <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{content.ui.projectSolutionLabel}</p>
             <div style={{ width: 32, height: 2, backgroundColor: "rgba(239,239,239,0.25)", marginBottom: 24 }} />
             <p style={{ fontSize: "clamp(14px, 1.1vw, 17px)", fontWeight: 400, lineHeight: 1.78, color: "rgba(239,239,239,0.65)", margin: 0 }}>
               {detail.solution}
@@ -1070,7 +1082,7 @@ function ProjectPageBody({ proj, prevSlug, nextSlug }: {
 
         {/* Results */}
         <motion.div {...stagger(6)} style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}>
-          <p style={{ margin: "0 0 32px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>RESULTADOS</p>
+          <p style={{ margin: "0 0 32px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{content.ui.projectResultsLabel}</p>
           <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: "clamp(16px, 2vw, 24px)" }}>
             {detail.results.map((r, i) => (
               <motion.div
@@ -1113,7 +1125,7 @@ function ProjectPageBody({ proj, prevSlug, nextSlug }: {
         {/* Gallery */}
         {gallery.length > 0 && (
           <motion.div {...stagger(7)} style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}>
-            <p style={{ margin: "0 0 32px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>GALERIA</p>
+            <p style={{ margin: "0 0 32px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{content.ui.projectGalleryLabel}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "clamp(12px, 1.6vw, 20px)" }}>
               {gallery.map((url, i) => (
                 <motion.div
@@ -1254,24 +1266,23 @@ function ProjectsSection() {
         <Reveal delay={0}>
           <div className="flex items-center gap-3 mb-8 md:mb-12" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
             <motion.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
-            <span>STUDIO TABI — PROJETOS</span>
+            <span>{content.ui.projectsEyebrow}</span>
           </div>
         </Reveal>
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-0" style={{ marginBottom: "clamp(32px, 5vw, 60px)" }}>
           <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
-            <HeadlineLine delay={0.05}>TRABALHOS</HeadlineLine>
-            <HeadlineLine delay={0.12} color={RED}>SELECIONADOS.</HeadlineLine>
+            {renderHeadline(content.ui.projectsTitle)}
           </h2>
           <Reveal delay={0.18}>
             <div className="flex items-center gap-6 pb-2">
-              <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>120+ projetos entregues</span>
+              <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>{content.ui.projectsMeta}</span>
               <motion.button
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
               >
-                VER TODOS <span style={{ fontSize: 13 }}>→</span>
+                {content.ui.projectsCta} <span style={{ fontSize: 13 }}>→</span>
               </motion.button>
             </div>
           </Reveal>
@@ -1304,14 +1315,14 @@ function ProjectsSection() {
             <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(32px, 4vw, 60px)", letterSpacing: "-0.06em", color: "rgba(239,239,239,0.08)", lineHeight: 1 }}>120+</span>
             <div>
               <p style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.6, color: "rgba(239,239,239,0.55)", margin: "0 0 20px" }}>
-                Quer ver o portfólio completo com todos os nossos projetos?
+                {content.ui.projectsCardText}
               </p>
               <motion.button
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
               >
-                VER PORTFÓLIO <span style={{ fontSize: 13 }}>→</span>
+                {content.ui.projectsCardCta} <span style={{ fontSize: 13 }}>→</span>
               </motion.button>
             </div>
           </motion.div>
@@ -1397,26 +1408,24 @@ function FaqSection() {
             <Reveal delay={0}>
               <div className="flex items-center gap-3 mb-8" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
                 <motion.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
-                <span>STUDIO TABI — FAQ</span>
+                <span>{content.ui.faqEyebrow}</span>
               </div>
             </Reveal>
 
             <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(38px, 4.5vw, 76px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 24px", lineHeight: 0.85 }}>
-              <HeadlineLine delay={0.05}>PERGUNTAS</HeadlineLine>
-              <HeadlineLine delay={0.12}>FREQUENTES</HeadlineLine>
-              <HeadlineLine delay={0.19} color={RED}>.</HeadlineLine>
+              {renderHeadline(content.ui.faqTitle)}
             </h2>
 
             <Reveal delay={0.25}>
               <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.7, color: "rgba(239,239,239,0.42)", marginBottom: 28 }}>
-                Não encontrou o que procura? Entre em contato diretamente com a equipe.
+                {content.ui.faqIntro}
               </p>
               <motion.button
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
               >
-                FALAR COM A EQUIPE <span style={{ fontSize: 13 }}>→</span>
+                {content.ui.faqCta} <span style={{ fontSize: 13 }}>→</span>
               </motion.button>
             </Reveal>
           </div>
@@ -1446,17 +1455,15 @@ function FaqSection() {
 // ─────────────────────────────────────────────────────────────────────────────
 // FOOTER
 // ─────────────────────────────────────────────────────────────────────────────
-const SOCIAL_LINKS = ["Instagram", "LinkedIn", "Behance", "GitHub"]
-
 function SiteFooter() {
   const { content } = useContent()
   const pad = "clamp(20px, 4vw, 82px)"
   const ref = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, margin: "-60px" })
+  const SOCIAL_LINKS = content.footer.social ?? []
   const footerNav = [
-    { label: "Navegação", links: ["Trabalhos", "Serviços", "Sobre", "Blog", "Contato"] },
-    { label: "Serviços",  links: ["Branding", "UI / UX Design", "Desenvolvimento Web", "Estratégia Digital", "Motion & Animação"] },
-    { label: "Contato",   links: [content.footer.email, content.footer.phone, content.footer.city] },
+    ...(content.footer.columns ?? []),
+    { label: "Contato", links: [content.footer.email, content.footer.phone, content.footer.city].filter(Boolean) },
   ]
 
   return (
@@ -1491,7 +1498,7 @@ function SiteFooter() {
               whileHover={{ backgroundColor: RED, color: WHITE }}
               transition={{ duration: 0.22 }}
             >
-              INICIAR PROJETO <span style={{ fontSize: 13 }}>→</span>
+              {content.footer.ctaLabel} <span style={{ fontSize: 13 }}>→</span>
             </motion.button>
           </motion.div>
 
@@ -1566,10 +1573,10 @@ function SiteFooter() {
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>
-            © 2026 Studio Tabi. Todos os direitos reservados.
+            {content.footer.copyright}
           </span>
           <div className="flex items-center gap-6">
-            {["Política de Privacidade", "Termos de Uso"].map(item => (
+            {content.footer.legal.map(item => (
               <motion.a
                 key={item}
                 href="#"
@@ -1581,7 +1588,7 @@ function SiteFooter() {
               </motion.a>
             ))}
             <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.08em", color: "rgba(239,239,239,0.18)" }}>
-              Feito com precisão em São Paulo
+              {content.footer.signature}
             </span>
           </div>
         </motion.div>
@@ -1641,13 +1648,13 @@ function ServicesPage() {
         <div style={{ padding: `clamp(48px, 8vw, 110px) ${pad} 0` }}>
           <div className="flex items-center gap-3 mb-8" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
             <span className="block rounded-full" style={{ width: 7, height: 7, backgroundColor: RED }} />
-            <span>STUDIO TABI — SERVIÇOS</span>
+            <span>{content.ui.servicesEyebrow}</span>
           </div>
           <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 6vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 clamp(16px,2vw,24px)", lineHeight: 0.85 }}>
-            O que<br />entregamos.
+            {renderHeadline(content.ui.servicesTitle)}
           </h1>
           <p style={{ maxWidth: 640, fontSize: "clamp(14px,1.1vw,18px)", lineHeight: 1.7, color: "rgba(239,239,239,0.55)", margin: "0 0 clamp(40px,6vw,72px)" }}>
-            Design, estratégia e tecnologia sob um mesmo teto. Cada serviço é pensado para mover o ponteiro do seu negócio.
+            {content.ui.servicesIntro}
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ padding: `0 ${pad} clamp(64px,10vw,120px)`, gap: "0 clamp(24px,3vw,48px)" }}>
@@ -1749,6 +1756,7 @@ function useWpPosts(slug?: string) {
 const BLOG_PAD = "clamp(20px, 4vw, 82px)"
 
 function BlogListPage() {
+  const { content } = useContent()
   const { posts } = useWpPosts()
   return (
     <div style={{ background: BLACK, minHeight: "100svh", color: WHITE, fontFamily: '"Be Vietnam Pro", sans-serif' }}>
@@ -1757,10 +1765,10 @@ function BlogListPage() {
       <section style={{ padding: `clamp(48px, 8vw, 110px) ${BLOG_PAD} clamp(64px,10vw,120px)` }}>
         <div className="flex items-center gap-3 mb-8" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
           <span className="block rounded-full" style={{ width: 7, height: 7, backgroundColor: RED }} />
-          <span>STUDIO TABI — BLOG</span>
+          <span>{content.ui.blogEyebrow}</span>
         </div>
         <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 6vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 clamp(40px,6vw,72px)", lineHeight: 0.85 }}>
-          Ideias &<br />artigos.
+          {renderHeadline(content.ui.blogTitle)}
         </h1>
 
         {posts === null ? (

@@ -39,12 +39,48 @@ export interface SiteContent {
     email: string
     phone: string
     city: string
+    ctaLabel: string
+    columns: { label: string; links: string[] }[]
+    social: string[]
+    copyright: string
+    legal: string[]
+    signature: string
+  }
+  // Títulos, tarjas e chamadas das seções. Em títulos, envolva uma linha com
+  // *asteriscos* para destacá-la em vermelho.
+  ui: {
+    heroEyebrow: string
+    heroCtaPrimary: string
+    heroCtaSecondary: string
+    heroScroll: string
+    aboutEyebrow: string
+    aboutTitle: string
+    servicesEyebrow: string
+    servicesTitle: string
+    servicesCta: string
+    servicesIntro: string
+    projectsEyebrow: string
+    projectsTitle: string
+    projectsMeta: string
+    projectsCta: string
+    projectsCardText: string
+    projectsCardCta: string
+    faqEyebrow: string
+    faqTitle: string
+    faqIntro: string
+    faqCta: string
+    blogEyebrow: string
+    blogTitle: string
+    projectChallengeLabel: string
+    projectSolutionLabel: string
+    projectResultsLabel: string
+    projectGalleryLabel: string
   }
 }
 
 export const DEFAULT_CONTENT: SiteContent = {
   hero: {
-    titleLines: ["TRANSFORMAMOS", "A SUA MARCA", "EM EXPERIÊNCIA"],
+    titleLines: ["TRANSFORMAMOS", "A SUA MARCA", "EM EXPERIÊNCIA", "*DIGITAL.*"],
     description: "Design, estratégia e desenvolvimento para transformar presença digital em percepção de valor, confiança e decisão.",
   },
   about: {
@@ -130,6 +166,43 @@ export const DEFAULT_CONTENT: SiteContent = {
     email: "oi@studiotabi.com.br",
     phone: "+55 11 9 9999-9999",
     city: "São Paulo, SP",
+    ctaLabel: "INICIAR PROJETO",
+    columns: [
+      { label: "Navegação", links: ["Trabalhos", "Serviços", "Sobre", "Blog", "Contato"] },
+      { label: "Serviços", links: ["Branding", "UI / UX Design", "Desenvolvimento Web", "Estratégia Digital", "Motion & Animação"] },
+    ],
+    social: ["Instagram", "LinkedIn", "Behance", "GitHub"],
+    copyright: "© 2026 Studio Tabi. Todos os direitos reservados.",
+    legal: ["Política de Privacidade", "Termos de Uso"],
+    signature: "Feito com precisão em São Paulo",
+  },
+  ui: {
+    heroEyebrow: "STUDIO TABI — DIGITAL STUDIO",
+    heroCtaPrimary: "VER PORTFÓLIO",
+    heroCtaSecondary: "FALAR COM A EQUIPE",
+    heroScroll: "SCROLL",
+    aboutEyebrow: "STUDIO TABI — SOBRE NÓS",
+    aboutTitle: "NÃO FAZEMOS\nSITES.\n*CONSTRUÍMOS*\nPRESENÇA.",
+    servicesEyebrow: "STUDIO TABI — SERVIÇOS",
+    servicesTitle: "O QUE\nENTREGAMOS.",
+    servicesCta: "VER TODOS OS SERVIÇOS",
+    servicesIntro: "Design, estratégia e tecnologia sob um mesmo teto. Cada serviço é pensado para mover o ponteiro do seu negócio.",
+    projectsEyebrow: "STUDIO TABI — PROJETOS",
+    projectsTitle: "TRABALHOS\n*SELECIONADOS.*",
+    projectsMeta: "120+ projetos entregues",
+    projectsCta: "VER TODOS",
+    projectsCardText: "Quer ver o portfólio completo com todos os nossos projetos?",
+    projectsCardCta: "VER PORTFÓLIO",
+    faqEyebrow: "STUDIO TABI — FAQ",
+    faqTitle: "PERGUNTAS\nFREQUENTES\n*.*",
+    faqIntro: "Não encontrou o que procura? Entre em contato diretamente com a equipe.",
+    faqCta: "FALAR COM A EQUIPE",
+    blogEyebrow: "STUDIO TABI — BLOG",
+    blogTitle: "IDEIAS &\n*ARTIGOS.*",
+    projectChallengeLabel: "O DESAFIO",
+    projectSolutionLabel: "A SOLUÇÃO",
+    projectResultsLabel: "RESULTADOS",
+    projectGalleryLabel: "GALERIA",
   },
 }
 

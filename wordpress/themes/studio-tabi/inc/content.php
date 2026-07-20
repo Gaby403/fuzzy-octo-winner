@@ -37,7 +37,32 @@ function tabi_get_content() {
 	if ( ! is_array( $saved ) ) {
 		return $default;
 	}
-	return array_merge( $default, $saved );
+	return tabi_deep_merge( $default, $saved );
+}
+
+/** Uma lista sequencial (0,1,2…) — nesse caso o salvo substitui a lista inteira. */
+function tabi_is_list( $a ) {
+	if ( array() === $a ) { return true; }
+	return array_keys( $a ) === range( 0, count( $a ) - 1 );
+}
+
+/**
+ * Mescla o conteúdo salvo sobre o padrão. Objetos (hero, footer, ui…) são
+ * mesclados por chave — então campos novos caem no padrão em instalações
+ * antigas. Listas (projetos, colunas…) são substituídas inteiras pelo salvo.
+ */
+function tabi_deep_merge( $default, $saved ) {
+	if ( ! is_array( $default ) || ! is_array( $saved ) ) {
+		return $saved;
+	}
+	if ( tabi_is_list( $default ) || tabi_is_list( $saved ) ) {
+		return $saved;
+	}
+	$out = $default;
+	foreach ( $saved as $k => $v ) {
+		$out[ $k ] = array_key_exists( $k, $default ) ? tabi_deep_merge( $default[ $k ], $v ) : $v;
+	}
+	return $out;
 }
 
 /**
@@ -51,7 +76,7 @@ function tabi_save_content( $content ) {
 		return new WP_Error( 'tabi_invalid_content', __( 'Conteúdo inválido: esperado um objeto JSON.', 'studio-tabi' ) );
 	}
 
-	$allowed = array( 'hero', 'about', 'services', 'projects', 'faq', 'footer' );
+	$allowed = array( 'hero', 'about', 'services', 'projects', 'faq', 'footer', 'ui' );
 	$clean   = array();
 	foreach ( $allowed as $section ) {
 		if ( isset( $content[ $section ] ) ) {
