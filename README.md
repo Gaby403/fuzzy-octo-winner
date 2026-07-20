@@ -1,45 +1,54 @@
-# Studio Tabi — WordPress Headless
+# Studio Tabi — Tema WordPress
 
-Site do Studio Tabi em arquitetura **headless**: o WordPress atua apenas como CMS (edição de conteúdo + REST API) e o front-end é um app React/Vite com a experiência visual completa (hero animado, sobre, serviços, projetos, FAQ e footer).
+Site do Studio Tabi como um **tema WordPress unificado**: o próprio WordPress serve o site (interface React embutida) e todo o conteúdo é editado por campos amigáveis no painel. Sem API externa, sem CORS, sem hospedagem separada.
 
 ```
-┌────────────────────┐         GET /wp-json/tabi/v1/content         ┌────────────────────┐
-│  WordPress (CMS)   │ ───────────────────────────────────────────▶ │  Front-end React   │
-│  tema headless     │ ◀─────────────────────────────────────────── │  (Vite + Motion)   │
-│  /wordpress        │   POST (admin, via Application Password)     │  /frontend         │
-└────────────────────┘                                              └────────────────────┘
+┌─────────────────────────────────────────────┐
+│  WordPress (site.gabymuniz.me)               │
+│                                              │
+│  wp-admin → "Conteúdo do Site" (campos)      │
+│      │ salva em option                       │
+│      ▼                                        │
+│  front-page.php injeta o conteúdo inline     │
+│      │  window.__TABI_CONTENT__              │
+│      ▼                                        │
+│  App React embutido (assets/) renderiza      │
+└─────────────────────────────────────────────┘
 ```
 
 ## Estrutura do repositório
 
 | Pasta | Descrição |
 |---|---|
-| `frontend/` | App React (Vite + Tailwind + Motion). É o site público. |
-| `wordpress/themes/studio-tabi-headless/` | Tema WordPress headless: modelo de conteúdo, REST API, painel de edição e CORS. |
-| `wordpress/elementor-exports/` | Exports Elementor de referência (versão anterior do site, opcional). |
+| `wordpress/themes/studio-tabi-headless/` | **O tema** — instale este no WordPress. Já inclui o app React compilado em `assets/`. |
+| `frontend/` | Código-fonte React (Vite). Usado para gerar os `assets/` do tema. |
+| `wordpress/elementor-exports/` | Exports Elementor de referência (opcional). |
 
 ## Como funciona
 
-- O tema registra o endpoint **`GET /wp-json/tabi/v1/content`** (público), que devolve todo o conteúdo do site em JSON: `hero`, `about`, `services`, `projects`, `faq`, `footer`.
-- O conteúdo é editado no painel do WP (menu **Conteúdo do Site**) ou pelo painel React em **`/admin`** do front-end, que publica via **`POST /wp-json/tabi/v1/content`** autenticado com [Application Password](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/).
-- O front-end busca o conteúdo ao carregar e usa o conteúdo padrão embutido como fallback se o WP estiver fora do ar — o site nunca quebra.
-- O CORS da API é liberado apenas para a origem do front-end configurada no painel.
-- Visitantes que acessarem o WordPress diretamente são redirecionados para o front-end.
+- O conteúdo é editado no painel do WP em **Conteúdo do Site** (campos por seção: hero, sobre, serviços, projetos, FAQ, rodapé) e salvo numa *option*.
+- `front-page.php` monta o `#root` do app; `functions.php` enfileira o bundle (`assets/*.js` + `assets/*.css`) e injeta o conteúdo inline em `window.__TABI_CONTENT__`.
+- O app React lê esse conteúdo já na primeira renderização — sem chamada de rede, então **não há problema de CORS**.
+- Como o WordPress serve o próprio site, front e back moram no mesmo domínio.
 
-## Setup — WordPress
+> Uma página **Editor JSON (avançado)** continua disponível como submenu, para edição direta ou backup. O endpoint REST `/wp-json/tabi/v1/content` também permanece (opcional), mas não é mais necessário para o site funcionar.
 
-1. Copie `wordpress/themes/studio-tabi-headless` para `wp-content/themes/` e ative o tema.
-2. No menu **Conteúdo do Site**, informe a **URL do front-end** (habilita o CORS e o redirect) e edite o conteúdo.
-3. Em **Usuários → Perfil → Application Passwords**, gere uma senha de aplicação para publicar a partir do painel React.
+## Instalação
 
-## Setup — Front-end
+1. No WP admin: **Aparência → Temas → Adicionar novo → Enviar tema**, envie o zip do tema (`studio-tabi-headless`) e ative.
+2. Vá em **Conteúdo do Site** e edite os textos. Salve — o site já reflete as alterações.
+
+## Desenvolvimento (regenerar o app)
+
+Ao alterar o código React em `frontend/`, recompile e copie os assets para o tema:
 
 ```bash
 cd frontend
-cp .env.example .env.local   # defina VITE_WP_URL com a URL do seu WordPress
 npm install
-npm run dev                  # desenvolvimento
-npm run build                # produção (deploy da pasta dist/ em qualquer host estático)
+npm run build
+# copie o bundle gerado para dentro do tema:
+rm -f ../wordpress/themes/studio-tabi-headless/assets/*
+cp dist/assets/*.js dist/assets/*.css ../wordpress/themes/studio-tabi-headless/assets/
 ```
 
-Sem `VITE_WP_URL`, o app roda em **modo standalone**: o conteúdo padrão é usado e o `/admin` salva no localStorage (senha local), como no protótipo original.
+Para desenvolver o visual isoladamente (sem WordPress), `npm run dev` roda o app em modo standalone com o conteúdo padrão.

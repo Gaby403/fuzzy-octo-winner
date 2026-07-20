@@ -1,14 +1,24 @@
 import { useEffect, useState } from "react"
 import { Outlet } from "react-router"
 import { ContentContext, DEFAULT_CONTENT, loadContent, saveContent, resetContent, SiteContent } from "./store/content"
-import { isWpConfigured, fetchWpContent, saveWpContent } from "./store/wp"
+import { isWpConfigured, fetchWpContent, saveWpContent, getInjectedContent } from "./store/wp"
+
+// No modo tema unificado, o WordPress injeta o conteúdo inline na página.
+// Se existir, ele é a fonte da verdade já na primeira renderização (sem flash
+// de conteúdo padrão e sem chamada de rede).
+function initialContent(): SiteContent {
+  const injected = getInjectedContent()
+  if (injected) return { ...DEFAULT_CONTENT, ...injected }
+  return loadContent()
+}
 
 export default function Root() {
-  const [content, setContentState] = useState<SiteContent>(loadContent)
+  const [content, setContentState] = useState<SiteContent>(initialContent)
 
-  // Com WordPress configurado, o CMS é a fonte da verdade: busca o conteúdo
-  // publicado ao montar. Sem WP (ou offline), permanece o fallback local.
+  // Sem conteúdo injetado, mas com WordPress headless configurado, busca o
+  // conteúdo publicado via API ao montar. Sem nada disso, usa o fallback local.
   useEffect(() => {
+    if (getInjectedContent()) return
     fetchWpContent().then(remote => {
       if (remote) setContentState({ ...DEFAULT_CONTENT, ...remote })
     })

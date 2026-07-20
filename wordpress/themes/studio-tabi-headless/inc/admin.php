@@ -178,9 +178,6 @@ function tabi_render_admin_page() {
 			delete_option( TABI_OPTION_CONTENT );
 			$notice = array( 'success', __( 'Conteúdo restaurado para os valores padrão.', 'studio-tabi-headless' ) );
 		} elseif ( 'save' === $action ) {
-			$frontend_url = isset( $_POST['tabi_frontend_url'] ) ? esc_url_raw( wp_unslash( $_POST['tabi_frontend_url'] ) ) : '';
-			update_option( TABI_OPTION_FRONTEND_URL, $frontend_url, false );
-
 			$result = tabi_save_content( tabi_content_from_form( wp_unslash( (array) ( $_POST['tabi'] ?? array() ) ) ) );
 			$notice = is_wp_error( $result )
 				? array( 'error', $result->get_error_message() )
@@ -188,8 +185,7 @@ function tabi_render_admin_page() {
 		}
 	}
 
-	$c            = tabi_get_content();
-	$frontend_url = get_option( TABI_OPTION_FRONTEND_URL, '' );
+	$c = tabi_get_content();
 
 	$pairs_to_text = function ( $pairs, $a, $b ) {
 		return implode( "\n", array_map( function ( $p ) use ( $a, $b ) {
@@ -221,13 +217,6 @@ function tabi_render_admin_page() {
 		<form method="post">
 			<?php wp_nonce_field( 'tabi_save_content' ); ?>
 			<input type="hidden" name="tabi_action" value="save" />
-
-			<details class="tabi-card" open>
-				<summary><?php esc_html_e( 'Configuração', 'studio-tabi-headless' ); ?></summary>
-				<div class="inside">
-					<?php tabi_field_text( 'tabi_frontend_url', __( 'URL do site (front-end)', 'studio-tabi-headless' ), $frontend_url, __( 'Endereço público do site React. Necessário para o site conseguir buscar o conteúdo.', 'studio-tabi-headless' ), 'url' ); ?>
-				</div>
-			</details>
 
 			<details class="tabi-card" open>
 				<summary><?php esc_html_e( 'Hero (topo do site)', 'studio-tabi-headless' ); ?></summary>

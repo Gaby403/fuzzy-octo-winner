@@ -1,10 +1,29 @@
 import type { SiteContent } from "./content"
 
+declare global {
+  interface Window {
+    // Conteúdo injetado inline pelo tema WordPress (modo tema unificado).
+    __TABI_CONTENT__?: Partial<SiteContent>
+  }
+}
+
 // URL do WordPress headless (ex.: https://cms.studiotabi.com.br), sem barra final.
 // Definida em .env / .env.local como VITE_WP_URL. Sem ela, o app roda em modo
 // standalone com conteúdo local (localStorage), como antes.
 export const WP_URL = ((import.meta.env.VITE_WP_URL as string | undefined) ?? "").replace(/\/+$/, "")
 export const isWpConfigured = WP_URL.length > 0
+
+/**
+ * Conteúdo injetado pelo tema WordPress diretamente na página (window.__TABI_CONTENT__).
+ * Usado no modo "tema unificado", em que o WordPress serve o próprio site — sem
+ * chamada de API e, portanto, sem CORS. Retorna null se não houver injeção.
+ */
+export function getInjectedContent(): Partial<SiteContent> | null {
+  if (typeof window !== "undefined" && window.__TABI_CONTENT__) {
+    return window.__TABI_CONTENT__
+  }
+  return null
+}
 
 const CONTENT_ENDPOINT = `${WP_URL}/wp-json/tabi/v1/content`
 const AUTH_KEY = "tabi_wp_auth"

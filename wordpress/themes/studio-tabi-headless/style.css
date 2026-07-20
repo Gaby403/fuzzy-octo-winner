@@ -1,7 +1,7 @@
 /*
-Theme Name: Studio Tabi Headless
+Theme Name: Studio Tabi
 Theme URI: https://github.com/gaby403/fuzzy-octo-winner
-Description: Tema headless para o site Studio Tabi. O WordPress atua apenas como CMS: o conteúdo é editado no painel e servido via REST API (/wp-json/tabi/v1/content) para o front-end React.
+Description: Tema do site Studio Tabi. O WordPress serve o próprio site (interface React embutida) e o conteúdo é editado pelos campos do painel, em "Conteúdo do Site". Sem dependência de API externa.
 Author: Studio Tabi
 Version: 1.0.0
 Requires at least: 6.0

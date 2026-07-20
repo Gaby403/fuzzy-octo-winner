@@ -1,7 +1,7 @@
 <?php
 /**
- * Fallback: mesmo shell da página inicial para qualquer requisição servida
- * pelo WordPress. O app React assume a renderização a partir do #root.
+ * Página inicial: monta o "shell" do app React. O bundle e o conteúdo
+ * (window.__TABI_CONTENT__) são injetados pelo functions.php.
  */
 
 defined( 'ABSPATH' ) || exit;
