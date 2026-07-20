@@ -10,10 +10,8 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'TABI_OPTION_CONTENT', 'tabi_site_content' );
-define( 'TABI_OPTION_FRONTEND_URL', 'tabi_frontend_url' );
 
 require_once __DIR__ . '/inc/content.php';
-require_once __DIR__ . '/inc/rest.php';
 require_once __DIR__ . '/inc/admin.php';
 
 add_action( 'after_setup_theme', function () {
@@ -78,7 +76,7 @@ add_action( 'after_switch_theme', function () {
 add_action( 'admin_notices', function () {
 	if ( '' === get_option( 'permalink_structure' ) ) {
 		echo '<div class="notice notice-warning"><p><strong>Studio Tabi:</strong> ';
-		echo esc_html__( 'defina os Links Permanentes como “Nome do post” em Configurações → Links Permanentes para as páginas internas (serviços, projetos, blog) funcionarem.', 'studio-tabi-headless' );
+		echo esc_html__( 'defina os Links Permanentes como “Nome do post” em Configurações → Links Permanentes para as páginas internas (serviços, projetos, blog) funcionarem.', 'studio-tabi' );
 		echo '</p></div>';
 	}
 } );

@@ -48,7 +48,7 @@ function tabi_get_content() {
  */
 function tabi_save_content( $content ) {
 	if ( ! is_array( $content ) ) {
-		return new WP_Error( 'tabi_invalid_content', __( 'Conteúdo inválido: esperado um objeto JSON.', 'studio-tabi-headless' ) );
+		return new WP_Error( 'tabi_invalid_content', __( 'Conteúdo inválido: esperado um objeto JSON.', 'studio-tabi' ) );
 	}
 
 	$allowed = array( 'hero', 'about', 'services', 'projects', 'faq', 'footer' );
@@ -60,7 +60,7 @@ function tabi_save_content( $content ) {
 	}
 
 	if ( empty( $clean ) ) {
-		return new WP_Error( 'tabi_empty_content', __( 'Nenhuma seção válida encontrada (hero, about, services, projects, faq, footer).', 'studio-tabi-headless' ) );
+		return new WP_Error( 'tabi_empty_content', __( 'Nenhuma seção válida encontrada (hero, about, services, projects, faq, footer).', 'studio-tabi' ) );
 	}
 
 	update_option( TABI_OPTION_CONTENT, $clean, false );
