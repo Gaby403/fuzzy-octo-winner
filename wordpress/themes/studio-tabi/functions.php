@@ -9,7 +9,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TABI_VERSION', '2.0.0' );
+define( 'TABI_VERSION', '2.1.0' );
 
 require_once get_template_directory() . '/inc/defaults.php';
 require_once get_template_directory() . '/inc/template-helpers.php';

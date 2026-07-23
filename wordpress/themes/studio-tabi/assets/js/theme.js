@@ -57,20 +57,34 @@
     revealAll();
   }
 
-  /* ── Parallax leve das montanhas do hero ── */
+  /* ── Cena do hero: parallax das montanhas + sol se pondo / lua nascendo ── */
   var mtns = [].slice.call(document.querySelectorAll('.tabi-mtn'));
-  if (mtns.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  var hero = document.querySelector('.tabi-hero');
+  var scene = document.querySelector('.tabi-celestial');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduce && (mtns.length || scene)) {
     var ticking = false;
-    window.addEventListener('scroll', function () {
-      if (ticking) { return; }
-      ticking = true;
-      requestAnimationFrame(function () {
-        var y = window.pageYOffset;
-        mtns.forEach(function (m, i) {
-          m.style.transform = 'translateY(' + ( y * (0.04 + i * 0.03) ) + 'px)';
-        });
-        ticking = false;
+    var update = function () {
+      var y = window.pageYOffset;
+      mtns.forEach(function (m, i) {
+        m.style.transform = 'translateY(' + ( y * (0.04 + i * 0.03) ) + 'px)';
       });
+      if (hero && scene) {
+        var h = hero.offsetHeight || window.innerHeight;
+        var p = Math.min(1, Math.max(0, y / (h * 0.85)));            // 0 no topo → 1 ao sair do hero
+        scene.style.setProperty('--sun-y', (p * 130) + 'px');
+        scene.style.setProperty('--sun-o', (1 - p * 0.85).toFixed(3));
+        scene.style.setProperty('--sun-s', (1 - p * 0.12).toFixed(3));
+        var mp = Math.min(1, Math.max(0, (p - 0.1) / 0.6));          // lua surge de ~10% a 70%
+        scene.style.setProperty('--moon-y', (40 - mp * 78) + 'px');
+        scene.style.setProperty('--moon-o', mp.toFixed(3));
+      }
+      ticking = false;
+    };
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
     }, { passive: true });
+    update();
   }
 })();

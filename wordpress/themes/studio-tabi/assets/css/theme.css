@@ -53,7 +53,13 @@ h1,h2,h3{margin:0;font-family:var(--head);font-weight:900;letter-spacing:-0.04em
 /* ── Hero ── */
 .tabi-hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;background:radial-gradient(120% 90% at 78% 30%,rgba(242,80,20,.16) 0%,rgba(255,140,30,.06) 30%,transparent 62%),var(--black)}
 .tabi-hero-scene{position:absolute;inset:0;z-index:0;pointer-events:none}
-.tabi-hero-sun{position:absolute;right:14%;top:34%;width:clamp(200px,26vw,420px);aspect-ratio:1;background:var(--red);border-radius:50%;transform:translate(0,-50%);box-shadow:0 0 120px 20px rgba(242,12,37,.25)}
+.tabi-hero-glow{position:absolute;right:8%;top:30%;width:60vw;aspect-ratio:1;transform:translateY(-50%);background:radial-gradient(circle,rgba(242,80,20,.20) 0%,rgba(255,140,30,.08) 30%,transparent 62%)}
+.tabi-celestial{position:absolute;right:14%;top:34%;width:clamp(200px,26vw,420px);aspect-ratio:1;transform:translateY(-50%)}
+.tabi-sun,.tabi-moon{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.tabi-sun{background:var(--red);box-shadow:0 0 120px 20px rgba(242,12,37,.28);transform:translateY(var(--sun-y,0)) scale(var(--sun-s,1));opacity:var(--sun-o,1)}
+.tabi-moon{background:var(--white);transform:translate(-16%,var(--moon-y,40px)) scale(.6);opacity:var(--moon-o,0)}
+.tabi-sun .tabi-mark{width:56%;opacity:var(--kanji-o,1)}
+.tabi-moon .tabi-mark{width:52%;opacity:.8}
 .tabi-mtn{position:absolute;left:-2%;width:104%;bottom:0}
 .tabi-mtn-1{height:26%;color:#050505;z-index:4}
 .tabi-mtn-2{height:33%;color:#0c0a0a;z-index:3}
@@ -232,8 +238,11 @@ h1,h2,h3{margin:0;font-family:var(--head);font-weight:900;letter-spacing:-0.04em
   .tabi-hero-title .tabi-hl-line:nth-child(2){animation-delay:.37s}
   .tabi-hero-title .tabi-hl-line:nth-child(3){animation-delay:.44s}
   .tabi-hero-title .tabi-hl-line:nth-child(4){animation-delay:.51s}
-  .tabi-hero-sun{animation:tabiSun 1.2s cubic-bezier(.16,1,.3,1) both}
+  .tabi-celestial{animation:tabiRise 1.3s cubic-bezier(.16,1,.3,1) both}
+  .tabi-sun .tabi-mark{opacity:0;animation:tabiFade 1s .55s forwards}
+  .tabi-hero-glow{opacity:0;animation:tabiFade 1.6s .3s forwards}
   .tabi-mtn{animation:tabiMtn 1.2s cubic-bezier(.16,1,.3,1) both}
+  .tabi-mtn-3{animation-delay:.05s}.tabi-mtn-2{animation-delay:.12s}.tabi-mtn-1{animation-delay:.19s}
 
   /* Revelação ao rolar (só quando o JS está ativo — nunca esconde sem JS) */
   .tabi-js .tabi-reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
@@ -241,5 +250,6 @@ h1,h2,h3{margin:0;font-family:var(--head);font-weight:900;letter-spacing:-0.04em
 }
 
 @keyframes tabiUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
-@keyframes tabiSun{from{opacity:0;transform:translate(0,-50%) scale(.6)}to{opacity:1;transform:translate(0,-50%) scale(1)}}
+@keyframes tabiRise{from{opacity:0;transform:translateY(-50%) scale(.7)}to{opacity:1;transform:translateY(-50%) scale(1)}}
+@keyframes tabiFade{to{opacity:1}}
 @keyframes tabiMtn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}

@@ -10,7 +10,11 @@ get_header();
 <!-- ── HERO ── -->
 <section class="tabi-hero">
 	<div class="tabi-hero-scene" aria-hidden="true">
-		<div class="tabi-hero-sun"></div>
+		<div class="tabi-hero-glow"></div>
+		<div class="tabi-celestial">
+			<div class="tabi-moon"><?php echo tabi_mark( '#F20C25', 'tabi-mark' ); // phpcs:ignore ?></div>
+			<div class="tabi-sun"><?php echo tabi_mark( '#EFEFEF', 'tabi-mark' ); // phpcs:ignore ?></div>
+		</div>
 		<svg class="tabi-mtn tabi-mtn-3" viewBox="0 0 1600 520" preserveAspectRatio="none"><path d="M0 520 L0 300 C200 250 380 340 560 300 C760 255 900 200 1040 150 C1160 110 1320 180 1460 240 C1520 265 1570 285 1600 300 L1600 520 Z"/></svg>
 		<svg class="tabi-mtn tabi-mtn-2" viewBox="0 0 1600 520" preserveAspectRatio="none"><path d="M0 520 L0 340 C180 300 360 360 540 330 C740 296 900 250 1060 210 C1200 175 1340 230 1470 280 C1530 302 1575 318 1600 330 L1600 520 Z"/></svg>
 		<svg class="tabi-mtn tabi-mtn-1" viewBox="0 0 1600 520" preserveAspectRatio="none"><path d="M0 520 L0 390 C160 360 340 400 520 380 C720 356 900 320 1080 300 C1240 282 1360 320 1480 350 C1540 366 1578 378 1600 386 L1600 520 Z"/></svg>
