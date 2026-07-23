@@ -1,0 +1,217 @@
+/* ============================================================
+   Studio Tabi — tema nativo
+   ============================================================ */
+:root{
+  --black:#111111; --bg:#0d0d0d; --white:#efefef; --red:#f20c25;
+  --muted:rgba(239,239,239,0.55); --muted2:rgba(239,239,239,0.35);
+  --line:rgba(239,239,239,0.10);
+  --head:"Roboto Condensed",sans-serif; --body:"Be Vietnam Pro",sans-serif;
+  --pad:clamp(20px,4vw,82px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--black);color:var(--white);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-family:var(--head);font-weight:900;letter-spacing:-0.04em;line-height:0.9}
+
+/* headline multilinha */
+.tabi-hl-line{display:block;text-transform:uppercase}
+.tabi-hl-line.is-red{color:var(--red)}
+
+/* eyebrow */
+.tabi-eyebrow{display:flex;align-items:center;gap:10px;font-size:9px;font-weight:600;letter-spacing:0.17em;color:var(--muted2);text-transform:uppercase;margin-bottom:24px}
+.tabi-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex:0 0 auto}
+
+/* botões */
+.tabi-btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--body);font-size:10px;font-weight:600;letter-spacing:0.13em;cursor:pointer;transition:.2s;text-transform:uppercase}
+.tabi-btn-solid,.tabi-btn-outline{padding:13px 26px;border-radius:999px;border:1px solid var(--red);color:var(--red);background:transparent}
+.tabi-btn-solid:hover,.tabi-btn-outline:hover{background:var(--red);color:#fff}
+.tabi-btn-text{color:var(--muted);border:none;background:none}
+.tabi-btn-text:hover{color:var(--white)}
+
+/* ── Header ── */
+.tabi-header{position:sticky;top:0;z-index:50;background:rgba(17,17,17,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.tabi-header-inner{display:flex;align-items:center;justify-content:space-between;padding:clamp(14px,2vw,20px) var(--pad)}
+.tabi-logo{font-family:var(--head);font-weight:900;font-size:clamp(14px,1.2vw,19px);letter-spacing:-0.04em;text-transform:uppercase}
+.tabi-logo span{color:var(--red)}
+.tabi-logo img{max-height:40px;width:auto}
+.tabi-nav-list{display:flex;gap:30px;list-style:none;margin:0;padding:0}
+.tabi-nav-list a{font-size:10px;font-weight:600;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);transition:.2s}
+.tabi-nav-list a:hover{color:var(--white)}
+.tabi-burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
+.tabi-burger span{width:22px;height:2px;background:var(--white);transition:.25s}
+.tabi-burger.is-open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.tabi-burger.is-open span:nth-child(2){opacity:0}
+.tabi-burger.is-open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* ── Sections base ── */
+.tabi-section{padding:clamp(56px,9vw,120px) var(--pad);border-top:1px solid rgba(239,239,239,0.06);position:relative}
+.tabi-title{font-size:clamp(40px,5.4vw,88px);text-transform:uppercase}
+.tabi-section-intro{max-width:640px;color:var(--muted);font-size:clamp(14px,1.1vw,18px);margin:22px 0 clamp(40px,6vw,64px)}
+
+/* ── Hero ── */
+.tabi-hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;background:radial-gradient(120% 90% at 78% 30%,rgba(242,80,20,.16) 0%,rgba(255,140,30,.06) 30%,transparent 62%),var(--black)}
+.tabi-hero-scene{position:absolute;inset:0;z-index:0;pointer-events:none}
+.tabi-hero-sun{position:absolute;right:14%;top:34%;width:clamp(200px,26vw,420px);aspect-ratio:1;background:var(--red);border-radius:50%;transform:translate(0,-50%);box-shadow:0 0 120px 20px rgba(242,12,37,.25)}
+.tabi-mtn{position:absolute;left:-2%;width:104%;bottom:0}
+.tabi-mtn-1{height:26%;color:#050505;z-index:4}
+.tabi-mtn-2{height:33%;color:#0c0a0a;z-index:3}
+.tabi-mtn-3{height:40%;color:#161011;z-index:2}
+.tabi-mtn path{fill:currentColor}
+.tabi-hero-content{position:relative;z-index:10;width:min(760px,92%);padding:0 var(--pad)}
+.tabi-hero-title{font-size:clamp(48px,7vw,104px);line-height:.82;margin:8px 0 0}
+.tabi-hero-desc{max-width:500px;color:var(--muted);font-size:clamp(13px,1vw,17px);margin:28px 0 0}
+.tabi-hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:34px}
+
+/* ── About ── */
+.tabi-about-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,90px);align-items:start}
+.tabi-about-text p{color:rgba(239,239,239,0.62);margin:0 0 20px;font-size:clamp(13px,1vw,17px)}
+.tabi-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:clamp(48px,7vw,88px)}
+.tabi-stat{background:var(--bg);padding:clamp(22px,3vw,36px)}
+.tabi-stat-num{display:block;font-family:var(--head);font-weight:900;font-size:clamp(34px,4.5vw,64px);color:var(--red);letter-spacing:-0.05em;line-height:1}
+.tabi-stat-label{display:block;margin-top:8px;font-size:9px;font-weight:600;letter-spacing:0.14em;color:var(--muted2);text-transform:uppercase}
+.tabi-pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(20px,3vw,40px);margin-top:clamp(40px,6vw,72px)}
+.tabi-pillar-num{font-size:10px;font-weight:600;letter-spacing:0.14em;color:var(--red)}
+.tabi-pillar h3{font-size:clamp(18px,1.8vw,24px);letter-spacing:-0.02em;margin:12px 0 10px;text-transform:none}
+.tabi-pillar p{color:var(--muted);font-size:14px;margin:0}
+
+/* ── Services ── */
+.tabi-services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 clamp(24px,3vw,48px)}
+.tabi-service{padding:clamp(28px,3vw,40px) 0;border-top:1px solid var(--line)}
+.tabi-service-num{font-family:var(--head);font-weight:700;font-size:13px;color:var(--red)}
+.tabi-service h3{font-size:clamp(19px,1.7vw,24px);letter-spacing:-0.02em;margin:14px 0 12px;text-transform:none;line-height:1.1}
+.tabi-service-body{color:var(--muted);font-size:14px;line-height:1.65}
+.tabi-service-body p{margin:0}
+
+/* ── Projects ── */
+.tabi-projects-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:clamp(32px,5vw,56px);flex-wrap:wrap}
+.tabi-projects-meta{font-size:9px;letter-spacing:0.1em;color:var(--muted2)}
+.tabi-projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.5vw,20px)}
+.tabi-project-card{position:relative;border-radius:6px;overflow:hidden;aspect-ratio:1/1;border:1px solid var(--line);display:block;transition:.3s}
+.tabi-project-card.is-featured{grid-column:span 2;aspect-ratio:16/10}
+.tabi-project-card:hover{border-color:var(--accent,var(--red))}
+.tabi-project-img{position:absolute;inset:0}
+.tabi-project-img img{width:100%;height:100%;object-fit:cover;transition:.5s}
+.tabi-project-card:hover .tabi-project-img img{transform:scale(1.04)}
+.tabi-project-img-ph{background:linear-gradient(135deg,color-mix(in srgb,var(--accent,#f20c25) 22%,#000),#0d0a0a)}
+.tabi-project-info{position:absolute;left:0;right:0;bottom:0;padding:clamp(18px,2vw,28px);background:linear-gradient(to top,rgba(8,8,8,.92),transparent);z-index:2}
+.tabi-project-cat{font-size:9px;font-weight:600;letter-spacing:0.14em;color:var(--accent,var(--red));text-transform:uppercase}
+.tabi-project-info h3{font-size:clamp(20px,2vw,32px);letter-spacing:-0.03em;text-transform:uppercase;margin-top:6px}
+.tabi-more{display:inline-flex;gap:10px;margin-top:clamp(32px,4vw,52px);font-size:10px;font-weight:600;letter-spacing:0.13em;color:var(--red)}
+.tabi-more:hover{gap:16px}
+
+/* ── FAQ ── */
+.tabi-faq{background:#0b0b0b}
+.tabi-faq-grid{display:grid;grid-template-columns:4fr 8fr;gap:clamp(32px,5vw,80px);align-items:start}
+.tabi-faq-intro{position:sticky;top:100px}
+.tabi-faq-intro p{color:var(--muted2);font-size:14px;margin-top:20px}
+.tabi-faq-item{border-top:1px solid var(--line)}
+.tabi-faq-q{width:100%;display:flex;align-items:center;gap:16px;background:none;border:none;cursor:pointer;padding:clamp(20px,3vw,30px) 0;text-align:left;color:inherit}
+.tabi-faq-n{font-size:9px;font-weight:600;letter-spacing:0.14em;color:var(--muted2)}
+.tabi-faq-text{flex:1;font-family:var(--head);font-weight:700;font-size:clamp(15px,1.5vw,22px);letter-spacing:-0.02em;text-transform:uppercase;color:rgba(239,239,239,.72)}
+.tabi-faq-plus{font-family:var(--head);font-weight:900;font-size:18px;color:var(--muted2);transition:.3s}
+.tabi-faq-item.is-open .tabi-faq-plus{transform:rotate(45deg);color:var(--red)}
+.tabi-faq-item.is-open .tabi-faq-text{color:var(--white)}
+.tabi-faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.tabi-faq-a p{color:var(--muted);font-size:14px;line-height:1.7;margin:0;padding:0 0 clamp(20px,3vw,30px) clamp(0px,2vw,36px);max-width:720px}
+
+/* ── Footer ── */
+.tabi-footer{background:var(--black);border-top:1px solid var(--line);padding:clamp(56px,8vw,100px) var(--pad) 0}
+.tabi-footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:clamp(24px,3vw,48px)}
+.tabi-footer-logo{font-family:var(--head);font-weight:900;font-size:clamp(18px,1.6vw,26px);text-transform:uppercase}
+.tabi-footer-rule{display:block;width:32px;height:2px;background:var(--red);margin:10px 0 20px}
+.tabi-footer-brand p{color:var(--muted2);max-width:280px;font-size:13px;margin:0 0 24px}
+.tabi-footer-label{display:block;font-size:9px;font-weight:600;letter-spacing:0.17em;color:var(--muted2);text-transform:uppercase;margin-bottom:18px}
+.tabi-footer-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.tabi-footer-col a,.tabi-footer-col li{color:var(--muted);font-size:13px;transition:.2s}
+.tabi-footer-col a:hover{color:var(--white)}
+.tabi-footer-bottom{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:clamp(48px,6vw,80px);padding:22px 0;font-size:9px;letter-spacing:0.08em;color:var(--muted2)}
+
+/* ── Project single ── */
+.tabi-project-single{background:#080808}
+.tabi-project-hero{min-height:clamp(340px,50vh,560px);display:flex;align-items:flex-end;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 22%,#000),#0d0a0a);background-size:cover;background-position:center}
+.tabi-project-hero-inner{padding:clamp(28px,5vw,64px) var(--pad);width:100%}
+.tabi-back{display:inline-block;margin-bottom:20px;font-size:9px;font-weight:600;letter-spacing:0.14em;color:var(--muted);background:rgba(0,0,0,.4);padding:9px 16px;border-radius:999px;border:1px solid var(--line)}
+.tabi-back:hover{color:var(--white)}
+.tabi-project-hero .tabi-project-cat{font-size:10px}
+.tabi-project-hero h1{font-size:clamp(36px,5.5vw,88px);text-transform:uppercase;margin-top:8px}
+.tabi-project-body{max-width:1000px;margin:0 auto;padding:clamp(40px,6vw,80px) var(--pad)}
+.tabi-project-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:clamp(40px,6vw,72px)}
+.tabi-project-meta>div{background:var(--bg);padding:clamp(16px,2.5vw,26px)}
+.tabi-project-meta span{display:block;font-size:8px;font-weight:600;letter-spacing:0.16em;color:var(--muted2);text-transform:uppercase;margin-bottom:6px}
+.tabi-project-meta strong{font-family:var(--head);font-weight:700;font-size:clamp(14px,1.4vw,20px)}
+.tabi-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:clamp(40px,6vw,72px)}
+.tabi-tag{font-size:9px;font-weight:600;letter-spacing:0.12em;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);border-radius:999px;padding:7px 14px;text-transform:uppercase}
+.tabi-label{font-size:8px;font-weight:600;letter-spacing:0.18em;color:var(--muted2);text-transform:uppercase;margin:0 0 28px}
+.tabi-results{margin:clamp(40px,6vw,72px) 0}
+.tabi-results-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2vw,24px)}
+.tabi-result{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:clamp(20px,2.5vw,30px)}
+.tabi-result-val{display:block;font-family:var(--head);font-weight:900;font-size:clamp(26px,3.4vw,46px);color:var(--accent);letter-spacing:-0.05em;line-height:1}
+.tabi-result-lab{display:block;margin-top:8px;font-size:10px;color:var(--muted2)}
+.tabi-project-nav{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:clamp(24px,3vw,40px);font-size:9px;font-weight:600;letter-spacing:0.14em;color:var(--muted2)}
+.tabi-project-nav a:hover{color:var(--white)}
+
+/* ── Blog / post / page ── */
+.tabi-page-title{font-size:clamp(40px,6vw,92px);margin-bottom:clamp(36px,5vw,64px)}
+.tabi-blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,28px)}
+.tabi-blog-card{border:1px solid var(--line);border-radius:8px;overflow:hidden;transition:.25s}
+.tabi-blog-card:hover{border-color:var(--red)}
+.tabi-blog-img{aspect-ratio:16/10;background:linear-gradient(135deg,#1a0505,#2d0a0a)}
+.tabi-blog-img img{width:100%;height:100%;object-fit:cover}
+.tabi-blog-info{padding:clamp(18px,2vw,24px)}
+.tabi-blog-date{font-size:8px;font-weight:600;letter-spacing:0.14em;color:var(--red);text-transform:uppercase}
+.tabi-blog-info h2{font-family:var(--head);font-weight:700;font-size:clamp(17px,1.6vw,22px);letter-spacing:-0.02em;text-transform:none;margin:10px 0;line-height:1.15}
+.tabi-blog-info p{color:var(--muted);font-size:13px;margin:0}
+.tabi-empty,.tabi-empty-box{color:var(--muted2)}
+.tabi-empty-box{border:1px solid var(--line);border-radius:8px;padding:clamp(32px,5vw,56px);max-width:560px}
+.tabi-empty-title{font-family:var(--head);font-weight:700;font-size:20px;margin:0 0 8px;color:var(--white)}
+
+.tabi-post,.tabi-page{max-width:760px;margin:0 auto;padding:clamp(40px,6vw,80px) var(--pad)}
+.tabi-post-date{font-size:9px;font-weight:600;letter-spacing:0.14em;color:var(--red);text-transform:uppercase;margin:22px 0 12px}
+.tabi-post-title{font-size:clamp(30px,4.4vw,64px);text-transform:uppercase;margin-bottom:clamp(24px,3vw,40px)}
+.tabi-post-cover{margin-bottom:clamp(24px,3vw,40px)}
+.tabi-post-cover img{border-radius:8px;width:100%}
+
+/* conteúdo (Gutenberg / the_content) */
+.tabi-post-body{font-size:clamp(15px,1.15vw,18px);line-height:1.8;color:rgba(239,239,239,.78)}
+.tabi-post-body>*{margin:0 0 1.3em}
+.tabi-post-body h2,.tabi-post-body h3,.tabi-post-body h4{font-family:var(--head);font-weight:700;letter-spacing:-0.02em;color:var(--white);line-height:1.2;margin:1.8em 0 .6em;text-transform:none}
+.tabi-post-body h2{font-size:clamp(22px,2.4vw,32px)}
+.tabi-post-body h3{font-size:clamp(19px,2vw,26px)}
+.tabi-post-body a{color:var(--red);text-decoration:underline}
+.tabi-post-body img{border-radius:8px}
+.tabi-post-body ul,.tabi-post-body ol{padding-left:1.4em}
+.tabi-post-body li{margin:.4em 0}
+.tabi-post-body blockquote{border-left:3px solid var(--red);padding-left:1.2em;margin-left:0;color:var(--muted);font-style:italic}
+.tabi-post-body strong{color:var(--white)}
+.tabi-post-body figure{margin:0 0 1.3em}
+.tabi-post-tags{margin-top:32px;display:flex;flex-wrap:wrap;gap:8px}
+.tabi-post-tags a{font-size:9px;letter-spacing:0.1em;color:var(--muted2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;text-transform:uppercase}
+
+/* paginação */
+.tabi-pagination{margin-top:clamp(32px,4vw,56px)}
+.tabi-pagination .page-numbers{display:inline-block;padding:8px 13px;margin:0 3px;border:1px solid var(--line);border-radius:6px;font-size:12px;color:var(--muted)}
+.tabi-pagination .page-numbers.current{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* ── Responsivo ── */
+@media(max-width:1000px){
+  .tabi-about-grid{grid-template-columns:1fr}
+  .tabi-services-grid{grid-template-columns:repeat(2,1fr)}
+  .tabi-projects-grid,.tabi-blog-grid{grid-template-columns:repeat(2,1fr)}
+  .tabi-project-card.is-featured{grid-column:span 2}
+  .tabi-faq-grid{grid-template-columns:1fr}
+  .tabi-faq-intro{position:static}
+  .tabi-footer-top{grid-template-columns:1fr 1fr}
+  .tabi-stats,.tabi-results-grid,.tabi-project-meta{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .tabi-nav{position:fixed;inset:0 0 0 auto;width:min(300px,84vw);background:#111;flex-direction:column;padding:90px 32px 40px;transform:translateX(100%);transition:.35s;z-index:40}
+  .tabi-nav.is-open{transform:translateX(0)}
+  .tabi-nav-list{flex-direction:column;gap:8px}
+  .tabi-nav-list a{font-family:var(--head);font-weight:900;font-size:24px;text-transform:uppercase}
+  .tabi-burger{display:flex;z-index:50}
+  .tabi-services-grid,.tabi-projects-grid,.tabi-blog-grid,.tabi-pillars,.tabi-stats,.tabi-results-grid,.tabi-project-meta,.tabi-footer-top{grid-template-columns:1fr}
+  .tabi-project-card.is-featured{grid-column:span 1;aspect-ratio:1/1}
+  .tabi-hero{min-height:80vh}
+}
