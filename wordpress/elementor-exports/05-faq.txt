@@ -1,0 +1,174 @@
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  STUDIO TABI — 05 FAQ                                    ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<style>
+  .tabi-faq *{box-sizing:border-box;}
+  .tabi-faq{background-color:#0D0D0D;font-family:'Be Vietnam Pro',sans-serif;position:relative;}
+  .tabi-faq__inner{padding:clamp(56px,9vw,120px) clamp(20px,4vw,82px);max-width:1400px;margin:0 auto;}
+  .tabi-faq__layout{display:grid;grid-template-columns:1fr;gap:clamp(32px,5vw,80px);align-items:start;}
+  .tabi-faq__left{opacity:0;transform:translateY(24px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1);}
+  .tabi-faq__left.is-visible{opacity:1;transform:translateY(0);}
+  .tabi-faq__eyebrow{display:flex;align-items:center;gap:10px;font-size:9px;font-weight:600;letter-spacing:.17em;color:rgba(239,239,239,.40);margin-bottom:clamp(20px,3vw,32px);}
+  .tabi-faq__eyebrow-dot{width:7px;height:7px;border-radius:50%;background-color:#F20C25;flex-shrink:0;}
+  .tabi-faq__headline{font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:clamp(38px,4.5vw,76px);letter-spacing:-.05em;text-transform:uppercase;margin:0 0 24px;line-height:.85;display:flex;flex-direction:column;gap:.06em;}
+  .tabi-faq__hl-wrap{overflow:hidden;line-height:.88;}
+  .tabi-faq__hl-line{display:block;color:#EFEFEF;transform:translateY(110%);transition:transform .9s cubic-bezier(.16,1,.3,1);}
+  .tabi-faq__hl-line--red{color:#F20C25;}
+  .tabi-faq__hl-line.is-visible{transform:translateY(0);}
+  .tabi-faq__sub{font-size:clamp(12px,.85vw,14px);font-weight:400;line-height:1.7;color:rgba(239,239,239,.42);margin-bottom:28px;}
+  .tabi-faq__btn{display:inline-flex;align-items:center;gap:10px;font-size:9.5px;font-weight:600;letter-spacing:.13em;color:#F20C25;background:transparent;border:none;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;padding:0;transition:gap .22s;}
+  .tabi-faq__btn:hover{gap:18px;}
+  .tabi-faq__right{}
+  .tabi-faq__item{position:relative;border-top:1px solid rgba(239,239,239,.10);opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
+  .tabi-faq__item.is-visible{opacity:1;transform:translateY(0);}
+  .tabi-faq__item-bar{position:absolute;top:0;left:0;right:0;height:1px;transform-origin:left;transform:scaleX(0);transition:transform .5s cubic-bezier(.16,1,.3,1),background-color .3s;}
+  .tabi-faq__item.is-visible .tabi-faq__item-bar{transform:scaleX(1);}
+  .tabi-faq__trigger{width:100%;background:transparent;border:none;cursor:pointer;padding:clamp(22px,3vw,32px) 0;display:flex;align-items:center;justify-content:space-between;gap:24px;text-align:left;}
+  .tabi-faq__trigger-inner{display:flex;align-items:baseline;gap:16px;flex:1;}
+  .tabi-faq__idx{font-size:9px;font-weight:600;letter-spacing:.14em;flex-shrink:0;padding-top:2px;transition:color .25s;}
+  .tabi-faq__q{font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:clamp(15px,1.5vw,22px);letter-spacing:-.03em;text-transform:uppercase;color:rgba(239,239,239,.70);line-height:1.1;transition:color .25s;}
+  .tabi-faq__icon{font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:18px;color:rgba(239,239,239,.30);flex-shrink:0;line-height:1;transition:transform .3s cubic-bezier(.16,1,.3,1),color .25s;}
+  /* open state */
+  .tabi-faq__item--open .tabi-faq__idx{color:#F20C25;}
+  .tabi-faq__item--open .tabi-faq__q{color:#EFEFEF;}
+  .tabi-faq__item--open .tabi-faq__icon{transform:rotate(45deg);color:#F20C25;}
+  .tabi-faq__item--open .tabi-faq__item-bar{background-color:#F20C25;}
+  .tabi-faq__answer{overflow:hidden;max-height:0;transition:max-height .45s cubic-bezier(.16,1,.3,1);}
+  .tabi-faq__item--open .tabi-faq__answer{max-height:400px;}
+  .tabi-faq__answer-inner{font-size:clamp(13px,.95vw,16px);font-weight:400;line-height:1.72;color:rgba(239,239,239,.52);padding-bottom:clamp(22px,3vw,32px);padding-left:clamp(0px,2vw,36px);max-width:720px;}
+  .tabi-faq__bottom-line{height:1px;background-color:rgba(239,239,239,.10);}
+  @media(min-width:768px){
+    .tabi-faq__layout{grid-template-columns:4fr 8fr;}
+  }
+  @media(min-width:1024px){
+    .tabi-faq__left{position:sticky;top:clamp(80px,10vh,120px);}
+  }
+</style>
+
+<section class="tabi-faq" id="tabiFaq">
+  <div class="tabi-faq__inner">
+    <div class="tabi-faq__layout">
+
+      <div class="tabi-faq__left" id="tabiFaqLeft">
+        <div class="tabi-faq__eyebrow">
+          <span class="tabi-faq__eyebrow-dot"></span>
+          <span>STUDIO TABI &mdash; FAQ</span>
+        </div>
+        <h2 class="tabi-faq__headline">
+          <span class="tabi-faq__hl-wrap"><span class="tabi-faq__hl-line" style="transition-delay:.05s">PERGUNTAS</span></span>
+          <span class="tabi-faq__hl-wrap"><span class="tabi-faq__hl-line" style="transition-delay:.12s">FREQUENTES</span></span>
+          <span class="tabi-faq__hl-wrap"><span class="tabi-faq__hl-line tabi-faq__hl-line--red" style="transition-delay:.19s">.</span></span>
+        </h2>
+        <p class="tabi-faq__sub">N&atilde;o encontrou o que procura? Entre em contato diretamente com a equipe.</p>
+        <button class="tabi-faq__btn">FALAR COM A EQUIPE <span style="font-size:13px">&#8594;</span></button>
+      </div>
+
+      <div class="tabi-faq__right" id="tabiFaqRight">
+        <div class="tabi-faq__item" data-idx="1">
+          <div class="tabi-faq__item-bar" style="background-color:rgba(239,239,239,.20)"></div>
+          <button class="tabi-faq__trigger" aria-expanded="false">
+            <div class="tabi-faq__trigger-inner">
+              <span class="tabi-faq__idx">01</span>
+              <span class="tabi-faq__q">Como funciona o processo de trabalho?</span>
+            </div>
+            <span class="tabi-faq__icon">+</span>
+          </button>
+          <div class="tabi-faq__answer"><p class="tabi-faq__answer-inner">Iniciamos com um diagn&oacute;stico aprofundado do neg&oacute;cio, mercado e objetivos. Em seguida, criamos um roadmap claro com entregas, prazos e marcos de aprova&ccedil;&atilde;o. Trabalhamos em sprints curtos com checkpoints semanais para garantir alinhamento cont&iacute;nuo &mdash; sem surpresas no final.</p></div>
+        </div>
+        <div class="tabi-faq__item" data-idx="2">
+          <div class="tabi-faq__item-bar" style="background-color:rgba(239,239,239,.20)"></div>
+          <button class="tabi-faq__trigger" aria-expanded="false">
+            <div class="tabi-faq__trigger-inner">
+              <span class="tabi-faq__idx">02</span>
+              <span class="tabi-faq__q">Quanto tempo leva um projeto?</span>
+            </div>
+            <span class="tabi-faq__icon">+</span>
+          </button>
+          <div class="tabi-faq__answer"><p class="tabi-faq__answer-inner">Depende do escopo. Um projeto de identidade visual leva de 3 a 6 semanas. Um site completo com design e desenvolvimento, de 6 a 12 semanas. Aplica&ccedil;&otilde;es mais complexas podem levar de 3 a 6 meses. Sempre apresentamos um cronograma detalhado antes de iniciar.</p></div>
+        </div>
+        <div class="tabi-faq__item" data-idx="3">
+          <div class="tabi-faq__item-bar" style="background-color:rgba(239,239,239,.20)"></div>
+          <button class="tabi-faq__trigger" aria-expanded="false">
+            <div class="tabi-faq__trigger-inner">
+              <span class="tabi-faq__idx">03</span>
+              <span class="tabi-faq__q">Voc&ecirc;s trabalham com empresas de qual tamanho?</span>
+            </div>
+            <span class="tabi-faq__icon">+</span>
+          </button>
+          <div class="tabi-faq__answer"><p class="tabi-faq__answer-inner">Atendemos desde startups em fase de crescimento at&eacute; empresas consolidadas que querem renovar sua presen&ccedil;a digital. O que importa n&atilde;o &eacute; o tamanho, mas o comprometimento com qualidade e a disposi&ccedil;&atilde;o para construir algo duradouro.</p></div>
+        </div>
+        <div class="tabi-faq__item" data-idx="4">
+          <div class="tabi-faq__item-bar" style="background-color:rgba(239,239,239,.20)"></div>
+          <button class="tabi-faq__trigger" aria-expanded="false">
+            <div class="tabi-faq__trigger-inner">
+              <span class="tabi-faq__idx">04</span>
+              <span class="tabi-faq__q">Como &eacute; estruturada a precifica&ccedil;&atilde;o?</span>
+            </div>
+            <span class="tabi-faq__icon">+</span>
+          </button>
+          <div class="tabi-faq__answer"><p class="tabi-faq__answer-inner">Trabalhamos com projetos fechados (escopo e valor definidos no in&iacute;cio) ou retainer mensal para empresas que precisam de parceria cont&iacute;nua. N&atilde;o cobramos por hora &mdash; cobramos pelo resultado. O or&ccedil;amento &eacute; apresentado de forma transparente, sem taxas ocultas.</p></div>
+        </div>
+        <div class="tabi-faq__item" data-idx="5">
+          <div class="tabi-faq__item-bar" style="background-color:rgba(239,239,239,.20)"></div>
+          <button class="tabi-faq__trigger" aria-expanded="false">
+            <div class="tabi-faq__trigger-inner">
+              <span class="tabi-faq__idx">05</span>
+              <span class="tabi-faq__q">Voc&ecirc;s oferecem suporte ap&oacute;s a entrega?</span>
+            </div>
+            <span class="tabi-faq__icon">+</span>
+          </button>
+          <div class="tabi-faq__answer"><p class="tabi-faq__answer-inner">Sim. Todos os projetos incluem um per&iacute;odo de garantia de 30 dias ap&oacute;s o lan&ccedil;amento. Para clientes que desejam suporte cont&iacute;nuo, oferecemos planos de manuten&ccedil;&atilde;o mensal que incluem atualiza&ccedil;&otilde;es, monitoramento e evolu&ccedil;&atilde;o do produto.</p></div>
+        </div>
+        <div class="tabi-faq__item" data-idx="6">
+          <div class="tabi-faq__item-bar" style="background-color:rgba(239,239,239,.20)"></div>
+          <button class="tabi-faq__trigger" aria-expanded="false">
+            <div class="tabi-faq__trigger-inner">
+              <span class="tabi-faq__idx">06</span>
+              <span class="tabi-faq__q">Como posso come&ccedil;ar a trabalhar com voc&ecirc;s?</span>
+            </div>
+            <span class="tabi-faq__icon">+</span>
+          </button>
+          <div class="tabi-faq__answer"><p class="tabi-faq__answer-inner">Preencha o formul&aacute;rio de contato ou nos envie um e-mail com um breve contexto do seu projeto. Agendaremos uma chamada de diagn&oacute;stico gratuita de 30 minutos para entender suas necessidades e verificar se somos o parceiro certo para voc&ecirc;.</p></div>
+        </div>
+        <div class="tabi-faq__bottom-line"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var sec=document.getElementById('tabiFaq');if(!sec)return;
+  // Reveal left panel
+  var left=document.getElementById('tabiFaqLeft');
+  if(left){
+    var lo=new IntersectionObserver(function(en){if(!en[0].isIntersecting)return;left.classList.add('is-visible');lo.disconnect();},{rootMargin:'-60px 0px'});
+    lo.observe(left);
+  }
+  // Reveal headline lines
+  sec.querySelectorAll('.tabi-faq__hl-line').forEach(function(el){
+    var o=new IntersectionObserver(function(en){if(!en[0].isIntersecting)return;el.classList.add('is-visible');o.disconnect();},{rootMargin:'-40px 0px'});
+    o.observe(el);
+  });
+  // Reveal + stagger items
+  sec.querySelectorAll('.tabi-faq__item').forEach(function(item,i){
+    var o=new IntersectionObserver(function(en){
+      if(!en[0].isIntersecting)return;
+      setTimeout(function(){item.classList.add('is-visible');},i*60);
+      o.disconnect();
+    },{rootMargin:'-40px 0px'});
+    o.observe(item);
+  });
+  // Accordion toggle
+  sec.querySelectorAll('.tabi-faq__trigger').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.tabi-faq__item');
+      var isOpen=item.classList.contains('tabi-faq__item--open');
+      // close all
+      sec.querySelectorAll('.tabi-faq__item--open').forEach(function(el){el.classList.remove('tabi-faq__item--open');el.querySelector('.tabi-faq__trigger').setAttribute('aria-expanded','false');});
+      if(!isOpen){item.classList.add('tabi-faq__item--open');btn.setAttribute('aria-expanded','true');}
+    });
+  });
+})();
+</script>

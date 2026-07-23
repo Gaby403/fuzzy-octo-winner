@@ -1,0 +1,230 @@
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  STUDIO TABI — 01 HERO                                   ║
+     ║  Elementor: HTML widget (largura total, sem padding)     ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<style>
+  .tabi-hero-wrapper *,.tabi-hero *{box-sizing:border-box;margin:0;padding:0;}
+  .tabi-hero-wrapper{height:400vh;position:relative;}
+  .tabi-hero{position:sticky;top:0;width:100%;height:100svh;min-height:600px;overflow:hidden;background-color:#EFEFEF;font-family:'Be Vietnam Pro',sans-serif;isolation:isolate;}
+  .tabi-glow{position:absolute;z-index:0;pointer-events:none;aspect-ratio:1;width:90vw;left:75%;top:43%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(242,80,20,.18) 0%,rgba(255,140,30,.10) 28%,rgba(255,200,80,.04) 55%,transparent 72%);}
+  .tabi-black-anchor{position:absolute;z-index:0;pointer-events:none;aspect-ratio:1;width:clamp(310px,31vw,600px);left:75%;top:43%;transform:translate(-50%,-50%);}
+  .tabi-black-circle{width:100%;height:100%;border-radius:50%;background-color:#111111;transform:scale(0);transform-origin:center;will-change:transform;}
+  .tabi-scene{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+  .tabi-sun-anchor,.tabi-moon-anchor{position:absolute;aspect-ratio:1;z-index:1;width:clamp(310px,31vw,600px);left:75%;top:43%;transform:translate(-50%,-50%);will-change:transform;}
+  .tabi-sun,.tabi-moon{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;will-change:transform,opacity;}
+  .tabi-sun{background-color:#F20C25;}.tabi-moon{background-color:#EFEFEF;opacity:0;}
+  .tabi-kanji{font-family:'Noto Serif JP',serif;font-weight:900;font-size:clamp(85px,8vw,158px);line-height:.8;letter-spacing:-.12em;color:#111111;user-select:none;}
+  .tabi-mtn{position:absolute;left:-4%;width:108%;overflow:visible;will-change:transform,color;}
+  .tabi-mtn--haze{bottom:16%;height:39%;z-index:2;}
+  .tabi-mtn--far{bottom:10%;height:36%;z-index:3;}
+  .tabi-mtn--middle{bottom:4%;height:31%;z-index:5;}
+  .tabi-mtn--front{bottom:-2px;height:23%;z-index:6;}
+  .tabi-nav{position:absolute;top:0;left:0;width:100%;display:flex;align-items:center;justify-content:space-between;padding:clamp(18px,3vw,40px) var(--tabi-pad,clamp(20px,4vw,82px));z-index:20;color:#111111;opacity:0;transform:translateY(-8px);animation:tabiFadeUp .7s ease-out .1s forwards;will-change:color;}
+  .tabi-nav__logo{font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:clamp(13px,1.2vw,19px);letter-spacing:-.04em;text-transform:uppercase;}
+  .tabi-nav__links{display:flex;align-items:center;gap:32px;list-style:none;}
+  .tabi-nav__links li{font-size:9.5px;font-weight:600;letter-spacing:.13em;opacity:.5;cursor:pointer;transition:opacity .2s;}
+  .tabi-nav__links li:hover{opacity:1;}
+  .tabi-hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;opacity:.6;}
+  .tabi-hamburger span{display:block;height:1px;background-color:currentColor;}
+  .tabi-hamburger span:nth-child(1){width:20px;}.tabi-hamburger span:nth-child(2){width:12px;}
+  .tabi-content{position:absolute;top:0;left:0;bottom:0;z-index:10;width:min(46%,780px);padding:55px 0 155px var(--tabi-pad,clamp(20px,4vw,82px));display:flex;flex-direction:column;justify-content:center;align-items:flex-start;pointer-events:none;}
+  .tabi-eyebrow{display:flex;align-items:center;gap:10px;font-size:9px;font-weight:600;letter-spacing:.17em;color:rgba(17,17,17,.52);margin-bottom:28px;will-change:color;opacity:0;transform:translateY(14px);animation:tabiFadeUp .75s ease-out .55s forwards;}
+  .tabi-eyebrow__dot{width:7px;height:7px;border-radius:50%;background-color:#F20C25;flex-shrink:0;}
+  .tabi-title{font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:clamp(52px,5.2vw,100px);line-height:.79;letter-spacing:-.05em;text-transform:uppercase;color:#111111;margin:0;}
+  .tabi-title-clip{overflow:hidden;display:block;line-height:.88;}
+  .tabi-title-line{display:block;white-space:nowrap;will-change:color,transform;transform:translateY(108%);opacity:0;animation:tabiClipUp 1s cubic-bezier(.16,1,.3,1) forwards;}
+  .tabi-title-line--1{animation-delay:.25s;}.tabi-title-line--2{animation-delay:.32s;}.tabi-title-line--3{animation-delay:.39s;}
+  .tabi-title-line--4{animation-delay:.46s;color:#F20C25;}
+  .tabi-desc{font-size:clamp(12px,.9vw,16px);font-weight:400;line-height:1.65;color:rgba(17,17,17,.58);width:min(88%,500px);margin-top:34px;will-change:color;opacity:0;transform:translateY(16px);animation:tabiFadeUp .85s ease-out .65s forwards;}
+  .tabi-cta-group{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:36px;pointer-events:auto;opacity:0;transform:translateY(14px);animation:tabiFadeUp .85s ease-out .80s forwards;}
+  .tabi-btn-primary{display:flex;align-items:center;gap:10px;padding:13px 26px;border-radius:999px;border:1px solid #F20C25;color:#F20C25;background:transparent;font-family:'Be Vietnam Pro',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.13em;cursor:pointer;transition:background-color .22s,color .22s;}
+  .tabi-btn-primary:hover{background-color:#F20C25;color:#EFEFEF;}
+  .tabi-btn-secondary{font-size:9.5px;font-weight:500;letter-spacing:.13em;color:#F20C25;background:transparent;border:none;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;opacity:.5;transition:opacity .2s;}
+  .tabi-btn-secondary:hover{opacity:1;}
+  .tabi-footer{position:absolute;left:0;bottom:0;width:100%;z-index:12;padding:0 var(--tabi-pad,clamp(20px,4vw,82px)) 32px;font-size:10px;font-weight:500;letter-spacing:.08em;color:rgba(17,17,17,.60);will-change:color;display:flex;align-items:center;justify-content:space-between;opacity:0;animation:tabiFadeUp .8s ease-out .78s forwards;}
+  .tabi-footer__scroll{display:flex;align-items:center;gap:8px;}
+  .tabi-footer__arrow{color:#F20C25;font-size:15px;animation:tabiBounce 2.2s ease-in-out infinite;}
+  .tabi-footer__right{display:flex;align-items:center;gap:24px;}
+  .tabi-footer__lang{opacity:.45;}
+  @keyframes tabiFadeUp{to{opacity:1;transform:translateY(0);}}
+  @keyframes tabiClipUp{to{transform:translateY(0);opacity:1;}}
+  @keyframes tabiBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(4px);}}
+  @media(max-width:1100px){
+    .tabi-sun-anchor,.tabi-moon-anchor,.tabi-black-anchor{left:75%;top:47%;width:clamp(290px,43vw,470px);}
+    .tabi-glow{left:75%;top:47%;}
+    .tabi-content{width:54%;padding-bottom:130px;}
+  }
+  @media(max-width:767px){
+    .tabi-sun-anchor,.tabi-moon-anchor,.tabi-black-anchor{left:62%;top:70%;width:clamp(215px,66vw,310px);}
+    .tabi-glow{left:62%;top:70%;}
+    .tabi-content{width:100%;top:0;bottom:auto;height:auto;justify-content:flex-start;padding:clamp(72px,10svh,96px) 20px 20px;}
+    .tabi-title{font-size:clamp(38px,12vw,58px);}
+    .tabi-title-line{white-space:normal;}
+    .tabi-btn-secondary,.tabi-footer__lang,.tabi-nav__links{display:none;}
+    .tabi-hamburger{display:flex;}
+    .tabi-mtn{left:-10%;width:120%;}
+    .tabi-mtn--haze{bottom:9%;height:25%;}.tabi-mtn--far{bottom:6%;height:22%;}
+    .tabi-mtn--middle{bottom:2%;height:18.5%;}.tabi-mtn--front{bottom:-1px;height:14%;}
+    .tabi-footer{padding-bottom:max(18px,env(safe-area-inset-bottom));font-size:8px;}
+    .tabi-kanji{font-size:clamp(60px,16vw,88px);}
+  }
+  @media(max-width:900px) and (orientation:landscape){
+    .tabi-sun-anchor,.tabi-moon-anchor,.tabi-black-anchor{left:76%;top:51%;width:min(38vw,300px);}
+    .tabi-glow{left:76%;top:51%;}
+    .tabi-content{width:54%;justify-content:center;padding:54px 0 70px clamp(20px,4vw,82px);}
+    .tabi-mtn--haze{height:37%;}.tabi-mtn--far{height:33%;}.tabi-mtn--middle{height:28%;}.tabi-mtn--front{height:21%;}
+  }
+</style>
+
+<div class="tabi-hero-wrapper" id="tabiHeroWrapper">
+  <section class="tabi-hero" id="tabiHero">
+    <div class="tabi-glow" id="tabiGlow" aria-hidden="true"></div>
+    <div class="tabi-black-anchor" aria-hidden="true">
+      <div class="tabi-black-circle" id="tabiBlackCircle"></div>
+    </div>
+    <div class="tabi-scene" aria-hidden="true">
+      <div class="tabi-sun-anchor" id="tabiSunAnchor">
+        <div class="tabi-sun" id="tabiSun">
+          <span class="tabi-kanji" id="tabiSunKanji">&#36861;&#34955;</span>
+        </div>
+      </div>
+      <div class="tabi-moon-anchor" id="tabiMoonAnchor">
+        <div class="tabi-moon" id="tabiMoon">
+          <span class="tabi-kanji">&#36861;&#34955;</span>
+        </div>
+      </div>
+      <svg id="tabiMtnHaze" class="tabi-mtn tabi-mtn--haze" viewBox="0 0 1600 520" preserveAspectRatio="none" overflow="visible">
+        <path fill="currentColor" d="M0 900 L0 480 C100 474 188 485 274 469 C360 453 436 473 516 448 C596 422 663 444 735 408 C794 378 838 344 879 303 C919 263 953 232 987 205 C1019 180 1047 187 1074 218 C1103 251 1128 274 1159 295 C1192 318 1218 308 1249 279 C1278 252 1306 255 1334 284 C1365 317 1392 337 1426 351 C1460 365 1487 350 1515 322 C1542 295 1572 306 1600 342 L1600 900 Z"/>
+      </svg>
+      <svg id="tabiMtnFar" class="tabi-mtn tabi-mtn--far" viewBox="0 0 1600 520" preserveAspectRatio="none" overflow="visible">
+        <path fill="currentColor" d="M0 900 L0 488 C108 481 199 493 292 474 C380 456 455 482 542 452 C624 424 688 448 760 411 C819 382 862 349 905 307 C948 265 984 230 1021 201 C1057 173 1087 184 1117 223 C1150 266 1178 296 1217 318 C1257 341 1288 333 1323 301 C1358 270 1387 277 1418 313 C1452 353 1483 375 1519 394 C1551 410 1577 428 1600 445 L1600 900 Z"/>
+      </svg>
+      <svg id="tabiMtnMiddle" class="tabi-mtn tabi-mtn--middle" viewBox="0 0 1600 520" preserveAspectRatio="none" overflow="visible">
+        <path fill="currentColor" d="M0 900 L0 494 C115 487 207 498 304 484 C399 469 479 493 567 464 C649 438 718 458 790 428 C852 403 899 376 947 336 C992 299 1030 260 1069 222 C1106 186 1139 193 1171 235 C1206 282 1238 320 1281 351 C1324 381 1362 371 1404 343 C1445 316 1479 331 1514 371 C1549 411 1576 438 1600 455 L1600 900 Z"/>
+      </svg>
+      <svg id="tabiMtnFront" class="tabi-mtn tabi-mtn--front" viewBox="0 0 1600 520" preserveAspectRatio="none" overflow="visible">
+        <path fill="currentColor" d="M0 900 L0 474 C94 450 174 439 253 452 C330 464 395 489 472 496 C553 502 620 485 684 457 C750 428 804 403 862 423 C926 445 975 486 1042 493 C1114 501 1172 461 1231 431 C1288 402 1337 386 1388 409 C1443 434 1487 459 1534 471 C1560 478 1582 483 1600 487 L1600 900 Z"/>
+      </svg>
+    </div>
+    <nav class="tabi-nav" id="tabiNav">
+      <span class="tabi-nav__logo">STUDIO TABI</span>
+      <ul class="tabi-nav__links">
+        <li>TRABALHOS</li><li>SERVI&Ccedil;OS</li><li>SOBRE</li><li>CONTATO</li>
+      </ul>
+      <div class="tabi-hamburger" aria-label="Menu"><span></span><span></span></div>
+    </nav>
+    <div class="tabi-content">
+      <div class="tabi-eyebrow" id="tabiEyebrow">
+        <span class="tabi-eyebrow__dot"></span>
+        <span>STUDIO TABI &mdash; DIGITAL STUDIO</span>
+      </div>
+      <h1 class="tabi-title" id="tabiTitle">
+        <span class="tabi-title-clip"><span class="tabi-title-line tabi-title-line--1">TRANSFORMAMOS</span></span>
+        <span class="tabi-title-clip"><span class="tabi-title-line tabi-title-line--2">A SUA MARCA</span></span>
+        <span class="tabi-title-clip"><span class="tabi-title-line tabi-title-line--3">EM EXPERI&Ecirc;NCIA</span></span>
+        <span class="tabi-title-clip"><span class="tabi-title-line tabi-title-line--4">DIGITAL.</span></span>
+      </h1>
+      <p class="tabi-desc" id="tabiDesc">Design, estrat&eacute;gia e desenvolvimento para transformar presen&ccedil;a digital em percep&ccedil;&atilde;o de valor, confian&ccedil;a e decis&atilde;o.</p>
+      <div class="tabi-cta-group">
+        <button class="tabi-btn-primary">VER PORTF&Oacute;LIO <span>&#8594;</span></button>
+        <button class="tabi-btn-secondary">FALAR COM A EQUIPE</button>
+      </div>
+    </div>
+    <div class="tabi-footer" id="tabiFooter">
+      <div class="tabi-footer__scroll"><span>SCROLL</span><span class="tabi-footer__arrow">&#8600;</span></div>
+      <div class="tabi-footer__right"><span class="tabi-footer__lang">PT / EN</span><span>&copy;2026</span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  var W='#EFEFEF',B='#111111',R='#F20C25';
+  var MTN={haze:{lt:'#E3E3E3',dk:'#3A3A3A'},far:{lt:'#C7C7C7',dk:'#282828'},middle:{lt:'#777777',dk:'#181818'},front:{lt:B,dk:'#050505'}};
+  var SS=0.30,SE=0.65,TR=0.30;
+  function clamp(v,lo,hi){return v<lo?lo:v>hi?hi:v;}
+  function lerp(a,b,t){return a+(b-a)*clamp(t,0,1);}
+  function prog(p,s,e){return clamp((p-s)/(e-s),0,1);}
+  function parseC(c){
+    if(c[0]==='#')return[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16),1];
+    var m=c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    return m?[+m[1],+m[2],+m[3],m[4]!=null?+m[4]:1]:[0,0,0,1];
+  }
+  function lerpC(c1,c2,t){
+    var a=parseC(c1),b=parseC(c2);
+    var r=Math.round(lerp(a[0],b[0],t)),g=Math.round(lerp(a[1],b[1],t)),
+        bl=Math.round(lerp(a[2],b[2],t)),al=+lerp(a[3],b[3],t).toFixed(3);
+    return al<1?'rgba('+r+','+g+','+bl+','+al+')':'rgb('+r+','+g+','+bl+')';
+  }
+  var wrapper=document.getElementById('tabiHeroWrapper'),hero=document.getElementById('tabiHero');
+  if(!wrapper||!hero)return;
+  var glow=document.getElementById('tabiGlow'),bc=document.getElementById('tabiBlackCircle'),
+      sunA=document.getElementById('tabiSunAnchor'),sunEl=document.getElementById('tabiSun'),sunK=document.getElementById('tabiSunKanji'),
+      moonA=document.getElementById('tabiMoonAnchor'),moonEl=document.getElementById('tabiMoon'),
+      navEl=document.getElementById('tabiNav'),ey=document.getElementById('tabiEyebrow'),
+      desc=document.getElementById('tabiDesc'),foot=document.getElementById('tabiFooter'),
+      tLines=document.querySelectorAll('.tabi-title-line:not(.tabi-title-line--4)'),
+      mH=document.getElementById('tabiMtnHaze'),mF=document.getElementById('tabiMtnFar'),
+      mM=document.getElementById('tabiMtnMiddle'),mFr=document.getElementById('tabiMtnFront');
+  var heroH=hero.offsetHeight,mtnY={h:0,f:0,m:0,fr:0},sunSY=0,moonSY=0;
+  var mx=0,my=0,rmx=0,rmy=0,alive=true;
+  window.addEventListener('resize',function(){heroH=hero.offsetHeight;});
+  (function raf(){
+    if(!alive)return;
+    mx+=(rmx-mx)*0.06;my+=(rmy-my)*0.06;
+    if(mH)mH.style.transform='translateX('+(mx*4)+'px) translateY('+mtnY.h+'%)';
+    if(mF)mF.style.transform='translateX('+(mx*8)+'px) translateY('+mtnY.f+'%)';
+    if(mM)mM.style.transform='translateX('+(mx*15)+'px) translateY('+mtnY.m+'%)';
+    if(mFr)mFr.style.transform='translateX('+(mx*25)+'px) translateY('+mtnY.fr+'%)';
+    if(sunA)sunA.style.transform='translate(-50%,-50%) translate('+(mx*-22)+'px,'+(sunSY+my*-14)+'px)';
+    if(moonA)moonA.style.transform='translate(-50%,-50%) translate('+(mx*-14)+'px,'+moonSY+'px)';
+    requestAnimationFrame(raf);
+  })();
+  hero.addEventListener('mousemove',function(e){
+    if(window.innerWidth<=767)return;
+    var r=hero.getBoundingClientRect();
+    rmx=(e.clientX-r.left)/r.width-.5;
+    rmy=(e.clientY-r.top)/r.height-.5;
+  });
+  hero.addEventListener('mouseleave',function(){rmx=0;rmy=0;});
+  function update(p){
+    hero.style.backgroundColor=p<0.41?W:lerpC(W,B,prog(p,0.41,0.42));
+    if(bc)bc.style.transform='scale('+Math.min(lerp(0,17,p/0.42),17)+')';
+    var go=p<0.18?lerp(.9,1,p/.18):p<0.55?lerp(1,.5,(p-.18)/.37):p<0.68?lerp(.5,0,(p-.55)/.13):0;
+    if(glow)glow.style.opacity=go;
+    var tp=prog(p,0.05,0.14);
+    if(navEl)navEl.style.color=lerpC(B,W,tp);
+    if(ey)ey.style.color=lerpC('rgba(17,17,17,.52)','rgba(239,239,239,.62)',tp);
+    if(desc)desc.style.color=lerpC('rgba(17,17,17,.58)','rgba(239,239,239,.70)',tp);
+    if(foot)foot.style.color=lerpC('rgba(17,17,17,.60)','rgba(239,239,239,.72)',tp);
+    tLines.forEach(function(el){el.style.color=lerpC(B,W,tp);});
+    var syp=prog(p,SS,SE);
+    sunSY=lerp(0,heroH*TR,syp);moonSY=lerp(heroH*TR,0,syp);
+    if(sunEl){sunEl.style.opacity=String(1-prog(p,SS+.05,SE-.03));sunEl.style.transform='scale('+lerp(1,1.12,prog(p,0,.28))+')';}
+    if(sunK)sunK.style.opacity=String(1-prog(p,.10,.22));
+    if(moonEl){moonEl.style.opacity=String(prog(p,SS+.02,SE-.05));moonEl.style.transform='scale('+lerp(.78,.92,syp)+')';}
+    var mc=clamp(p/.42,0,1),mc2=prog(p,.42,1);
+    mtnY.h=lerp(0,-2,mc)+lerp(-2,-4,mc2);mtnY.f=lerp(0,-5,mc)+lerp(-5,-8,mc2);
+    mtnY.m=lerp(0,-9,mc)+lerp(-9,-14,mc2);mtnY.fr=lerp(0,-13,mc)+lerp(-13,-20,mc2);
+    if(mH)mH.style.color=lerpC(MTN.haze.lt,MTN.haze.dk,mc);
+    if(mF)mF.style.color=lerpC(MTN.far.lt,MTN.far.dk,mc);
+    if(mM)mM.style.color=lerpC(MTN.middle.lt,MTN.middle.dk,mc);
+    if(mFr)mFr.style.color=lerpC(MTN.front.lt,MTN.front.dk,mc);
+  }
+  function loadGSAP(cb){
+    function loadScript(src,next){
+      if(document.querySelector('script[src="'+src+'"]')){next&&next();return;}
+      var s=document.createElement('script');s.src=src;s.onload=next||null;document.head.appendChild(s);
+    }
+    var G='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js';
+    var ST='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js';
+    if(window.gsap&&window.ScrollTrigger){gsap.registerPlugin(ScrollTrigger);cb();}
+    else if(window.gsap){loadScript(ST,function(){gsap.registerPlugin(ScrollTrigger);cb();});}
+    else{loadScript(G,function(){loadScript(ST,function(){gsap.registerPlugin(ScrollTrigger);cb();});});}
+  }
+  loadGSAP(function(){
+    ScrollTrigger.create({trigger:wrapper,start:'top top',end:'bottom bottom',onUpdate:function(s){update(s.progress);}});
+  });
+  window.addEventListener('beforeunload',function(){alive=false;});
+})();
+</script>

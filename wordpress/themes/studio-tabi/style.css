@@ -1,0 +1,13 @@
+/*
+Theme Name: Studio Tabi
+Theme URI: https://github.com/gaby403/fuzzy-octo-winner
+Description: Tema WordPress nativo do Studio Tabi. Todos os textos são editados no Personalizar (Aparência → Personalizar), com pré-visualização ao vivo. Serviços e Projetos são criados no menu lateral (com imagem e campos próprios). Blog usa os Posts e páginas usam as Páginas do WordPress.
+Author: Studio Tabi
+Version: 2.1.0
+Requires at least: 6.0
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+Text Domain: studio-tabi
+*/
+
+/* O estilo do site fica em assets/css/theme.css (enfileirado pelo functions.php). */

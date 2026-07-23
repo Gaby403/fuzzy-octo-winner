@@ -1,0 +1,131 @@
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  STUDIO TABI — 06 FOOTER                                 ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<style>
+  .tabi-ft *{box-sizing:border-box;}
+  .tabi-ft{background-color:#0D0D0D;font-family:'Be Vietnam Pro',sans-serif;position:relative;overflow:hidden;border-top:1px solid rgba(239,239,239,.08);}
+  /* decorative kanji */
+  .tabi-ft__kanji{position:absolute;right:-2%;top:50%;transform:translateY(-50%);font-family:'Noto Serif JP',serif;font-weight:900;font-size:clamp(200px,22vw,380px);color:rgba(239,239,239,.025);line-height:1;user-select:none;pointer-events:none;letter-spacing:-.06em;}
+  .tabi-ft__inner{padding:clamp(64px,8vw,112px) clamp(20px,4vw,82px) 0;max-width:1400px;margin:0 auto;position:relative;z-index:1;}
+  .tabi-ft__grid{display:grid;grid-template-columns:1fr;gap:clamp(40px,5vw,64px);}
+  /* brand block */
+  .tabi-ft__brand{opacity:0;transform:translateY(24px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1);}
+  .tabi-ft__brand.is-visible{opacity:1;transform:translateY(0);}
+  .tabi-ft__logo{font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:clamp(28px,3vw,42px);letter-spacing:-.06em;text-transform:uppercase;color:#EFEFEF;margin-bottom:6px;}
+  .tabi-ft__logo span{color:#F20C25;}
+  .tabi-ft__tagline{font-size:clamp(11px,.8vw,13px);font-weight:400;color:rgba(239,239,239,.38);line-height:1.6;max-width:300px;margin-bottom:32px;}
+  .tabi-ft__cta-link{display:inline-flex;align-items:center;gap:10px;font-size:9.5px;font-weight:600;letter-spacing:.13em;color:#F20C25;text-decoration:none;transition:gap .22s;}
+  .tabi-ft__cta-link:hover{gap:18px;}
+  /* nav columns */
+  .tabi-ft__nav-cols{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(24px,3vw,40px);opacity:0;transform:translateY(20px);transition:opacity .8s .1s cubic-bezier(.16,1,.3,1),transform .8s .1s cubic-bezier(.16,1,.3,1);}
+  .tabi-ft__nav-cols.is-visible{opacity:1;transform:translateY(0);}
+  .tabi-ft__nav-col-title{font-size:8.5px;font-weight:600;letter-spacing:.16em;color:rgba(239,239,239,.30);margin-bottom:18px;text-transform:uppercase;}
+  .tabi-ft__nav-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+  .tabi-ft__nav-link{font-size:clamp(13px,.95vw,15px);font-weight:500;color:rgba(239,239,239,.60);text-decoration:none;transition:color .2s;}
+  .tabi-ft__nav-link:hover{color:#EFEFEF;}
+  /* social */
+  .tabi-ft__social{opacity:0;transform:translateY(20px);transition:opacity .8s .18s cubic-bezier(.16,1,.3,1),transform .8s .18s cubic-bezier(.16,1,.3,1);}
+  .tabi-ft__social.is-visible{opacity:1;transform:translateY(0);}
+  .tabi-ft__social-title{font-size:8.5px;font-weight:600;letter-spacing:.16em;color:rgba(239,239,239,.30);margin-bottom:18px;text-transform:uppercase;}
+  .tabi-ft__social-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+  .tabi-ft__social-link{font-size:clamp(13px,.95vw,15px);font-weight:500;color:rgba(239,239,239,.60);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s;}
+  .tabi-ft__social-link:hover{color:#F20C25;}
+  .tabi-ft__social-arrow{font-size:10px;opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .2s;}
+  .tabi-ft__social-link:hover .tabi-ft__social-arrow{opacity:1;transform:translateX(0);}
+  /* bottom bar */
+  .tabi-ft__bottom{margin-top:clamp(48px,6vw,88px);border-top:1px solid rgba(239,239,239,.08);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;padding:24px 0;opacity:0;transition:opacity .8s .25s cubic-bezier(.16,1,.3,1);}
+  .tabi-ft__bottom.is-visible{opacity:1;}
+  .tabi-ft__copy{font-size:11px;font-weight:400;color:rgba(239,239,239,.25);letter-spacing:.04em;}
+  .tabi-ft__copy span{color:rgba(239,239,239,.40);}
+  .tabi-ft__badge{font-size:9px;font-weight:600;letter-spacing:.13em;color:rgba(239,239,239,.18);}
+  /* responsive */
+  @media(min-width:640px){
+    .tabi-ft__nav-cols{grid-template-columns:repeat(3,1fr);}
+  }
+  @media(min-width:1024px){
+    .tabi-ft__grid{grid-template-columns:2.5fr 4fr 1.5fr;align-items:start;}
+    .tabi-ft__nav-cols{grid-template-columns:repeat(3,1fr);}
+  }
+</style>
+
+<footer class="tabi-ft" id="tabiFt">
+  <div class="tabi-ft__kanji" aria-hidden="true">旅</div>
+  <div class="tabi-ft__inner">
+    <div class="tabi-ft__grid">
+
+      <!-- Brand -->
+      <div class="tabi-ft__brand" id="tabiFtBrand">
+        <div class="tabi-ft__logo">STUDIO <span>TABI</span></div>
+        <p class="tabi-ft__tagline">Design e tecnologia que levam marcas at&eacute; onde precisam chegar.</p>
+        <a href="#contato" class="tabi-ft__cta-link">INICIAR UM PROJETO <span style="font-size:13px">&#8594;</span></a>
+      </div>
+
+      <!-- Nav Columns -->
+      <div class="tabi-ft__nav-cols" id="tabiFtNav">
+        <div>
+          <div class="tabi-ft__nav-col-title">Navega&ccedil;&atilde;o</div>
+          <ul class="tabi-ft__nav-list">
+            <li><a href="#" class="tabi-ft__nav-link">In&iacute;cio</a></li>
+            <li><a href="#sobre" class="tabi-ft__nav-link">Sobre</a></li>
+            <li><a href="#projetos" class="tabi-ft__nav-link">Projetos</a></li>
+            <li><a href="#faq" class="tabi-ft__nav-link">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="tabi-ft__nav-col-title">Servi&ccedil;os</div>
+          <ul class="tabi-ft__nav-list">
+            <li><a href="#" class="tabi-ft__nav-link">Branding</a></li>
+            <li><a href="#" class="tabi-ft__nav-link">UI / UX</a></li>
+            <li><a href="#" class="tabi-ft__nav-link">Web Dev</a></li>
+            <li><a href="#" class="tabi-ft__nav-link">Motion</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="tabi-ft__nav-col-title">Contato</div>
+          <ul class="tabi-ft__nav-list">
+            <li><a href="mailto:oi@studiotabi.com.br" class="tabi-ft__nav-link">oi@studiotabi.com.br</a></li>
+            <li><a href="tel:+5511999999999" class="tabi-ft__nav-link">+55 11 9 9999-9999</a></li>
+            <li><a href="#" class="tabi-ft__nav-link">S&atilde;o Paulo, SP</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Social -->
+      <div class="tabi-ft__social" id="tabiFtSocial">
+        <div class="tabi-ft__social-title">Redes</div>
+        <ul class="tabi-ft__social-list">
+          <li><a href="#" class="tabi-ft__social-link">Instagram <span class="tabi-ft__social-arrow">&#8599;</span></a></li>
+          <li><a href="#" class="tabi-ft__social-link">LinkedIn <span class="tabi-ft__social-arrow">&#8599;</span></a></li>
+          <li><a href="#" class="tabi-ft__social-link">Behance <span class="tabi-ft__social-arrow">&#8599;</span></a></li>
+          <li><a href="#" class="tabi-ft__social-link">GitHub <span class="tabi-ft__social-arrow">&#8599;</span></a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="tabi-ft__bottom" id="tabiFtBottom">
+      <p class="tabi-ft__copy">&copy; 2025 <span>Studio Tabi</span>. Todos os direitos reservados.</p>
+      <p class="tabi-ft__badge">DESIGNED IN S&Atilde;O PAULO &mdash; BUILT FOR THE WEB</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var ft=document.getElementById('tabiFt');if(!ft)return;
+  function reveal(id,delay){
+    var el=document.getElementById(id);if(!el)return;
+    if(delay)el.style.transitionDelay=delay+'s';
+    var o=new IntersectionObserver(function(en){
+      if(!en[0].isIntersecting)return;
+      el.classList.add('is-visible');o.disconnect();
+    },{rootMargin:'-50px 0px'});
+    o.observe(el);
+  }
+  reveal('tabiFtBrand',0);
+  reveal('tabiFtNav',.08);
+  reveal('tabiFtSocial',.14);
+  reveal('tabiFtBottom',.22);
+})();
+</script>
