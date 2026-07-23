@@ -11,9 +11,10 @@ defined( 'ABSPATH' ) || exit;
 
 define( 'TABI_VERSION', '2.0.0' );
 
+require_once get_template_directory() . '/inc/defaults.php';
+require_once get_template_directory() . '/inc/template-helpers.php';
 require_once get_template_directory() . '/inc/customizer.php';
 require_once get_template_directory() . '/inc/post-types.php';
-require_once get_template_directory() . '/inc/template-helpers.php';
 
 /**
  * Recursos do tema.
@@ -47,6 +48,12 @@ add_action( 'wp_enqueue_scripts', function () {
 	wp_enqueue_style( 'tabi-theme', get_template_directory_uri() . '/assets/css/theme.css', array( 'tabi-fonts' ), TABI_VERSION );
 	wp_enqueue_script( 'tabi-theme', get_template_directory_uri() . '/assets/js/theme.js', array(), TABI_VERSION, true );
 } );
+
+// Marca que o JS está ativo (para as animações de revelação). Cedo, no <head>,
+// para não haver "flash". Sem JS, nada é escondido.
+add_action( 'wp_head', function () {
+	echo "<script>document.documentElement.className+=' tabi-js';</script>\n";
+}, 1 );
 
 /**
  * Menu de fallback quando nenhum menu foi definido: links para as seções.

@@ -5,8 +5,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/** Atalho para get_theme_mod. */
-function tabi_mod( $id, $default = '' ) {
+/** Atalho para get_theme_mod, com fallback no padrão central do tema. */
+function tabi_mod( $id, $default = null ) {
+	if ( null === $default || '' === $default ) {
+		$default = tabi_default( $id );
+	}
 	return get_theme_mod( $id, $default );
 }
 

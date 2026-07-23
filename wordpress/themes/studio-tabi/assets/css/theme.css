@@ -215,3 +215,31 @@ h1,h2,h3{margin:0;font-family:var(--head);font-weight:900;letter-spacing:-0.04em
   .tabi-project-card.is-featured{grid-column:span 1;aspect-ratio:1/1}
   .tabi-hero{min-height:80vh}
 }
+
+/* ============================================================
+   Animações
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+
+  /* Entrada do hero (CSS puro — sempre termina visível) */
+  .tabi-hero-content > *{opacity:0;animation:tabiUp .9s cubic-bezier(.16,1,.3,1) forwards}
+  .tabi-hero .tabi-eyebrow{animation-delay:.15s}
+  .tabi-hero-title{animation-delay:.28s}
+  .tabi-hero-desc{animation-delay:.5s}
+  .tabi-hero-cta{animation-delay:.66s}
+  .tabi-hero-title .tabi-hl-line{display:block;opacity:0;animation:tabiUp .9s cubic-bezier(.16,1,.3,1) forwards}
+  .tabi-hero-title .tabi-hl-line:nth-child(1){animation-delay:.30s}
+  .tabi-hero-title .tabi-hl-line:nth-child(2){animation-delay:.37s}
+  .tabi-hero-title .tabi-hl-line:nth-child(3){animation-delay:.44s}
+  .tabi-hero-title .tabi-hl-line:nth-child(4){animation-delay:.51s}
+  .tabi-hero-sun{animation:tabiSun 1.2s cubic-bezier(.16,1,.3,1) both}
+  .tabi-mtn{animation:tabiMtn 1.2s cubic-bezier(.16,1,.3,1) both}
+
+  /* Revelação ao rolar (só quando o JS está ativo — nunca esconde sem JS) */
+  .tabi-js .tabi-reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+  .tabi-js .tabi-reveal.is-in{opacity:1;transform:none}
+}
+
+@keyframes tabiUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes tabiSun{from{opacity:0;transform:translate(0,-50%) scale(.6)}to{opacity:1;transform:translate(0,-50%) scale(1)}}
+@keyframes tabiMtn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}

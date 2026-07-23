@@ -10,6 +10,8 @@ defined( 'ABSPATH' ) || exit;
  */
 function tabi_add_field( $wp, $section, $id, $label, $default = '', $type = 'text', $description = '' ) {
 	$sanitize = ( 'textarea' === $type ) ? 'sanitize_textarea_field' : 'sanitize_text_field';
+	// Padrão vem do mapa central (inc/defaults.php); o argumento é só fallback.
+	$default = tabi_default( $id ) !== '' ? tabi_default( $id ) : $default;
 	$wp->add_setting( $id, array(
 		'default'           => $default,
 		'sanitize_callback' => $sanitize,
