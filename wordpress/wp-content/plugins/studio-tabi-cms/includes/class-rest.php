@@ -93,6 +93,11 @@ class STCMS_Rest {
 				'faviconUrl'   => self::img( $o['site']['favicon_id'], 'full' ),
 				'heroImageUrl' => self::img( $o['hero']['image_id'], 'full' ),
 			),
+			'nav'      => array(
+				'brand'    => self::decode( $o['nav']['brand'] ),
+				'links'    => self::links( $o['nav']['links'] ),
+				'ctaLabel' => self::decode( $o['nav']['cta_label'] ),
+			),
 			'hero'     => array(
 				'eyebrow'     => $o['hero']['eyebrow'],
 				'titleLines'  => array_values( (array) $o['hero']['title_lines'] ),
@@ -109,10 +114,22 @@ class STCMS_Rest {
 			'projects' => self::projects(),
 			'faq'      => self::faq(),
 			'footer'   => array(
-				'tagline' => $o['footer']['tagline'],
-				'email'   => $o['footer']['email'],
-				'phone'   => $o['footer']['phone'],
-				'city'    => $o['footer']['city'],
+				'brand'        => self::decode( $o['footer']['brand'] ),
+				'tagline'      => $o['footer']['tagline'],
+				'ctaLabel'     => self::decode( $o['footer']['cta_label'] ),
+				'columns'      => array(
+					array( 'title' => self::decode( $o['footer']['col1_title'] ), 'links' => self::links( $o['footer']['col1_links'] ) ),
+					array( 'title' => self::decode( $o['footer']['col2_title'] ), 'links' => self::links( $o['footer']['col2_links'] ) ),
+				),
+				'contactTitle' => self::decode( $o['footer']['contact_title'] ),
+				'email'        => $o['footer']['email'],
+				'phone'        => $o['footer']['phone'],
+				'city'         => $o['footer']['city'],
+				'socialTitle'  => self::decode( $o['footer']['social_title'] ),
+				'social'       => self::links( $o['footer']['social'] ),
+				'copyright'    => self::decode( $o['footer']['copyright'] ),
+				'madeIn'       => self::decode( $o['footer']['made_in'] ),
+				'legal'        => self::links( $o['footer']['legal'] ),
 			),
 			'pages'    => self::pages_list(),
 		);
@@ -256,6 +273,25 @@ class STCMS_Rest {
 
 	private static function decode( $text ) {
 		return html_entity_decode( (string) $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	}
+
+	/**
+	 * Normalize a repeater of {label, url} into clean link objects.
+	 */
+	private static function links( $rows ) {
+		$out = array();
+		foreach ( (array) $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$label = isset( $row['label'] ) ? self::decode( $row['label'] ) : '';
+			$url   = isset( $row['url'] ) ? $row['url'] : '#';
+			if ( '' === $label && ( '' === $url || '#' === $url ) ) {
+				continue;
+			}
+			$out[] = array( 'label' => $label, 'url' => $url ? $url : '#' );
+		}
+		return $out;
 	}
 
 	/* --------------------------------------------------------------- pages    */

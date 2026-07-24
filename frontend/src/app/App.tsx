@@ -55,7 +55,6 @@ function TabiMark({ width = 120, color = "#111111", opacity = 1, style }: {
     </svg>
   )
 }
-const NAV_LINKS = ["TRABALHOS", "SERVIÇOS", "SOBRE", "CONTATO"]
 const TITLE_LINES = ["TRANSFORMAMOS", "A SUA MARCA", "EM EXPERIÊNCIA"]
 
 const MOUNTAIN_PATHS = {
@@ -390,15 +389,15 @@ export function HomeSite() {
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
             <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(13px, 1.2vw, 19px)", letterSpacing: "-0.04em", textTransform: "uppercase" }}>
-              STUDIO TABI
+              {content.nav.brand}
             </span>
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-8">
-              {NAV_LINKS.map((item) => (
-                <span key={item} className="cursor-pointer opacity-50 hover:opacity-100 transition-opacity duration-200"
-                  style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em" }}>
-                  {item}
-                </span>
+              {content.nav.links.map((item) => (
+                <a key={item.label} href={item.url || "#"} className="cursor-pointer opacity-50 hover:opacity-100 transition-opacity duration-200"
+                  style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: "inherit", textDecoration: "none" }}>
+                  {item.label}
+                </a>
               ))}
             </div>
             {/* Mobile: hamburger button */}
@@ -452,9 +451,10 @@ export function HomeSite() {
             >
               {/* Nav items */}
               <nav className="flex flex-col gap-1 flex-1">
-                {NAV_LINKS.map((item, i) => (
-                  <motion.button
-                    key={item}
+                {content.nav.links.map((item, i) => (
+                  <motion.a
+                    key={item.label}
+                    href={item.url || "#"}
                     className="text-left bg-transparent border-none cursor-pointer group flex items-center gap-3 py-4 border-b"
                     style={{
                       fontFamily: '"Roboto Condensed", sans-serif',
@@ -463,6 +463,7 @@ export function HomeSite() {
                       letterSpacing: "-0.04em",
                       textTransform: "uppercase",
                       color: WHITE,
+                      textDecoration: "none",
                       borderColor: "rgba(239,239,239,0.08)",
                     }}
                     initial={{ x: 24, opacity: 0 }}
@@ -474,8 +475,8 @@ export function HomeSite() {
                     <span style={{ fontSize: 8, color: RED, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 600, letterSpacing: "0.1em", opacity: 0.7 }}>
                       0{i + 1}
                     </span>
-                    {item}
-                  </motion.button>
+                    {item.label}
+                  </motion.a>
                 ))}
               </nav>
               {/* Bottom CTA */}
@@ -485,11 +486,11 @@ export function HomeSite() {
                 transition={{ duration: 0.4, delay: menuOpen ? 0.38 : 0 }}
               >
                 <p style={{ fontSize: 10, letterSpacing: "0.12em", color: "rgba(239,239,239,0.35)", marginBottom: 16, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 600 }}>
-                  INICIAR PROJETO
+                  {content.nav.ctaLabel}
                 </p>
-                <a href="mailto:oi@studiotabi.com.br"
+                <a href={`mailto:${content.footer.email}`}
                   style={{ fontSize: 13, color: RED, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 500, textDecoration: "none" }}>
-                  oi@studiotabi.com.br
+                  {content.footer.email}
                 </a>
               </motion.div>
             </motion.div>
@@ -1564,18 +1565,14 @@ const FOOTER_NAV = [
   { label: "Serviços",  links: ["Branding", "UI / UX Design", "Desenvolvimento Web", "Estratégia Digital", "Motion & Animação"] },
   { label: "Contato",   links: ["oi@studiotabi.com.br", "+55 11 99999-9999", "São Paulo, Brasil"] },
 ]
-const SOCIAL_LINKS = ["Instagram", "LinkedIn", "Behance", "GitHub"]
 
 function SiteFooter() {
   const { content } = useContent()
   const pad = "clamp(20px, 4vw, 82px)"
   const ref = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, margin: "-60px" })
-  const footerNav = [
-    { label: "Navegação", links: ["Trabalhos", "Serviços", "Sobre", "Blog", "Contato"] },
-    { label: "Serviços",  links: ["Branding", "UI / UX Design", "Desenvolvimento Web", "Estratégia Digital", "Motion & Animação"] },
-    { label: "Contato",   links: [content.footer.email, content.footer.phone, content.footer.city] },
-  ]
+  const f = content.footer
+  const linkColStyle = { display: "block", fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)", marginBottom: 20, textTransform: "uppercase" } as const
 
   return (
     <footer ref={ref} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
@@ -1598,50 +1595,64 @@ function SiteFooter() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             <div style={{ marginBottom: 20 }}>
-              <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 1.6vw, 26px)", letterSpacing: "-0.05em", textTransform: "uppercase", color: WHITE }}>STUDIO TABI</span>
+              <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 1.6vw, 26px)", letterSpacing: "-0.05em", textTransform: "uppercase", color: WHITE }}>{f.brand}</span>
               <span style={{ display: "block", width: 32, height: 2, backgroundColor: RED, marginTop: 10 }} />
             </div>
             <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.42)", maxWidth: 280, marginBottom: 28 }}>
-              {content.footer.tagline}
+              {f.tagline}
             </p>
             <motion.button
               style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 24px", borderRadius: 999, border: `1px solid ${RED}`, color: RED, backgroundColor: "rgba(0,0,0,0)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", cursor: "pointer" }}
               whileHover={{ backgroundColor: RED, color: WHITE }}
               transition={{ duration: 0.22 }}
             >
-              INICIAR PROJETO <span style={{ fontSize: 13 }}>→</span>
+              {f.ctaLabel} <span style={{ fontSize: 13 }}>→</span>
             </motion.button>
           </motion.div>
 
-          {/* Nav columns */}
-          {footerNav.map((col, ci) => (
+          {/* Link columns (editáveis no CMS) */}
+          {f.columns.map((col, ci) => (
             <motion.div
-              key={col.label}
+              key={col.title + ci}
               className="md:col-span-2"
               style={{ minWidth: 0 }}
               initial={{ opacity: 0, y: 24 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.1 + ci * 0.08, ease: [0.16, 1, 0.3, 1] }}
             >
-              <span style={{ display: "block", fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)", marginBottom: 20, textTransform: "uppercase" }}>
-                {col.label}
-              </span>
+              <span style={linkColStyle}>{col.title}</span>
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-                {col.links.map(link => (
-                  <li key={link}>
+                {col.links.map((link, li) => (
+                  <li key={link.label + li}>
                     <motion.a
-                      href="#"
+                      href={link.url || "#"}
                       style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "block", transition: "color 0.2s" }}
                       whileHover={{ color: WHITE }}
                       transition={{ duration: 0.15 }}
                     >
-                      {link}
+                      {link.label}
                     </motion.a>
                   </li>
                 ))}
               </ul>
             </motion.div>
           ))}
+
+          {/* Coluna de contato */}
+          <motion.div
+            className="md:col-span-2"
+            style={{ minWidth: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span style={linkColStyle}>{f.contactTitle}</span>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+              <li><a href={`mailto:${f.email}`} style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "block" }}>{f.email}</a></li>
+              <li><a href={`tel:${f.phone.replace(/[^+\d]/g, "")}`} style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "block" }}>{f.phone}</a></li>
+              <li><span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", display: "block" }}>{f.city}</span></li>
+            </ul>
+          </motion.div>
 
           {/* Dynamic pages created in WordPress */}
           {content.pages.length > 0 && (
@@ -1677,21 +1688,21 @@ function SiteFooter() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.34, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span style={{ display: "block", fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)", marginBottom: 20, textTransform: "uppercase" }}>
-              Social
-            </span>
+            <span style={linkColStyle}>{f.socialTitle}</span>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              {SOCIAL_LINKS.map((s, si) => (
-                <li key={s}>
+              {f.social.map((s, si) => (
+                <li key={s.label + si}>
                   <motion.a
-                    href="#"
+                    href={s.url || "#"}
+                    target={s.url && s.url.startsWith("http") ? "_blank" : undefined}
+                    rel={s.url && s.url.startsWith("http") ? "noopener noreferrer" : undefined}
                     style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}
                     whileHover={{ color: WHITE }}
                     transition={{ duration: 0.15, delay: 0.4 + si * 0.05 }}
                     initial={{ opacity: 0, x: -8 }}
                     animate={inView ? { opacity: 1, x: 0 } : {}}
                   >
-                    {s}
+                    {s.label}
                     <span style={{ fontSize: 10, opacity: 0.4 }}>↗</span>
                   </motion.a>
                 </li>
@@ -1711,23 +1722,25 @@ function SiteFooter() {
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>
-            © 2026 Studio Tabi. Todos os direitos reservados.
+            {f.copyright}
           </span>
           <div className="flex items-center gap-6">
-            {["Política de Privacidade", "Termos de Uso"].map(item => (
+            {f.legal.map((item, i) => (
               <motion.a
-                key={item}
-                href="#"
+                key={item.label + i}
+                href={item.url || "#"}
                 style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)", textDecoration: "none" }}
                 whileHover={{ color: "rgba(239,239,239,0.60)" }}
                 transition={{ duration: 0.15 }}
               >
-                {item}
+                {item.label}
               </motion.a>
             ))}
-            <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.08em", color: "rgba(239,239,239,0.18)" }}>
-              Feito com precisão em São Paulo
-            </span>
+            {f.madeIn && (
+              <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.08em", color: "rgba(239,239,239,0.18)" }}>
+                {f.madeIn}
+              </span>
+            )}
           </div>
         </motion.div>
       </div>

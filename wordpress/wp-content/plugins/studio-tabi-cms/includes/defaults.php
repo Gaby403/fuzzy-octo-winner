@@ -24,6 +24,16 @@ function stcms_default_options() {
 			'logo_id'  => 0,
 			'favicon_id' => 0,
 		),
+		'nav'    => array(
+			'brand'     => 'STUDIO TABI',
+			'cta_label' => 'INICIAR PROJETO',
+			'links'     => array(
+				array( 'label' => 'TRABALHOS', 'url' => '#' ),
+				array( 'label' => 'SERVIÇOS', 'url' => '#' ),
+				array( 'label' => 'SOBRE', 'url' => '#' ),
+				array( 'label' => 'CONTATO', 'url' => '#' ),
+			),
+		),
 		'hero'   => array(
 			'eyebrow'     => 'STUDIO TABI — DIGITAL STUDIO',
 			'title_lines' => array( 'TRANSFORMAMOS', 'A SUA MARCA', 'EM EXPERIÊNCIA' ),
@@ -48,10 +58,42 @@ function stcms_default_options() {
 			),
 		),
 		'footer' => array(
-			'tagline' => 'Design e tecnologia que levam marcas até onde precisam chegar.',
-			'email'   => 'oi@studiotabi.com.br',
-			'phone'   => '+55 11 9 9999-9999',
-			'city'    => 'São Paulo, SP',
+			'brand'         => 'STUDIO TABI',
+			'tagline'       => 'Design e tecnologia que levam marcas até onde precisam chegar.',
+			'cta_label'     => 'INICIAR PROJETO',
+			'col1_title'    => 'Navegação',
+			'col1_links'    => array(
+				array( 'label' => 'Trabalhos', 'url' => '#' ),
+				array( 'label' => 'Serviços', 'url' => '#' ),
+				array( 'label' => 'Sobre', 'url' => '#' ),
+				array( 'label' => 'Blog', 'url' => '#' ),
+				array( 'label' => 'Contato', 'url' => '#' ),
+			),
+			'col2_title'    => 'Serviços',
+			'col2_links'    => array(
+				array( 'label' => 'Branding', 'url' => '#' ),
+				array( 'label' => 'UI / UX Design', 'url' => '#' ),
+				array( 'label' => 'Desenvolvimento Web', 'url' => '#' ),
+				array( 'label' => 'Estratégia Digital', 'url' => '#' ),
+				array( 'label' => 'Motion & Animação', 'url' => '#' ),
+			),
+			'contact_title' => 'Contato',
+			'email'         => 'oi@studiotabi.com.br',
+			'phone'         => '+55 11 9 9999-9999',
+			'city'          => 'São Paulo, SP',
+			'social_title'  => 'Social',
+			'social'        => array(
+				array( 'label' => 'Instagram', 'url' => '#' ),
+				array( 'label' => 'LinkedIn', 'url' => '#' ),
+				array( 'label' => 'Behance', 'url' => '#' ),
+				array( 'label' => 'GitHub', 'url' => '#' ),
+			),
+			'copyright'     => '© 2026 Studio Tabi. Todos os direitos reservados.',
+			'made_in'       => 'Feito com precisão em São Paulo',
+			'legal'         => array(
+				array( 'label' => 'Política de Privacidade', 'url' => '#' ),
+				array( 'label' => 'Termos de Uso', 'url' => '#' ),
+			),
 		),
 	);
 }

@@ -90,6 +90,18 @@ class STCMS_Options {
 					?>
 				</table>
 
+				<h2 class="title">Menu (cabeçalho)</h2>
+				<table class="form-table" role="presentation">
+					<?php
+					self::row_text( 'Marca / logo (texto)', 'nav][brand', $o['nav']['brand'] );
+					self::row_text( 'Texto do botão (menu mobile)', 'nav][cta_label', $o['nav']['cta_label'] );
+					?>
+					<tr>
+						<th scope="row">Links do menu</th>
+						<td><?php self::repeater( 'nav][links', $o['nav']['links'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ) ); ?></td>
+					</tr>
+				</table>
+
 				<h2 class="title">Hero</h2>
 				<table class="form-table" role="presentation">
 					<?php self::row_text( 'Olho (texto acima do título)', 'hero][eyebrow', $o['hero']['eyebrow'] ); ?>
@@ -130,11 +142,37 @@ class STCMS_Options {
 				<h2 class="title">Rodapé</h2>
 				<table class="form-table" role="presentation">
 					<?php
-					self::row_text( 'Tagline', 'footer][tagline', $o['footer']['tagline'] );
+					self::row_text( 'Marca / logo (texto)', 'footer][brand', $o['footer']['brand'] );
+					self::row_textarea( 'Tagline', 'footer][tagline', $o['footer']['tagline'] );
+					self::row_text( 'Texto do botão (CTA)', 'footer][cta_label', $o['footer']['cta_label'] );
+					?>
+
+					<tr><th scope="row" style="border-top:1px solid #dcdcde">Coluna 1 — título</th>
+						<td style="border-top:1px solid #dcdcde"><input type="text" name="<?php echo self::name( 'footer][col1_title' ); ?>]" value="<?php echo esc_attr( $o['footer']['col1_title'] ); ?>" class="regular-text" /></td></tr>
+					<tr><th scope="row">Coluna 1 — links</th>
+						<td><?php self::repeater( 'footer][col1_links', $o['footer']['col1_links'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ) ); ?></td></tr>
+
+					<tr><th scope="row" style="border-top:1px solid #dcdcde">Coluna 2 — título</th>
+						<td style="border-top:1px solid #dcdcde"><input type="text" name="<?php echo self::name( 'footer][col2_title' ); ?>]" value="<?php echo esc_attr( $o['footer']['col2_title'] ); ?>" class="regular-text" /></td></tr>
+					<tr><th scope="row">Coluna 2 — links</th>
+						<td><?php self::repeater( 'footer][col2_links', $o['footer']['col2_links'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ) ); ?></td></tr>
+
+					<?php
+					self::row_text( 'Coluna Contato — título', 'footer][contact_title', $o['footer']['contact_title'] );
 					self::row_text( 'E-mail', 'footer][email', $o['footer']['email'] );
 					self::row_text( 'Telefone', 'footer][phone', $o['footer']['phone'] );
 					self::row_text( 'Cidade', 'footer][city', $o['footer']['city'] );
+					self::row_text( 'Coluna Social — título', 'footer][social_title', $o['footer']['social_title'] );
 					?>
+					<tr><th scope="row">Redes sociais</th>
+						<td><?php self::repeater( 'footer][social', $o['footer']['social'], array( 'label' => 'Rede', 'url' => 'Link (https://...)' ) ); ?></td></tr>
+
+					<?php
+					self::row_text( 'Copyright (rodapé inferior)', 'footer][copyright', $o['footer']['copyright'] );
+					self::row_text( 'Texto "feito em"', 'footer][made_in', $o['footer']['made_in'], 'Deixe vazio para ocultar.' );
+					?>
+					<tr><th scope="row">Links legais (rodapé inferior)</th>
+						<td><?php self::repeater( 'footer][legal', $o['footer']['legal'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ) ); ?></td></tr>
 				</table>
 
 				<?php submit_button( 'Salvar alterações' ); ?>
@@ -263,13 +301,54 @@ class STCMS_Options {
 			$out['about']['pillars'] = $pillars;
 		}
 
-		if ( isset( $input['footer'] ) ) {
-			$out['footer']['tagline'] = sanitize_text_field( $input['footer']['tagline'] ?? '' );
-			$out['footer']['email']   = sanitize_email( $input['footer']['email'] ?? '' );
-			$out['footer']['phone']   = sanitize_text_field( $input['footer']['phone'] ?? '' );
-			$out['footer']['city']    = sanitize_text_field( $input['footer']['city'] ?? '' );
+		if ( isset( $input['nav'] ) ) {
+			$out['nav']['brand']     = sanitize_text_field( $input['nav']['brand'] ?? '' );
+			$out['nav']['cta_label'] = sanitize_text_field( $input['nav']['cta_label'] ?? '' );
+			$out['nav']['links']     = self::sanitize_links( $input['nav']['links'] ?? array() );
 		}
 
+		if ( isset( $input['footer'] ) ) {
+			$out['footer']['brand']         = sanitize_text_field( $input['footer']['brand'] ?? '' );
+			$out['footer']['tagline']       = sanitize_text_field( $input['footer']['tagline'] ?? '' );
+			$out['footer']['cta_label']     = sanitize_text_field( $input['footer']['cta_label'] ?? '' );
+			$out['footer']['col1_title']    = sanitize_text_field( $input['footer']['col1_title'] ?? '' );
+			$out['footer']['col1_links']    = self::sanitize_links( $input['footer']['col1_links'] ?? array() );
+			$out['footer']['col2_title']    = sanitize_text_field( $input['footer']['col2_title'] ?? '' );
+			$out['footer']['col2_links']    = self::sanitize_links( $input['footer']['col2_links'] ?? array() );
+			$out['footer']['contact_title'] = sanitize_text_field( $input['footer']['contact_title'] ?? '' );
+			$out['footer']['email']         = sanitize_email( $input['footer']['email'] ?? '' );
+			$out['footer']['phone']         = sanitize_text_field( $input['footer']['phone'] ?? '' );
+			$out['footer']['city']          = sanitize_text_field( $input['footer']['city'] ?? '' );
+			$out['footer']['social_title']  = sanitize_text_field( $input['footer']['social_title'] ?? '' );
+			$out['footer']['social']        = self::sanitize_links( $input['footer']['social'] ?? array() );
+			$out['footer']['copyright']     = sanitize_text_field( $input['footer']['copyright'] ?? '' );
+			$out['footer']['made_in']       = sanitize_text_field( $input['footer']['made_in'] ?? '' );
+			$out['footer']['legal']         = self::sanitize_links( $input['footer']['legal'] ?? array() );
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Sanitize a repeater of {label, url} link rows, dropping empty ones.
+	 */
+	private static function sanitize_links( $rows ) {
+		$out = array();
+		foreach ( (array) $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$label = sanitize_text_field( $row['label'] ?? '' );
+			$url   = trim( (string) ( $row['url'] ?? '' ) );
+			// Allow "#", relative paths and full URLs.
+			if ( '' !== $url && '#' !== $url && ! preg_match( '#^(/|\#)#', $url ) ) {
+				$url = esc_url_raw( $url );
+			}
+			if ( '' === $label && ( '' === $url || '#' === $url ) ) {
+				continue;
+			}
+			$out[] = array( 'label' => $label, 'url' => $url ? $url : '#' );
+		}
 		return $out;
 	}
 }

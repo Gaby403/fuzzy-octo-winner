@@ -6,6 +6,12 @@ import { createContext, useContext } from "react"
  * so the site can be edited entirely from the WordPress admin and rendered
  * here without any transformation.
  */
+/** A navigable link: a label plus a destination (anchor "#", page "/p/slug" or external URL). */
+export interface MenuLink {
+  label: string
+  url: string
+}
+
 export interface SiteContent {
   site: {
     title: string
@@ -13,6 +19,12 @@ export interface SiteContent {
     logoUrl: string
     faviconUrl: string
     heroImageUrl: string
+  }
+  /** Header navigation (brand, menu links, CTA). */
+  nav: {
+    brand: string
+    links: MenuLink[]
+    ctaLabel: string
   }
   hero: {
     eyebrow: string
@@ -48,10 +60,19 @@ export interface SiteContent {
   }[]
   faq: { q: string; a: string }[]
   footer: {
+    brand: string
     tagline: string
+    ctaLabel: string
+    columns: { title: string; links: MenuLink[] }[]
+    contactTitle: string
     email: string
     phone: string
     city: string
+    socialTitle: string
+    social: MenuLink[]
+    copyright: string
+    madeIn: string
+    legal: MenuLink[]
   }
   /** Dynamic pages created in WordPress, surfaced for navigation. */
   pages: { slug: string; title: string }[]
@@ -64,6 +85,16 @@ export const DEFAULT_CONTENT: SiteContent = {
     logoUrl: "",
     faviconUrl: "",
     heroImageUrl: "",
+  },
+  nav: {
+    brand: "STUDIO TABI",
+    links: [
+      { label: "TRABALHOS", url: "#" },
+      { label: "SERVIÇOS", url: "#" },
+      { label: "SOBRE", url: "#" },
+      { label: "CONTATO", url: "#" },
+    ],
+    ctaLabel: "INICIAR PROJETO",
   },
   hero: {
     eyebrow: "STUDIO TABI — DIGITAL STUDIO",
@@ -150,10 +181,48 @@ export const DEFAULT_CONTENT: SiteContent = {
     { q: "Como posso começar a trabalhar com vocês?", a: "Preencha o formulário de contato ou nos envie um e-mail com um breve contexto do seu projeto. Agendaremos uma chamada de diagnóstico gratuita de 30 minutos para entender suas necessidades e verificar se somos o parceiro certo para você." },
   ],
   footer: {
+    brand: "STUDIO TABI",
     tagline: "Design e tecnologia que levam marcas até onde precisam chegar.",
+    ctaLabel: "INICIAR PROJETO",
+    columns: [
+      {
+        title: "Navegação",
+        links: [
+          { label: "Trabalhos", url: "#" },
+          { label: "Serviços", url: "#" },
+          { label: "Sobre", url: "#" },
+          { label: "Blog", url: "#" },
+          { label: "Contato", url: "#" },
+        ],
+      },
+      {
+        title: "Serviços",
+        links: [
+          { label: "Branding", url: "#" },
+          { label: "UI / UX Design", url: "#" },
+          { label: "Desenvolvimento Web", url: "#" },
+          { label: "Estratégia Digital", url: "#" },
+          { label: "Motion & Animação", url: "#" },
+        ],
+      },
+    ],
+    contactTitle: "Contato",
     email: "oi@studiotabi.com.br",
     phone: "+55 11 9 9999-9999",
     city: "São Paulo, SP",
+    socialTitle: "Social",
+    social: [
+      { label: "Instagram", url: "#" },
+      { label: "LinkedIn", url: "#" },
+      { label: "Behance", url: "#" },
+      { label: "GitHub", url: "#" },
+    ],
+    copyright: "© 2026 Studio Tabi. Todos os direitos reservados.",
+    madeIn: "Feito com precisão em São Paulo",
+    legal: [
+      { label: "Política de Privacidade", url: "#" },
+      { label: "Termos de Uso", url: "#" },
+    ],
   },
   pages: [],
 }
@@ -194,6 +263,7 @@ function mergeContent(remote: Partial<SiteContent> | null | undefined): SiteCont
   if (!remote) return DEFAULT_CONTENT
   return {
     site: { ...DEFAULT_CONTENT.site, ...(remote.site || {}) },
+    nav: { ...DEFAULT_CONTENT.nav, ...(remote.nav || {}) },
     hero: { ...DEFAULT_CONTENT.hero, ...(remote.hero || {}) },
     about: { ...DEFAULT_CONTENT.about, ...(remote.about || {}) },
     services: remote.services?.length ? remote.services : DEFAULT_CONTENT.services,
