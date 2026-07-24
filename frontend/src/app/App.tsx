@@ -280,8 +280,9 @@ export function HomeSite() {
     <>
       <style>{RESPONSIVE_CSS}</style>
 
-      {/* Scroll zone — hero is sticky inside. Ends on the moon (no 2nd sunrise). */}
-      <div ref={containerRef} style={{ height: "260vh", position: "relative" }}>
+      {/* Scroll zone — hero is sticky inside. Ends on the moon (no 2nd sunrise).
+          Shorter zone = a animação completa com menos rolagem (mais rápida/fluida). */}
+      <div ref={containerRef} style={{ height: "180vh", position: "relative" }}>
         <motion.section
           ref={heroRef}
           className="sticky top-0 w-full overflow-hidden isolate"
