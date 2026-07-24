@@ -153,7 +153,7 @@ class STCMS_Rest {
 		foreach ( $posts as $p ) {
 			$out[] = array(
 				'num'   => (string) get_post_meta( $p->ID, 'stcms_num', true ),
-				'title' => get_the_title( $p ),
+				'title' => self::title( $p ),
 				'body'  => self::plain( $p->post_content ),
 			);
 		}
@@ -172,7 +172,7 @@ class STCMS_Rest {
 		$out = array();
 		foreach ( $posts as $p ) {
 			$out[] = array(
-				'q' => get_the_title( $p ),
+				'q' => self::title( $p ),
 				'a' => self::plain( $p->post_content ),
 			);
 		}
@@ -208,7 +208,7 @@ class STCMS_Rest {
 
 			$out[] = array(
 				'id'       => $num ? (string) $num : (string) $id,
-				'name'     => get_post_meta( $id, 'stcms_name', true ) ? get_post_meta( $id, 'stcms_name', true ) : get_the_title( $p ),
+				'name'     => get_post_meta( $id, 'stcms_name', true ) ? get_post_meta( $id, 'stcms_name', true ) : self::title( $p ),
 				'category' => (string) get_post_meta( $id, 'stcms_category', true ),
 				'year'     => (string) get_post_meta( $id, 'stcms_year', true ),
 				'bg'       => (string) get_post_meta( $id, 'stcms_bg', true ),
@@ -240,7 +240,20 @@ class STCMS_Rest {
 	}
 
 	private static function plain( $content ) {
-		return trim( wp_strip_all_tags( $content ) );
+		return self::decode( trim( wp_strip_all_tags( $content ) ) );
+	}
+
+	/**
+	 * Title as plain UTF-8 text. get_the_title() runs the `the_title` filter,
+	 * which HTML-encodes characters like & into &#038;; a headless JSON API
+	 * must return the decoded text so the front-end renders it verbatim.
+	 */
+	private static function title( $post ) {
+		return self::decode( get_the_title( $post ) );
+	}
+
+	private static function decode( $text ) {
+		return html_entity_decode( (string) $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 	}
 
 	/* --------------------------------------------------------------- pages    */
@@ -260,7 +273,7 @@ class STCMS_Rest {
 			// Skip the WP front page / privacy stub if present.
 			$out[] = array(
 				'slug'  => $p->post_name,
-				'title' => get_the_title( $p ),
+				'title' => self::title( $p ),
 			);
 		}
 		return $out;
@@ -279,7 +292,7 @@ class STCMS_Rest {
 		return new WP_REST_Response(
 			array(
 				'slug'    => $page->post_name,
-				'title'   => get_the_title( $page ),
+				'title'   => self::title( $page ),
 				'content' => apply_filters( 'the_content', $page->post_content ),
 			),
 			200

@@ -146,7 +146,14 @@ em **Segurança → SSL**.
 
 ## Rodando tudo localmente antes de subir (opcional)
 
-Com Docker instalado:
+**Sem Docker** (baixa o WordPress do mirror do GitHub, não do wordpress.org):
+
+```bash
+WITH_MARIADB=1 scripts/setup-local-wordpress.sh   # banco + WP + plugin, tudo pronto
+php -S 127.0.0.1:8080 scripts/wp-router.php       # inicia o CMS
+```
+
+**Com Docker:**
 
 ```bash
 docker compose up -d db wordpress

@@ -35,9 +35,11 @@ São **duas rotas** independentes, ambas prontas para deploy na Hostinger:
 │       ├── studio-tabi-cms.php       #   bootstrap
 │       └── includes/                 #   CPTs, opções, meta boxes, REST, seed
 │
-├── docker-compose.yml                # WordPress + MySQL local para testes
+├── docker-compose.yml                # WordPress + MySQL local (opção com Docker)
 ├── scripts/
-│   ├── wp-setup.sh                   #   instala WP + ativa o plugin (via WP-CLI)
+│   ├── setup-local-wordpress.sh      #   ambiente completo SEM Docker (WP via GitHub)
+│   ├── wp-router.php                 #   router do php -S para servir o WordPress
+│   ├── wp-setup.sh                   #   instala WP + ativa o plugin (via WP-CLI/Docker)
 │   ├── build-plugin-zip.sh           #   empacota o plugin para upload
 │   └── contract-test.php             #   testa o contrato back-end → front-end
 └── DEPLOY.md                         # Passo a passo de deploy na Hostinger
@@ -57,17 +59,35 @@ São **duas rotas** independentes, ambas prontas para deploy na Hostinger:
 
 ## Início rápido (local)
 
-Pré-requisitos: Node 18+, e (para o back-end) Docker **ou** um WordPress já
-instalado.
+Pré-requisitos: Node 18+, PHP 8+ e um MySQL/MariaDB (o script pode subir um).
+
+### Opção A — sem Docker (baixa o WordPress do mirror do GitHub)
+
+Não depende do wordpress.org. Um comando prepara banco + WordPress + plugin:
 
 ```bash
-# 1) Back-end WordPress local (opcional, via Docker)
-docker compose up -d db wordpress
-docker compose run --rm wpcli /setup/wp-setup.sh
+# Sobe um MariaDB local, baixa o WordPress, instala e ativa o plugin
+WITH_MARIADB=1 scripts/setup-local-wordpress.sh
 #   → WP admin:  http://localhost:8080/wp-admin  (admin / admin123)
 #   → API:       http://localhost:8080/wp-json/studio-tabi/v1/content
 
-# 2) Front-end
+# Inicia o servidor do CMS
+php -S 127.0.0.1:8080 scripts/wp-router.php
+```
+
+> Já tem um MySQL rodando? Rode sem `WITH_MARIADB=1` e informe as credenciais
+> por variáveis (`DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`).
+
+### Opção B — com Docker (WordPress + MySQL em contêineres)
+
+```bash
+docker compose up -d db wordpress
+docker compose run --rm wpcli /setup/wp-setup.sh
+```
+
+### Front-end (em qualquer uma das opções)
+
+```bash
 cd frontend
 cp .env.example .env          # VITE_WP_API=http://localhost:8080
 npm install

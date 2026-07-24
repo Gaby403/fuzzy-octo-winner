@@ -22,10 +22,14 @@ wordpress/wp-content/cache/
 wordpress/wp-config.php
 wordpress/.htaccess
 
+# Ambiente WordPress local gerado pelo script (WP core + SQLite, não versionado)
+runtime/
+
 # Empacotamento
 *.log
 build/
 studio-tabi-cms.zip
+bin/wp-cli.phar
 
 # OS / editor
 .DS_Store
