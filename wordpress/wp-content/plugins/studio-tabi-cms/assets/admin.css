@@ -1,0 +1,201 @@
+/* Studio Tabi CMS — visual do painel de conteúdo */
+
+.stcms-admin {
+	--red: #F20C25;
+	--ink: #14161a;
+	--muted: #6a7280;
+	--line: #e6e8ec;
+	--bg: #f4f5f7;
+	max-width: 920px;
+}
+.stcms-admin * { box-sizing: border-box; }
+
+/* ── Cabeçalho ── */
+.stcms-hero {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	background: linear-gradient(120deg, #171a1f 0%, #24140f 60%, #3a0d13 100%);
+	color: #fff;
+	border-radius: 16px;
+	padding: 22px 26px;
+	margin: 16px 0 22px;
+	box-shadow: 0 10px 30px rgba(20, 8, 10, 0.18);
+	flex-wrap: wrap;
+}
+.stcms-hero-mark {
+	width: 46px; height: 46px;
+	display: flex; align-items: center; justify-content: center;
+	background: var(--red);
+	border-radius: 12px;
+	font-size: 20px;
+	box-shadow: 0 6px 16px rgba(242, 12, 37, 0.4);
+	flex-shrink: 0;
+}
+.stcms-hero-text { flex: 1; min-width: 240px; }
+.stcms-hero-text h1 { color: #fff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; padding: 0; }
+.stcms-hero-text h1 span { color: var(--red); }
+.stcms-hero-text p { margin: 4px 0 0; color: rgba(255,255,255,0.68); font-size: 13px; }
+.stcms-hero-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.stcms-chip {
+	display: inline-flex; align-items: center; gap: 6px;
+	background: rgba(255,255,255,0.09);
+	border: 1px solid rgba(255,255,255,0.14);
+	color: #fff !important;
+	text-decoration: none;
+	padding: 8px 13px;
+	border-radius: 999px;
+	font-size: 12px; font-weight: 600;
+	transition: background .15s, transform .15s;
+}
+.stcms-chip:hover { background: var(--red); transform: translateY(-1px); }
+.stcms-chip .dashicons { font-size: 15px; width: 15px; height: 15px; }
+
+/* ── Cards de seção ── */
+.stcms-card {
+	background: #fff;
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	margin-bottom: 16px;
+	overflow: hidden;
+	box-shadow: 0 1px 2px rgba(20,22,26,0.04);
+	transition: box-shadow .15s;
+}
+.stcms-card:hover { box-shadow: 0 6px 22px rgba(20,22,26,0.07); }
+.stcms-card-head {
+	width: 100%;
+	display: flex; align-items: center; gap: 14px;
+	background: #fff;
+	border: 0; border-bottom: 1px solid var(--line);
+	padding: 16px 20px;
+	cursor: pointer;
+	text-align: left;
+}
+.stcms-card.is-collapsed .stcms-card-head { border-bottom-color: transparent; }
+.stcms-card-icon {
+	width: 38px; height: 38px; flex-shrink: 0;
+	display: flex; align-items: center; justify-content: center;
+	background: #fdecee;
+	color: var(--red);
+	border-radius: 10px;
+	font-size: 20px;
+}
+.stcms-card-title { flex: 1; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+.stcms-card-title em { display: block; font-style: normal; font-size: 12px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+.stcms-card-chevron { color: var(--muted); transition: transform .2s; }
+.stcms-card.is-collapsed .stcms-card-chevron { transform: rotate(180deg); }
+.stcms-card-body { padding: 8px 22px 14px; }
+.stcms-card.is-collapsed .stcms-card-body { display: none; }
+
+/* ── Campos ── */
+.stcms-fields { margin-top: 4px; }
+.stcms-fields th {
+	font-size: 12px; font-weight: 700; letter-spacing: .01em;
+	color: var(--ink); padding-top: 18px; width: 190px;
+}
+.stcms-fields td { padding-top: 14px; padding-bottom: 6px; }
+.stcms-fields input[type="text"],
+.stcms-fields input[type="email"],
+.stcms-fields input[type="url"],
+.stcms-fields textarea {
+	border: 1px solid #d6d9de !important;
+	border-radius: 9px !important;
+	padding: 9px 12px !important;
+	font-size: 13.5px !important;
+	box-shadow: none !important;
+	transition: border-color .15s, box-shadow .15s;
+	max-width: 620px;
+}
+.stcms-fields input[type="text"]:focus,
+.stcms-fields textarea:focus {
+	border-color: var(--red) !important;
+	box-shadow: 0 0 0 3px rgba(242,12,37,0.12) !important;
+	outline: none;
+}
+.stcms-fields .description { color: var(--muted); font-size: 12px; font-style: normal; }
+
+/* Subgrupos (rodapé) */
+.stcms-subgroup {
+	border-top: 1px dashed var(--line);
+	margin-top: 6px; padding-top: 2px;
+}
+.stcms-subtitle {
+	display: inline-block;
+	margin: 14px 0 -6px;
+	font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+	color: var(--red);
+}
+
+/* ── Repetidores (listas) ── */
+/* Na página de opções o rótulo já vem do <th>, então escondemos o <strong>
+   e o border interno. Nas telas de Projeto/Serviço o <strong> é mantido. */
+.stcms-admin .stcms-repeater { border: 0 !important; padding: 0 !important; margin: 6px 0 !important; }
+.stcms-admin .stcms-repeater > strong { display: none; }
+.stcms-repeater > strong { display: block; margin-bottom: 8px; font-size: 12px; color: var(--ink, #14161a); }
+.stcms-row {
+	background: #f7f8fa;
+	border: 1px solid var(--line) !important;
+	border-radius: 10px;
+	padding: 8px 10px !important;
+	margin-bottom: 8px !important;
+	gap: 8px !important;
+}
+.stcms-row input[type="text"] {
+	border: 1px solid #d6d9de !important;
+	border-radius: 7px !important;
+	padding: 8px 10px !important;
+	font-size: 13px !important;
+	background: #fff;
+}
+.stcms-row input[type="text"]:focus { border-color: var(--red) !important; outline: none; box-shadow: 0 0 0 3px rgba(242,12,37,0.1) !important; }
+.stcms-remove {
+	flex-shrink: 0;
+	width: 26px; height: 26px;
+	border-radius: 50% !important;
+	background: #fff !important;
+	border: 1px solid var(--line) !important;
+	color: var(--red) !important;
+	font-size: 16px !important; line-height: 1 !important;
+	text-decoration: none !important;
+	display: flex; align-items: center; justify-content: center;
+}
+.stcms-remove:hover { background: var(--red) !important; color: #fff !important; }
+.stcms-add {
+	border-radius: 8px !important;
+	border: 1px dashed #c7ccd4 !important;
+	background: #fff !important;
+	color: var(--ink) !important;
+	font-weight: 600 !important;
+}
+.stcms-add:hover { border-color: var(--red) !important; color: var(--red) !important; }
+
+/* ── Mídia ── */
+.stcms-media .stcms-media-preview { border-radius: 8px !important; }
+.stcms-media .button { border-radius: 8px; }
+
+/* ── Barra de salvar (fixa) ── */
+.stcms-savebar {
+	position: sticky; bottom: 0;
+	display: flex; align-items: center; justify-content: space-between; gap: 16px;
+	background: rgba(255,255,255,0.92);
+	backdrop-filter: blur(6px);
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	padding: 12px 18px;
+	margin: 18px 0 30px;
+	box-shadow: 0 6px 24px rgba(20,22,26,0.1);
+	z-index: 5;
+}
+.stcms-savebar-note { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.stcms-savebar .button-primary {
+	background: var(--red) !important;
+	border-color: var(--red) !important;
+	border-radius: 9px !important;
+	box-shadow: 0 6px 16px rgba(242,12,37,0.28) !important;
+	text-shadow: none !important;
+	padding: 6px 22px !important;
+}
+.stcms-savebar .button-primary:hover { background: #d40a20 !important; }
+
+/* Esconde o wrap default do submit_button */
+.stcms-savebar p.submit { margin: 0 !important; padding: 0 !important; }

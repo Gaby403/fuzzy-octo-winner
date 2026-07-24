@@ -36,6 +36,15 @@
 	}
 
 	document.addEventListener('click', function (e) {
+		// Recolher/expandir card de seção
+		var head = e.target.closest && e.target.closest('.stcms-card-head');
+		if (head) {
+			var card = head.closest('.stcms-card');
+			var collapsed = card.classList.toggle('is-collapsed');
+			head.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+			return;
+		}
+
 		// Add row
 		if (e.target.classList.contains('stcms-add')) {
 			e.preventDefault();

@@ -52,6 +52,7 @@ function stcms_admin_assets( $hook ) {
 
 	wp_enqueue_media();
 	wp_enqueue_script( 'stcms-admin', STCMS_URL . 'assets/admin.js', array(), STCMS_VERSION, true );
+	wp_enqueue_style( 'stcms-admin', STCMS_URL . 'assets/admin.css', array( 'dashicons' ), STCMS_VERSION );
 }
 add_action( 'admin_enqueue_scripts', 'stcms_admin_assets' );
 
