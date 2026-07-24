@@ -1072,9 +1072,19 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
   const pad = "clamp(20px, 5vw, 90px)"
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Close on Escape
+  // Lightbox da galeria (carrossel dentro do site)
+  const gallery = proj.gallery || []
+  const [lightbox, setLightbox] = useState<number | null>(null)
+  const lightboxRef = useRef(false)
+  lightboxRef.current = lightbox !== null
+  const lbPrev = useCallback(() => setLightbox(i => (i === null ? i : (i - 1 + gallery.length) % gallery.length)), [gallery.length])
+  const lbNext = useCallback(() => setLightbox(i => (i === null ? i : (i + 1) % gallery.length)), [gallery.length])
+
+  // Close on Escape (fecha o lightbox primeiro, se aberto)
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !lightboxRef.current) onClose()
+    }
     window.addEventListener("keydown", handler)
     // Lock body scroll
     document.body.style.overflow = "hidden"
@@ -1084,8 +1094,20 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
     }
   }, [onClose])
 
+  // Teclado do lightbox: Esc fecha, setas navegam
+  useEffect(() => {
+    if (lightbox === null) return
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null)
+      else if (e.key === "ArrowLeft") lbPrev()
+      else if (e.key === "ArrowRight") lbNext()
+    }
+    window.addEventListener("keydown", h)
+    return () => window.removeEventListener("keydown", h)
+  }, [lightbox, lbPrev, lbNext])
+
   // Reset scroll on project change
-  useEffect(() => { scrollRef.current?.scrollTo(0, 0) }, [proj.id])
+  useEffect(() => { scrollRef.current?.scrollTo(0, 0); setLightbox(null) }, [proj.id])
 
   const stagger = (i: number) => ({ initial: { opacity: 0, y: 28 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.75, delay: 0.18 + i * 0.08, ease: EASE_OUT_EXPO } })
 
@@ -1250,20 +1272,20 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
             <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>GALERIA</p>
             <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(12px, 1.5vw, 20px)" }}>
               {proj.gallery.map((src, i) => (
-                <motion.a
+                <motion.button
                   key={i}
-                  href={src}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  type="button"
+                  onClick={() => setLightbox(i)}
+                  aria-label={`Abrir imagem ${i + 1}`}
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: i * 0.06, ease: EASE_OUT_EXPO }}
-                  style={{ display: "block", borderRadius: 8, overflow: "hidden", position: "relative", aspectRatio: "16 / 10", background: "#0D0D0D", border: "1px solid rgba(239,239,239,0.07)" }}
+                  style={{ display: "block", padding: 0, cursor: "pointer", borderRadius: 8, overflow: "hidden", position: "relative", aspectRatio: "16 / 10", background: "#0D0D0D", border: "1px solid rgba(239,239,239,0.07)" }}
                   whileHover={{ scale: 1.01 } as any}
                 >
                   <img src={src} alt={`${proj.name} — imagem ${i + 1}`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                </motion.a>
+                </motion.button>
               ))}
             </div>
           </motion.div>
@@ -1312,6 +1334,60 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
           </button>
         </div>
       </div>
+
+      {/* ── Lightbox da galeria (carrossel) ── */}
+      <AnimatePresence>
+        {lightbox !== null && gallery[lightbox] && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setLightbox(null)}
+            style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.93)", display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(16px, 4vw, 64px)" }}
+          >
+            <span style={{ position: "absolute", top: "clamp(18px,3vw,30px)", left: "clamp(16px,3vw,28px)", fontSize: 11, letterSpacing: "0.14em", color: "rgba(239,239,239,0.6)", fontWeight: 600 }}>
+              {String(lightbox + 1).padStart(2, "0")} / {String(gallery.length).padStart(2, "0")}
+            </span>
+            <button
+              onClick={e => { e.stopPropagation(); setLightbox(null) }}
+              aria-label="Fechar"
+              style={{ position: "absolute", top: "clamp(14px,3vw,26px)", right: "clamp(14px,3vw,26px)", width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 22, cursor: "pointer", lineHeight: 1 }}
+            >
+              ×
+            </button>
+            {gallery.length > 1 && (
+              <button
+                onClick={e => { e.stopPropagation(); lbPrev() }}
+                aria-label="Anterior"
+                className="hero-cta-secondary"
+                style={{ position: "absolute", left: "clamp(8px,2vw,28px)", top: "50%", transform: "translateY(-50%)", width: 50, height: 50, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 24, cursor: "pointer", lineHeight: 1 }}
+              >
+                ‹
+              </button>
+            )}
+            <motion.img
+              key={lightbox}
+              src={gallery[lightbox]}
+              alt={`${proj.name} — imagem ${lightbox + 1}`}
+              onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.25, ease: EASE_OUT_EXPO }}
+              style={{ maxWidth: "92vw", maxHeight: "86vh", objectFit: "contain", borderRadius: 6, boxShadow: "0 20px 80px rgba(0,0,0,0.6)" }}
+            />
+            {gallery.length > 1 && (
+              <button
+                onClick={e => { e.stopPropagation(); lbNext() }}
+                aria-label="Próxima"
+                style={{ position: "absolute", right: "clamp(8px,2vw,28px)", top: "50%", transform: "translateY(-50%)", width: 50, height: 50, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 24, cursor: "pointer", lineHeight: 1 }}
+              >
+                ›
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
