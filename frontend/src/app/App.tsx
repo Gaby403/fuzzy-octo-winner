@@ -1074,9 +1074,11 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
 
   // Lightbox da galeria (carrossel dentro do site)
   const gallery = proj.gallery || []
+  const documents = proj.documents || []
   const [lightbox, setLightbox] = useState<number | null>(null)
+  const [docPreview, setDocPreview] = useState<string | null>(null)
   const lightboxRef = useRef(false)
-  lightboxRef.current = lightbox !== null
+  lightboxRef.current = lightbox !== null || docPreview !== null
   const lbPrev = useCallback(() => setLightbox(i => (i === null ? i : (i - 1 + gallery.length) % gallery.length)), [gallery.length])
   const lbNext = useCallback(() => setLightbox(i => (i === null ? i : (i + 1) % gallery.length)), [gallery.length])
 
@@ -1106,8 +1108,16 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
     return () => window.removeEventListener("keydown", h)
   }, [lightbox, lbPrev, lbNext])
 
+  // Teclado do preview de PDF: Esc fecha
+  useEffect(() => {
+    if (docPreview === null) return
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") setDocPreview(null) }
+    window.addEventListener("keydown", h)
+    return () => window.removeEventListener("keydown", h)
+  }, [docPreview])
+
   // Reset scroll on project change
-  useEffect(() => { scrollRef.current?.scrollTo(0, 0); setLightbox(null) }, [proj.id])
+  useEffect(() => { scrollRef.current?.scrollTo(0, 0); setLightbox(null); setDocPreview(null) }, [proj.id])
 
   const stagger = (i: number) => ({ initial: { opacity: 0, y: 28 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.75, delay: 0.18 + i * 0.08, ease: EASE_OUT_EXPO } })
 
@@ -1308,6 +1318,40 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
           </motion.div>
         )}
 
+        {/* Documentos / PDFs */}
+        {documents.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+            style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}
+          >
+            <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>DOCUMENTOS</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "clamp(12px, 1.5vw, 16px)" }}>
+              {documents.map((doc, i) => (
+                <motion.button
+                  key={i}
+                  type="button"
+                  onClick={() => setDocPreview(doc.url)}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.05, ease: EASE_OUT_EXPO }}
+                  style={{ display: "flex", alignItems: "center", gap: 14, textAlign: "left", cursor: "pointer", padding: "16px 18px", background: "#0D0D0D", border: "1px solid rgba(239,239,239,0.08)", borderRadius: 10 }}
+                  whileHover={{ borderColor: `${proj.accent}66` } as any}
+                >
+                  <span style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 8, background: `${proj.accent}1A`, color: proj.accent, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: 12, letterSpacing: "0.04em" }}>PDF</span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: WHITE, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{doc.title}</span>
+                    <span style={{ display: "block", fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", color: "rgba(239,239,239,0.35)", marginTop: 3 }}>VISUALIZAR ↗</span>
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Navigation between projects */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "clamp(24px,3vw,40px)", borderTop: "1px solid rgba(239,239,239,0.08)" }}>
           <button
@@ -1385,6 +1429,51 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
                 ›
               </button>
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Preview de PDF ── */}
+      <AnimatePresence>
+        {docPreview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setDocPreview(null)}
+            style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.9)", display: "flex", flexDirection: "column", padding: "clamp(12px,3vw,40px)" }}
+          >
+            <div
+              onClick={e => e.stopPropagation()}
+              style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, marginBottom: 12 }}
+            >
+              <a
+                href={docPreview}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, textDecoration: "none", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", padding: "10px 16px", borderRadius: 999 }}
+              >
+                ABRIR EM NOVA ABA ↗
+              </a>
+              <button
+                onClick={() => setDocPreview(null)}
+                aria-label="Fechar"
+                style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 22, cursor: "pointer", lineHeight: 1 }}
+              >
+                ×
+              </button>
+            </div>
+            <motion.iframe
+              key={docPreview}
+              src={docPreview}
+              title="Documento"
+              onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{ flex: 1, width: "100%", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 8, background: "#fff" }}
+            />
           </motion.div>
         )}
       </AnimatePresence>

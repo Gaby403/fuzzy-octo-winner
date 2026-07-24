@@ -42,16 +42,29 @@ add_action( 'plugins_loaded', 'stcms_boot' );
  * Enqueue admin assets (repeaters + media picker) on our screens only.
  */
 function stcms_admin_assets( $hook ) {
+	// Detecta o tipo de post de forma robusta (tela ou global $typenow).
 	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-	$is_cpt = $screen && in_array( $screen->post_type, array( 'st_service', 'st_project' ), true );
-	$is_opt = ( 'toplevel_page_studio-tabi' === $hook );
+	$post_type = '';
+	if ( $screen && ! empty( $screen->post_type ) ) {
+		$post_type = $screen->post_type;
+	} elseif ( ! empty( $GLOBALS['typenow'] ) ) {
+		$post_type = $GLOBALS['typenow'];
+	} elseif ( isset( $_GET['post_type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_type = sanitize_key( wp_unslash( $_GET['post_type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	$is_cpt = in_array( $post_type, array( 'st_service', 'st_project' ), true );
+	$is_opt = ( false !== strpos( (string) $hook, 'studio-tabi' ) );
 
 	if ( ! $is_cpt && ! $is_opt ) {
 		return;
 	}
 
+	// Biblioteca de mídia do WordPress (necessária para o seletor de imagens/PDF).
 	wp_enqueue_media();
-	wp_enqueue_script( 'stcms-admin', STCMS_URL . 'assets/admin.js', array(), STCMS_VERSION, true );
+	// Declarar 'media-editor' como dependência garante que wp.media já esteja
+	// disponível quando o admin.js rodar (senão o botão "Adicionar" não abre nada).
+	wp_enqueue_script( 'stcms-admin', STCMS_URL . 'assets/admin.js', array( 'jquery', 'media-editor' ), STCMS_VERSION, true );
 	wp_enqueue_style( 'stcms-admin', STCMS_URL . 'assets/admin.css', array( 'dashicons' ), STCMS_VERSION );
 }
 add_action( 'admin_enqueue_scripts', 'stcms_admin_assets' );

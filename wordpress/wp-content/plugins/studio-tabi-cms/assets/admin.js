@@ -2,6 +2,15 @@
 (function () {
 	'use strict';
 
+	// Garante que a biblioteca de mídia do WordPress está disponível.
+	function mediaReady() {
+		if (typeof wp === 'undefined' || !wp.media) {
+			window.alert('A biblioteca de mídia do WordPress não carregou nesta tela. Recarregue a página (F5). Se continuar, pode ser conflito com outro plugin.');
+			return false;
+		}
+		return true;
+	}
+
 	function nextIndex(rowsEl) {
 		var rows = rowsEl.querySelectorAll('.stcms-row');
 		var max = -1;
@@ -69,6 +78,7 @@
 		// Media picker (used on the options page)
 		if (e.target.classList.contains('stcms-media-pick')) {
 			e.preventDefault();
+			if (!mediaReady()) return;
 			var wrap = e.target.closest('.stcms-media');
 			var frame = wp.media({ title: 'Selecionar imagem', multiple: false });
 			frame.on('select', function () {
@@ -92,6 +102,7 @@
 		// Gallery: adicionar várias imagens
 		if (e.target.classList.contains('stcms-gallery-add')) {
 			e.preventDefault();
+			if (!mediaReady()) return;
 			var gwrap = e.target.closest('.stcms-gallery');
 			var idsInput = gwrap.querySelector('.stcms-gallery-ids');
 			var preview = gwrap.querySelector('.stcms-gallery-preview');
@@ -127,6 +138,53 @@
 			var list = idsInput2.value ? idsInput2.value.split(',').filter(Boolean) : [];
 			idsInput2.value = list.filter(function (x) { return x !== rid; }).join(',');
 			item2.remove();
+		}
+
+		// Documentos (PDFs): adicionar
+		if (e.target.classList.contains('stcms-docs-add')) {
+			e.preventDefault();
+			if (!mediaReady()) return;
+			var dwrap = e.target.closest('.stcms-docs');
+			var dInput = dwrap.querySelector('.stcms-docs-ids');
+			var dList = dwrap.querySelector('.stcms-docs-list');
+			var dframe = wp.media({
+				title: 'Selecionar PDFs',
+				multiple: 'add',
+				library: { type: 'application/pdf' }
+			});
+			dframe.on('select', function () {
+				var current = dInput.value ? dInput.value.split(',').filter(Boolean) : [];
+				dframe.state().get('selection').forEach(function (att) {
+					var a = att.toJSON();
+					if (current.indexOf(String(a.id)) !== -1) return;
+					current.push(String(a.id));
+					var name = a.title || a.filename || 'documento.pdf';
+					var item = document.createElement('div');
+					item.className = 'stcms-doc-item';
+					item.setAttribute('data-id', a.id);
+					item.style.cssText = 'display:flex;align-items:center;gap:8px;background:#f7f8fa;border:1px solid #e6e8ec;border-radius:8px;padding:6px 10px';
+					item.innerHTML =
+						'<span class="dashicons dashicons-media-document" style="color:#b32d2e"></span>' +
+						'<span style="flex:1;font-size:13px"></span>' +
+						'<button type="button" class="stcms-doc-remove" title="Remover" style="background:#fff;border:1px solid #e6e8ec;color:#b32d2e;border-radius:50%;width:22px;height:22px;cursor:pointer;line-height:1">×</button>';
+					item.querySelector('span[style*="flex"]').textContent = name;
+					dList.appendChild(item);
+				});
+				dInput.value = current.join(',');
+			});
+			dframe.open();
+		}
+
+		// Documentos: remover
+		if (e.target.classList.contains('stcms-doc-remove')) {
+			e.preventDefault();
+			var ditem = e.target.closest('.stcms-doc-item');
+			var dwrap2 = e.target.closest('.stcms-docs');
+			var dInput2 = dwrap2.querySelector('.stcms-docs-ids');
+			var did = String(ditem.getAttribute('data-id'));
+			var dlist = dInput2.value ? dInput2.value.split(',').filter(Boolean) : [];
+			dInput2.value = dlist.filter(function (x) { return x !== did; }).join(',');
+			ditem.remove();
 		}
 	});
 })();

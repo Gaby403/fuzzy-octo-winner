@@ -149,6 +149,8 @@ class STCMS_Rest {
 
 	/**
 	 * Resolve a comma-separated list of attachment IDs into full image URLs.
+	 * Uses the full size (always exists) + falls back to wp_get_attachment_url
+	 * so nenhuma imagem some por falta de um tamanho intermediário.
 	 */
 	private static function gallery_urls( $raw ) {
 		if ( ! $raw ) {
@@ -156,10 +158,41 @@ class STCMS_Rest {
 		}
 		$out = array();
 		foreach ( explode( ',', (string) $raw ) as $id ) {
-			$url = self::img( (int) $id, 'large' );
+			$id  = (int) $id;
+			$url = self::img( $id, 'full' );
+			if ( ! $url ) {
+				$url = wp_get_attachment_url( $id );
+			}
 			if ( $url ) {
 				$out[] = $url;
 			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Resolve a comma-separated list of attachment IDs into documents
+	 * (PDFs etc.), returning { url, title } for each.
+	 */
+	private static function document_list( $raw ) {
+		if ( ! $raw ) {
+			return array();
+		}
+		$out = array();
+		foreach ( explode( ',', (string) $raw ) as $id ) {
+			$id  = (int) $id;
+			$url = wp_get_attachment_url( $id );
+			if ( ! $url ) {
+				continue;
+			}
+			$title = get_the_title( $id );
+			if ( '' === $title ) {
+				$title = basename( wp_parse_url( $url, PHP_URL_PATH ) );
+			}
+			$out[] = array(
+				'url'   => $url,
+				'title' => self::decode( $title ),
+			);
 		}
 		return $out;
 	}
@@ -254,6 +287,7 @@ class STCMS_Rest {
 				'imageUrl' => get_the_post_thumbnail_url( $p, 'large' ) ? get_the_post_thumbnail_url( $p, 'large' ) : '',
 				'url'      => (string) get_post_meta( $id, 'stcms_url', true ),
 				'gallery'  => self::gallery_urls( get_post_meta( $id, 'stcms_gallery', true ) ),
+				'documents' => self::document_list( get_post_meta( $id, 'stcms_documents', true ) ),
 				'detail'   => array(
 					'client'      => (string) get_post_meta( $id, 'stcms_client', true ),
 					'scope'       => $scope,

@@ -54,6 +54,8 @@ export interface SiteContent {
     url?: string
     /** Galeria de imagens do projeto (URLs). */
     gallery?: string[]
+    /** Documentos/PDFs do projeto, com pré-visualização. */
+    documents?: { url: string; title: string }[]
     detail: {
       client: string
       scope: string[]

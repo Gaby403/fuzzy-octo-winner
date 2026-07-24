@@ -121,6 +121,44 @@ class STCMS_Meta {
 		self::repeater( 'Linhas do mockup', 'stcms_mockup', (array) get_post_meta( $post->ID, 'stcms_mockup', true ), array( 'item' => 'Linha' ) );
 
 		self::gallery_field( $post->ID );
+		self::documents_field( $post->ID );
+	}
+
+	/**
+	 * PDF/documents picker: stores a comma-separated list of attachment IDs and
+	 * shows the file names with a remove button.
+	 */
+	private static function documents_field( $post_id ) {
+		$raw = get_post_meta( $post_id, 'stcms_documents', true );
+		$ids = $raw ? array_values( array_filter( array_map( 'intval', explode( ',', $raw ) ) ) ) : array();
+
+		echo '<div class="stcms-docs" style="margin:14px 0;border-top:1px solid #dcdcde;padding-top:10px">';
+		echo '<strong style="display:block;margin-bottom:6px">PDFs / Documentos</strong>';
+		echo '<p style="color:#787c82;font-size:12px;margin:0 0 8px">Arquivos PDF que aparecem na seção "Documentos" da página do projeto, com pré-visualização.</p>';
+		printf( '<input type="hidden" class="stcms-docs-ids" name="stcms_documents" value="%s" />', esc_attr( implode( ',', $ids ) ) );
+		echo '<div class="stcms-docs-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">';
+		foreach ( $ids as $id ) {
+			$url = wp_get_attachment_url( $id );
+			if ( ! $url ) {
+				continue;
+			}
+			$title = get_the_title( $id );
+			if ( '' === $title ) {
+				$title = basename( wp_parse_url( $url, PHP_URL_PATH ) );
+			}
+			printf(
+				'<div class="stcms-doc-item" data-id="%d" style="display:flex;align-items:center;gap:8px;background:#f7f8fa;border:1px solid #e6e8ec;border-radius:8px;padding:6px 10px">'
+				. '<span class="dashicons dashicons-media-document" style="color:#b32d2e"></span>'
+				. '<span style="flex:1;font-size:13px">%s</span>'
+				. '<button type="button" class="stcms-doc-remove" title="Remover" style="background:#fff;border:1px solid #e6e8ec;color:#b32d2e;border-radius:50%%;width:22px;height:22px;cursor:pointer;line-height:1">×</button>'
+				. '</div>',
+				$id,
+				esc_html( $title )
+			);
+		}
+		echo '</div>';
+		echo '<button type="button" class="button stcms-docs-add">+ Adicionar PDF</button>';
+		echo '</div>';
 	}
 
 	/**
@@ -237,6 +275,11 @@ class STCMS_Meta {
 			if ( isset( $_POST['stcms_gallery'] ) ) {
 				$ids   = array_filter( array_map( 'intval', explode( ',', sanitize_text_field( wp_unslash( $_POST['stcms_gallery'] ) ) ) ) );
 				update_post_meta( $post_id, 'stcms_gallery', implode( ',', $ids ) );
+			}
+			// Documentos (PDFs): lista de IDs de anexos separada por vírgula
+			if ( isset( $_POST['stcms_documents'] ) ) {
+				$docs = array_filter( array_map( 'intval', explode( ',', sanitize_text_field( wp_unslash( $_POST['stcms_documents'] ) ) ) ) );
+				update_post_meta( $post_id, 'stcms_documents', implode( ',', $docs ) );
 			}
 		}
 	}
