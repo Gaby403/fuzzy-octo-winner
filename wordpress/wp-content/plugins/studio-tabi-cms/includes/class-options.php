@@ -76,7 +76,19 @@ class STCMS_Options {
 		?>
 		<div class="wrap">
 			<h1>Conteúdo do site — Studio Tabi</h1>
-			<p>Edite os textos e imagens fixos do site. Serviços, Projetos, FAQ e Páginas têm menus próprios.</p>
+
+			<div style="background:#fff;border:1px solid #dcdcde;border-left:4px solid #F20C25;border-radius:6px;padding:16px 20px;margin:16px 0;max-width:900px">
+				<p style="margin:0 0 10px;font-size:14px"><strong>Como editar o site</strong> — altere aqui e clique em <em>Salvar alterações</em>. As mudanças aparecem no site ao recarregar a página.</p>
+				<p style="margin:0 0 6px;font-size:13px;color:#50575e">Cada parte do conteúdo fica em um lugar:</p>
+				<ul style="margin:0;font-size:13px;line-height:1.9;list-style:disc;padding-left:20px">
+					<li><strong>Esta página</strong>: textos fixos — título, menu, hero, sobre, rodapé, logo e favicon.</li>
+					<li><a href="<?php echo esc_url( admin_url( 'edit.php?post_type=st_service' ) ); ?>">Serviços</a>, <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=st_project' ) ); ?>">Projetos</a> e <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=st_faq' ) ); ?>">FAQ</a>: cada item tem sua própria tela (adicionar, editar, reordenar por “ordem”).</li>
+					<li><a href="<?php echo esc_url( admin_url( 'edit.php?post_type=page' ) ); ?>">Páginas</a>: crie páginas que aparecem no site em <code>/p/nome-da-pagina</code>.</li>
+					<li><a href="<?php echo esc_url( admin_url( 'upload.php' ) ); ?>">Mídia</a>: envie as imagens usadas nos campos acima e nas galerias.</li>
+				</ul>
+				<p style="margin:10px 0 0;font-size:12px;color:#787c82">Dica: nos campos com listas (menu, redes sociais, links do rodapé) use <strong>+ Adicionar</strong> para incluir itens e <strong>×</strong> para remover.</p>
+			</div>
+
 			<form method="post" action="options.php">
 				<?php settings_fields( 'stcms_group' ); ?>
 

@@ -146,6 +146,23 @@ class STCMS_Rest {
 		return $url ? $url : '';
 	}
 
+	/**
+	 * Resolve a comma-separated list of attachment IDs into full image URLs.
+	 */
+	private static function gallery_urls( $raw ) {
+		if ( ! $raw ) {
+			return array();
+		}
+		$out = array();
+		foreach ( explode( ',', (string) $raw ) as $id ) {
+			$url = self::img( (int) $id, 'large' );
+			if ( $url ) {
+				$out[] = $url;
+			}
+		}
+		return $out;
+	}
+
 	private static function stats( $stats ) {
 		$out = array();
 		foreach ( (array) $stats as $s ) {
@@ -234,6 +251,8 @@ class STCMS_Rest {
 				'accent'   => (string) get_post_meta( $id, 'stcms_accent', true ),
 				'featured' => '1' === get_post_meta( $id, 'stcms_featured', true ),
 				'imageUrl' => get_the_post_thumbnail_url( $p, 'large' ) ? get_the_post_thumbnail_url( $p, 'large' ) : '',
+				'url'      => (string) get_post_meta( $id, 'stcms_url', true ),
+				'gallery'  => self::gallery_urls( get_post_meta( $id, 'stcms_gallery', true ) ),
 				'detail'   => array(
 					'client'      => (string) get_post_meta( $id, 'stcms_client', true ),
 					'scope'       => $scope,

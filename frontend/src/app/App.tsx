@@ -1102,6 +1102,9 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
       <div style={{ position: "relative", height: "clamp(380px, 55vh, 620px)", overflow: "hidden" }}>
         {/* Background */}
         <div style={{ position: "absolute", inset: 0, background: proj.bg }} />
+        {proj.imageUrl && (
+          <img src={proj.imageUrl} alt={proj.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} />
+        )}
         <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 70% 50%, ${proj.accent}30 0%, transparent 65%)` }} />
         {/* Grid lines */}
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)`, backgroundSize: "60px 60px" }} />
@@ -1109,19 +1112,21 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
         <div aria-hidden="true" style={{ position: "absolute", right: "-2%", bottom: "-8%", fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(160px, 22vw, 340px)", lineHeight: 0.85, letterSpacing: "-0.08em", color: WHITE, opacity: 0.05, userSelect: "none" }}>
           {proj.id}
         </div>
-        {/* Mock interface */}
-        <div style={{ position: "absolute", right: pad, top: "50%", transform: "translateY(-50%)", width: "clamp(160px, 28vw, 360px)", background: "rgba(255,255,255,0.04)", border: `1px solid ${proj.accent}33`, borderRadius: 8, backdropFilter: "blur(12px)", overflow: "hidden" }}>
-          <div style={{ padding: "12px 16px", borderBottom: `1px solid ${proj.accent}22`, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: proj.accent, display: "inline-block" }} />
-            <span style={{ fontSize: 9, letterSpacing: "0.14em", color: "rgba(239,239,239,0.5)", fontWeight: 600 }}>{proj.name.toUpperCase()}</span>
-          </div>
-          {detail.mockupLines.map((line, i) => (
-            <div key={i} style={{ padding: "10px 16px", borderBottom: i < detail.mockupLines.length - 1 ? `1px solid rgba(255,255,255,0.04)` : "none", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 11, color: i === 0 ? WHITE : "rgba(239,239,239,0.35)", fontWeight: i === 0 ? 600 : 400, letterSpacing: "0.06em" }}>{line}</span>
-              <span style={{ fontSize: 8, color: proj.accent, fontWeight: 600 }}>{i === 0 ? "ATIVO" : "—"}</span>
+        {/* Mock interface (só quando não há imagem real) */}
+        {!proj.imageUrl && (
+          <div style={{ position: "absolute", right: pad, top: "50%", transform: "translateY(-50%)", width: "clamp(160px, 28vw, 360px)", background: "rgba(255,255,255,0.04)", border: `1px solid ${proj.accent}33`, borderRadius: 8, backdropFilter: "blur(12px)", overflow: "hidden" }}>
+            <div style={{ padding: "12px 16px", borderBottom: `1px solid ${proj.accent}22`, display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: proj.accent, display: "inline-block" }} />
+              <span style={{ fontSize: 9, letterSpacing: "0.14em", color: "rgba(239,239,239,0.5)", fontWeight: 600 }}>{proj.name.toUpperCase()}</span>
             </div>
-          ))}
-        </div>
+            {detail.mockupLines.map((line, i) => (
+              <div key={i} style={{ padding: "10px 16px", borderBottom: i < detail.mockupLines.length - 1 ? `1px solid rgba(255,255,255,0.04)` : "none", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 11, color: i === 0 ? WHITE : "rgba(239,239,239,0.35)", fontWeight: i === 0 ? 600 : 400, letterSpacing: "0.06em" }}>{line}</span>
+                <span style={{ fontSize: 8, color: proj.accent, fontWeight: 600 }}>{i === 0 ? "ATIVO" : "—"}</span>
+              </div>
+            ))}
+          </div>
+        )}
         {/* Back button */}
         <button
           onClick={onClose}
@@ -1168,13 +1173,28 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
         </motion.div>
 
         {/* Scope tags */}
-        <motion.div {...stagger(3)} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: "clamp(56px, 8vw, 100px)" }}>
+        <motion.div {...stagger(3)} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: proj.url ? "clamp(28px, 4vw, 40px)" : "clamp(56px, 8vw, 100px)" }}>
           {detail.scope.map((tag) => (
             <span key={tag} style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", color: proj.accent, border: `1px solid ${proj.accent}44`, borderRadius: 999, padding: "7px 14px" }}>
               {tag.toUpperCase()}
             </span>
           ))}
         </motion.div>
+
+        {/* Botão: ver projeto completo / visitar site (link externo) */}
+        {proj.url && (
+          <motion.a
+            {...stagger(3)}
+            href={proj.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: "inline-flex", alignItems: "center", gap: 12, background: proj.accent, color: WHITE, textDecoration: "none", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", padding: "15px 30px", borderRadius: 999, marginBottom: "clamp(56px, 8vw, 100px)" }}
+            whileHover={{ scale: 1.03 } as any}
+            transition={{ duration: 0.2 }}
+          >
+            VER PROJETO COMPLETO <span style={{ fontSize: 14 }}>↗</span>
+          </motion.a>
+        )}
 
         {/* Two columns: Challenge + Solution */}
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(32px, 5vw, 72px)", marginBottom: "clamp(56px, 8vw, 100px)" }}>
@@ -1218,23 +1238,53 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
           </div>
         </motion.div>
 
-        {/* Visual full-width strip */}
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0.96 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
-          style={{ height: "clamp(180px, 28vw, 340px)", borderRadius: 8, overflow: "hidden", position: "relative", marginBottom: "clamp(56px, 8vw, 100px)" }}
-        >
-          <div style={{ position: "absolute", inset: 0, background: proj.bg }} />
-          <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 30% 50%, ${proj.accent}28 0%, transparent 60%)` }} />
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`, backgroundSize: "50px 50px" }} />
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(48px, 8vw, 120px)", letterSpacing: "-0.06em", color: WHITE, opacity: 0.08, userSelect: "none", textTransform: "uppercase" }}>
-              {proj.name}
-            </span>
-          </div>
-        </motion.div>
+        {/* Galeria de imagens do projeto (se houver); senão, a faixa decorativa */}
+        {proj.gallery && proj.gallery.length > 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+            style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}
+          >
+            <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>GALERIA</p>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(12px, 1.5vw, 20px)" }}>
+              {proj.gallery.map((src, i) => (
+                <motion.a
+                  key={i}
+                  href={src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: i * 0.06, ease: EASE_OUT_EXPO }}
+                  style={{ display: "block", borderRadius: 8, overflow: "hidden", position: "relative", aspectRatio: "16 / 10", background: "#0D0D0D", border: "1px solid rgba(239,239,239,0.07)" }}
+                  whileHover={{ scale: 1.01 } as any}
+                >
+                  <img src={src} alt={`${proj.name} — imagem ${i + 1}`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </motion.a>
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0.96 }}
+            whileInView={{ opacity: 1, scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
+            style={{ height: "clamp(180px, 28vw, 340px)", borderRadius: 8, overflow: "hidden", position: "relative", marginBottom: "clamp(56px, 8vw, 100px)" }}
+          >
+            <div style={{ position: "absolute", inset: 0, background: proj.bg }} />
+            <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 30% 50%, ${proj.accent}28 0%, transparent 60%)` }} />
+            <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`, backgroundSize: "50px 50px" }} />
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(48px, 8vw, 120px)", letterSpacing: "-0.06em", color: WHITE, opacity: 0.08, userSelect: "none", textTransform: "uppercase" }}>
+                {proj.name}
+              </span>
+            </div>
+          </motion.div>
+        )}
 
         {/* Navigation between projects */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "clamp(24px,3vw,40px)", borderTop: "1px solid rgba(239,239,239,0.08)" }}>

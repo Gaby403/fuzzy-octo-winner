@@ -79,5 +79,45 @@
 			wrap2.querySelector('.stcms-media-preview').style.display = 'none';
 			e.target.style.display = 'none';
 		}
+
+		// Gallery: adicionar várias imagens
+		if (e.target.classList.contains('stcms-gallery-add')) {
+			e.preventDefault();
+			var gwrap = e.target.closest('.stcms-gallery');
+			var idsInput = gwrap.querySelector('.stcms-gallery-ids');
+			var preview = gwrap.querySelector('.stcms-gallery-preview');
+			var gframe = wp.media({ title: 'Selecionar imagens da galeria', multiple: 'add' });
+			gframe.on('select', function () {
+				var current = idsInput.value ? idsInput.value.split(',').filter(Boolean) : [];
+				gframe.state().get('selection').forEach(function (att) {
+					var a = att.toJSON();
+					if (current.indexOf(String(a.id)) !== -1) return;
+					current.push(String(a.id));
+					var thumb = a.sizes && a.sizes.thumbnail ? a.sizes.thumbnail.url : a.url;
+					var item = document.createElement('div');
+					item.className = 'stcms-gallery-item';
+					item.setAttribute('data-id', a.id);
+					item.style.cssText = 'position:relative;width:84px;height:84px';
+					item.innerHTML =
+						'<img src="' + thumb + '" style="width:100%;height:100%;object-fit:cover;border:1px solid #dcdcde;border-radius:4px" />' +
+						'<button type="button" class="stcms-gallery-remove" title="Remover" style="position:absolute;top:-7px;right:-7px;background:#b32d2e;color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;line-height:18px;padding:0">×</button>';
+					preview.appendChild(item);
+				});
+				idsInput.value = current.join(',');
+			});
+			gframe.open();
+		}
+
+		// Gallery: remover uma imagem
+		if (e.target.classList.contains('stcms-gallery-remove')) {
+			e.preventDefault();
+			var item2 = e.target.closest('.stcms-gallery-item');
+			var gwrap2 = e.target.closest('.stcms-gallery');
+			var idsInput2 = gwrap2.querySelector('.stcms-gallery-ids');
+			var rid = String(item2.getAttribute('data-id'));
+			var list = idsInput2.value ? idsInput2.value.split(',').filter(Boolean) : [];
+			idsInput2.value = list.filter(function (x) { return x !== rid; }).join(',');
+			item2.remove();
+		}
 	});
 })();

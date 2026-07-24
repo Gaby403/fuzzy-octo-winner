@@ -48,6 +48,10 @@ export interface SiteContent {
     accent: string
     featured: boolean
     imageUrl?: string
+    /** Link externo para o site/projeto completo (abre em nova aba). */
+    url?: string
+    /** Galeria de imagens do projeto (URLs). */
+    gallery?: string[]
     detail: {
       client: string
       scope: string[]

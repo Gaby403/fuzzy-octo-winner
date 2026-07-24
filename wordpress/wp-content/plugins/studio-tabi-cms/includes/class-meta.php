@@ -16,6 +16,35 @@ class STCMS_Meta {
 	public static function init() {
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save' ), 10, 2 );
+		add_action( 'edit_form_after_title', array( __CLASS__, 'title_hint' ) );
+		// Placeholder amigável no campo de título de cada tipo.
+		add_filter( 'enter_title_here', array( __CLASS__, 'title_placeholder' ), 10, 2 );
+	}
+
+	/**
+	 * Dica logo abaixo do campo de título, explicando o que é título x conteúdo.
+	 */
+	public static function title_hint( $post ) {
+		$hints = array(
+			'st_service' => 'Título = <strong>nome do serviço</strong>. O texto grande abaixo (conteúdo) é a <strong>descrição</strong>.',
+			'st_faq'     => 'Título = <strong>a pergunta</strong>. O texto grande abaixo (conteúdo) é a <strong>resposta</strong>.',
+			'st_project' => 'Título = <strong>nome do projeto</strong>. Os demais campos (fotos, link, resultados…) ficam no box <em>“Dados do projeto”</em> abaixo.',
+		);
+		if ( isset( $hints[ $post->post_type ] ) ) {
+			echo '<p style="margin:8px 0 0;color:#50575e;font-size:13px">' . wp_kses_post( $hints[ $post->post_type ] ) . '</p>';
+		}
+	}
+
+	/**
+	 * Texto de exemplo dentro do campo de título.
+	 */
+	public static function title_placeholder( $text, $post ) {
+		$map = array(
+			'st_service' => 'Nome do serviço',
+			'st_faq'     => 'Digite a pergunta',
+			'st_project' => 'Nome do projeto',
+		);
+		return isset( $map[ $post->post_type ] ) ? $map[ $post->post_type ] : $text;
 	}
 
 	public static function add_boxes() {
@@ -72,6 +101,7 @@ class STCMS_Meta {
 		self::text_row( 'Ano', 'stcms_year', self::field( $post->ID, 'stcms_year' ) );
 		self::text_row( 'Cliente', 'stcms_client', self::field( $post->ID, 'stcms_client' ) );
 		self::text_row( 'Duração', 'stcms_duration', self::field( $post->ID, 'stcms_duration' ) );
+		self::text_row( 'Link do projeto/site (URL)', 'stcms_url', self::field( $post->ID, 'stcms_url' ), 'Opcional. Ex.: https://exemplo.com — vira o botão "Ver projeto completo" (abre em nova aba).' );
 		echo '</div><div>';
 		self::text_row( 'Cor de destaque (hex)', 'stcms_accent', self::field( $post->ID, 'stcms_accent', '#F20C25' ), 'Ex: #F20C25' );
 		self::text_row( 'Fundo (CSS gradient)', 'stcms_bg', self::field( $post->ID, 'stcms_bg', 'linear-gradient(135deg,#1A0505 0%,#2D0A0A 50%,#1A0A14 100%)' ) );
@@ -89,6 +119,40 @@ class STCMS_Meta {
 		self::repeater( 'Escopo', 'stcms_scope', (array) get_post_meta( $post->ID, 'stcms_scope', true ), array( 'item' => 'Item do escopo' ) );
 		self::repeater( 'Resultados', 'stcms_results', (array) get_post_meta( $post->ID, 'stcms_results', true ), array( 'label' => 'Label', 'value' => 'Valor' ) );
 		self::repeater( 'Linhas do mockup', 'stcms_mockup', (array) get_post_meta( $post->ID, 'stcms_mockup', true ), array( 'item' => 'Linha' ) );
+
+		self::gallery_field( $post->ID );
+	}
+
+	/**
+	 * Gallery picker: stores a comma-separated list of attachment IDs and shows
+	 * thumbnails with a remove button. Uses the WordPress media library.
+	 */
+	private static function gallery_field( $post_id ) {
+		$raw = get_post_meta( $post_id, 'stcms_gallery', true );
+		$ids = $raw ? array_values( array_filter( array_map( 'intval', explode( ',', $raw ) ) ) ) : array();
+
+		echo '<div class="stcms-gallery" style="margin:14px 0;border-top:1px solid #dcdcde;padding-top:10px">';
+		echo '<strong style="display:block;margin-bottom:6px">Galeria de imagens</strong>';
+		echo '<p style="color:#787c82;font-size:12px;margin:0 0 8px">Fotos extras que aparecem na seção "Galeria" da página do projeto.</p>';
+		printf( '<input type="hidden" class="stcms-gallery-ids" name="stcms_gallery" value="%s" />', esc_attr( implode( ',', $ids ) ) );
+		echo '<div class="stcms-gallery-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">';
+		foreach ( $ids as $id ) {
+			$url = wp_get_attachment_image_url( $id, 'thumbnail' );
+			if ( ! $url ) {
+				continue;
+			}
+			printf(
+				'<div class="stcms-gallery-item" data-id="%d" style="position:relative;width:84px;height:84px">'
+				. '<img src="%s" style="width:100%%;height:100%%;object-fit:cover;border:1px solid #dcdcde;border-radius:4px" />'
+				. '<button type="button" class="stcms-gallery-remove" title="Remover" style="position:absolute;top:-7px;right:-7px;background:#b32d2e;color:#fff;border:none;border-radius:50%%;width:20px;height:20px;cursor:pointer;line-height:18px;padding:0">×</button>'
+				. '</div>',
+				$id,
+				esc_url( $url )
+			);
+		}
+		echo '</div>';
+		echo '<button type="button" class="button stcms-gallery-add">+ Adicionar imagens</button>';
+		echo '</div>';
 	}
 
 	/**
@@ -164,6 +228,16 @@ class STCMS_Meta {
 			self::save_repeater( $post_id, 'stcms_scope' );
 			self::save_repeater( $post_id, 'stcms_results' );
 			self::save_repeater( $post_id, 'stcms_mockup' );
+
+			// URL do projeto (link externo)
+			if ( isset( $_POST['stcms_url'] ) ) {
+				update_post_meta( $post_id, 'stcms_url', esc_url_raw( wp_unslash( $_POST['stcms_url'] ) ) );
+			}
+			// Galeria: lista de IDs de anexos separada por vírgula
+			if ( isset( $_POST['stcms_gallery'] ) ) {
+				$ids   = array_filter( array_map( 'intval', explode( ',', sanitize_text_field( wp_unslash( $_POST['stcms_gallery'] ) ) ) ) );
+				update_post_meta( $post_id, 'stcms_gallery', implode( ',', $ids ) );
+			}
 		}
 	}
 
