@@ -25,7 +25,9 @@ function stcms_default_options() {
 			'favicon_id' => 0,
 		),
 		'hero'   => array(
+			'eyebrow'     => 'STUDIO TABI — DIGITAL STUDIO',
 			'title_lines' => array( 'TRANSFORMAMOS', 'A SUA MARCA', 'EM EXPERIÊNCIA' ),
+			'highlight'   => 'DIGITAL.',
 			'description' => 'Design, estratégia e desenvolvimento para transformar presença digital em percepção de valor, confiança e decisão.',
 			'image_id'    => 0,
 		),

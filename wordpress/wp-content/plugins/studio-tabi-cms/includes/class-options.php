@@ -92,6 +92,7 @@ class STCMS_Options {
 
 				<h2 class="title">Hero</h2>
 				<table class="form-table" role="presentation">
+					<?php self::row_text( 'Olho (texto acima do título)', 'hero][eyebrow', $o['hero']['eyebrow'] ); ?>
 					<tr>
 						<th scope="row">Linhas do título</th>
 						<td>
@@ -100,6 +101,7 @@ class STCMS_Options {
 						</td>
 					</tr>
 					<?php
+					self::row_text( 'Palavra em destaque (vermelho)', 'hero][highlight', $o['hero']['highlight'], 'É a última linha do título, em vermelho (ex.: DIGITAL.). Deixe vazio para remover.' );
 					self::row_textarea( 'Descrição', 'hero][description', $o['hero']['description'] );
 					self::row_media( 'Imagem de fundo (opcional)', 'hero][image_id', (int) $o['hero']['image_id'], 'Se vazio, o hero usa a arte de montanha animada padrão.' );
 					?>
@@ -145,12 +147,13 @@ class STCMS_Options {
 		return esc_attr( self::OPTION . '[' . $path );
 	}
 
-	private static function row_text( $label, $path, $value ) {
+	private static function row_text( $label, $path, $value, $help = '' ) {
 		printf(
-			'<tr><th scope="row">%s</th><td><input type="text" name="%s]" value="%s" class="regular-text" style="width:100%%;max-width:640px" /></td></tr>',
+			'<tr><th scope="row">%s</th><td><input type="text" name="%s]" value="%s" class="regular-text" style="width:100%%;max-width:640px" />%s</td></tr>',
 			esc_html( $label ),
 			self::name( $path ),
-			esc_attr( $value )
+			esc_attr( $value ),
+			$help ? '<p class="description">' . esc_html( $help ) . '</p>' : ''
 		);
 	}
 
@@ -222,7 +225,9 @@ class STCMS_Options {
 		if ( isset( $input['hero'] ) ) {
 			$lines = preg_split( '/\r\n|\r|\n/', (string) ( $input['hero']['title_lines'] ?? '' ) );
 			$lines = array_values( array_filter( array_map( 'sanitize_text_field', $lines ), 'strlen' ) );
-			$out['hero']['title_lines'] = $lines ? $lines : stcms_default_options()['hero']['title_lines'];
+			$out['hero']['eyebrow']      = sanitize_text_field( $input['hero']['eyebrow'] ?? '' );
+			$out['hero']['title_lines']  = $lines ? $lines : stcms_default_options()['hero']['title_lines'];
+			$out['hero']['highlight']    = sanitize_text_field( $input['hero']['highlight'] ?? '' );
 			$out['hero']['description']  = sanitize_textarea_field( $input['hero']['description'] ?? '' );
 			$out['hero']['image_id']     = (int) ( $input['hero']['image_id'] ?? 0 );
 		}

@@ -94,7 +94,9 @@ class STCMS_Rest {
 				'heroImageUrl' => self::img( $o['hero']['image_id'], 'full' ),
 			),
 			'hero'     => array(
+				'eyebrow'     => $o['hero']['eyebrow'],
 				'titleLines'  => array_values( (array) $o['hero']['title_lines'] ),
+				'highlight'   => $o['hero']['highlight'],
 				'description' => $o['hero']['description'],
 			),
 			'about'    => array(

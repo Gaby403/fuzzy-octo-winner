@@ -15,7 +15,9 @@ export interface SiteContent {
     heroImageUrl: string
   }
   hero: {
+    eyebrow: string
     titleLines: string[]
+    highlight: string
     description: string
   }
   about: {
@@ -64,7 +66,9 @@ export const DEFAULT_CONTENT: SiteContent = {
     heroImageUrl: "",
   },
   hero: {
+    eyebrow: "STUDIO TABI — DIGITAL STUDIO",
     titleLines: ["TRANSFORMAMOS", "A SUA MARCA", "EM EXPERIÊNCIA"],
+    highlight: "DIGITAL.",
     description: "Design, estratégia e desenvolvimento para transformar presença digital em percepção de valor, confiança e decisão.",
   },
   about: {

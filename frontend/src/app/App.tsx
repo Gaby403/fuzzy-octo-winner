@@ -9,7 +9,7 @@ import {
   useMotionTemplate,
   useInView,
 } from "motion/react"
-import { RouterProvider, createBrowserRouter, Link } from "react-router"
+import { RouterProvider, createBrowserRouter, Link, useSearchParams } from "react-router"
 import { useContent, type SiteContent } from "./store/content"
 import Root from "./Root"
 import Admin from "./pages/Admin"
@@ -20,6 +20,17 @@ const WHITE = "#EFEFEF"
 const BLACK = "#111111"
 
 const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1]
+
+// Slug estável e legível para a URL de cada projeto (ex.: "Nuvem Finance" → "nuvem-finance").
+function projectSlug(p: { id: string; name: string }): string {
+  const base = (p.name || p.id || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+  return base || p.id
+}
 
 // Tabi brand mark SVG — replaces kanji throughout the site
 function TabiMark({ width = 120, color = "#111111", opacity = 1, style }: {
@@ -497,7 +508,7 @@ export function HomeSite() {
               transition={{ duration: 0.75, delay: 0.55, ease: "easeOut" }}
             >
               <span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} />
-              <span>STUDIO TABI — DIGITAL STUDIO</span>
+              <span>{content.hero.eyebrow}</span>
             </motion.div>
 
             <h1
@@ -516,15 +527,17 @@ export function HomeSite() {
                   {line}
                 </motion.span>
               ))}
-              <motion.span
-                className="hero-title-line block"
-                style={{ color: titleColor, whiteSpace: "nowrap" }}
-                initial={{ y: "108%", opacity: 0 }}
-                animate={{ y: "0%", opacity: 1 }}
-                transition={{ duration: 1, delay: 0.46, ease: EASE_OUT_EXPO }}
-              >
-                <strong style={{ font: "inherit", color: RED }}>DIGITAL.</strong>
-              </motion.span>
+              {content.hero.highlight && (
+                <motion.span
+                  className="hero-title-line block"
+                  style={{ color: titleColor, whiteSpace: "nowrap" }}
+                  initial={{ y: "108%", opacity: 0 }}
+                  animate={{ y: "0%", opacity: 1 }}
+                  transition={{ duration: 1, delay: 0.46, ease: EASE_OUT_EXPO }}
+                >
+                  <strong style={{ font: "inherit", color: RED }}>{content.hero.highlight}</strong>
+                </motion.span>
+              )}
             </h1>
 
             <motion.p
@@ -1297,20 +1310,39 @@ function ProjectsSection() {
   const pad = "clamp(20px, 4vw, 82px)"
   const featured = projects.filter(p => p.featured)
   const smaller  = projects.filter(p => !p.featured)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const selectedProj = projects.find(p => p.id === selectedId) ?? null
+  // Cada projeto tem uma URL própria e compartilhável: /?projeto=slug
+  // (o slug vem do nome; caímos no id como fallback). O botão "voltar" do
+  // navegador fecha o modal automaticamente.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedKey = searchParams.get("projeto")
+  const selectedProj = projects.find(p => projectSlug(p) === selectedKey || p.id === selectedKey) ?? null
 
-  const handleClose = useCallback(() => setSelectedId(null), [])
+  const openProject = useCallback((p: SiteContent["projects"][number], replace = false) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.set("projeto", projectSlug(p))
+      return next
+    }, { replace })
+  }, [setSearchParams])
+
+  const handleClose = useCallback(() => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.delete("projeto")
+      return next
+    }, { replace: false })
+  }, [setSearchParams])
+
   const handlePrev = useCallback(() => {
-    if (!selectedId) return
-    const idx = projects.findIndex(p => p.id === selectedId)
-    setSelectedId(projects[(idx - 1 + projects.length) % projects.length].id)
-  }, [selectedId, projects])
+    if (!selectedProj) return
+    const idx = projects.findIndex(p => p.id === selectedProj.id)
+    openProject(projects[(idx - 1 + projects.length) % projects.length], true)
+  }, [selectedProj, projects, openProject])
   const handleNext = useCallback(() => {
-    if (!selectedId) return
-    const idx = projects.findIndex(p => p.id === selectedId)
-    setSelectedId(projects[(idx + 1) % projects.length].id)
-  }, [selectedId, projects])
+    if (!selectedProj) return
+    const idx = projects.findIndex(p => p.id === selectedProj.id)
+    openProject(projects[(idx + 1) % projects.length], true)
+  }, [selectedProj, projects, openProject])
 
   return (
     <>
@@ -1355,7 +1387,7 @@ function ProjectsSection() {
         className="grid grid-cols-1 md:grid-cols-2"
         style={{ padding: `0 ${pad}`, gap: "clamp(12px, 1.5vw, 20px)", marginBottom: "clamp(12px, 1.5vw, 20px)" }}
       >
-        {featured.map((p, i) => <ProjectCard key={p.id} proj={p as Project} index={i} onClick={() => setSelectedId(p.id)} />)}
+        {featured.map((p, i) => <ProjectCard key={p.id} proj={p as Project} index={i} onClick={() => openProject(p)} />)}
       </div>
 
       {/* Smaller 3-col grid (last item is a CTA card) */}
@@ -1363,7 +1395,7 @@ function ProjectsSection() {
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
         style={{ padding: `0 ${pad} clamp(64px, 10vw, 120px)`, gap: "clamp(12px, 1.5vw, 20px)" }}
       >
-        {smaller.map((p, i) => <ProjectCard key={p.id} proj={p as Project} index={i + 2} onClick={() => setSelectedId(p.id)} />)}
+        {smaller.map((p, i) => <ProjectCard key={p.id} proj={p as Project} index={i + 2} onClick={() => openProject(p)} />)}
 
         {/* CTA card */}
         <Reveal delay={0.3}>
