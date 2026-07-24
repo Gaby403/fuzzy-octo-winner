@@ -3,7 +3,7 @@
  * Plugin Name:       Studio Tabi CMS (Headless)
  * Plugin URI:        https://studiotabi.com.br
  * Description:        CMS nativo headless para o site Studio Tabi. Adiciona Serviços, Projetos, FAQ, páginas e blocos de conteúdo (Hero, Sobre, Rodapé, favicon) editáveis no WordPress e expostos via API REST para o front-end React.
- * Version:           1.0.0
+ * Version:           1.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Studio Tabi
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'STCMS_VERSION', '1.0.0' );
+define( 'STCMS_VERSION', '1.2.0' );
 define( 'STCMS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'STCMS_URL', plugin_dir_url( __FILE__ ) );
 
@@ -62,10 +62,19 @@ function stcms_admin_assets( $hook ) {
 
 	// Biblioteca de mídia do WordPress (necessária para o seletor de imagens/PDF).
 	wp_enqueue_media();
+
+	// Versão baseada no filemtime: garante que o navegador/CDN (LiteSpeed da
+	// Hostinger) NUNCA sirvam um admin.js/admin.css antigo em cache — que era o
+	// motivo do botão "Adicionar" não abrir nada após atualizar o plugin.
+	$js_path  = STCMS_DIR . 'assets/admin.js';
+	$css_path = STCMS_DIR . 'assets/admin.css';
+	$js_ver   = file_exists( $js_path ) ? (string) filemtime( $js_path ) : STCMS_VERSION;
+	$css_ver  = file_exists( $css_path ) ? (string) filemtime( $css_path ) : STCMS_VERSION;
+
 	// Declarar 'media-editor' como dependência garante que wp.media já esteja
 	// disponível quando o admin.js rodar (senão o botão "Adicionar" não abre nada).
-	wp_enqueue_script( 'stcms-admin', STCMS_URL . 'assets/admin.js', array( 'jquery', 'media-editor' ), STCMS_VERSION, true );
-	wp_enqueue_style( 'stcms-admin', STCMS_URL . 'assets/admin.css', array( 'dashicons' ), STCMS_VERSION );
+	wp_enqueue_script( 'stcms-admin', STCMS_URL . 'assets/admin.js', array( 'jquery', 'media-editor' ), $js_ver, true );
+	wp_enqueue_style( 'stcms-admin', STCMS_URL . 'assets/admin.css', array( 'dashicons' ), $css_ver );
 }
 add_action( 'admin_enqueue_scripts', 'stcms_admin_assets' );
 
