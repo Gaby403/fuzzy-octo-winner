@@ -156,10 +156,26 @@ export const DEFAULT_CONTENT: SiteContent = {
 
 /**
  * Base URL of the WordPress install, e.g. https://cms.studiotabi.com.br
- * Configured at build time via VITE_WP_API. When empty the site falls back
- * to the bundled DEFAULT_CONTENT so it always renders (offline / preview).
+ *
+ * Resolution order:
+ *   1. window.__STUDIO_TABI_API__  → runtime config (public/config.js), editável
+ *      diretamente no servidor SEM recompilar. É o que o zip de deploy usa.
+ *   2. VITE_WP_API                 → valor de build (dev local).
+ *   3. ""                          → usa o conteúdo padrão embutido (offline).
  */
-export const WP_API: string = (import.meta.env.VITE_WP_API || "").replace(/\/$/, "")
+declare global {
+  interface Window {
+    __STUDIO_TABI_API__?: string
+  }
+}
+
+function resolveApiBase(): string {
+  const runtime = typeof window !== "undefined" ? window.__STUDIO_TABI_API__ : undefined
+  const build = import.meta.env.VITE_WP_API as string | undefined
+  return (runtime || build || "").replace(/\/$/, "")
+}
+
+export const WP_API: string = resolveApiBase()
 
 const CONTENT_ENDPOINT = "/wp-json/studio-tabi/v1/content"
 
