@@ -89,10 +89,10 @@ export const DEFAULT_CONTENT: SiteContent = {
   nav: {
     brand: "STUDIO TABI",
     links: [
-      { label: "TRABALHOS", url: "#" },
-      { label: "SERVIÇOS", url: "#" },
-      { label: "SOBRE", url: "#" },
-      { label: "CONTATO", url: "#" },
+      { label: "TRABALHOS", url: "#trabalhos" },
+      { label: "SERVIÇOS", url: "#servicos" },
+      { label: "SOBRE", url: "#sobre" },
+      { label: "CONTATO", url: "#contato" },
     ],
     ctaLabel: "INICIAR PROJETO",
   },
@@ -188,11 +188,10 @@ export const DEFAULT_CONTENT: SiteContent = {
       {
         title: "Navegação",
         links: [
-          { label: "Trabalhos", url: "#" },
-          { label: "Serviços", url: "#" },
-          { label: "Sobre", url: "#" },
-          { label: "Blog", url: "#" },
-          { label: "Contato", url: "#" },
+          { label: "Trabalhos", url: "#trabalhos" },
+          { label: "Serviços", url: "#servicos" },
+          { label: "Sobre", url: "#sobre" },
+          { label: "Contato", url: "#contato" },
         ],
       },
       {

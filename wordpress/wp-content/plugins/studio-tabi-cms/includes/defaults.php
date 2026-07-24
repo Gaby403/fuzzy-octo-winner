@@ -28,10 +28,10 @@ function stcms_default_options() {
 			'brand'     => 'STUDIO TABI',
 			'cta_label' => 'INICIAR PROJETO',
 			'links'     => array(
-				array( 'label' => 'TRABALHOS', 'url' => '#' ),
-				array( 'label' => 'SERVIÇOS', 'url' => '#' ),
-				array( 'label' => 'SOBRE', 'url' => '#' ),
-				array( 'label' => 'CONTATO', 'url' => '#' ),
+				array( 'label' => 'TRABALHOS', 'url' => '#trabalhos' ),
+				array( 'label' => 'SERVIÇOS', 'url' => '#servicos' ),
+				array( 'label' => 'SOBRE', 'url' => '#sobre' ),
+				array( 'label' => 'CONTATO', 'url' => '#contato' ),
 			),
 		),
 		'hero'   => array(
@@ -63,11 +63,10 @@ function stcms_default_options() {
 			'cta_label'     => 'INICIAR PROJETO',
 			'col1_title'    => 'Navegação',
 			'col1_links'    => array(
-				array( 'label' => 'Trabalhos', 'url' => '#' ),
-				array( 'label' => 'Serviços', 'url' => '#' ),
-				array( 'label' => 'Sobre', 'url' => '#' ),
-				array( 'label' => 'Blog', 'url' => '#' ),
-				array( 'label' => 'Contato', 'url' => '#' ),
+				array( 'label' => 'Trabalhos', 'url' => '#trabalhos' ),
+				array( 'label' => 'Serviços', 'url' => '#servicos' ),
+				array( 'label' => 'Sobre', 'url' => '#sobre' ),
+				array( 'label' => 'Contato', 'url' => '#contato' ),
 			),
 			'col2_title'    => 'Serviços',
 			'col2_links'    => array(

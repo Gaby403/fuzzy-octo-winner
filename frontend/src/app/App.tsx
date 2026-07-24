@@ -70,6 +70,11 @@ function lerp(a: number, b: number, t: number) {
 
 // ── Responsive CSS injected as a style tag so !important can override inline styles ──
 const RESPONSIVE_CSS = `
+  /* ── Rolagem suave para os links de âncora do menu (#trabalhos, #servicos…) ── */
+  html { scroll-behavior: smooth; }
+  section[id], footer[id] { scroll-margin-top: 24px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
   /* ── Default: nowrap via class (overridable, unlike inline style) ── */
   .hero-title-line {
     white-space: nowrap;
@@ -194,6 +199,13 @@ export function HomeSite() {
     offset: ["start start", "end end"],
   })
 
+  // ── Remap: a animação termina exatamente na lua (sem o 2º nascer do sol) ──
+  // Todos os transforms abaixo usam `phase` em vez de scrollYProgress. Ao rolar
+  // a zona inteira, `phase` vai de 0 até MOON_AT (a lua formada), e nunca entra
+  // na fase seguinte em que o sol vermelho voltaria a surgir.
+  const MOON_AT = 0.66
+  const phase = useTransform(scrollYProgress, [0, 1], [0, MOON_AT])
+
   // ── Mouse parallax ──────────────────────────────────────────────────────
   const rawMX = useMotionValue(0)
   const rawMY = useMotionValue(0)
@@ -210,46 +222,46 @@ export function HomeSite() {
   const onMouseLeave = () => { rawMX.set(0); rawMY.set(0) }
 
   // ── Background & black reveal ───────────────────────────────────────────
-  const heroBg    = useTransform(scrollYProgress, [0.41, 0.42], [WHITE, BLACK])
-  const blackScale = useTransform(scrollYProgress, [0, 0.42], [0, 17])
+  const heroBg    = useTransform(phase, [0.41, 0.42], [WHITE, BLACK])
+  const blackScale = useTransform(phase, [0, 0.42], [0, 17])
 
   // ── Text colors (timed to when black circle physically reaches the text) ─
-  const titleColor   = useTransform(scrollYProgress, [0.05, 0.14], [BLACK, WHITE])
-  const descColor    = useTransform(scrollYProgress, [0.05, 0.14], ["rgba(17,17,17,0.58)", "rgba(239,239,239,0.70)"])
-  const eyebrowColor = useTransform(scrollYProgress, [0.05, 0.14], ["rgba(17,17,17,0.52)", "rgba(239,239,239,0.62)"])
-  const footerColor  = useTransform(scrollYProgress, [0.05, 0.14], ["rgba(17,17,17,0.60)", "rgba(239,239,239,0.72)"])
-  const navColor     = useTransform(scrollYProgress, [0.05, 0.14], [BLACK, WHITE])
-  const ctaColorFg   = useTransform(scrollYProgress, [0.05, 0.14], [RED, RED])
+  const titleColor   = useTransform(phase, [0.05, 0.14], [BLACK, WHITE])
+  const descColor    = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.58)", "rgba(239,239,239,0.70)"])
+  const eyebrowColor = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.52)", "rgba(239,239,239,0.62)"])
+  const footerColor  = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.60)", "rgba(239,239,239,0.72)"])
+  const navColor     = useTransform(phase, [0.05, 0.14], [BLACK, WHITE])
+  const ctaColorFg   = useTransform(phase, [0.05, 0.14], [RED, RED])
 
   // ── Sunset & moonrise — same distance, same speed, opposite directions ──
   const SUNSET_START = 0.30
   const SUNSET_END   = 0.65
   const TRAVEL       = 0.30
 
-  const redSunY         = useTransform(scrollYProgress, (p) =>
+  const redSunY         = useTransform(phase, (p) =>
     lerp(0, heroHeightRef.current * TRAVEL, (p - SUNSET_START) / (SUNSET_END - SUNSET_START)))
-  const redSunOpacity   = useTransform(scrollYProgress, [SUNSET_START + 0.05, SUNSET_END - 0.03], [1, 0])
-  const redSunScale     = useTransform(scrollYProgress, [0, 0.28], [1, 1.12])
-  const redKanjiOpacity = useTransform(scrollYProgress, [0.10, 0.22], [1, 0])
+  const redSunOpacity   = useTransform(phase, [SUNSET_START + 0.05, SUNSET_END - 0.03], [1, 0])
+  const redSunScale     = useTransform(phase, [0, 0.28], [1, 1.12])
+  const redKanjiOpacity = useTransform(phase, [0.10, 0.22], [1, 0])
 
-  const whiteSunY         = useTransform(scrollYProgress, (p) =>
+  const whiteSunY         = useTransform(phase, (p) =>
     lerp(heroHeightRef.current * TRAVEL, 0, (p - SUNSET_START) / (SUNSET_END - SUNSET_START)))
-  const whiteSunOpacity    = useTransform(scrollYProgress, [SUNSET_START + 0.02, SUNSET_END - 0.05], [0, 1])
-  const whiteSunInnerScale = useTransform(scrollYProgress, [SUNSET_START, SUNSET_END], [0.78, 0.92])
+  const whiteSunOpacity    = useTransform(phase, [SUNSET_START + 0.02, SUNSET_END - 0.05], [0, 1])
+  const whiteSunInnerScale = useTransform(phase, [SUNSET_START, SUNSET_END], [0.78, 0.92])
 
-  const glowOpacity = useTransform(scrollYProgress, [0.0, 0.18, 0.55, 0.68], [0.9, 1, 0.5, 0])
+  const glowOpacity = useTransform(phase, [0.0, 0.18, 0.55, 0.68], [0.9, 1, 0.5, 0])
 
   // ── Mountain colors ─────────────────────────────────────────────────────
-  const hazeColor   = useTransform(scrollYProgress, [0, 0.42], ["#E3E3E3", "#3A3A3A"])
-  const farColor    = useTransform(scrollYProgress, [0, 0.42], ["#C7C7C7", "#282828"])
-  const middleColor = useTransform(scrollYProgress, [0, 0.42], ["#777777", "#181818"])
-  const frontColor  = useTransform(scrollYProgress, [0, 0.42], [BLACK, "#050505"])
+  const hazeColor   = useTransform(phase, [0, 0.42], ["#E3E3E3", "#3A3A3A"])
+  const farColor    = useTransform(phase, [0, 0.42], ["#C7C7C7", "#282828"])
+  const middleColor = useTransform(phase, [0, 0.42], ["#777777", "#181818"])
+  const frontColor  = useTransform(phase, [0, 0.42], [BLACK, "#050505"])
 
   // ── Mountain scroll Y ────────────────────────────────────────────────────
-  const hazeYN   = useTransform(scrollYProgress, [0, 0.42, 1], [0, -2,  -4])
-  const farYN    = useTransform(scrollYProgress, [0, 0.42, 1], [0, -5,  -8])
-  const middleYN = useTransform(scrollYProgress, [0, 0.42, 1], [0, -9, -14])
-  const frontYN  = useTransform(scrollYProgress, [0, 0.42, 1], [0, -13, -20])
+  const hazeYN   = useTransform(phase, [0, 0.42, 1], [0, -2,  -4])
+  const farYN    = useTransform(phase, [0, 0.42, 1], [0, -5,  -8])
+  const middleYN = useTransform(phase, [0, 0.42, 1], [0, -9, -14])
+  const frontYN  = useTransform(phase, [0, 0.42, 1], [0, -13, -20])
   const hazeY    = useMotionTemplate`${hazeYN}%`
   const farY     = useMotionTemplate`${farYN}%`
   const middleY  = useMotionTemplate`${middleYN}%`
@@ -268,8 +280,8 @@ export function HomeSite() {
     <>
       <style>{RESPONSIVE_CSS}</style>
 
-      {/* 400vh scroll zone — hero is sticky inside */}
-      <div ref={containerRef} style={{ height: "400vh", position: "relative" }}>
+      {/* Scroll zone — hero is sticky inside. Ends on the moon (no 2nd sunrise). */}
+      <div ref={containerRef} style={{ height: "260vh", position: "relative" }}>
         <motion.section
           ref={heroRef}
           className="sticky top-0 w-full overflow-hidden isolate"
@@ -746,7 +758,7 @@ function AboutSection() {
   const pad = "clamp(20px, 4vw, 82px)"
 
   return (
-    <section ref={sectionRef} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
+    <section id="sobre" ref={sectionRef} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
 
       {/* Brand mark background */}
       <motion.div aria-hidden="true" className="absolute pointer-events-none"
@@ -901,7 +913,7 @@ function ServicesSection() {
   const { content } = useContent()
   const pad = "clamp(20px, 4vw, 82px)"
   return (
-    <section style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
+    <section id="servicos" style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }} />
 
       {/* Decorative large number */}
@@ -1352,7 +1364,7 @@ function ProjectsSection() {
         <ProjectDetail key={selectedProj.id} proj={selectedProj} onClose={handleClose} onPrev={handlePrev} onNext={handleNext} />
       )}
     </AnimatePresence>
-    <section style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative" }}>
+    <section id="trabalhos" style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative" }}>
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }} />
 
       <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad} 0`, position: "relative", zIndex: 1 }}>
@@ -1575,7 +1587,7 @@ function SiteFooter() {
   const linkColStyle = { display: "block", fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)", marginBottom: 20, textTransform: "uppercase" } as const
 
   return (
-    <footer ref={ref} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
+    <footer id="contato" ref={ref} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.10)" }} />
 
       {/* Brand mark background */}
