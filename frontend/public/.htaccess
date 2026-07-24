@@ -10,6 +10,12 @@
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
+  # Arquivos estáticos AUSENTES (js/css/imagens/fontes) devem retornar 404 —
+  # NUNCA cair no index.html, senão o navegador recebe HTML no lugar de JS e a
+  # página fica em branco. Isso evita a "tela branca" quando os assets não
+  # foram totalmente atualizados.
+  RewriteRule \.(js|mjs|css|map|json|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|eot)$ - [L]
+
   # Demais rotas → index.html (roteamento do lado do cliente).
   RewriteRule ^ index.html [L]
 </IfModule>
