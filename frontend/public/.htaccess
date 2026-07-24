@@ -1,9 +1,9 @@
 # SPA routing para o front-end React (Hostinger / Apache / LiteSpeed).
-# As rotas HTML passam pelo index.php, que injeta as meta tags (SEO) no HTML
-# inicial e serve o app React. Assets reais são servidos direto.
+# Servimos sempre o index.html estático (robusto). As meta tags são geridas
+# pelo próprio app. (Pré-render SEO via PHP é opcional — ver frontend/seo-prerender.)
 
-# index.php primeiro (pré-renderiza SEO); index.html como reserva.
-DirectoryIndex index.php index.html
+# Força o index.html como página inicial (evita que um index.php residual assuma).
+DirectoryIndex index.html
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
@@ -16,12 +16,11 @@ DirectoryIndex index.php index.html
 
   # Arquivos estáticos AUSENTES (js/css/imagens/fontes) devem retornar 404 —
   # NUNCA cair no index.html, senão o navegador recebe HTML no lugar de JS e a
-  # página fica em branco. Isso evita a "tela branca" quando os assets não
-  # foram totalmente atualizados.
+  # página fica em branco.
   RewriteRule \.(js|mjs|css|map|json|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|eot)$ - [L]
 
-  # Demais rotas (/, /p/slug, /admin…) → index.php (SEO + app React).
-  RewriteRule ^ index.php [L]
+  # Demais rotas (/, /p/slug, /admin…) → index.html (roteamento no cliente).
+  RewriteRule ^ index.html [L]
 </IfModule>
 
 # Cache dos assets versionados (hash no nome do arquivo).
@@ -36,9 +35,9 @@ DirectoryIndex index.php index.html
   ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
 
-# O HTML de entrada nunca é cacheado (novas versões e meta tags na hora).
+# O index.html nunca é cacheado (para publicar novas versões na hora).
 <IfModule mod_headers.c>
-  <FilesMatch "^index\.(html|php)$">
+  <FilesMatch "^index\.html$">
     Header set Cache-Control "no-cache, no-store, must-revalidate"
   </FilesMatch>
 </IfModule>
