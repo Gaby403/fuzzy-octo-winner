@@ -75,6 +75,13 @@ const RESPONSIVE_CSS = `
   section[id], footer[id] { scroll-margin-top: 24px; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
+  /* ── Duração da animação do hero (= altura da zona de scroll) ──
+     Menor = completa com menos rolagem (mais rápida). Bem curta no mobile
+     para não ficar arrastada. */
+  .hero-scroll-zone { height: 180vh; }
+  @media (max-width: 1100px) { .hero-scroll-zone { height: 150vh; } }
+  @media (max-width: 767px)  { .hero-scroll-zone { height: 120vh; } }
+
   /* ── Default: nowrap via class (overridable, unlike inline style) ── */
   .hero-title-line {
     white-space: nowrap;
@@ -281,8 +288,9 @@ export function HomeSite() {
       <style>{RESPONSIVE_CSS}</style>
 
       {/* Scroll zone — hero is sticky inside. Ends on the moon (no 2nd sunrise).
-          Shorter zone = a animação completa com menos rolagem (mais rápida/fluida). */}
-      <div ref={containerRef} style={{ height: "180vh", position: "relative" }}>
+          A altura (= quanto scroll para completar) é responsiva: menor no mobile
+          para a animação ficar mais rápida e menos arrastada. Ver RESPONSIVE_CSS. */}
+      <div ref={containerRef} className="hero-scroll-zone" style={{ position: "relative" }}>
         <motion.section
           ref={heroRef}
           className="sticky top-0 w-full overflow-hidden isolate"
