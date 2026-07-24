@@ -87,7 +87,8 @@ class STCMS_Rest {
 
 		$data = array(
 			'site'     => array(
-				'title'        => $o['site']['title'],
+				'title'           => $o['site']['title'],
+				'metaDescription' => self::decode( $o['site']['meta_description'] ),
 				'tagline'      => $o['site']['tagline'],
 				'logoUrl'      => self::img( $o['site']['logo_id'], 'full' ),
 				'faviconUrl'   => self::img( $o['site']['favicon_id'], 'full' ),

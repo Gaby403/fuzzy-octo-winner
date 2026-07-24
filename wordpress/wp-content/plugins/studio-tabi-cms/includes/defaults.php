@@ -19,10 +19,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 function stcms_default_options() {
 	return array(
 		'site'   => array(
-			'title'    => 'Studio Tabi',
-			'tagline'  => 'Design e tecnologia que levam marcas até onde precisam chegar.',
-			'logo_id'  => 0,
-			'favicon_id' => 0,
+			'title'            => 'Studio Tabi',
+			'meta_description' => 'Studio Tabi — design, estratégia e desenvolvimento para transformar presença digital em valor, confiança e decisão.',
+			'tagline'          => 'Design e tecnologia que levam marcas até onde precisam chegar.',
+			'logo_id'          => 0,
+			'favicon_id'       => 0,
 		),
 		'nav'    => array(
 			'brand'     => 'STUDIO TABI',

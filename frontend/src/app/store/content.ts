@@ -15,6 +15,8 @@ export interface MenuLink {
 export interface SiteContent {
   site: {
     title: string
+    /** Meta descrição principal do site (SEO / compartilhamento). */
+    metaDescription: string
     tagline: string
     logoUrl: string
     faviconUrl: string
@@ -85,6 +87,7 @@ export interface SiteContent {
 export const DEFAULT_CONTENT: SiteContent = {
   site: {
     title: "Studio Tabi",
+    metaDescription: "Studio Tabi — design, estratégia e desenvolvimento para transformar presença digital em valor, confiança e decisão.",
     tagline: "Design e tecnologia que levam marcas até onde precisam chegar.",
     logoUrl: "",
     faviconUrl: "",

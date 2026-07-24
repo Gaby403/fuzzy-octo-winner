@@ -2,6 +2,18 @@ import { useEffect, useState } from "react"
 import { Outlet } from "react-router"
 import { ContentContext, fetchContent, DEFAULT_CONTENT, SiteContent } from "./store/content"
 
+/** Cria/atualiza uma <meta> no <head> pelo atributo-chave (name ou property). */
+function upsertMeta(attr: "name" | "property", key: string, value: string) {
+  if (!value) return
+  let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`)
+  if (!el) {
+    el = document.createElement("meta")
+    el.setAttribute(attr, key)
+    document.head.appendChild(el)
+  }
+  el.setAttribute("content", value)
+}
+
 /**
  * Loads the site content from WordPress once, then provides it to the whole
  * app through context. Also wires the WordPress-managed favicon and site
@@ -40,6 +52,22 @@ export default function Root() {
     }
     link.href = url
   }, [content.site.faviconUrl])
+
+  // Meta tags (SEO + compartilhamento) geridas pelo CMS.
+  useEffect(() => {
+    const { title, metaDescription, logoUrl } = content.site
+    upsertMeta("name", "description", metaDescription)
+    // Open Graph
+    upsertMeta("property", "og:title", title)
+    upsertMeta("property", "og:description", metaDescription)
+    upsertMeta("property", "og:type", "website")
+    if (logoUrl) upsertMeta("property", "og:image", logoUrl)
+    // Twitter
+    upsertMeta("name", "twitter:card", logoUrl ? "summary_large_image" : "summary")
+    upsertMeta("name", "twitter:title", title)
+    upsertMeta("name", "twitter:description", metaDescription)
+    if (logoUrl) upsertMeta("name", "twitter:image", logoUrl)
+  }, [content.site])
 
   return (
     <ContentContext.Provider value={{ content, loading }}>

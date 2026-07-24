@@ -96,6 +96,8 @@ class STCMS_Options {
 				<table class="form-table" role="presentation">
 					<?php
 					self::row_text( 'Título do site', 'site][title', $o['site']['title'] );
+					self::row_textarea( 'Meta descrição (SEO)', 'site][meta_description', $o['site']['meta_description'] );
+					echo '<tr><th></th><td style="padding-top:0"><p class="description" style="margin-top:-8px">Aparece no Google e no compartilhamento em redes sociais. Ideal: 120–160 caracteres.</p></td></tr>';
 					self::row_text( 'Slogan curto', 'site][tagline', $o['site']['tagline'] );
 					self::row_media( 'Logo', 'site][logo_id', (int) $o['site']['logo_id'] );
 					self::row_media( 'Favicon', 'site][favicon_id', (int) $o['site']['favicon_id'], 'Ícone exibido na aba do navegador (PNG/ICO quadrado).' );
@@ -266,7 +268,8 @@ class STCMS_Options {
 		$out = self::get();
 
 		if ( isset( $input['site'] ) ) {
-			$out['site']['title']      = sanitize_text_field( $input['site']['title'] ?? '' );
+			$out['site']['title']            = sanitize_text_field( $input['site']['title'] ?? '' );
+			$out['site']['meta_description'] = sanitize_textarea_field( $input['site']['meta_description'] ?? '' );
 			$out['site']['tagline']    = sanitize_text_field( $input['site']['tagline'] ?? '' );
 			$out['site']['logo_id']    = (int) ( $input['site']['logo_id'] ?? 0 );
 			$out['site']['favicon_id'] = (int) ( $input['site']['favicon_id'] ?? 0 );
