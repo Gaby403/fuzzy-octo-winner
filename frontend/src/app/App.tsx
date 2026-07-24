@@ -644,9 +644,21 @@ function HeadlineLine({ children, delay, color = WHITE }: { children: React.Reac
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: "-60px" })
   return (
-    <div ref={ref} style={{ overflow: "hidden", lineHeight: 0.88 }}>
+    // padding dá espaço para acentos (Ã, Í, Ç) não serem cortados pela máscara
+    // overflow:hidden; as margens negativas mantêm o mesmo espaçamento visual.
+    <div
+      ref={ref}
+      style={{
+        overflow: "hidden",
+        lineHeight: 0.88,
+        paddingTop: "0.16em",
+        paddingBottom: "0.1em",
+        marginTop: "-0.16em",
+        marginBottom: "-0.1em",
+      }}
+    >
       <motion.span className="block" style={{ color }}
-        initial={{ y: "110%" }} animate={inView ? { y: "0%" } : {}}
+        initial={{ y: "130%" }} animate={inView ? { y: "0%" } : {}}
         transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}>
         {children}
       </motion.span>
