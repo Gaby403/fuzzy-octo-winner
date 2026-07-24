@@ -1,0 +1,67 @@
+# Ambiente de desenvolvimento local do Studio Tabi (headless).
+#
+#   docker compose up -d          → sobe MySQL + WordPress em http://localhost:8080
+#   docker compose run --rm wpcli /setup/wp-setup.sh   → instala o WP e ativa o CMS
+#
+# Depois, no diretório frontend/:
+#   cp .env.example .env   (VITE_WP_API=http://localhost:8080)
+#   npm install && npm run dev
+#
+# A API de conteúdo fica em:
+#   http://localhost:8080/wp-json/studio-tabi/v1/content
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_ROOT_PASSWORD: rootpass
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  wordpress:
+    image: wordpress:6.7-php8.2-apache
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - wp_data:/var/www/html
+      - ./wordpress/wp-content/plugins/studio-tabi-cms:/var/www/html/wp-content/plugins/studio-tabi-cms
+
+  # Utilitário WP-CLI para instalar e configurar o WordPress automaticamente.
+  wpcli:
+    image: wordpress:cli-php8.2
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wp_data:/var/www/html
+      - ./wordpress/wp-content/plugins/studio-tabi-cms:/var/www/html/wp-content/plugins/studio-tabi-cms
+      - ./scripts:/setup
+    user: "33:33"
+    entrypoint: ["sh"]
+
+volumes:
+  wp_data:
+  db_data:

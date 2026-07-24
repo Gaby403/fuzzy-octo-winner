@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build output
+frontend/dist/
+dist/
+
+# Env
+.env
+frontend/.env
+!.env.example
+!frontend/.env.example
+
+# WordPress runtime (o core NÃO fica versionado; só o nosso plugin)
+wordpress/wp-*.php
+wordpress/wp-admin/
+wordpress/wp-includes/
+wordpress/wp-content/uploads/
+wordpress/wp-content/upgrade/
+wordpress/wp-content/cache/
+wordpress/wp-config.php
+wordpress/.htaccess
+
+# Empacotamento
+*.log
+build/
+studio-tabi-cms.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
