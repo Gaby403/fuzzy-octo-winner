@@ -136,6 +136,30 @@ class STCMS_Rest {
 				'highlight'   => self::decode( $o['contact']['highlight'] ),
 				'description' => self::decode( $o['contact']['description'] ),
 			),
+			'sections' => array(
+				'about' => array(
+					'eyebrow'      => self::decode( $o['sections']['about_eyebrow'] ),
+					'pillarsLabel' => self::decode( $o['sections']['about_pillars_label'] ),
+					'ctaLabel'     => self::decode( $o['sections']['about_cta_label'] ),
+					'ctaUrl'       => (string) $o['sections']['about_cta_url'],
+				),
+				'services' => array(
+					'eyebrow'  => self::decode( $o['sections']['services_eyebrow'] ),
+					'ctaLabel' => self::decode( $o['sections']['services_cta_label'] ),
+					'ctaUrl'   => (string) $o['sections']['services_cta_url'],
+				),
+				'projects' => array(
+					'eyebrow'  => self::decode( $o['sections']['projects_eyebrow'] ),
+					'note'     => self::decode( $o['sections']['projects_note'] ),
+					'cardText' => self::decode( $o['sections']['projects_card_text'] ),
+				),
+				'faq' => array(
+					'eyebrow'  => self::decode( $o['sections']['faq_eyebrow'] ),
+					'note'     => self::decode( $o['sections']['faq_note'] ),
+					'ctaLabel' => self::decode( $o['sections']['faq_cta_label'] ),
+					'ctaUrl'   => (string) $o['sections']['faq_cta_url'],
+				),
+			),
 			'about'    => array(
 				'paragraph1' => $o['about']['paragraph1'],
 				'paragraph2' => $o['about']['paragraph2'],
@@ -334,9 +358,12 @@ class STCMS_Rest {
 		$out = array();
 		foreach ( $posts as $p ) {
 			$out[] = array(
-				'num'   => (string) get_post_meta( $p->ID, 'stcms_num', true ),
-				'title' => self::title( $p ),
-				'body'  => self::plain( $p->post_content ),
+				'num'     => (string) get_post_meta( $p->ID, 'stcms_num', true ),
+				'title'   => self::title( $p ),
+				'body'    => self::plain( $p->post_content ),
+				'slug'    => $p->post_name,
+				'content' => apply_filters( 'the_content', $p->post_content ),
+				'image'   => get_the_post_thumbnail_url( $p, 'large' ) ? get_the_post_thumbnail_url( $p, 'large' ) : '',
 			);
 		}
 		return $out;

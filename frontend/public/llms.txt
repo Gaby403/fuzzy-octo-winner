@@ -1,0 +1,23 @@
+# Studio Tabi
+
+> Studio digital brasileiro (São Paulo) de design, estratégia e desenvolvimento.
+> Transforma presença digital em percepção de valor, confiança e decisão.
+> Não faz "apenas sites" — constrói presença de marca.
+
+## Serviços
+- [Branding & Identidade Visual](https://studiotabi.com.br/servicos/branding-identidade-visual): sistemas de marca, do logotipo ao tom de voz.
+- [Design de Interface (UI/UX)](https://studiotabi.com.br/servicos/design-de-interface-ui-ux): interfaces a partir do comportamento real do usuário.
+- [Websites Imersivos](https://studiotabi.com.br/servicos/websites-imersivos): sites institucionais com direção visual forte e animações.
+- [Landing Pages Conversivas](https://studiotabi.com.br/servicos/landing-pages-conversivas): páginas para campanhas, tráfego pago e captação de leads.
+- [Motion para Sites](https://studiotabi.com.br/servicos/motion-para-sites): animação de interface e motion graphics.
+- [Conteúdo & Copywriting](https://studiotabi.com.br/servicos/conteudo-copywriting): narrativas e copy que convertem.
+
+## Páginas principais
+- [Home](https://studiotabi.com.br/): visão geral, sobre, serviços, projetos e FAQ.
+- [Serviços](https://studiotabi.com.br/servicos): lista completa de serviços.
+- [Projetos / Portfólio](https://studiotabi.com.br/projetos): trabalhos entregues.
+- [Contato](https://studiotabi.com.br/contato): formulário para orçamento e conversa.
+
+## Contato
+- E-mail: oi@studiotabi.com.br
+- Local: São Paulo, Brasil

@@ -60,6 +60,23 @@ function stcms_default_options() {
 			'highlight'   => 'CONVERSAR.',
 			'description' => 'Conte um pouco sobre o seu projeto. Respondemos em até 1 dia útil.',
 		),
+		// Rótulos e botões das seções da home (eyebrows, notas e CTAs editáveis).
+		'sections' => array(
+			'about_eyebrow'      => 'STUDIO TABI — SOBRE NÓS',
+			'about_cta_label'    => 'CONHEÇA NOSSA HISTÓRIA',
+			'about_cta_url'      => '#sobre',
+			'about_pillars_label'=> 'COMO TRABALHAMOS',
+			'services_eyebrow'   => 'STUDIO TABI — SERVIÇOS',
+			'services_cta_label' => 'VER TODOS OS SERVIÇOS',
+			'services_cta_url'   => '/servicos',
+			'projects_eyebrow'   => 'STUDIO TABI — PROJETOS',
+			'projects_note'      => '120+ projetos entregues',
+			'projects_card_text' => 'Quer ver o portfólio completo com todos os nossos projetos?',
+			'faq_eyebrow'        => 'STUDIO TABI — FAQ',
+			'faq_note'           => 'Não encontrou o que procura? Entre em contato diretamente com a equipe.',
+			'faq_cta_label'      => 'FALAR COM A EQUIPE',
+			'faq_cta_url'        => '/contato',
+		),
 		'about'  => array(
 			'paragraph1' => 'O Studio Tabi nasceu da convicção de que presença digital é um ativo estratégico — não uma despesa de comunicação. Reunimos designers, estrategistas e engenheiros que recusam o medíocre do "bom o suficiente".',
 			'paragraph2' => 'Cada projeto começa com uma pergunta simples: como esse negócio quer ser percebido daqui a cinco anos? A resposta guia cada decisão criativa, técnica e estratégica que tomamos.',
@@ -126,9 +143,9 @@ function stcms_default_services() {
 	return array(
 		array( 'num' => '01', 'title' => 'Branding & Identidade Visual', 'body' => 'Sistemas de marca que comunicam com precisão — do logotipo ao tom de voz. Identidades que crescem com o negócio e resistem ao tempo.' ),
 		array( 'num' => '02', 'title' => 'Design de Interface (UI/UX)', 'body' => 'Interfaces construídas a partir do comportamento real do usuário. Cada pixel tem função. Cada fluxo tem intenção.' ),
-		array( 'num' => '03', 'title' => 'Desenvolvimento Web', 'body' => 'Código limpo, performático e acessível. Sites e aplicações que carregam rápido, escalam com o negócio e integram com qualquer stack.' ),
-		array( 'num' => '04', 'title' => 'Estratégia Digital', 'body' => 'Diagnóstico, posicionamento e roadmap para sua presença digital. Decisões com dados, não com suposições.' ),
-		array( 'num' => '05', 'title' => 'Motion & Animação', 'body' => 'Movimento que conta histórias. Animações de interface e motion graphics que transformam conteúdo em experiência.' ),
+		array( 'num' => '03', 'title' => 'Websites Imersivos', 'body' => 'Sites institucionais com direção visual forte, navegação fluida, responsividade e animações GSAP.' ),
+		array( 'num' => '04', 'title' => 'Landing Pages Conversivas', 'body' => 'Copy persuasiva, estrutura de oferta e interface pensada para campanhas, tráfego pago e captação de leads.' ),
+		array( 'num' => '05', 'title' => 'Motion para Sites', 'body' => 'Movimento que conta histórias. Animações de interface e motion graphics que transformam conteúdo em experiência.' ),
 		array( 'num' => '06', 'title' => 'Conteúdo & Copywriting', 'body' => 'Palavras que convertem. Narrativas que constroem autoridade, geram confiança e movem o usuário à ação.' ),
 	);
 }

@@ -54,7 +54,7 @@ export default function Page() {
         </Link>
       </header>
 
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: "clamp(48px,8vw,96px) clamp(20px,5vw,32px) 120px" }}>
+      <main id="conteudo" style={{ maxWidth: 760, margin: "0 auto", padding: "clamp(48px,8vw,96px) clamp(20px,5vw,32px) 120px" }}>
         {state === "loading" && (
           <p style={{ color: "rgba(239,239,239,0.4)", fontSize: 13, letterSpacing: "0.1em" }}>CARREGANDO…</p>
         )}

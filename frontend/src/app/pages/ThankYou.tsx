@@ -30,6 +30,7 @@ export default function ThankYou() {
 
   return (
     <div
+      id="conteudo"
       style={{
         minHeight: "100svh",
         background: BLACK,

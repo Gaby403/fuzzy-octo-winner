@@ -244,7 +244,6 @@ export function HomeSite() {
   const titleColor   = useTransform(phase, [0.05, 0.14], [BLACK, WHITE])
   const descColor    = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.58)", "rgba(239,239,239,0.70)"])
   const eyebrowColor = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.52)", "rgba(239,239,239,0.62)"])
-  const footerColor  = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.60)", "rgba(239,239,239,0.72)"])
   const navColor     = useTransform(phase, [0.05, 0.14], [BLACK, WHITE])
   const ctaColorFg   = useTransform(phase, [0.05, 0.14], [RED, RED])
 
@@ -411,6 +410,7 @@ export function HomeSite() {
 
           {/* ── Nav ── */}
           <m.nav
+            aria-label="Navegação principal"
             className="absolute top-0 left-0 w-full flex items-center justify-between pointer-events-auto"
             style={{ zIndex: 30, padding: "clamp(18px, 3vw, 40px) clamp(20px, 4vw, 82px)", color: navColor }}
             initial={{ opacity: 0, y: -8 }}
@@ -476,7 +476,7 @@ export function HomeSite() {
               transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
             >
               {/* Nav items */}
-              <nav className="flex flex-col gap-1 flex-1">
+              <nav aria-label="Menu" className="flex flex-col gap-1 flex-1">
                 {content.nav.links.map((item, i) => (
                   <m.a
                     key={item.label}
@@ -606,37 +606,15 @@ export function HomeSite() {
             </m.div>
           </div>
 
-          {/* ── Footer ── */}
-          <m.div
-            className="hero-footer absolute left-0 bottom-0 w-full flex items-center justify-between"
-            style={{ zIndex: 12, padding: "0 clamp(20px, 4vw, 82px) 32px", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", color: footerColor }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.78 }}
-          >
-            <div className="flex items-center gap-2">
-              <span>SCROLL</span>
-              <m.span
-                style={{ color: RED, fontSize: 15 }}
-                animate={{ y: [0, 4, 0] }}
-                transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
-              >
-                ↘
-              </m.span>
-            </div>
-            <div className="flex items-center gap-4 md:gap-6">
-              <span className="hidden sm:inline" style={{ opacity: 0.45 }}>PT / EN</span>
-              <span>©2026</span>
-            </div>
-          </m.div>
-
         </m.section>
       </div>
 
-      <AboutSection />
-      <ServicesSection />
-      <ProjectsSection />
-      <FaqSection />
+      <main id="conteudo">
+        <AboutSection />
+        <ServicesSection />
+        <ProjectsSection />
+        <FaqSection />
+      </main>
       <SiteFooter />
     </>
   )
@@ -773,6 +751,8 @@ function Pillar({ index, title, body, delay }: { index: string; title: string; b
 // ── About section ────────────────────────────────────────────────────────────
 function AboutSection() {
   const { content } = useContent()
+  const goTo = useGoTo()
+  const sec = content.sections.about
   const sectionRef = useRef<HTMLElement>(null)
   const { scrollYProgress: sectionScroll } = useScroll({ target: sectionRef, offset: ["start end", "end start"] })
   const kanjiY      = useTransform(sectionScroll, [0, 1], ["8%", "-10%"])
@@ -805,7 +785,7 @@ function AboutSection() {
             <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }}
               initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }}
               transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
-            <span>STUDIO TABI — SOBRE NÓS</span>
+            <span>{sec.eyebrow}</span>
           </div>
         </Reveal>
 
@@ -833,8 +813,9 @@ function AboutSection() {
             <Reveal delay={0.24}>
               <m.button className="flex items-center gap-3 self-start"
                 style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif' }}
-                whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }}>
-                CONHEÇA NOSSA HISTÓRIA
+                whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }}
+                onClick={(e) => goTo(sec.ctaUrl, e)}>
+                {sec.ctaLabel}
                 <span style={{ fontSize: 13 }}>→</span>
               </m.button>
             </Reveal>
@@ -859,7 +840,7 @@ function AboutSection() {
         <Reveal delay={0}>
           <div className="flex items-center justify-between pt-10 md:pt-12 pb-2">
             <span style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)" }}>
-              COMO TRABALHAMOS
+              {sec.pillarsLabel}
             </span>
             <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.20)" }}>
               04 PILARES
@@ -888,13 +869,16 @@ const SERVICES_DATA = [
   { num: "06", title: "Conteúdo & Copywriting", body: "Palavras que convertem. Narrativas que constroem autoridade, geram confiança e movem o usuário à ação." },
 ]
 
-function ServiceCard({ num, title, body, delay }: { num: string; title: string; body: string; delay: number }) {
-  const ref = useRef<HTMLDivElement>(null)
+function ServiceCard({ num, title, body, delay, to, onNavigate }: { num: string; title: string; body: string; delay: number; to?: string; onNavigate?: (url: string, e?: { preventDefault?: () => void }) => void }) {
+  const ref = useRef<HTMLAnchorElement>(null)
   const inView = useInView(ref, { once: true, margin: "-60px" })
   return (
-    <m.div
+    <m.a
       ref={ref}
-      style={{ borderTop: "1px solid rgba(239,239,239,0.10)", paddingTop: "clamp(24px,3vw,36px)", paddingBottom: "clamp(24px,3vw,36px)", position: "relative", overflow: "hidden" }}
+      href={to || undefined}
+      onClick={to && onNavigate ? (e) => onNavigate(to, e) : undefined}
+      aria-label={to ? `Ver serviço: ${title}` : undefined}
+      style={{ display: "block", textDecoration: "none", borderTop: "1px solid rgba(239,239,239,0.10)", paddingTop: "clamp(24px,3vw,36px)", paddingBottom: "clamp(24px,3vw,36px)", position: "relative", overflow: "hidden", cursor: to ? "pointer" : "default" }}
       initial={{ opacity: 0, y: 30 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
@@ -933,12 +917,14 @@ function ServiceCard({ num, title, body, delay }: { num: string; title: string; 
       >
         →
       </m.span>
-    </m.div>
+    </m.a>
   )
 }
 
 function ServicesSection() {
   const { content } = useContent()
+  const goTo = useGoTo()
+  const sec = content.sections.services
   const pad = "clamp(20px, 4vw, 82px)"
   return (
     <section id="servicos" style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
@@ -953,7 +939,7 @@ function ServicesSection() {
         <Reveal delay={0}>
           <div className="flex items-center gap-3 mb-8 md:mb-12" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
             <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
-            <span>STUDIO TABI — SERVIÇOS</span>
+            <span>{sec.eyebrow}</span>
           </div>
         </Reveal>
 
@@ -967,8 +953,9 @@ function ServicesSection() {
               style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", paddingBottom: 8 }}
               whileHover={{ gap: "18px" } as any}
               transition={{ duration: 0.22 }}
+              onClick={(e) => goTo(sec.ctaUrl, e)}
             >
-              VER TODOS OS SERVIÇOS <span style={{ fontSize: 13 }}>→</span>
+              {sec.ctaLabel} <span style={{ fontSize: 13 }}>→</span>
             </m.button>
           </Reveal>
         </div>
@@ -979,7 +966,8 @@ function ServicesSection() {
         style={{ padding: `0 ${pad} clamp(64px, 10vw, 120px)`, gap: "0 clamp(24px, 3vw, 48px)", position: "relative", zIndex: 1 }}
       >
         {content.services.map((s, i) => (
-          <ServiceCard key={s.num} num={s.num} title={s.title} body={s.body} delay={i * 0.08} />
+          <ServiceCard key={s.num} num={s.num} title={s.title} body={s.body} delay={i * 0.08}
+            to={s.slug ? `/servicos/${s.slug}` : undefined} onNavigate={goTo} />
         ))}
       </div>
     </section>
@@ -1579,6 +1567,7 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
 function ProjectsSection() {
   const { content } = useContent()
   const goTo = useGoTo()
+  const sec = content.sections.projects
   const projects = content.projects
   const pad = "clamp(20px, 4vw, 82px)"
   // Home mostra no máximo 4 projetos. O usuário escolhe quais marcando
@@ -1635,7 +1624,7 @@ function ProjectsSection() {
         <Reveal delay={0}>
           <div className="flex items-center gap-3 mb-8 md:mb-12" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
             <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
-            <span>STUDIO TABI — PROJETOS</span>
+            <span>{sec.eyebrow}</span>
           </div>
         </Reveal>
 
@@ -1646,7 +1635,7 @@ function ProjectsSection() {
           </h2>
           <Reveal delay={0.18}>
             <div className="flex items-center gap-6 pb-2">
-              <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>120+ projetos entregues</span>
+              <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>{sec.note}</span>
               <m.button
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
@@ -1687,7 +1676,7 @@ function ProjectsSection() {
             <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(32px, 4vw, 60px)", letterSpacing: "-0.06em", color: "rgba(239,239,239,0.08)", lineHeight: 1 }}>120+</span>
             <div>
               <p style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.6, color: "rgba(239,239,239,0.55)", margin: "0 0 20px" }}>
-                Quer ver o portfólio completo com todos os nossos projetos?
+                {sec.cardText}
               </p>
               <m.button
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
@@ -1776,26 +1765,28 @@ function AllProjects() {
         </Link>
       </header>
 
-      {/* Title */}
-      <div style={{ padding: `clamp(48px, 8vw, 96px) ${pad} clamp(28px, 4vw, 48px)` }}>
-        <div className="flex items-center gap-3 mb-6" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
-          <span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} />
-          <span>STUDIO TABI — PORTFÓLIO</span>
+      <main id="conteudo">
+        {/* Title */}
+        <div style={{ padding: `clamp(48px, 8vw, 96px) ${pad} clamp(28px, 4vw, 48px)` }}>
+          <div className="flex items-center gap-3 mb-6" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
+            <span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} />
+            <span>{content.sections.projects.eyebrow}</span>
+          </div>
+          <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 7vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.92 }}>
+            TODOS OS <span style={{ color: RED }}>PROJETOS.</span>
+          </h1>
         </div>
-        <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 7vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.92 }}>
-          TODOS OS <span style={{ color: RED }}>PROJETOS.</span>
-        </h1>
-      </div>
 
-      {/* Grid */}
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-        style={{ padding: `0 ${pad} clamp(64px, 10vw, 120px)`, gap: "clamp(12px, 1.5vw, 20px)" }}
-      >
-        {projects.map((p, i) => (
-          <ProjectCard key={p.id} proj={p as Project} index={i} onClick={() => openProject(p)} />
-        ))}
-      </div>
+        {/* Grid */}
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+          style={{ padding: `0 ${pad} clamp(64px, 10vw, 120px)`, gap: "clamp(12px, 1.5vw, 20px)" }}
+        >
+          {projects.map((p, i) => (
+            <ProjectCard key={p.id} proj={p as Project} index={i} onClick={() => openProject(p)} />
+          ))}
+        </div>
+      </main>
 
       <SiteFooter />
     </div>
@@ -1871,6 +1862,8 @@ function FaqItem({ question, answer, index, isOpen, onToggle }: { question: stri
 
 function FaqSection() {
   const { content } = useContent()
+  const goTo = useGoTo()
+  const sec = content.sections.faq
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const pad = "clamp(20px, 4vw, 82px)"
 
@@ -1886,7 +1879,7 @@ function FaqSection() {
             <Reveal delay={0}>
               <div className="flex items-center gap-3 mb-8" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
                 <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
-                <span>STUDIO TABI — FAQ</span>
+                <span>{sec.eyebrow}</span>
               </div>
             </Reveal>
 
@@ -1898,14 +1891,15 @@ function FaqSection() {
 
             <Reveal delay={0.25}>
               <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.7, color: "rgba(239,239,239,0.42)", marginBottom: 28 }}>
-                Não encontrou o que procura? Entre em contato diretamente com a equipe.
+                {sec.note}
               </p>
               <m.button
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
+                onClick={(e) => goTo(sec.ctaUrl, e)}
               >
-                FALAR COM A EQUIPE <span style={{ fontSize: 13 }}>→</span>
+                {sec.ctaLabel} <span style={{ fontSize: 13 }}>→</span>
               </m.button>
             </Reveal>
           </div>
@@ -2137,6 +2131,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, Component: HomeSite },
       { path: "projetos", Component: AllProjects },
+      { path: "servicos", lazy: lazyPage(() => import("./pages/Services")) },
+      { path: "servicos/:slug", lazy: lazyPage(() => import("./pages/ServiceDetail")) },
       { path: "contato", lazy: lazyPage(() => import("./pages/Contact")) },
       { path: "obrigado", lazy: lazyPage(() => import("./pages/ThankYou")) },
       { path: "admin", lazy: lazyPage(() => import("./pages/Admin")) },

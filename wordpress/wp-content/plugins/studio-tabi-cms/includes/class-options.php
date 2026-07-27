@@ -175,6 +175,47 @@ class STCMS_Options {
 					</table>
 				<?php self::card_close(); ?>
 
+				<?php self::card_open( 'sections', 'dashicons-layout', 'Seções da home (rótulos e botões)', 'Eyebrows, notas e links dos botões de cada seção' ); ?>
+					<div class="stcms-subgroup"><span class="stcms-subtitle">Sobre nós</span>
+						<table class="form-table stcms-fields" role="presentation">
+							<?php
+							self::row_text( 'Eyebrow (texto pequeno)', 'sections][about_eyebrow', $o['sections']['about_eyebrow'] );
+							self::row_text( 'Rótulo dos pilares', 'sections][about_pillars_label', $o['sections']['about_pillars_label'] );
+							self::row_text( 'Texto do botão', 'sections][about_cta_label', $o['sections']['about_cta_label'] );
+							self::row_text( 'Link do botão', 'sections][about_cta_url', $o['sections']['about_cta_url'], 'Ex.: #sobre, /p/sobre ou https://...' );
+							?>
+						</table>
+					</div>
+					<div class="stcms-subgroup"><span class="stcms-subtitle">Serviços</span>
+						<table class="form-table stcms-fields" role="presentation">
+							<?php
+							self::row_text( 'Eyebrow', 'sections][services_eyebrow', $o['sections']['services_eyebrow'] );
+							self::row_text( 'Texto do botão', 'sections][services_cta_label', $o['sections']['services_cta_label'] );
+							self::row_text( 'Link do botão', 'sections][services_cta_url', $o['sections']['services_cta_url'], 'Padrão: /servicos (a página de serviços).' );
+							?>
+						</table>
+					</div>
+					<div class="stcms-subgroup"><span class="stcms-subtitle">Projetos</span>
+						<table class="form-table stcms-fields" role="presentation">
+							<?php
+							self::row_text( 'Eyebrow', 'sections][projects_eyebrow', $o['sections']['projects_eyebrow'] );
+							self::row_text( 'Nota (ex.: 120+ projetos entregues)', 'sections][projects_note', $o['sections']['projects_note'] );
+							self::row_textarea( 'Texto do card "ver portfólio"', 'sections][projects_card_text', $o['sections']['projects_card_text'] );
+							?>
+						</table>
+					</div>
+					<div class="stcms-subgroup"><span class="stcms-subtitle">FAQ</span>
+						<table class="form-table stcms-fields" role="presentation">
+							<?php
+							self::row_text( 'Eyebrow', 'sections][faq_eyebrow', $o['sections']['faq_eyebrow'] );
+							self::row_textarea( 'Nota abaixo do título', 'sections][faq_note', $o['sections']['faq_note'] );
+							self::row_text( 'Texto do botão', 'sections][faq_cta_label', $o['sections']['faq_cta_label'] );
+							self::row_text( 'Link do botão', 'sections][faq_cta_url', $o['sections']['faq_cta_url'], 'Padrão: /contato.' );
+							?>
+						</table>
+					</div>
+				<?php self::card_close(); ?>
+
 				<?php self::card_open( 'thankyou', 'dashicons-heart', 'Página de obrigado', 'Texto da página /obrigado exibida após enviar o formulário de contato' ); ?>
 					<table class="form-table stcms-fields" role="presentation">
 						<?php
@@ -395,6 +436,19 @@ class STCMS_Options {
 			$out['contact']['title']       = sanitize_text_field( $input['contact']['title'] ?? '' );
 			$out['contact']['highlight']   = sanitize_text_field( $input['contact']['highlight'] ?? '' );
 			$out['contact']['description'] = sanitize_textarea_field( $input['contact']['description'] ?? '' );
+		}
+
+		if ( isset( $input['sections'] ) ) {
+			$s = $input['sections'];
+			$text_keys = array( 'about_eyebrow', 'about_cta_label', 'about_pillars_label', 'services_eyebrow', 'services_cta_label', 'projects_eyebrow', 'projects_note', 'faq_eyebrow', 'faq_cta_label' );
+			foreach ( $text_keys as $k ) {
+				$out['sections'][ $k ] = sanitize_text_field( $s[ $k ] ?? '' );
+			}
+			$out['sections']['projects_card_text'] = sanitize_textarea_field( $s['projects_card_text'] ?? '' );
+			$out['sections']['faq_note']           = sanitize_textarea_field( $s['faq_note'] ?? '' );
+			foreach ( array( 'about_cta_url', 'services_cta_url', 'faq_cta_url' ) as $k ) {
+				$out['sections'][ $k ] = self::sanitize_link_url( $s[ $k ] ?? '' );
+			}
 		}
 
 		if ( isset( $input['about'] ) ) {

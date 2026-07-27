@@ -1,3 +1,48 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+/* ── Acessibilidade ─────────────────────────────────────────────────────── */
+
+/* Link "pular para o conteúdo": invisível até receber foco por teclado. */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 1000;
+  padding: 10px 16px;
+  background: #F20C25;
+  color: #fff;
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 8px;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 0.2s ease;
+}
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Anel de foco visível e consistente para navegação por teclado. */
+:focus-visible {
+  outline: 2px solid #F20C25;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Respeita quem prefere menos movimento (reduz animações). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

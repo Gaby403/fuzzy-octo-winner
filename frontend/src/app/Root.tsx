@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Outlet } from "react-router"
+import { Outlet, useLocation } from "react-router"
 import { ContentContext, fetchContent, DEFAULT_CONTENT, SiteContent } from "./store/content"
 
 /** Cria/atualiza uma <meta> no <head> pelo atributo-chave (name ou property). */
@@ -14,6 +14,30 @@ function upsertMeta(attr: "name" | "property", key: string, value: string) {
   el.setAttribute("content", value)
 }
 
+/** Cria/atualiza um <link rel> único no <head>. */
+function upsertLink(rel: string, href: string) {
+  if (!href) return
+  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`)
+  if (!el) {
+    el = document.createElement("link")
+    el.rel = rel
+    document.head.appendChild(el)
+  }
+  el.href = href
+}
+
+/** Injeta/atualiza um bloco JSON-LD (dados estruturados) para SEO e agentes. */
+function upsertJsonLd(id: string, data: unknown) {
+  let el = document.getElementById(id) as HTMLScriptElement | null
+  if (!el) {
+    el = document.createElement("script")
+    el.type = "application/ld+json"
+    el.id = id
+    document.head.appendChild(el)
+  }
+  el.textContent = JSON.stringify(data)
+}
+
 /**
  * Loads the site content from WordPress once, then provides it to the whole
  * app through context. Also wires the WordPress-managed favicon and site
@@ -22,6 +46,7 @@ function upsertMeta(attr: "name" | "property", key: string, value: string) {
 export default function Root() {
   const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT)
   const [loading, setLoading] = useState(true)
+  const location = useLocation()
 
   useEffect(() => {
     let alive = true
@@ -69,8 +94,48 @@ export default function Root() {
     if (logoUrl) upsertMeta("name", "twitter:image", logoUrl)
   }, [content.site])
 
+  // URL canônica + og:url por rota (bom para SEO e para agentes).
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const url = window.location.origin + location.pathname
+    upsertLink("canonical", url)
+    upsertMeta("property", "og:url", url)
+  }, [location.pathname])
+
+  // Dados estruturados (JSON-LD): Organization + WebSite. Ajuda SEO e a
+  // "navegação agêntica" — IAs entendem quem é a marca, contato e serviços.
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const origin = window.location.origin
+    const { site, footer, services } = content
+    upsertJsonLd("ld-org", {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: site.title,
+      url: origin,
+      description: site.metaDescription,
+      ...(site.logoUrl ? { logo: site.logoUrl } : {}),
+      ...(footer.email ? { email: footer.email } : {}),
+      ...(footer.phone ? { telephone: footer.phone } : {}),
+      ...(footer.city ? { address: { "@type": "PostalAddress", addressLocality: footer.city } } : {}),
+      sameAs: (footer.social || []).map(s => s.url).filter(u => u && u.startsWith("http")),
+      makesOffer: (services || []).map(s => ({
+        "@type": "Offer",
+        itemOffered: { "@type": "Service", name: s.title, description: s.body, ...(s.slug ? { url: `${origin}/servicos/${s.slug}` } : {}) },
+      })),
+    })
+    upsertJsonLd("ld-website", {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: site.title,
+      url: origin,
+      inLanguage: "pt-BR",
+    })
+  }, [content])
+
   return (
     <ContentContext.Provider value={{ content, loading }}>
+      <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
       <Outlet />
     </ContentContext.Provider>
   )

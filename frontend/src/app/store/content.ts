@@ -45,13 +45,20 @@ export interface SiteContent {
   thankYou: { title: string; message: string }
   /** Página /contato (textos; e-mail/telefone vêm do rodapé). */
   contact: { title: string; highlight: string; description: string }
+  /** Rótulos, notas e links dos botões das seções da home. */
+  sections: {
+    about: { eyebrow: string; pillarsLabel: string; ctaLabel: string; ctaUrl: string }
+    services: { eyebrow: string; ctaLabel: string; ctaUrl: string }
+    projects: { eyebrow: string; note: string; cardText: string }
+    faq: { eyebrow: string; note: string; ctaLabel: string; ctaUrl: string }
+  }
   about: {
     paragraph1: string
     paragraph2: string
     stats: { numeric: number; suffix: string; label: string }[]
     pillars: { title: string; body: string }[]
   }
-  services: { num: string; title: string; body: string }[]
+  services: { num: string; title: string; body: string; slug?: string; content?: string; image?: string }[]
   projects: {
     id: string
     name: string
@@ -138,6 +145,12 @@ export const DEFAULT_CONTENT: SiteContent = {
     highlight: "CONVERSAR.",
     description: "Conte um pouco sobre o seu projeto. Respondemos em até 1 dia útil.",
   },
+  sections: {
+    about: { eyebrow: "STUDIO TABI — SOBRE NÓS", pillarsLabel: "COMO TRABALHAMOS", ctaLabel: "CONHEÇA NOSSA HISTÓRIA", ctaUrl: "#sobre" },
+    services: { eyebrow: "STUDIO TABI — SERVIÇOS", ctaLabel: "VER TODOS OS SERVIÇOS", ctaUrl: "/servicos" },
+    projects: { eyebrow: "STUDIO TABI — PROJETOS", note: "120+ projetos entregues", cardText: "Quer ver o portfólio completo com todos os nossos projetos?" },
+    faq: { eyebrow: "STUDIO TABI — FAQ", note: "Não encontrou o que procura? Entre em contato diretamente com a equipe.", ctaLabel: "FALAR COM A EQUIPE", ctaUrl: "/contato" },
+  },
   about: {
     paragraph1: 'O Studio Tabi nasceu da convicção de que presença digital é um ativo estratégico — não uma despesa de comunicação. Reunimos designers, estrategistas e engenheiros que recusam o medíocre do "bom o suficiente".',
     paragraph2: 'Cada projeto começa com uma pergunta simples: como esse negócio quer ser percebido daqui a cinco anos? A resposta guia cada decisão criativa, técnica e estratégica que tomamos.',
@@ -155,12 +168,12 @@ export const DEFAULT_CONTENT: SiteContent = {
     ],
   },
   services: [
-    { num: "01", title: "Branding & Identidade Visual", body: "Sistemas de marca que comunicam com precisão — do logotipo ao tom de voz. Identidades que crescem com o negócio e resistem ao tempo." },
-    { num: "02", title: "Design de Interface (UI/UX)", body: "Interfaces construídas a partir do comportamento real do usuário. Cada pixel tem função. Cada fluxo tem intenção." },
-    { num: "03", title: "Desenvolvimento Web", body: "Código limpo, performático e acessível. Sites e aplicações que carregam rápido, escalam com o negócio e integram com qualquer stack." },
-    { num: "04", title: "Estratégia Digital", body: "Diagnóstico, posicionamento e roadmap para sua presença digital. Decisões com dados, não com suposições." },
-    { num: "05", title: "Motion & Animação", body: "Movimento que conta histórias. Animações de interface e motion graphics que transformam conteúdo em experiência." },
-    { num: "06", title: "Conteúdo & Copywriting", body: "Palavras que convertem. Narrativas que constroem autoridade, geram confiança e movem o usuário à ação." },
+    { num: "01", slug: "branding-identidade-visual", title: "Branding & Identidade Visual", body: "Sistemas de marca que comunicam com precisão — do logotipo ao tom de voz. Identidades que crescem com o negócio e resistem ao tempo." },
+    { num: "02", slug: "design-de-interface-ui-ux", title: "Design de Interface (UI/UX)", body: "Interfaces construídas a partir do comportamento real do usuário. Cada pixel tem função. Cada fluxo tem intenção." },
+    { num: "03", slug: "websites-imersivos", title: "Websites Imersivos", body: "Sites institucionais com direção visual forte, navegação fluida, responsividade e animações GSAP." },
+    { num: "04", slug: "landing-pages-conversivas", title: "Landing Pages Conversivas", body: "Copy persuasiva, estrutura de oferta e interface pensada para campanhas, tráfego pago e captação de leads." },
+    { num: "05", slug: "motion-para-sites", title: "Motion para Sites", body: "Movimento que conta histórias. Animações de interface e motion graphics que transformam conteúdo em experiência." },
+    { num: "06", slug: "conteudo-copywriting", title: "Conteúdo & Copywriting", body: "Palavras que convertem. Narrativas que constroem autoridade, geram confiança e movem o usuário à ação." },
   ],
   projects: [
     {
@@ -304,6 +317,12 @@ function mergeContent(remote: Partial<SiteContent> | null | undefined): SiteCont
     projectsCta: { ...DEFAULT_CONTENT.projectsCta, ...(remote.projectsCta || {}) },
     thankYou: { ...DEFAULT_CONTENT.thankYou, ...(remote.thankYou || {}) },
     contact: { ...DEFAULT_CONTENT.contact, ...(remote.contact || {}) },
+    sections: remote.sections ? {
+      about: { ...DEFAULT_CONTENT.sections.about, ...(remote.sections.about || {}) },
+      services: { ...DEFAULT_CONTENT.sections.services, ...(remote.sections.services || {}) },
+      projects: { ...DEFAULT_CONTENT.sections.projects, ...(remote.sections.projects || {}) },
+      faq: { ...DEFAULT_CONTENT.sections.faq, ...(remote.sections.faq || {}) },
+    } : DEFAULT_CONTENT.sections,
     about: { ...DEFAULT_CONTENT.about, ...(remote.about || {}) },
     services: remote.services?.length ? remote.services : DEFAULT_CONTENT.services,
     projects: remote.projects?.length ? remote.projects : DEFAULT_CONTENT.projects,

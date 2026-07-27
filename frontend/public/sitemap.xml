@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://studiotabi.com.br/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://studiotabi.com.br/servicos</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://studiotabi.com.br/servicos/branding-identidade-visual</loc><priority>0.7</priority></url>
+  <url><loc>https://studiotabi.com.br/servicos/design-de-interface-ui-ux</loc><priority>0.7</priority></url>
+  <url><loc>https://studiotabi.com.br/servicos/websites-imersivos</loc><priority>0.7</priority></url>
+  <url><loc>https://studiotabi.com.br/servicos/landing-pages-conversivas</loc><priority>0.7</priority></url>
+  <url><loc>https://studiotabi.com.br/servicos/motion-para-sites</loc><priority>0.7</priority></url>
+  <url><loc>https://studiotabi.com.br/servicos/conteudo-copywriting</loc><priority>0.7</priority></url>
+  <url><loc>https://studiotabi.com.br/projetos</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://studiotabi.com.br/contato</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+</urlset>
