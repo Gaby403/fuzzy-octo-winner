@@ -115,6 +115,7 @@ foreach ( stcms_default_projects() as $p ) {
 			'stcms_bg'        => $p['bg'],
 			'stcms_accent'    => $p['accent'],
 			'stcms_featured'  => $p['featured'] ? '1' : '',
+			'stcms_home'      => ( ! isset( $p['home'] ) || $p['home'] ) ? '1' : '',
 			'stcms_client'    => $p['client'],
 			'stcms_duration'  => $p['duration'],
 			'stcms_challenge' => $p['challenge'],
@@ -161,6 +162,14 @@ check( $pr['detail']['mockupLines'] === array( 'DASHBOARD', 'PORTFÓLIO', 'ANÁL
 
 check( count( $data['faq'] ) === 6 && isset( $data['faq'][0]['q'], $data['faq'][0]['a'] ), 'faq [q/a]' );
 check( isset( $data['footer']['tagline'], $data['footer']['email'], $data['footer']['phone'], $data['footer']['city'] ), 'footer completo' );
+
+// Botões editáveis (CTAs) e flag de "aparecer na home".
+check( isset( $pr['home'] ) && $pr['home'] === true, 'project.home é boolean (aparecer na home)' );
+check( isset( $data['nav']['ctaUrl'] ) && $data['nav']['ctaUrl'] === '#contato', 'nav.ctaUrl' );
+check( isset( $data['hero']['ctaPrimary']['label'], $data['hero']['ctaPrimary']['url'] ) && $data['hero']['ctaPrimary']['url'] === '/projetos', 'hero.ctaPrimary {label,url}' );
+check( isset( $data['hero']['ctaSecondary']['label'], $data['hero']['ctaSecondary']['url'] ), 'hero.ctaSecondary {label,url}' );
+check( isset( $data['projectsCta']['label'], $data['projectsCta']['url'] ) && $data['projectsCta']['url'] === '/projetos', 'projectsCta {label,url}' );
+check( isset( $data['footer']['ctaUrl'] ) && $data['footer']['ctaUrl'] === '#contato', 'footer.ctaUrl' );
 
 // Simula uma edição no backend e confirma que reflete na saída da API.
 $opts = STCMS_Options::get();

@@ -105,9 +105,15 @@ class STCMS_Meta {
 		echo '</div><div>';
 		self::text_row( 'Cor de destaque (hex)', 'stcms_accent', self::field( $post->ID, 'stcms_accent', '#F20C25' ), 'Ex: #F20C25' );
 		self::text_row( 'Fundo (CSS gradient)', 'stcms_bg', self::field( $post->ID, 'stcms_bg', 'linear-gradient(135deg,#1A0505 0%,#2D0A0A 50%,#1A0A14 100%)' ) );
+		$home = self::field( $post->ID, 'stcms_home', '' );
+		printf(
+			'<p><label style="font-weight:600"><input type="checkbox" name="stcms_home" value="1" %s /> Aparecer na página inicial</label></p>',
+			checked( $home, '1', false )
+		);
+		echo '<p style="color:#787c82;font-size:12px">A home mostra no máximo <strong>4</strong> projetos marcados aqui. Todos aparecem sempre na página <code>/projetos</code>.</p>';
 		$featured = self::field( $post->ID, 'stcms_featured', '' );
 		printf(
-			'<p><label style="font-weight:600"><input type="checkbox" name="stcms_featured" value="1" %s /> Projeto em destaque</label></p>',
+			'<p><label style="font-weight:600"><input type="checkbox" name="stcms_featured" value="1" %s /> Projeto em destaque (card maior)</label></p>',
 			checked( $featured, '1', false )
 		);
 		echo '<p style="color:#787c82;font-size:12px">Use a <strong>Imagem destacada</strong> (coluna lateral) como capa do projeto.</p>';
@@ -263,6 +269,7 @@ class STCMS_Meta {
 			self::save_textarea( $post_id, 'stcms_challenge' );
 			self::save_textarea( $post_id, 'stcms_solution' );
 			update_post_meta( $post_id, 'stcms_featured', isset( $_POST['stcms_featured'] ) ? '1' : '' );
+		update_post_meta( $post_id, 'stcms_home', isset( $_POST['stcms_home'] ) ? '1' : '' );
 			self::save_repeater( $post_id, 'stcms_scope' );
 			self::save_repeater( $post_id, 'stcms_results' );
 			self::save_repeater( $post_id, 'stcms_mockup' );

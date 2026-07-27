@@ -29,6 +29,7 @@ runtime/
 *.log
 build/
 studio-tabi-cms.zip
+studio-tabi-frontend.zip
 bin/wp-cli.phar
 
 # OS / editor

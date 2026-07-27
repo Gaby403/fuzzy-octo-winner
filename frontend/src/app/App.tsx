@@ -9,7 +9,7 @@ import {
   useMotionTemplate,
   useInView,
 } from "motion/react"
-import { RouterProvider, createBrowserRouter, Link, useSearchParams } from "react-router"
+import { RouterProvider, createBrowserRouter, Link, useSearchParams, useNavigate } from "react-router"
 import { useContent, type SiteContent } from "./store/content"
 import Root from "./Root"
 import Admin from "./pages/Admin"
@@ -30,6 +30,30 @@ function projectSlug(p: { id: string; name: string }): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
   return base || p.id
+}
+
+/**
+ * Hook que resolve um link vindo do CMS (âncora "#sec", rota interna "/projetos"
+ * ou URL externa "https://…") na ação de navegação correta. Usado pelos botões
+ * editáveis (hero, seção de projetos, rodapé, menu).
+ */
+function useGoTo() {
+  const navigate = useNavigate()
+  return (url: string, e?: { preventDefault?: () => void }) => {
+    if (!url) return
+    if (/^https?:\/\//i.test(url) || url.startsWith("mailto:") || url.startsWith("tel:")) {
+      window.open(url, "_blank", "noopener")
+      return
+    }
+    if (e?.preventDefault) e.preventDefault()
+    if (url.startsWith("#")) {
+      const el = document.querySelector(url)
+      if (el) el.scrollIntoView({ behavior: "smooth" })
+      else navigate("/" + url)
+    } else {
+      navigate(url)
+    }
+  }
 }
 
 // Tabi brand mark SVG — replaces kanji throughout the site
@@ -187,6 +211,7 @@ const RESPONSIVE_CSS = `
 
 export function HomeSite() {
   const { content } = useContent()
+  const goTo = useGoTo()
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLElement>(null)
   const heroHeightRef = useRef(800)
@@ -409,9 +434,15 @@ export function HomeSite() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
-            <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(13px, 1.2vw, 19px)", letterSpacing: "-0.04em", textTransform: "uppercase" }}>
-              {content.nav.brand}
-            </span>
+            {content.site.logoUrl ? (
+              <a href="#top" className="pointer-events-auto" style={{ display: "inline-flex", alignItems: "center" }}>
+                <img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} style={{ height: "clamp(26px, 3.4vw, 44px)", width: "auto", display: "block" }} />
+              </a>
+            ) : (
+              <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(13px, 1.2vw, 19px)", letterSpacing: "-0.04em", textTransform: "uppercase" }}>
+                {content.nav.brand}
+              </span>
+            )}
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-8">
               {content.nav.links.map((item) => (
@@ -535,7 +566,7 @@ export function HomeSite() {
 
             <h1
               className="hero-title m-0"
-              style={{ fontFamily: '"Roboto Condensed", sans-serif', fontSize: "clamp(52px, 5.2vw, 100px)", fontWeight: 900, lineHeight: 0.79, letterSpacing: "-0.05em", textTransform: "uppercase", maxWidth: 760 }}
+              style={{ fontFamily: '"Roboto Condensed", sans-serif', fontSize: "clamp(52px, 5.2vw, 100px)", fontWeight: 900, lineHeight: 1.5, letterSpacing: "-0.05em", textTransform: "uppercase", maxWidth: 760 }}
             >
               {content.hero.titleLines.map((line, i) => (
                 <motion.span
@@ -583,8 +614,9 @@ export function HomeSite() {
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", letterSpacing: "0.13em", padding: "13px 26px", borderColor: RED, color: RED, backgroundColor: "rgba(0,0,0,0)", cursor: "pointer" }}
                 whileHover={{ backgroundColor: RED, color: WHITE }}
                 transition={{ duration: 0.22 }}
+                onClick={(e) => goTo(content.hero.ctaPrimary.url, e)}
               >
-                VER PORTFÓLIO
+                {content.hero.ctaPrimary.label}
                 <span className="inline-block transition-transform duration-300 group-hover:translate-x-0.5" style={{ fontSize: 13 }}>→</span>
               </motion.button>
 
@@ -593,8 +625,9 @@ export function HomeSite() {
                 style={{ fontSize: "9.5px", letterSpacing: "0.13em", color: ctaColorFg, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 500, opacity: 0.5 }}
                 whileHover={{ opacity: 1 }}
                 transition={{ duration: 0.2 }}
+                onClick={(e) => goTo(content.hero.ctaSecondary.url, e)}
               >
-                FALAR COM A EQUIPE
+                {content.hero.ctaSecondary.label}
               </motion.button>
             </motion.div>
           </div>
@@ -1524,9 +1557,9 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
 
       {/* Content at bottom */}
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "clamp(20px,3vw,32px)", background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)" }}>
-        <div style={{ overflow: "hidden" }}>
+        <div style={{ overflow: "visible", paddingTop: 6 }}>
           <motion.h3
-            style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 2vw, 32px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, margin: 0, lineHeight: 0.9 }}
+            style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 2vw, 32px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, margin: 0, lineHeight: 1.08, paddingBottom: 2 }}
             animate={{ y: hovered ? -4 : 0 }}
             transition={{ duration: 0.3 }}
           >
@@ -1555,10 +1588,15 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
 
 function ProjectsSection() {
   const { content } = useContent()
+  const goTo = useGoTo()
   const projects = content.projects
   const pad = "clamp(20px, 4vw, 82px)"
-  const featured = projects.filter(p => p.featured)
-  const smaller  = projects.filter(p => !p.featured)
+  // Home mostra no máximo 4 projetos. O usuário escolhe quais marcando
+  // "Aparecer na home" no CMS; sem nenhum marcado, usa os 4 primeiros.
+  const flagged = projects.filter(p => p.home)
+  const homeProjects = (flagged.length ? flagged : projects).slice(0, 4)
+  const featured = homeProjects.filter(p => p.featured)
+  const smaller  = homeProjects.filter(p => !p.featured)
   // Cada projeto tem uma URL própria e compartilhável: /?projeto=slug
   // (o slug vem do nome; caímos no id como fallback). O botão "voltar" do
   // navegador fecha o modal automaticamente.
@@ -1623,8 +1661,9 @@ function ProjectsSection() {
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
+                onClick={(e) => goTo(content.projectsCta.url, e)}
               >
-                VER TODOS <span style={{ fontSize: 13 }}>→</span>
+                {content.projectsCta.label} <span style={{ fontSize: 13 }}>→</span>
               </motion.button>
             </div>
           </Reveal>
@@ -1653,6 +1692,7 @@ function ProjectsSection() {
             style={{ border: `1px solid rgba(239,239,239,0.10)`, borderRadius: 4, padding: "clamp(28px, 3vw, 40px)", aspectRatio: "1/1", cursor: "pointer", position: "relative", overflow: "hidden" }}
             whileHover={{ borderColor: RED }}
             transition={{ duration: 0.25 }}
+            onClick={(e) => goTo(content.projectsCta.url, e)}
           >
             <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(32px, 4vw, 60px)", letterSpacing: "-0.06em", color: "rgba(239,239,239,0.08)", lineHeight: 1 }}>120+</span>
             <div>
@@ -1663,8 +1703,9 @@ function ProjectsSection() {
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
+                onClick={(e) => goTo(content.projectsCta.url, e)}
               >
-                VER PORTFÓLIO <span style={{ fontSize: 13 }}>→</span>
+                {content.projectsCta.label} <span style={{ fontSize: 13 }}>→</span>
               </motion.button>
             </div>
           </motion.div>
@@ -1672,6 +1713,102 @@ function ProjectsSection() {
       </div>
     </section>
     </>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALL PROJECTS PAGE  (/projetos) — aberta pelo botão "VER PORTFÓLIO"
+// ─────────────────────────────────────────────────────────────────────────────
+function AllProjects() {
+  const { content } = useContent()
+  const projects = content.projects
+  const pad = "clamp(20px, 4vw, 82px)"
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedKey = searchParams.get("projeto")
+  const selectedProj = projects.find(p => projectSlug(p) === selectedKey || p.id === selectedKey) ?? null
+
+  useEffect(() => {
+    document.title = `Projetos — ${content.site.title}`
+    if (!selectedKey) window.scrollTo(0, 0)
+  }, [content.site.title, selectedKey])
+
+  const openProject = useCallback((p: SiteContent["projects"][number], replace = false) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.set("projeto", projectSlug(p))
+      return next
+    }, { replace })
+  }, [setSearchParams])
+
+  const handleClose = useCallback(() => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.delete("projeto")
+      return next
+    }, { replace: false })
+  }, [setSearchParams])
+
+  const handlePrev = useCallback(() => {
+    if (!selectedProj) return
+    const idx = projects.findIndex(p => p.id === selectedProj.id)
+    openProject(projects[(idx - 1 + projects.length) % projects.length], true)
+  }, [selectedProj, projects, openProject])
+  const handleNext = useCallback(() => {
+    if (!selectedProj) return
+    const idx = projects.findIndex(p => p.id === selectedProj.id)
+    openProject(projects[(idx + 1) % projects.length], true)
+  }, [selectedProj, projects, openProject])
+
+  return (
+    <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+      <AnimatePresence>
+        {selectedProj && (
+          <ProjectDetail key={selectedProj.id} proj={selectedProj} onClose={handleClose} onPrev={handlePrev} onNext={handleNext} />
+        )}
+      </AnimatePresence>
+
+      {/* Header */}
+      <header
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: `22px ${pad}`, borderBottom: "1px solid rgba(239,239,239,0.08)", position: "sticky", top: 0, background: "rgba(17,17,17,0.86)", backdropFilter: "blur(10px)", zIndex: 20 }}
+      >
+        <Link to="/" style={{ textDecoration: "none", color: WHITE, display: "inline-flex", alignItems: "center" }}>
+          {content.site.logoUrl ? (
+            <img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} style={{ height: "clamp(26px, 3.4vw, 40px)", width: "auto", display: "block" }} />
+          ) : (
+            <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: 20, letterSpacing: "-0.04em", textTransform: "uppercase" }}>
+              {content.site.title.split(" ")[0] || "STUDIO"} <span style={{ color: RED }}>{content.site.title.split(" ").slice(1).join(" ") || "TABI"}</span>
+            </span>
+          )}
+        </Link>
+        <Link to="/" style={{ textDecoration: "none", color: "rgba(239,239,239,0.55)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em" }}>
+          ← VOLTAR
+        </Link>
+      </header>
+
+      {/* Title */}
+      <div style={{ padding: `clamp(48px, 8vw, 96px) ${pad} clamp(28px, 4vw, 48px)` }}>
+        <div className="flex items-center gap-3 mb-6" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
+          <span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} />
+          <span>STUDIO TABI — PORTFÓLIO</span>
+        </div>
+        <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 7vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.92 }}>
+          TODOS OS <span style={{ color: RED }}>PROJETOS.</span>
+        </h1>
+      </div>
+
+      {/* Grid */}
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+        style={{ padding: `0 ${pad} clamp(64px, 10vw, 120px)`, gap: "clamp(12px, 1.5vw, 20px)" }}
+      >
+        {projects.map((p, i) => (
+          <ProjectCard key={p.id} proj={p as Project} index={i} onClick={() => openProject(p)} />
+        ))}
+      </div>
+
+      <SiteFooter />
+    </div>
   )
 }
 
@@ -1816,6 +1953,7 @@ const FOOTER_NAV = [
 
 function SiteFooter() {
   const { content } = useContent()
+  const goTo = useGoTo()
   const pad = "clamp(20px, 4vw, 82px)"
   const ref = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, margin: "-60px" })
@@ -1843,7 +1981,11 @@ function SiteFooter() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             <div style={{ marginBottom: 20 }}>
-              <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 1.6vw, 26px)", letterSpacing: "-0.05em", textTransform: "uppercase", color: WHITE }}>{f.brand}</span>
+              {content.site.logoUrl ? (
+                <img src={content.site.logoUrl} alt={f.brand || content.site.title} style={{ height: "clamp(32px, 3.4vw, 48px)", width: "auto", display: "block" }} />
+              ) : (
+                <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 1.6vw, 26px)", letterSpacing: "-0.05em", textTransform: "uppercase", color: WHITE }}>{f.brand}</span>
+              )}
               <span style={{ display: "block", width: 32, height: 2, backgroundColor: RED, marginTop: 10 }} />
             </div>
             <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.42)", maxWidth: 280, marginBottom: 28 }}>
@@ -1853,6 +1995,7 @@ function SiteFooter() {
               style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 24px", borderRadius: 999, border: `1px solid ${RED}`, color: RED, backgroundColor: "rgba(0,0,0,0)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", cursor: "pointer" }}
               whileHover={{ backgroundColor: RED, color: WHITE }}
               transition={{ duration: 0.22 }}
+              onClick={(e) => goTo(f.ctaUrl, e)}
             >
               {f.ctaLabel} <span style={{ fontSize: 13 }}>→</span>
             </motion.button>
@@ -2003,6 +2146,7 @@ const router = createBrowserRouter([
     Component: Root,
     children: [
       { index: true, Component: HomeSite },
+      { path: "projetos", Component: AllProjects },
       { path: "admin", Component: Admin },
       { path: "p/:slug", Component: Page },
     ],

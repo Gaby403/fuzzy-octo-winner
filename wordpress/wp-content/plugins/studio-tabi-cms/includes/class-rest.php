@@ -98,12 +98,25 @@ class STCMS_Rest {
 				'brand'    => self::decode( $o['nav']['brand'] ),
 				'links'    => self::links( $o['nav']['links'] ),
 				'ctaLabel' => self::decode( $o['nav']['cta_label'] ),
+				'ctaUrl'   => (string) $o['nav']['cta_url'],
 			),
 			'hero'     => array(
 				'eyebrow'     => $o['hero']['eyebrow'],
 				'titleLines'  => array_values( (array) $o['hero']['title_lines'] ),
 				'highlight'   => $o['hero']['highlight'],
 				'description' => $o['hero']['description'],
+				'ctaPrimary'  => array(
+					'label' => self::decode( $o['hero']['cta_primary_label'] ),
+					'url'   => (string) $o['hero']['cta_primary_url'],
+				),
+				'ctaSecondary' => array(
+					'label' => self::decode( $o['hero']['cta_secondary_label'] ),
+					'url'   => (string) $o['hero']['cta_secondary_url'],
+				),
+			),
+			'projectsCta' => array(
+				'label' => self::decode( $o['projects_cta']['label'] ),
+				'url'   => (string) $o['projects_cta']['url'],
 			),
 			'about'    => array(
 				'paragraph1' => $o['about']['paragraph1'],
@@ -118,6 +131,7 @@ class STCMS_Rest {
 				'brand'        => self::decode( $o['footer']['brand'] ),
 				'tagline'      => $o['footer']['tagline'],
 				'ctaLabel'     => self::decode( $o['footer']['cta_label'] ),
+				'ctaUrl'       => (string) $o['footer']['cta_url'],
 				'columns'      => array(
 					array( 'title' => self::decode( $o['footer']['col1_title'] ), 'links' => self::links( $o['footer']['col1_links'] ) ),
 					array( 'title' => self::decode( $o['footer']['col2_title'] ), 'links' => self::links( $o['footer']['col2_links'] ) ),
@@ -284,6 +298,7 @@ class STCMS_Rest {
 				'bg'       => (string) get_post_meta( $id, 'stcms_bg', true ),
 				'accent'   => (string) get_post_meta( $id, 'stcms_accent', true ),
 				'featured' => '1' === get_post_meta( $id, 'stcms_featured', true ),
+				'home'     => '1' === get_post_meta( $id, 'stcms_home', true ),
 				'imageUrl' => get_the_post_thumbnail_url( $p, 'large' ) ? get_the_post_thumbnail_url( $p, 'large' ) : '',
 				'url'      => (string) get_post_meta( $id, 'stcms_url', true ),
 				'gallery'  => self::gallery_urls( get_post_meta( $id, 'stcms_gallery', true ) ),

@@ -109,8 +109,9 @@ class STCMS_Options {
 				<?php self::card_open( 'nav', 'dashicons-menu-alt3', 'Menu (cabeçalho)', 'A marca e os links do topo do site' ); ?>
 					<table class="form-table stcms-fields" role="presentation">
 						<?php
-						self::row_text( 'Marca / logo (texto)', 'nav][brand', $o['nav']['brand'] );
-						self::row_text( 'Texto do botão (menu mobile)', 'nav][cta_label', $o['nav']['cta_label'] );
+						self::row_text( 'Marca / logo (texto)', 'nav][brand', $o['nav']['brand'], 'Usado só se nenhuma Logo (imagem) for definida na seção Site.' );
+						self::row_text( 'Texto do botão "Iniciar projeto"', 'nav][cta_label', $o['nav']['cta_label'] );
+						self::row_text( 'Link do botão "Iniciar projeto"', 'nav][cta_url', $o['nav']['cta_url'], 'Ex.: #contato, /p/orcamento ou https://wa.me/55...' );
 						?>
 						<tr>
 							<th scope="row">Links do menu</th>
@@ -133,6 +134,33 @@ class STCMS_Options {
 						self::row_text( 'Palavra em destaque (vermelho)', 'hero][highlight', $o['hero']['highlight'], 'É a última linha do título, em vermelho (ex.: DIGITAL.). Deixe vazio para remover.' );
 						self::row_textarea( 'Descrição', 'hero][description', $o['hero']['description'] );
 						self::row_media( 'Imagem de fundo (opcional)', 'hero][image_id', (int) $o['hero']['image_id'], 'Se vazio, o hero usa a arte de montanha animada padrão.' );
+						?>
+					</table>
+
+					<div class="stcms-subgroup"><span class="stcms-subtitle">Botão principal (ex.: Ver portfólio)</span>
+						<table class="form-table stcms-fields" role="presentation">
+							<?php
+							self::row_text( 'Texto do botão', 'hero][cta_primary_label', $o['hero']['cta_primary_label'] );
+							self::row_text( 'Link do botão', 'hero][cta_primary_url', $o['hero']['cta_primary_url'], 'Ex.: /projetos, #trabalhos ou https://...' );
+							?>
+						</table>
+					</div>
+
+					<div class="stcms-subgroup"><span class="stcms-subtitle">Botão secundário (ex.: Falar com a equipe)</span>
+						<table class="form-table stcms-fields" role="presentation">
+							<?php
+							self::row_text( 'Texto do botão', 'hero][cta_secondary_label', $o['hero']['cta_secondary_label'] );
+							self::row_text( 'Link do botão', 'hero][cta_secondary_url', $o['hero']['cta_secondary_url'], 'Ex.: #contato ou https://wa.me/55...' );
+							?>
+						</table>
+					</div>
+				<?php self::card_close(); ?>
+
+				<?php self::card_open( 'projects_cta', 'dashicons-portfolio', 'Botão "Ver todos os projetos"', 'Texto e link dos botões "Ver todos / Ver portfólio" da seção de projetos' ); ?>
+					<table class="form-table stcms-fields" role="presentation">
+						<?php
+						self::row_text( 'Texto do botão', 'projects_cta][label', $o['projects_cta']['label'] );
+						self::row_text( 'Link do botão', 'projects_cta][url', $o['projects_cta']['url'], 'Padrão: /projetos (a página com todos os projetos). Pode ser um link externo.' );
 						?>
 					</table>
 				<?php self::card_close(); ?>
@@ -328,6 +356,15 @@ class STCMS_Options {
 			$out['hero']['highlight']    = sanitize_text_field( $input['hero']['highlight'] ?? '' );
 			$out['hero']['description']  = sanitize_textarea_field( $input['hero']['description'] ?? '' );
 			$out['hero']['image_id']     = (int) ( $input['hero']['image_id'] ?? 0 );
+			$out['hero']['cta_primary_label']   = sanitize_text_field( $input['hero']['cta_primary_label'] ?? '' );
+			$out['hero']['cta_primary_url']     = self::sanitize_link_url( $input['hero']['cta_primary_url'] ?? '' );
+			$out['hero']['cta_secondary_label'] = sanitize_text_field( $input['hero']['cta_secondary_label'] ?? '' );
+			$out['hero']['cta_secondary_url']   = self::sanitize_link_url( $input['hero']['cta_secondary_url'] ?? '' );
+		}
+
+		if ( isset( $input['projects_cta'] ) ) {
+			$out['projects_cta']['label'] = sanitize_text_field( $input['projects_cta']['label'] ?? '' );
+			$out['projects_cta']['url']   = self::sanitize_link_url( $input['projects_cta']['url'] ?? '' );
 		}
 
 		if ( isset( $input['about'] ) ) {
@@ -364,6 +401,7 @@ class STCMS_Options {
 		if ( isset( $input['nav'] ) ) {
 			$out['nav']['brand']     = sanitize_text_field( $input['nav']['brand'] ?? '' );
 			$out['nav']['cta_label'] = sanitize_text_field( $input['nav']['cta_label'] ?? '' );
+			$out['nav']['cta_url']   = self::sanitize_link_url( $input['nav']['cta_url'] ?? '' );
 			$out['nav']['links']     = self::sanitize_links( $input['nav']['links'] ?? array() );
 		}
 
@@ -371,6 +409,7 @@ class STCMS_Options {
 			$out['footer']['brand']         = sanitize_text_field( $input['footer']['brand'] ?? '' );
 			$out['footer']['tagline']       = sanitize_text_field( $input['footer']['tagline'] ?? '' );
 			$out['footer']['cta_label']     = sanitize_text_field( $input['footer']['cta_label'] ?? '' );
+			$out['footer']['cta_url']       = self::sanitize_link_url( $input['footer']['cta_url'] ?? '' );
 			$out['footer']['col1_title']    = sanitize_text_field( $input['footer']['col1_title'] ?? '' );
 			$out['footer']['col1_links']    = self::sanitize_links( $input['footer']['col1_links'] ?? array() );
 			$out['footer']['col2_title']    = sanitize_text_field( $input['footer']['col2_title'] ?? '' );
@@ -387,6 +426,21 @@ class STCMS_Options {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Sanitize a single link destination: allows "#anchor", relative paths
+	 * ("/projetos", "/p/slug") and full URLs (http, mailto, tel, wa.me…).
+	 */
+	private static function sanitize_link_url( $url ) {
+		$url = trim( (string) $url );
+		if ( '' === $url ) {
+			return '';
+		}
+		if ( '#' === $url[0] || '/' === $url[0] ) {
+			return esc_url_raw( $url, array( 'http', 'https', 'mailto', 'tel' ) ) ?: sanitize_text_field( $url );
+		}
+		return esc_url_raw( $url, array( 'http', 'https', 'mailto', 'tel' ) );
 	}
 
 	/**

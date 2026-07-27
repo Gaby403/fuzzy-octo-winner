@@ -27,13 +27,20 @@ export interface SiteContent {
     brand: string
     links: MenuLink[]
     ctaLabel: string
+    ctaUrl: string
   }
   hero: {
     eyebrow: string
     titleLines: string[]
     highlight: string
     description: string
+    /** Botão principal do hero (ex.: VER PORTFÓLIO). */
+    ctaPrimary: MenuLink
+    /** Botão secundário do hero (ex.: FALAR COM A EQUIPE). */
+    ctaSecondary: MenuLink
   }
+  /** Botão "ver todos / ver portfólio" da seção de projetos. */
+  projectsCta: MenuLink
   about: {
     paragraph1: string
     paragraph2: string
@@ -49,6 +56,8 @@ export interface SiteContent {
     bg: string
     accent: string
     featured: boolean
+    /** Aparecer na página inicial (seção de projetos, máx. 4). */
+    home?: boolean
     imageUrl?: string
     /** Link externo para o site/projeto completo (abre em nova aba). */
     url?: string
@@ -71,6 +80,7 @@ export interface SiteContent {
     brand: string
     tagline: string
     ctaLabel: string
+    ctaUrl: string
     columns: { title: string; links: MenuLink[] }[]
     contactTitle: string
     email: string
@@ -104,13 +114,17 @@ export const DEFAULT_CONTENT: SiteContent = {
       { label: "CONTATO", url: "#contato" },
     ],
     ctaLabel: "INICIAR PROJETO",
+    ctaUrl: "#contato",
   },
   hero: {
     eyebrow: "STUDIO TABI — DIGITAL STUDIO",
     titleLines: ["TRANSFORMAMOS", "A SUA MARCA", "EM EXPERIÊNCIA"],
     highlight: "DIGITAL.",
     description: "Design, estratégia e desenvolvimento para transformar presença digital em percepção de valor, confiança e decisão.",
+    ctaPrimary: { label: "VER PORTFÓLIO", url: "/projetos" },
+    ctaSecondary: { label: "FALAR COM A EQUIPE", url: "#contato" },
   },
+  projectsCta: { label: "VER PORTFÓLIO", url: "/projetos" },
   about: {
     paragraph1: 'O Studio Tabi nasceu da convicção de que presença digital é um ativo estratégico — não uma despesa de comunicação. Reunimos designers, estrategistas e engenheiros que recusam o medíocre do "bom o suficiente".',
     paragraph2: 'Cada projeto começa com uma pergunta simples: como esse negócio quer ser percebido daqui a cinco anos? A resposta guia cada decisão criativa, técnica e estratégica que tomamos.',
@@ -193,6 +207,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     brand: "STUDIO TABI",
     tagline: "Design e tecnologia que levam marcas até onde precisam chegar.",
     ctaLabel: "INICIAR PROJETO",
+    ctaUrl: "#contato",
     columns: [
       {
         title: "Navegação",
@@ -273,6 +288,7 @@ function mergeContent(remote: Partial<SiteContent> | null | undefined): SiteCont
     site: { ...DEFAULT_CONTENT.site, ...(remote.site || {}) },
     nav: { ...DEFAULT_CONTENT.nav, ...(remote.nav || {}) },
     hero: { ...DEFAULT_CONTENT.hero, ...(remote.hero || {}) },
+    projectsCta: { ...DEFAULT_CONTENT.projectsCta, ...(remote.projectsCta || {}) },
     about: { ...DEFAULT_CONTENT.about, ...(remote.about || {}) },
     services: remote.services?.length ? remote.services : DEFAULT_CONTENT.services,
     projects: remote.projects?.length ? remote.projects : DEFAULT_CONTENT.projects,

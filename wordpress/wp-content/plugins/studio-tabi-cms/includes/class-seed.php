@@ -102,6 +102,7 @@ class STCMS_Seed {
 			update_post_meta( $id, 'stcms_bg', $p['bg'] );
 			update_post_meta( $id, 'stcms_accent', $p['accent'] );
 			update_post_meta( $id, 'stcms_featured', $p['featured'] ? '1' : '' );
+			update_post_meta( $id, 'stcms_home', ( ! isset( $p['home'] ) || $p['home'] ) ? '1' : '' );
 			update_post_meta( $id, 'stcms_client', $p['client'] );
 			update_post_meta( $id, 'stcms_duration', $p['duration'] );
 			update_post_meta( $id, 'stcms_challenge', $p['challenge'] );
