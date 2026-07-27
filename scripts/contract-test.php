@@ -170,6 +170,7 @@ check( isset( $data['hero']['ctaPrimary']['label'], $data['hero']['ctaPrimary'][
 check( isset( $data['hero']['ctaSecondary']['label'], $data['hero']['ctaSecondary']['url'] ), 'hero.ctaSecondary {label,url}' );
 check( isset( $data['projectsCta']['label'], $data['projectsCta']['url'] ) && $data['projectsCta']['url'] === '/projetos', 'projectsCta {label,url}' );
 check( isset( $data['thankYou']['title'], $data['thankYou']['message'] ) && $data['thankYou']['title'] === 'OBRIGADO', 'thankYou {title,message}' );
+check( isset( $data['contact']['title'], $data['contact']['highlight'], $data['contact']['description'] ), 'contact {title,highlight,description}' );
 check( isset( $data['footer']['ctaUrl'] ) && $data['footer']['ctaUrl'] === '/contato', 'footer.ctaUrl' );
 
 // Simula uma edição no backend e confirma que reflete na saída da API.

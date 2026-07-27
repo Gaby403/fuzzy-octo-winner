@@ -101,10 +101,10 @@ export default function Contact() {
             <span>{content.site.title.toUpperCase()} — CONTATO</span>
           </div>
           <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(40px,6vw,76px)", letterSpacing: "-0.05em", textTransform: "uppercase", lineHeight: 0.9, margin: "0 0 24px" }}>
-            VAMOS <span style={{ color: RED }}>CONVERSAR.</span>
+            {content.contact.title} <span style={{ color: RED }}>{content.contact.highlight}</span>
           </h1>
           <p style={{ fontSize: "clamp(13px,1vw,16px)", lineHeight: 1.7, color: "rgba(239,239,239,0.6)", maxWidth: 420, margin: "0 0 36px" }}>
-            Conte um pouco sobre o seu projeto. Respondemos em até 1 dia útil.
+            {content.contact.description}
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>

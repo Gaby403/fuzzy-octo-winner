@@ -12,11 +12,12 @@ import {
 import { RouterProvider, createBrowserRouter, Link, useSearchParams, useNavigate } from "react-router"
 import { useContent, type SiteContent } from "./store/content"
 import Root from "./Root"
-import Admin from "./pages/Admin"
-import Page from "./pages/Page"
-import Contact from "./pages/Contact"
-import ThankYou from "./pages/ThankYou"
 import { TabiMark } from "./components/TabiMark"
+
+// Rotas secundárias carregadas sob demanda (code-splitting) para reduzir o
+// JavaScript inicial da home e melhorar a performance (PageSpeed / TBT).
+const lazyPage = (importer: () => Promise<{ default: React.ComponentType }>) =>
+  async () => ({ Component: (await importer()).default })
 
 const RED = "#F20C25"
 const WHITE = "#EFEFEF"
@@ -2134,10 +2135,10 @@ const router = createBrowserRouter([
     children: [
       { index: true, Component: HomeSite },
       { path: "projetos", Component: AllProjects },
-      { path: "contato", Component: Contact },
-      { path: "obrigado", Component: ThankYou },
-      { path: "admin", Component: Admin },
-      { path: "p/:slug", Component: Page },
+      { path: "contato", lazy: lazyPage(() => import("./pages/Contact")) },
+      { path: "obrigado", lazy: lazyPage(() => import("./pages/ThankYou")) },
+      { path: "admin", lazy: lazyPage(() => import("./pages/Admin")) },
+      { path: "p/:slug", lazy: lazyPage(() => import("./pages/Page")) },
     ],
   },
 ])

@@ -165,6 +165,16 @@ class STCMS_Options {
 					</table>
 				<?php self::card_close(); ?>
 
+				<?php self::card_open( 'contact', 'dashicons-email-alt', 'Página de contato', 'Textos da página /contato (o e-mail/telefone vêm do Rodapé)' ); ?>
+					<table class="form-table stcms-fields" role="presentation">
+						<?php
+						self::row_text( 'Título', 'contact][title', $o['contact']['title'], 'Primeira parte do título (ex.: VAMOS).' );
+						self::row_text( 'Destaque (vermelho)', 'contact][highlight', $o['contact']['highlight'], 'Segunda parte, em vermelho (ex.: CONVERSAR.).' );
+						self::row_textarea( 'Descrição', 'contact][description', $o['contact']['description'] );
+						?>
+					</table>
+				<?php self::card_close(); ?>
+
 				<?php self::card_open( 'thankyou', 'dashicons-heart', 'Página de obrigado', 'Texto da página /obrigado exibida após enviar o formulário de contato' ); ?>
 					<table class="form-table stcms-fields" role="presentation">
 						<?php
@@ -379,6 +389,12 @@ class STCMS_Options {
 		if ( isset( $input['thankyou'] ) ) {
 			$out['thankyou']['title']   = sanitize_text_field( $input['thankyou']['title'] ?? '' );
 			$out['thankyou']['message'] = sanitize_textarea_field( $input['thankyou']['message'] ?? '' );
+		}
+
+		if ( isset( $input['contact'] ) ) {
+			$out['contact']['title']       = sanitize_text_field( $input['contact']['title'] ?? '' );
+			$out['contact']['highlight']   = sanitize_text_field( $input['contact']['highlight'] ?? '' );
+			$out['contact']['description'] = sanitize_textarea_field( $input['contact']['description'] ?? '' );
 		}
 
 		if ( isset( $input['about'] ) ) {

@@ -131,6 +131,11 @@ class STCMS_Rest {
 				'title'   => self::decode( $o['thankyou']['title'] ),
 				'message' => self::decode( $o['thankyou']['message'] ),
 			),
+			'contact' => array(
+				'title'       => self::decode( $o['contact']['title'] ),
+				'highlight'   => self::decode( $o['contact']['highlight'] ),
+				'description' => self::decode( $o['contact']['description'] ),
+			),
 			'about'    => array(
 				'paragraph1' => $o['about']['paragraph1'],
 				'paragraph2' => $o['about']['paragraph2'],
