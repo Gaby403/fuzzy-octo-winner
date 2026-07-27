@@ -423,19 +423,9 @@ export function HomeSite() {
                 {content.nav.brand}
               </span>
             )}
-            {/* Desktop links */}
-            <div className="hidden md:flex items-center gap-8">
-              {content.nav.links.map((item) => (
-                <a key={item.label} href={item.url || "#"} className="cursor-pointer opacity-50 hover:opacity-100 transition-opacity duration-200"
-                  onClick={(e) => goTo(item.url, e)}
-                  style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: "inherit", textDecoration: "none" }}>
-                  {item.label}
-                </a>
-              ))}
-            </div>
-            {/* Mobile: hamburger button */}
+            {/* Hamburger (desktop + mobile) — abre o mesmo menu animado */}
             <button
-              className="flex md:hidden flex-col justify-center items-end gap-[5px] cursor-pointer bg-transparent border-none p-2 -mr-2"
+              className="flex flex-col justify-center items-end gap-[5px] cursor-pointer bg-transparent border-none p-2 -mr-2"
               style={{ color: "currentColor" }}
               onClick={() => setMenuOpen(o => !o)}
               aria-label="Menu"
@@ -453,9 +443,9 @@ export function HomeSite() {
             </button>
           </motion.nav>
 
-          {/* ── Mobile drawer ── */}
+          {/* ── Drawer (desktop + mobile) ── */}
           <motion.div
-            className="fixed inset-0 md:hidden pointer-events-none"
+            className="fixed inset-0 pointer-events-none"
             style={{ zIndex: 25 }}
             animate={{ opacity: menuOpen ? 1 : 0 }}
             transition={{ duration: 0.22 }}
@@ -470,7 +460,7 @@ export function HomeSite() {
             <motion.div
               className="absolute top-0 right-0 h-full flex flex-col"
               style={{
-                width: "min(300px, 85vw)",
+                width: "min(380px, 86vw)",
                 background: "#111111",
                 pointerEvents: menuOpen ? "auto" : "none",
                 paddingTop: "clamp(72px, 12svh, 100px)",

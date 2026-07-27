@@ -127,6 +127,10 @@ class STCMS_Rest {
 				'label' => self::decode( $o['projects_cta']['label'] ),
 				'url'   => (string) $o['projects_cta']['url'],
 			),
+			'thankYou' => array(
+				'title'   => self::decode( $o['thankyou']['title'] ),
+				'message' => self::decode( $o['thankyou']['message'] ),
+			),
 			'about'    => array(
 				'paragraph1' => $o['about']['paragraph1'],
 				'paragraph2' => $o['about']['paragraph2'],

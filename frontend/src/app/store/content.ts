@@ -41,6 +41,8 @@ export interface SiteContent {
   }
   /** Botão "ver todos / ver portfólio" da seção de projetos. */
   projectsCta: MenuLink
+  /** Página /obrigado (após envio do formulário de contato). */
+  thankYou: { title: string; message: string }
   about: {
     paragraph1: string
     paragraph2: string
@@ -125,6 +127,10 @@ export const DEFAULT_CONTENT: SiteContent = {
     ctaSecondary: { label: "FALAR COM A EQUIPE", url: "/contato" },
   },
   projectsCta: { label: "VER PORTFÓLIO", url: "/projetos" },
+  thankYou: {
+    title: "OBRIGADO",
+    message: "Recebemos a sua mensagem. Nossa equipe entra em contato em até 1 dia útil. Toda grande jornada — tabi — começa com um primeiro passo.",
+  },
   about: {
     paragraph1: 'O Studio Tabi nasceu da convicção de que presença digital é um ativo estratégico — não uma despesa de comunicação. Reunimos designers, estrategistas e engenheiros que recusam o medíocre do "bom o suficiente".',
     paragraph2: 'Cada projeto começa com uma pergunta simples: como esse negócio quer ser percebido daqui a cinco anos? A resposta guia cada decisão criativa, técnica e estratégica que tomamos.',
@@ -289,6 +295,7 @@ function mergeContent(remote: Partial<SiteContent> | null | undefined): SiteCont
     nav: { ...DEFAULT_CONTENT.nav, ...(remote.nav || {}) },
     hero: { ...DEFAULT_CONTENT.hero, ...(remote.hero || {}) },
     projectsCta: { ...DEFAULT_CONTENT.projectsCta, ...(remote.projectsCta || {}) },
+    thankYou: { ...DEFAULT_CONTENT.thankYou, ...(remote.thankYou || {}) },
     about: { ...DEFAULT_CONTENT.about, ...(remote.about || {}) },
     services: remote.services?.length ? remote.services : DEFAULT_CONTENT.services,
     projects: remote.projects?.length ? remote.projects : DEFAULT_CONTENT.projects,

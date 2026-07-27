@@ -18,6 +18,10 @@ const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
  */
 export default function ThankYou() {
   const { content } = useContent()
+  const t = content.thankYou
+  // Acrescenta um ponto final vermelho, a menos que o título já termine em pontuação.
+  const title = (t.title || "OBRIGADO").trim()
+  const needsDot = !/[.!?…]$/.test(title)
 
   useEffect(() => {
     document.title = `Obrigado — ${content.site.title}`
@@ -93,7 +97,7 @@ export default function ThankYou() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: EASE, delay: 0.5 }}
       >
-        OBRIGADO<span style={{ color: RED }}>.</span>
+        {title}{needsDot && <span style={{ color: RED }}>.</span>}
       </motion.h1>
 
       <motion.p
@@ -102,8 +106,7 @@ export default function ThankYou() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: EASE, delay: 0.62 }}
       >
-        Recebemos a sua mensagem. Nossa equipe entra em contato em até 1 dia útil.
-        Toda grande jornada — <em>tabi</em> — começa com um primeiro passo.
+        {t.message}
       </motion.p>
 
       <motion.div

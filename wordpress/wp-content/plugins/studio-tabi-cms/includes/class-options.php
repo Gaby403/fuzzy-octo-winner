@@ -165,6 +165,15 @@ class STCMS_Options {
 					</table>
 				<?php self::card_close(); ?>
 
+				<?php self::card_open( 'thankyou', 'dashicons-heart', 'Página de obrigado', 'Texto da página /obrigado exibida após enviar o formulário de contato' ); ?>
+					<table class="form-table stcms-fields" role="presentation">
+						<?php
+						self::row_text( 'Título', 'thankyou][title', $o['thankyou']['title'], 'Ex.: OBRIGADO. Um ponto final vermelho é adicionado automaticamente.' );
+						self::row_textarea( 'Mensagem', 'thankyou][message', $o['thankyou']['message'] );
+						?>
+					</table>
+				<?php self::card_close(); ?>
+
 				<?php self::card_open( 'about', 'dashicons-info-outline', 'Sobre', 'Parágrafos, estatísticas e pilares' ); ?>
 					<table class="form-table stcms-fields" role="presentation">
 						<?php
@@ -365,6 +374,11 @@ class STCMS_Options {
 		if ( isset( $input['projects_cta'] ) ) {
 			$out['projects_cta']['label'] = sanitize_text_field( $input['projects_cta']['label'] ?? '' );
 			$out['projects_cta']['url']   = self::sanitize_link_url( $input['projects_cta']['url'] ?? '' );
+		}
+
+		if ( isset( $input['thankyou'] ) ) {
+			$out['thankyou']['title']   = sanitize_text_field( $input['thankyou']['title'] ?? '' );
+			$out['thankyou']['message'] = sanitize_textarea_field( $input['thankyou']['message'] ?? '' );
 		}
 
 		if ( isset( $input['about'] ) ) {

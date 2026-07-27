@@ -51,6 +51,10 @@ function stcms_default_options() {
 			'label' => 'VER PORTFÓLIO',
 			'url'   => '/projetos',
 		),
+		'thankyou' => array(
+			'title'   => 'OBRIGADO',
+			'message' => 'Recebemos a sua mensagem. Nossa equipe entra em contato em até 1 dia útil. Toda grande jornada — tabi — começa com um primeiro passo.',
+		),
 		'about'  => array(
 			'paragraph1' => 'O Studio Tabi nasceu da convicção de que presença digital é um ativo estratégico — não uma despesa de comunicação. Reunimos designers, estrategistas e engenheiros que recusam o medíocre do "bom o suficiente".',
 			'paragraph2' => 'Cada projeto começa com uma pergunta simples: como esse negócio quer ser percebido daqui a cinco anos? A resposta guia cada decisão criativa, técnica e estratégica que tomamos.',
