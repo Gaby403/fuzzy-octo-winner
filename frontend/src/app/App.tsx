@@ -566,7 +566,7 @@ export function HomeSite() {
 
             <h1
               className="hero-title m-0"
-              style={{ fontFamily: '"Roboto Condensed", sans-serif', fontSize: "clamp(52px, 5.2vw, 100px)", fontWeight: 900, lineHeight: 1.5, letterSpacing: "-0.05em", textTransform: "uppercase", maxWidth: 760 }}
+              style={{ fontFamily: '"Roboto Condensed", sans-serif', fontSize: "clamp(52px, 5.2vw, 100px)", fontWeight: 900, lineHeight: 0.88, letterSpacing: "-0.05em", textTransform: "uppercase", maxWidth: 760, display: "flex", flexDirection: "column", gap: "0.06em" }}
             >
               {content.hero.titleLines.map((line, i) => (
                 <motion.span
