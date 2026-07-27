@@ -14,6 +14,7 @@ import { useContent, type SiteContent } from "./store/content"
 import Root from "./Root"
 import Admin from "./pages/Admin"
 import Page from "./pages/Page"
+import Contact from "./pages/Contact"
 
 const RED = "#F20C25"
 const WHITE = "#EFEFEF"
@@ -1533,6 +1534,22 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
       {/* Background */}
       <div style={{ position: "absolute", inset: 0, background: proj.bg }} />
 
+      {/* Cover photo (miniatura definida no CMS) — cobre o gradiente quando existe */}
+      {proj.imageUrl && (
+        <motion.img
+          src={proj.imageUrl}
+          alt={proj.name}
+          loading="lazy"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+          initial={false}
+          animate={{ scale: hovered ? 1.05 : 1 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        />
+      )}
+      {proj.imageUrl && (
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.12) 45%, rgba(0,0,0,0.25) 100%)" }} />
+      )}
+
       {/* Accent glow */}
       <motion.div
         style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 60% 50%, ${proj.accent}22 0%, transparent 65%)` }}
@@ -2147,6 +2164,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, Component: HomeSite },
       { path: "projetos", Component: AllProjects },
+      { path: "contato", Component: Contact },
       { path: "admin", Component: Admin },
       { path: "p/:slug", Component: Page },
     ],

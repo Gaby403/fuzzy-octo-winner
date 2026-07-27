@@ -28,7 +28,7 @@ function stcms_default_options() {
 		'nav'    => array(
 			'brand'     => 'STUDIO TABI',
 			'cta_label' => 'INICIAR PROJETO',
-			'cta_url'   => '#contato',
+			'cta_url'   => '/contato',
 			'links'     => array(
 				array( 'label' => 'TRABALHOS', 'url' => '#trabalhos' ),
 				array( 'label' => 'SERVIÇOS', 'url' => '#servicos' ),
@@ -45,7 +45,7 @@ function stcms_default_options() {
 			'cta_primary_label'   => 'VER PORTFÓLIO',
 			'cta_primary_url'     => '/projetos',
 			'cta_secondary_label' => 'FALAR COM A EQUIPE',
-			'cta_secondary_url'   => '#contato',
+			'cta_secondary_url'   => '/contato',
 		),
 		'projects_cta' => array(
 			'label' => 'VER PORTFÓLIO',
@@ -71,7 +71,7 @@ function stcms_default_options() {
 			'brand'         => 'STUDIO TABI',
 			'tagline'       => 'Design e tecnologia que levam marcas até onde precisam chegar.',
 			'cta_label'     => 'INICIAR PROJETO',
-			'cta_url'       => '#contato',
+			'cta_url'       => '/contato',
 			'col1_title'    => 'Navegação',
 			'col1_links'    => array(
 				array( 'label' => 'Trabalhos', 'url' => '#trabalhos' ),

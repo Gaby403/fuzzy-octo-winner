@@ -47,6 +47,15 @@ class STCMS_Rest {
 		);
 		register_rest_route(
 			self::NS,
+			'/contact',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'submit_contact' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+		register_rest_route(
+			self::NS,
 			'/page/(?P<slug>[a-zA-Z0-9\-_%]+)',
 			array(
 				'methods'             => 'GET',
@@ -72,7 +81,7 @@ class STCMS_Rest {
 			function ( $served ) {
 				$origin = defined( 'STCMS_CORS_ORIGIN' ) ? STCMS_CORS_ORIGIN : get_option( 'stcms_cors_origin', '*' );
 				header( 'Access-Control-Allow-Origin: ' . $origin );
-				header( 'Access-Control-Allow-Methods: GET, OPTIONS' );
+				header( 'Access-Control-Allow-Methods: GET, POST, OPTIONS' );
 				header( 'Access-Control-Allow-Headers: Authorization, Content-Type' );
 				header( 'Vary: Origin' );
 				return $served;
@@ -150,6 +159,86 @@ class STCMS_Rest {
 		);
 
 		return new WP_REST_Response( $data, 200 );
+	}
+
+	/* ------------------------------------------------------------- contact    */
+
+	/**
+	 * Receive a contact-form submission from the headless front-end and email
+	 * it to the site owner. Recipient = footer e-mail (editável no CMS),
+	 * caindo para o e-mail do admin do WordPress se estiver vazio.
+	 */
+	public static function submit_contact( WP_REST_Request $req ) {
+		$p = $req->get_json_params();
+		if ( ! is_array( $p ) ) {
+			$p = $req->get_params();
+		}
+
+		// Honeypot anti-spam: bots preenchem o campo oculto "website".
+		if ( ! empty( $p['website'] ) ) {
+			return new WP_REST_Response( array( 'ok' => true ), 200 );
+		}
+
+		$name    = sanitize_text_field( $p['name'] ?? '' );
+		$email   = sanitize_email( $p['email'] ?? '' );
+		$subject = sanitize_text_field( $p['subject'] ?? '' );
+		$message = sanitize_textarea_field( $p['message'] ?? '' );
+
+		if ( '' === $name || '' === $message || ! is_email( $email ) ) {
+			return new WP_REST_Response(
+				array( 'ok' => false, 'message' => 'Preencha nome, um e-mail válido e a mensagem.' ),
+				422
+			);
+		}
+
+		$o         = STCMS_Options::get();
+		$recipient = ( ! empty( $o['footer']['email'] ) && is_email( $o['footer']['email'] ) )
+			? $o['footer']['email']
+			: get_option( 'admin_email' );
+
+		$site_name   = get_bloginfo( 'name' );
+		$mail_title  = $subject ? $subject : 'Nova mensagem pelo site';
+		$mail_body   = "Nome: {$name}\n";
+		$mail_body  .= "E-mail: {$email}\n";
+		if ( $subject ) {
+			$mail_body .= "Assunto: {$subject}\n";
+		}
+		$mail_body  .= "\nMensagem:\n{$message}\n";
+
+		$headers = array(
+			'Content-Type: text/plain; charset=UTF-8',
+			'Reply-To: ' . $name . ' <' . $email . '>',
+		);
+
+		$sent = wp_mail( $recipient, '[' . $site_name . '] ' . $mail_title, $mail_body, $headers );
+
+		if ( ! $sent ) {
+			return new WP_REST_Response(
+				array( 'ok' => false, 'message' => 'Não foi possível enviar agora. Tente novamente ou escreva direto para o nosso e-mail.' ),
+				500
+			);
+		}
+
+		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Mensagem enviada! Em breve entraremos em contato.' ), 200 );
+	}
+
+	/**
+	 * Cover/thumbnail URL for a project: the dedicated "Foto de capa"
+	 * (stcms_cover) if set, otherwise the WordPress featured image.
+	 */
+	private static function project_cover( $id, $post ) {
+		$cover = (int) get_post_meta( $id, 'stcms_cover', true );
+		if ( $cover ) {
+			$url = self::img( $cover, 'large' );
+			if ( ! $url ) {
+				$url = wp_get_attachment_url( $cover );
+			}
+			if ( $url ) {
+				return $url;
+			}
+		}
+		$thumb = get_the_post_thumbnail_url( $post, 'large' );
+		return $thumb ? $thumb : '';
 	}
 
 	private static function img( $id, $size = 'full' ) {
@@ -299,7 +388,7 @@ class STCMS_Rest {
 				'accent'   => (string) get_post_meta( $id, 'stcms_accent', true ),
 				'featured' => '1' === get_post_meta( $id, 'stcms_featured', true ),
 				'home'     => '1' === get_post_meta( $id, 'stcms_home', true ),
-				'imageUrl' => get_the_post_thumbnail_url( $p, 'large' ) ? get_the_post_thumbnail_url( $p, 'large' ) : '',
+				'imageUrl' => self::project_cover( $id, $p ),
 				'url'      => (string) get_post_meta( $id, 'stcms_url', true ),
 				'gallery'  => self::gallery_urls( get_post_meta( $id, 'stcms_gallery', true ) ),
 				'documents' => self::document_list( get_post_meta( $id, 'stcms_documents', true ) ),

@@ -116,8 +116,9 @@ class STCMS_Meta {
 			'<p><label style="font-weight:600"><input type="checkbox" name="stcms_featured" value="1" %s /> Projeto em destaque (card maior)</label></p>',
 			checked( $featured, '1', false )
 		);
-		echo '<p style="color:#787c82;font-size:12px">Use a <strong>Imagem destacada</strong> (coluna lateral) como capa do projeto.</p>';
 		echo '</div></div>';
+
+		self::cover_field( $post->ID );
 
 		self::textarea_row( 'Desafio', 'stcms_challenge', self::field( $post->ID, 'stcms_challenge' ), 4 );
 		self::textarea_row( 'Solução', 'stcms_solution', self::field( $post->ID, 'stcms_solution' ), 4 );
@@ -128,6 +129,27 @@ class STCMS_Meta {
 
 		self::gallery_field( $post->ID );
 		self::documents_field( $post->ID );
+	}
+
+	/**
+	 * Cover picker: a single image used as the project's thumbnail on the home
+	 * grid and on the /projetos page. Falls back to the WordPress "Imagem
+	 * destacada" (featured image) when empty. Uses the same markup that
+	 * admin.js already wires up (.stcms-media / .stcms-media-pick).
+	 */
+	private static function cover_field( $post_id ) {
+		$id  = (int) self::field( $post_id, 'stcms_cover', 0 );
+		$url = $id ? wp_get_attachment_image_url( $id, 'medium' ) : '';
+
+		echo '<div class="stcms-cover" style="margin:14px 0;border-top:1px solid #dcdcde;padding-top:10px">';
+		echo '<strong style="display:block;margin-bottom:6px">Foto de capa (miniatura na home)</strong>';
+		echo '<p style="color:#787c82;font-size:12px;margin:0 0 8px">Imagem que aparece no card do projeto na página inicial e em /projetos. Se ficar vazia, usa a <strong>Imagem destacada</strong> (coluna lateral).</p>';
+		echo '<div class="stcms-media">';
+		printf( '<input type="hidden" class="stcms-media-id" name="stcms_cover" value="%s" />', esc_attr( $id ) );
+		printf( '<img class="stcms-media-preview" src="%s" style="max-width:220px;display:%s;margin-bottom:8px;border:1px solid #dcdcde;border-radius:6px" />', esc_url( $url ), $url ? 'block' : 'none' );
+		echo '<br /><button type="button" class="button stcms-media-pick">Selecionar imagem</button> ';
+		printf( '<button type="button" class="button-link stcms-media-clear" style="color:#b32d2e;display:%s">Remover</button>', $url ? 'inline-block' : 'none' );
+		echo '</div></div>';
 	}
 
 	/**
@@ -278,6 +300,8 @@ class STCMS_Meta {
 			if ( isset( $_POST['stcms_url'] ) ) {
 				update_post_meta( $post_id, 'stcms_url', esc_url_raw( wp_unslash( $_POST['stcms_url'] ) ) );
 			}
+			// Foto de capa (miniatura na home): ID do anexo
+			update_post_meta( $post_id, 'stcms_cover', (int) ( $_POST['stcms_cover'] ?? 0 ) );
 			// Galeria: lista de IDs de anexos separada por vírgula
 			if ( isset( $_POST['stcms_gallery'] ) ) {
 				$ids   = array_filter( array_map( 'intval', explode( ',', sanitize_text_field( wp_unslash( $_POST['stcms_gallery'] ) ) ) ) );

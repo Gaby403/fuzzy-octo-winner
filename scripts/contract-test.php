@@ -165,11 +165,11 @@ check( isset( $data['footer']['tagline'], $data['footer']['email'], $data['foote
 
 // Botões editáveis (CTAs) e flag de "aparecer na home".
 check( isset( $pr['home'] ) && $pr['home'] === true, 'project.home é boolean (aparecer na home)' );
-check( isset( $data['nav']['ctaUrl'] ) && $data['nav']['ctaUrl'] === '#contato', 'nav.ctaUrl' );
+check( isset( $data['nav']['ctaUrl'] ) && $data['nav']['ctaUrl'] === '/contato', 'nav.ctaUrl' );
 check( isset( $data['hero']['ctaPrimary']['label'], $data['hero']['ctaPrimary']['url'] ) && $data['hero']['ctaPrimary']['url'] === '/projetos', 'hero.ctaPrimary {label,url}' );
 check( isset( $data['hero']['ctaSecondary']['label'], $data['hero']['ctaSecondary']['url'] ), 'hero.ctaSecondary {label,url}' );
 check( isset( $data['projectsCta']['label'], $data['projectsCta']['url'] ) && $data['projectsCta']['url'] === '/projetos', 'projectsCta {label,url}' );
-check( isset( $data['footer']['ctaUrl'] ) && $data['footer']['ctaUrl'] === '#contato', 'footer.ctaUrl' );
+check( isset( $data['footer']['ctaUrl'] ) && $data['footer']['ctaUrl'] === '/contato', 'footer.ctaUrl' );
 
 // Simula uma edição no backend e confirma que reflete na saída da API.
 $opts = STCMS_Options::get();

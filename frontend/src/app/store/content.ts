@@ -114,7 +114,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       { label: "CONTATO", url: "#contato" },
     ],
     ctaLabel: "INICIAR PROJETO",
-    ctaUrl: "#contato",
+    ctaUrl: "/contato",
   },
   hero: {
     eyebrow: "STUDIO TABI — DIGITAL STUDIO",
@@ -122,7 +122,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     highlight: "DIGITAL.",
     description: "Design, estratégia e desenvolvimento para transformar presença digital em percepção de valor, confiança e decisão.",
     ctaPrimary: { label: "VER PORTFÓLIO", url: "/projetos" },
-    ctaSecondary: { label: "FALAR COM A EQUIPE", url: "#contato" },
+    ctaSecondary: { label: "FALAR COM A EQUIPE", url: "/contato" },
   },
   projectsCta: { label: "VER PORTFÓLIO", url: "/projetos" },
   about: {
@@ -207,7 +207,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     brand: "STUDIO TABI",
     tagline: "Design e tecnologia que levam marcas até onde precisam chegar.",
     ctaLabel: "INICIAR PROJETO",
-    ctaUrl: "#contato",
+    ctaUrl: "/contato",
     columns: [
       {
         title: "Navegação",
@@ -332,6 +332,44 @@ export async function fetchPage(slug: string): Promise<WpPage | null> {
     return (await res.json()) as WpPage
   } catch {
     return null
+  }
+}
+
+export interface ContactPayload {
+  name: string
+  email: string
+  subject: string
+  message: string
+  /** Honeypot: deve ficar sempre vazio (preenchido só por bots). */
+  website?: string
+}
+
+export interface ContactResult {
+  ok: boolean
+  message: string
+}
+
+/**
+ * Envia o formulário de contato para o WordPress (studio-tabi/v1/contact),
+ * que dispara um e-mail para o dono do site. Retorna sucesso/erro amigável.
+ */
+export async function submitContact(payload: ContactPayload): Promise<ContactResult> {
+  if (!WP_API) {
+    return { ok: false, message: "Formulário indisponível: configure o endereço do WordPress em config.js." }
+  }
+  try {
+    const res = await fetch(`${WP_API}/wp-json/studio-tabi/v1/contact`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
+    })
+    const data = (await res.json().catch(() => ({}))) as Partial<ContactResult>
+    if (!res.ok || !data.ok) {
+      return { ok: false, message: data.message || "Não foi possível enviar. Tente novamente em instantes." }
+    }
+    return { ok: true, message: data.message || "Mensagem enviada! Em breve entraremos em contato." }
+  } catch {
+    return { ok: false, message: "Falha de conexão. Verifique sua internet e tente novamente." }
   }
 }
 
