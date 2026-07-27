@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { Link } from "react-router"
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { useContent } from "../store/content"
 import { TabiMark } from "../components/TabiMark"
 
@@ -54,62 +54,62 @@ export default function ThankYou() {
       </Link>
 
       {/* Kanji Tabi animado dentro do círculo vermelho (como o "sol" do hero) */}
-      <motion.div
+      <m.div
         style={{ position: "relative", width: "clamp(180px, 34vw, 300px)", height: "clamp(180px, 34vw, 300px)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "clamp(32px, 5vw, 56px)" }}
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.1, ease: EASE }}
       >
         {/* Halo pulsante */}
-        <motion.div
+        <m.div
           aria-hidden="true"
           style={{ position: "absolute", inset: "-8%", borderRadius: "50%", background: `radial-gradient(circle, ${RED}44 0%, transparent 68%)` }}
           animate={{ scale: [1, 1.12, 1], opacity: [0.55, 0.85, 0.55] }}
           transition={{ duration: 3.4, ease: "easeInOut", repeat: Infinity }}
         />
         {/* Círculo vermelho */}
-        <motion.div
+        <m.div
           style={{ position: "absolute", inset: 0, borderRadius: "50%", background: RED }}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ duration: 0.9, ease: EASE, delay: 0.05 }}
         />
         {/* Kanji Tabi flutuando */}
-        <motion.div
+        <m.div
           style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}
           initial={{ rotate: -14, scale: 0.6, opacity: 0 }}
           animate={{ rotate: 0, scale: 1, opacity: 1 }}
           transition={{ duration: 1.2, ease: EASE, delay: 0.25 }}
         >
-          <motion.div
+          <m.div
             animate={{ y: ["0%", "-6%", "0%"] }}
             transition={{ duration: 4.2, ease: "easeInOut", repeat: Infinity }}
           >
             <TabiMark width="58%" color={WHITE} style={{ width: "clamp(96px, 18vw, 170px)" }} />
-          </motion.div>
-        </motion.div>
-      </motion.div>
+          </m.div>
+        </m.div>
+      </m.div>
 
       {/* Título */}
-      <motion.h1
+      <m.h1
         style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(44px, 8vw, 104px)", letterSpacing: "-0.05em", textTransform: "uppercase", lineHeight: 0.9, margin: 0 }}
         initial={{ y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: EASE, delay: 0.5 }}
       >
         {title}{needsDot && <span style={{ color: RED }}>.</span>}
-      </motion.h1>
+      </m.h1>
 
-      <motion.p
+      <m.p
         style={{ fontSize: "clamp(13px, 1.1vw, 17px)", lineHeight: 1.7, color: "rgba(239,239,239,0.62)", maxWidth: 460, margin: "22px 0 0" }}
         initial={{ y: 18, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: EASE, delay: 0.62 }}
       >
         {t.message}
-      </motion.p>
+      </m.p>
 
-      <motion.div
+      <m.div
         initial={{ y: 16, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: EASE, delay: 0.74 }}
@@ -127,7 +127,7 @@ export default function ThankYou() {
         >
           VER PROJETOS
         </Link>
-      </motion.div>
+      </m.div>
     </div>
   )
 }

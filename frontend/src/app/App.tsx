@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState, useCallback } from "react"
 import {
-  motion,
+  LazyMotion,
+  domAnimation,
+  m,
   AnimatePresence,
   useScroll,
   useTransform,
@@ -297,7 +299,7 @@ export function HomeSite() {
           A altura (= quanto scroll para completar) é responsiva: menor no mobile
           para a animação ficar mais rápida e menos arrastada. Ver RESPONSIVE_CSS. */}
       <div ref={containerRef} className="hero-scroll-zone" style={{ position: "relative" }}>
-        <motion.section
+        <m.section
           ref={heroRef}
           className="sticky top-0 w-full overflow-hidden isolate"
           style={{
@@ -310,7 +312,7 @@ export function HomeSite() {
           onMouseLeave={onMouseLeave}
         >
           {/* ── Warm sunset glow ── */}
-          <motion.div
+          <m.div
             aria-hidden="true"
             className="absolute pointer-events-none"
             style={{
@@ -333,7 +335,7 @@ export function HomeSite() {
             className="hero-sun-anchor absolute pointer-events-none"
             style={{ zIndex: 0, left: "75%", top: "43%", width: "clamp(310px, 31vw, 600px)", aspectRatio: "1/1", transform: "translate(-50%, -50%)" }}
           >
-            <motion.div
+            <m.div
               className="w-full h-full rounded-full"
               style={{ backgroundColor: BLACK, scale: blackScale, transformOrigin: "center" }}
             />
@@ -350,16 +352,16 @@ export function HomeSite() {
               className="hero-sun-anchor absolute"
               style={{ left: "75%", top: "43%", width: "clamp(310px, 31vw, 600px)", aspectRatio: "1/1", transform: "translate(-50%, -50%)", zIndex: 1 }}
             >
-              <motion.div style={{ x: sunMX, y: redSunY, width: "100%", height: "100%" }}>
-                <motion.div
+              <m.div style={{ x: sunMX, y: redSunY, width: "100%", height: "100%" }}>
+                <m.div
                   className="w-full h-full rounded-full flex items-center justify-center"
                   style={{ backgroundColor: RED, scale: redSunScale, opacity: redSunOpacity }}
                 >
-                  <motion.div className="hero-kanji flex items-center justify-center" style={{ opacity: redKanjiOpacity }}>
+                  <m.div className="hero-kanji flex items-center justify-center" style={{ opacity: redKanjiOpacity }}>
                     <TabiMark width="62%" color={WHITE} />
-                  </motion.div>
-                </motion.div>
-              </motion.div>
+                  </m.div>
+                </m.div>
+              </m.div>
             </div>
 
             {/* White moon */}
@@ -367,48 +369,48 @@ export function HomeSite() {
               className="hero-sun-anchor absolute"
               style={{ left: "75%", top: "43%", width: "clamp(310px, 31vw, 600px)", aspectRatio: "1/1", transform: "translate(-50%, -50%)", zIndex: 1 }}
             >
-              <motion.div style={{ x: whiteSunMX, y: whiteSunY, width: "100%", height: "100%" }}>
-                <motion.div
+              <m.div style={{ x: whiteSunMX, y: whiteSunY, width: "100%", height: "100%" }}>
+                <m.div
                   className="w-full h-full rounded-full flex items-center justify-center"
                   style={{ backgroundColor: WHITE, scale: whiteSunInnerScale, opacity: whiteSunOpacity }}
                 >
                   <TabiMark width="48%" color={RED} opacity={0.75} />
-                </motion.div>
-              </motion.div>
+                </m.div>
+              </m.div>
             </div>
 
             {/* Mountains */}
-            <motion.svg viewBox="0 0 1600 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" overflow="visible"
+            <m.svg viewBox="0 0 1600 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" overflow="visible"
               className="hero-mountain hero-mountain-haze absolute"
               style={{ left: "-4%", width: "108%", bottom: "16%", height: "39%", zIndex: 2, color: hazeColor, x: hazeMX, y: hazeY, transformOrigin: "center bottom" }}
             >
               <path d={MOUNTAIN_PATHS.haze} fill="currentColor" />
-            </motion.svg>
+            </m.svg>
 
-            <motion.svg viewBox="0 0 1600 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" overflow="visible"
+            <m.svg viewBox="0 0 1600 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" overflow="visible"
               className="hero-mountain hero-mountain-far absolute"
               style={{ left: "-4%", width: "108%", bottom: "10%", height: "36%", zIndex: 3, color: farColor, x: farMX, y: farY, transformOrigin: "center bottom" }}
             >
               <path d={MOUNTAIN_PATHS.far} fill="currentColor" />
-            </motion.svg>
+            </m.svg>
 
-            <motion.svg viewBox="0 0 1600 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" overflow="visible"
+            <m.svg viewBox="0 0 1600 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" overflow="visible"
               className="hero-mountain hero-mountain-middle absolute"
               style={{ left: "-4%", width: "108%", bottom: "4%", height: "31%", zIndex: 5, color: middleColor, x: middleMX, y: middleY, transformOrigin: "center bottom" }}
             >
               <path d={MOUNTAIN_PATHS.middle} fill="currentColor" />
-            </motion.svg>
+            </m.svg>
 
-            <motion.svg viewBox="0 0 1600 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" overflow="visible"
+            <m.svg viewBox="0 0 1600 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" overflow="visible"
               className="hero-mountain hero-mountain-front absolute"
               style={{ left: "-4%", width: "108%", bottom: "-2px", height: "23%", zIndex: 6, color: frontColor, x: frontMX, y: frontY, transformOrigin: "center bottom" }}
             >
               <path d={MOUNTAIN_PATHS.front} fill="currentColor" />
-            </motion.svg>
+            </m.svg>
           </div>
 
           {/* ── Nav ── */}
-          <motion.nav
+          <m.nav
             className="absolute top-0 left-0 w-full flex items-center justify-between pointer-events-auto"
             style={{ zIndex: 30, padding: "clamp(18px, 3vw, 40px) clamp(20px, 4vw, 82px)", color: navColor }}
             initial={{ opacity: 0, y: -8 }}
@@ -431,21 +433,21 @@ export function HomeSite() {
               onClick={() => setMenuOpen(o => !o)}
               aria-label="Menu"
             >
-              <motion.span
+              <m.span
                 className="block h-px bg-current"
                 animate={{ width: menuOpen ? 20 : 20, rotate: menuOpen ? 45 : 0, y: menuOpen ? 6 : 0 }}
                 transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               />
-              <motion.span
+              <m.span
                 className="block h-px bg-current"
                 animate={{ width: menuOpen ? 20 : 12, rotate: menuOpen ? -45 : 0, y: menuOpen ? -1 : 0 }}
                 transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               />
             </button>
-          </motion.nav>
+          </m.nav>
 
           {/* ── Drawer (desktop + mobile) ── */}
-          <motion.div
+          <m.div
             className="fixed inset-0 pointer-events-none"
             style={{ zIndex: 25 }}
             animate={{ opacity: menuOpen ? 1 : 0 }}
@@ -458,7 +460,7 @@ export function HomeSite() {
               onClick={() => setMenuOpen(false)}
             />
             {/* Panel */}
-            <motion.div
+            <m.div
               className="absolute top-0 right-0 h-full flex flex-col"
               style={{
                 width: "min(380px, 86vw)",
@@ -476,7 +478,7 @@ export function HomeSite() {
               {/* Nav items */}
               <nav className="flex flex-col gap-1 flex-1">
                 {content.nav.links.map((item, i) => (
-                  <motion.a
+                  <m.a
                     key={item.label}
                     href={item.url || "#"}
                     className="text-left bg-transparent border-none cursor-pointer group flex items-center gap-3 py-4 border-b"
@@ -500,11 +502,11 @@ export function HomeSite() {
                       0{i + 1}
                     </span>
                     {item.label}
-                  </motion.a>
+                  </m.a>
                 ))}
               </nav>
               {/* Bottom CTA */}
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: menuOpen ? 1 : 0, y: menuOpen ? 0 : 12 }}
                 transition={{ duration: 0.4, delay: menuOpen ? 0.38 : 0 }}
@@ -516,16 +518,16 @@ export function HomeSite() {
                   style={{ fontSize: 13, color: RED, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 500, textDecoration: "none" }}>
                   {content.footer.email}
                 </a>
-              </motion.div>
-            </motion.div>
-          </motion.div>
+              </m.div>
+            </m.div>
+          </m.div>
 
           {/* ── Content ── */}
           <div
             className="hero-content absolute top-0 left-0 bottom-0 flex flex-col justify-center items-start pointer-events-none"
             style={{ zIndex: 10, width: "min(46%, 780px)", padding: "55px 0 155px clamp(20px, 4vw, 82px)" }}
           >
-            <motion.div
+            <m.div
               className="flex items-center gap-3 mb-7"
               style={{ color: eyebrowColor, fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", lineHeight: 1 }}
               initial={{ y: 14, opacity: 0 }}
@@ -534,14 +536,14 @@ export function HomeSite() {
             >
               <span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} />
               <span>{content.hero.eyebrow}</span>
-            </motion.div>
+            </m.div>
 
             <h1
               className="hero-title m-0"
               style={{ fontFamily: '"Roboto Condensed", sans-serif', fontSize: "clamp(52px, 5.2vw, 100px)", fontWeight: 900, lineHeight: 0.88, letterSpacing: "-0.05em", textTransform: "uppercase", maxWidth: 760, display: "flex", flexDirection: "column", gap: "0.06em" }}
             >
               {content.hero.titleLines.map((line, i) => (
-                <motion.span
+                <m.span
                   key={line}
                   className="hero-title-line block"
                   style={{ color: titleColor }}
@@ -550,10 +552,10 @@ export function HomeSite() {
                   transition={{ duration: 1, delay: 0.25 + i * 0.07, ease: EASE_OUT_EXPO }}
                 >
                   {line}
-                </motion.span>
+                </m.span>
               ))}
               {content.hero.highlight && (
-                <motion.span
+                <m.span
                   className="hero-title-line block"
                   style={{ color: titleColor, whiteSpace: "nowrap" }}
                   initial={{ y: "108%", opacity: 0 }}
@@ -561,11 +563,11 @@ export function HomeSite() {
                   transition={{ duration: 1, delay: 0.46, ease: EASE_OUT_EXPO }}
                 >
                   <strong style={{ font: "inherit", color: RED }}>{content.hero.highlight}</strong>
-                </motion.span>
+                </m.span>
               )}
             </h1>
 
-            <motion.p
+            <m.p
               className="hero-desc"
               style={{ fontSize: "clamp(12px, 0.9vw, 16px)", fontWeight: 400, lineHeight: 1.65, color: descColor, width: "min(88%, 500px)", marginTop: 34, marginBottom: 0 }}
               initial={{ y: 16, opacity: 0 }}
@@ -573,15 +575,15 @@ export function HomeSite() {
               transition={{ duration: 0.85, delay: 0.65, ease: "easeOut" }}
             >
               {content.hero.description}
-            </motion.p>
+            </m.p>
 
-            <motion.div
+            <m.div
               className="flex flex-wrap items-center gap-4 mt-9 pointer-events-auto"
               initial={{ y: 14, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.85, delay: 0.80, ease: "easeOut" }}
             >
-              <motion.button
+              <m.button
                 className="group flex items-center gap-3 rounded-full border font-semibold"
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", letterSpacing: "0.13em", padding: "13px 26px", borderColor: RED, color: RED, backgroundColor: "rgba(0,0,0,0)", cursor: "pointer" }}
                 whileHover={{ backgroundColor: RED, color: WHITE }}
@@ -590,9 +592,9 @@ export function HomeSite() {
               >
                 {content.hero.ctaPrimary.label}
                 <span className="inline-block transition-transform duration-300 group-hover:translate-x-0.5" style={{ fontSize: 13 }}>→</span>
-              </motion.button>
+              </m.button>
 
-              <motion.button
+              <m.button
                 className="hero-cta-secondary"
                 style={{ fontSize: "9.5px", letterSpacing: "0.13em", color: ctaColorFg, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 500, opacity: 0.5 }}
                 whileHover={{ opacity: 1 }}
@@ -600,12 +602,12 @@ export function HomeSite() {
                 onClick={(e) => goTo(content.hero.ctaSecondary.url, e)}
               >
                 {content.hero.ctaSecondary.label}
-              </motion.button>
-            </motion.div>
+              </m.button>
+            </m.div>
           </div>
 
           {/* ── Footer ── */}
-          <motion.div
+          <m.div
             className="hero-footer absolute left-0 bottom-0 w-full flex items-center justify-between"
             style={{ zIndex: 12, padding: "0 clamp(20px, 4vw, 82px) 32px", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", color: footerColor }}
             initial={{ opacity: 0 }}
@@ -614,21 +616,21 @@ export function HomeSite() {
           >
             <div className="flex items-center gap-2">
               <span>SCROLL</span>
-              <motion.span
+              <m.span
                 style={{ color: RED, fontSize: 15 }}
                 animate={{ y: [0, 4, 0] }}
                 transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
               >
                 ↘
-              </motion.span>
+              </m.span>
             </div>
             <div className="flex items-center gap-4 md:gap-6">
               <span className="hidden sm:inline" style={{ opacity: 0.45 }}>PT / EN</span>
               <span>©2026</span>
             </div>
-          </motion.div>
+          </m.div>
 
-        </motion.section>
+        </m.section>
       </div>
 
       <AboutSection />
@@ -645,11 +647,11 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: "-80px" })
   return (
-    <motion.div ref={ref} className={className}
+    <m.div ref={ref} className={className}
       initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.85, delay, ease: [0.16, 1, 0.3, 1] }}>
       {children}
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -671,11 +673,11 @@ function HeadlineLine({ children, delay, color = WHITE }: { children: React.Reac
         marginBottom: "-0.1em",
       }}
     >
-      <motion.span className="block" style={{ color }}
+      <m.span className="block" style={{ color }}
         initial={{ y: "130%" }} animate={inView ? { y: "0%" } : {}}
         transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}>
         {children}
-      </motion.span>
+      </m.span>
     </div>
   )
 }
@@ -703,22 +705,22 @@ function Stat({ numeric, suffix, label, delay }: { numeric: number; suffix: stri
   }, [inView, numeric, delay, mv])
 
   return (
-    <motion.div ref={ref} className="flex flex-col gap-3"
+    <m.div ref={ref} className="flex flex-col gap-3"
       initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}>
       <div style={{ position: "relative", height: "1px", backgroundColor: "rgba(239,239,239,0.08)", marginBottom: 20 }}>
-        <motion.div style={{ position: "absolute", inset: 0, backgroundColor: RED, transformOrigin: "left" }}
+        <m.div style={{ position: "absolute", inset: 0, backgroundColor: RED, transformOrigin: "left" }}
           initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}}
           transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }} />
       </div>
       <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(36px, 4.5vw, 72px)", lineHeight: 0.85, letterSpacing: "-0.04em", color: WHITE, display: "flex", alignItems: "baseline", gap: "2px" }}>
-        <motion.span>{rounded}</motion.span>
+        <m.span>{rounded}</m.span>
         <span>{suffix}</span>
       </span>
       <span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "10px", fontWeight: 600, letterSpacing: "0.14em", color: "rgba(239,239,239,0.40)" }}>
         {label}
       </span>
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -729,41 +731,41 @@ function Pillar({ index, title, body, delay }: { index: string; title: string; b
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <div style={{ position: "relative", height: "1px", backgroundColor: "rgba(239,239,239,0.08)" }}>
-        <motion.div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(239,239,239,0.22)", transformOrigin: "left" }}
+        <m.div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(239,239,239,0.22)", transformOrigin: "left" }}
           initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}}
           transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }} />
       </div>
-      <motion.div className="flex items-start gap-4 md:gap-5 py-6 md:py-8"
+      <m.div className="flex items-start gap-4 md:gap-5 py-6 md:py-8"
         initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 0.5, delay: delay + 0.15 }}>
-        <motion.span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.14em", color: RED, paddingTop: "3px", flexShrink: 0 }}
+        <m.span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.14em", color: RED, paddingTop: "3px", flexShrink: 0 }}
           initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.4, delay: delay + 0.2 }}>
           {index}
-        </motion.span>
+        </m.span>
         <div className="flex flex-col gap-2 md:gap-3 flex-1">
           <div style={{ overflow: "hidden" }}>
-            <motion.span className="block"
+            <m.span className="block"
               style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(16px, 1.6vw, 26px)", letterSpacing: "-0.03em", textTransform: "uppercase", color: WHITE, lineHeight: 1 }}
               initial={{ y: "105%" }} animate={inView ? { y: "0%" } : {}}
               transition={{ duration: 0.7, delay: delay + 0.18, ease: [0.16, 1, 0.3, 1] }}>
               {title}
-            </motion.span>
+            </m.span>
           </div>
-          <motion.span
+          <m.span
             style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(11px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.65, color: "rgba(239,239,239,0.48)" }}
             initial={{ opacity: 0, y: 8 }} animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: delay + 0.30, ease: "easeOut" }}>
             {body}
-          </motion.span>
+          </m.span>
         </div>
-        <motion.span style={{ color: "rgba(239,239,239,0.18)", fontSize: 13, flexShrink: 0, paddingTop: 3 }}
+        <m.span style={{ color: "rgba(239,239,239,0.18)", fontSize: 13, flexShrink: 0, paddingTop: 3 }}
           className="hidden sm:block"
           initial={{ opacity: 0, x: -6 }} animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.5, delay: delay + 0.38 }}>
           →
-        </motion.span>
-      </motion.div>
+        </m.span>
+      </m.div>
     </div>
   )
 }
@@ -787,10 +789,10 @@ function AboutSection() {
     <section id="sobre" ref={sectionRef} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
 
       {/* Brand mark background */}
-      <motion.div aria-hidden="true" className="absolute pointer-events-none"
+      <m.div aria-hidden="true" className="absolute pointer-events-none"
         style={{ opacity: kanjiOpacity, right: "-5%", top: "6%", y: kanjiY, rotate: kanjiRotate, width: "clamp(260px, 38vw, 680px)" }}>
         <TabiMark width="100%" color={WHITE} />
-      </motion.div>
+      </m.div>
 
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.08)" }} />
 
@@ -800,7 +802,7 @@ function AboutSection() {
         <Reveal delay={0}>
           <div className="flex items-center gap-3 mb-8 md:mb-12"
             style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
-            <motion.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }}
+            <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }}
               initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }}
               transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
             <span>STUDIO TABI — SOBRE NÓS</span>
@@ -829,12 +831,12 @@ function AboutSection() {
               </p>
             </Reveal>
             <Reveal delay={0.24}>
-              <motion.button className="flex items-center gap-3 self-start"
+              <m.button className="flex items-center gap-3 self-start"
                 style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif' }}
                 whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }}>
                 CONHEÇA NOSSA HISTÓRIA
                 <span style={{ fontSize: 13 }}>→</span>
-              </motion.button>
+              </m.button>
             </Reveal>
           </div>
         </div>
@@ -890,7 +892,7 @@ function ServiceCard({ num, title, body, delay }: { num: string; title: string; 
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: "-60px" })
   return (
-    <motion.div
+    <m.div
       ref={ref}
       style={{ borderTop: "1px solid rgba(239,239,239,0.10)", paddingTop: "clamp(24px,3vw,36px)", paddingBottom: "clamp(24px,3vw,36px)", position: "relative", overflow: "hidden" }}
       initial={{ opacity: 0, y: 30 }}
@@ -898,7 +900,7 @@ function ServiceCard({ num, title, body, delay }: { num: string; title: string; 
       transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {/* Red line wipe on top border */}
-      <motion.div
+      <m.div
         style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", backgroundColor: RED, transformOrigin: "left" }}
         initial={{ scaleX: 0 }}
         animate={inView ? { scaleX: 1 } : {}}
@@ -906,32 +908,32 @@ function ServiceCard({ num, title, body, delay }: { num: string; title: string; 
       />
       <span style={{ display: "block", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED, marginBottom: 16 }}>{num}</span>
       <div style={{ overflow: "hidden", marginBottom: 14 }}>
-        <motion.h3
+        <m.h3
           style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 1.7vw, 28px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, lineHeight: 0.95, margin: 0 }}
           initial={{ y: "105%" }}
           animate={inView ? { y: "0%" } : {}}
           transition={{ duration: 0.75, delay: delay + 0.12, ease: [0.16, 1, 0.3, 1] }}
         >
           {title}
-        </motion.h3>
+        </m.h3>
       </div>
-      <motion.p
+      <m.p
         style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.65, color: "rgba(239,239,239,0.45)", margin: 0 }}
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 0.7, delay: delay + 0.22 }}
       >
         {body}
-      </motion.p>
-      <motion.span
+      </m.p>
+      <m.span
         style={{ display: "block", marginTop: 20, fontSize: 11, color: "rgba(239,239,239,0.20)" }}
         initial={{ opacity: 0, x: -6 }}
         animate={inView ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 0.5, delay: delay + 0.30 }}
       >
         →
-      </motion.span>
-    </motion.div>
+      </m.span>
+    </m.div>
   )
 }
 
@@ -950,7 +952,7 @@ function ServicesSection() {
       <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad} 0`, position: "relative", zIndex: 1 }}>
         <Reveal delay={0}>
           <div className="flex items-center gap-3 mb-8 md:mb-12" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
-            <motion.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
+            <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
             <span>STUDIO TABI — SERVIÇOS</span>
           </div>
         </Reveal>
@@ -961,13 +963,13 @@ function ServicesSection() {
             <HeadlineLine delay={0.12}>ENTREGAMOS.</HeadlineLine>
           </h2>
           <Reveal delay={0.18}>
-            <motion.button
+            <m.button
               style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", paddingBottom: 8 }}
               whileHover={{ gap: "18px" } as any}
               transition={{ duration: 0.22 }}
             >
               VER TODOS OS SERVIÇOS <span style={{ fontSize: 13 }}>→</span>
-            </motion.button>
+            </m.button>
           </Reveal>
         </div>
       </div>
@@ -1127,7 +1129,7 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
   const stagger = (i: number) => ({ initial: { opacity: 0, y: 28 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.75, delay: 0.18 + i * 0.08, ease: EASE_OUT_EXPO } })
 
   return (
-    <motion.div
+    <m.div
       ref={scrollRef}
       style={{ position: "fixed", inset: 0, zIndex: 200, overflowY: "auto", backgroundColor: "#080808", fontFamily: '"Be Vietnam Pro", sans-serif' }}
       initial={{ opacity: 0 }}
@@ -1173,15 +1175,15 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
         </button>
         {/* Title */}
         <div style={{ position: "absolute", bottom: "clamp(32px, 5vw, 56px)", left: pad }}>
-          <motion.p {...stagger(0)} style={{ margin: "0 0 8px", fontSize: 9, fontWeight: 600, letterSpacing: "0.16em", color: `${proj.accent}` }}>
+          <m.p {...stagger(0)} style={{ margin: "0 0 8px", fontSize: 9, fontWeight: 600, letterSpacing: "0.16em", color: `${proj.accent}` }}>
             {proj.category.toUpperCase()} — {proj.year}
-          </motion.p>
-          <motion.h1
+          </m.p>
+          <m.h1
             {...stagger(1)}
             style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(36px, 5.5vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", color: WHITE, margin: 0, lineHeight: 0.85 }}
           >
             {proj.name}
-          </motion.h1>
+          </m.h1>
         </div>
         {/* Bottom gradient */}
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(to top, #080808 0%, transparent 100%)" }} />
@@ -1191,7 +1193,7 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: `clamp(40px, 6vw, 80px) ${pad}` }}>
 
         {/* Metadata row */}
-        <motion.div
+        <m.div
           {...stagger(2)}
           className="grid grid-cols-2 md:grid-cols-4"
           style={{ gap: "1px", backgroundColor: "rgba(239,239,239,0.08)", border: "1px solid rgba(239,239,239,0.08)", borderRadius: 6, overflow: "hidden", marginBottom: "clamp(48px, 7vw, 88px)" }}
@@ -1207,20 +1209,20 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
               <p style={{ margin: 0, fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 700, fontSize: "clamp(14px,1.4vw,20px)", letterSpacing: "-0.03em", color: WHITE }}>{item.value}</p>
             </div>
           ))}
-        </motion.div>
+        </m.div>
 
         {/* Scope tags */}
-        <motion.div {...stagger(3)} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: proj.url ? "clamp(28px, 4vw, 40px)" : "clamp(56px, 8vw, 100px)" }}>
+        <m.div {...stagger(3)} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: proj.url ? "clamp(28px, 4vw, 40px)" : "clamp(56px, 8vw, 100px)" }}>
           {detail.scope.map((tag) => (
             <span key={tag} style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", color: proj.accent, border: `1px solid ${proj.accent}44`, borderRadius: 999, padding: "7px 14px" }}>
               {tag.toUpperCase()}
             </span>
           ))}
-        </motion.div>
+        </m.div>
 
         {/* Botão: ver projeto completo / visitar site (link externo) */}
         {proj.url && (
-          <motion.a
+          <m.a
             {...stagger(3)}
             href={proj.url}
             target="_blank"
@@ -1230,33 +1232,33 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
             transition={{ duration: 0.2 }}
           >
             VER PROJETO COMPLETO <span style={{ fontSize: 14 }}>↗</span>
-          </motion.a>
+          </m.a>
         )}
 
         {/* Two columns: Challenge + Solution */}
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(32px, 5vw, 72px)", marginBottom: "clamp(56px, 8vw, 100px)" }}>
-          <motion.div {...stagger(4)}>
+          <m.div {...stagger(4)}>
             <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>O DESAFIO</p>
             <div style={{ width: 32, height: 2, backgroundColor: proj.accent, marginBottom: 24 }} />
             <p style={{ fontSize: "clamp(14px, 1.1vw, 17px)", fontWeight: 400, lineHeight: 1.78, color: "rgba(239,239,239,0.65)", margin: 0 }}>
               {detail.challenge}
             </p>
-          </motion.div>
-          <motion.div {...stagger(5)}>
+          </m.div>
+          <m.div {...stagger(5)}>
             <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>A SOLUÇÃO</p>
             <div style={{ width: 32, height: 2, backgroundColor: "rgba(239,239,239,0.25)", marginBottom: 24 }} />
             <p style={{ fontSize: "clamp(14px, 1.1vw, 17px)", fontWeight: 400, lineHeight: 1.78, color: "rgba(239,239,239,0.65)", margin: 0 }}>
               {detail.solution}
             </p>
-          </motion.div>
+          </m.div>
         </div>
 
         {/* Results */}
-        <motion.div {...stagger(6)} style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}>
+        <m.div {...stagger(6)} style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}>
           <p style={{ margin: "0 0 32px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>RESULTADOS</p>
           <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: "clamp(16px, 2vw, 24px)" }}>
             {detail.results.map((r, i) => (
-              <motion.div
+              <m.div
                 key={r.label}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -1270,14 +1272,14 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
                 <p style={{ margin: 0, fontSize: 10, fontWeight: 500, color: "rgba(239,239,239,0.40)", lineHeight: 1.4 }}>
                   {r.label}
                 </p>
-              </motion.div>
+              </m.div>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Galeria de imagens do projeto (se houver); senão, a faixa decorativa */}
         {proj.gallery && proj.gallery.length > 0 ? (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -1287,7 +1289,7 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
             <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>GALERIA</p>
             <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(12px, 1.5vw, 20px)" }}>
               {proj.gallery.map((src, i) => (
-                <motion.button
+                <m.button
                   key={i}
                   type="button"
                   onClick={() => setLightbox(i)}
@@ -1300,12 +1302,12 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
                   whileHover={{ scale: 1.01 } as any}
                 >
                   <img src={src} alt={`${proj.name} — imagem ${i + 1}`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                </motion.button>
+                </m.button>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         ) : (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scaleX: 0.96 }}
             whileInView={{ opacity: 1, scaleX: 1 }}
             viewport={{ once: true }}
@@ -1320,12 +1322,12 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
                 {proj.name}
               </span>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Documentos / PDFs */}
         {documents.length > 0 && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -1335,7 +1337,7 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
             <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>DOCUMENTOS</p>
             <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "clamp(12px, 1.5vw, 16px)" }}>
               {documents.map((doc, i) => (
-                <motion.button
+                <m.button
                   key={i}
                   type="button"
                   onClick={() => setDocPreview(doc.url)}
@@ -1351,10 +1353,10 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
                     <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: WHITE, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{doc.title}</span>
                     <span style={{ display: "block", fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", color: "rgba(239,239,239,0.35)", marginTop: 3 }}>VISUALIZAR ↗</span>
                   </span>
-                </motion.button>
+                </m.button>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Navigation between projects */}
@@ -1387,7 +1389,7 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
       {/* ── Lightbox da galeria (carrossel) ── */}
       <AnimatePresence>
         {lightbox !== null && gallery[lightbox] && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1415,7 +1417,7 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
                 ‹
               </button>
             )}
-            <motion.img
+            <m.img
               key={lightbox}
               src={gallery[lightbox]}
               alt={`${proj.name} — imagem ${lightbox + 1}`}
@@ -1434,14 +1436,14 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
                 ›
               </button>
             )}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* ── Preview de PDF ── */}
       <AnimatePresence>
         {docPreview && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1469,7 +1471,7 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
                 ×
               </button>
             </div>
-            <motion.iframe
+            <m.iframe
               key={docPreview}
               src={docPreview}
               title="Documento"
@@ -1479,10 +1481,10 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
               transition={{ duration: 0.25 }}
               style={{ flex: 1, width: "100%", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 8, background: "#fff" }}
             />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -1492,7 +1494,7 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
   const [hovered, setHovered] = useState(false)
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       style={{ position: "relative", overflow: "hidden", borderRadius: 4, cursor: "pointer", aspectRatio: proj.featured ? "4/3" : "1/1" }}
       initial={{ opacity: 0, y: 40 }}
@@ -1507,7 +1509,7 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
 
       {/* Cover photo (miniatura definida no CMS) — cobre o gradiente quando existe */}
       {proj.imageUrl && (
-        <motion.img
+        <m.img
           src={proj.imageUrl}
           alt={proj.name}
           loading="lazy"
@@ -1522,7 +1524,7 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
       )}
 
       {/* Accent glow */}
-      <motion.div
+      <m.div
         style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 60% 50%, ${proj.accent}22 0%, transparent 65%)` }}
         animate={{ opacity: hovered ? 1.4 : 0.7 }}
         transition={{ duration: 0.4 }}
@@ -1537,7 +1539,7 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
       </div>
 
       {/* Accent dot */}
-      <motion.div
+      <m.div
         style={{ position: "absolute", top: "clamp(20px,3vw,32px)", left: "clamp(20px,3vw,32px)", width: 8, height: 8, borderRadius: "50%", backgroundColor: proj.accent }}
         animate={{ scale: hovered ? 1.4 : 1 }}
         transition={{ duration: 0.3 }}
@@ -1546,13 +1548,13 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
       {/* Content at bottom */}
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "clamp(20px,3vw,32px)", background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)" }}>
         <div style={{ overflow: "visible", paddingTop: 6 }}>
-          <motion.h3
+          <m.h3
             style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 2vw, 32px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, margin: 0, lineHeight: 1.08, paddingBottom: 2 }}
             animate={{ y: hovered ? -4 : 0 }}
             transition={{ duration: 0.3 }}
           >
             {proj.name}
-          </motion.h3>
+          </m.h3>
         </div>
         <div className="flex items-center justify-between mt-2">
           <span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.14em", color: "rgba(239,239,239,0.50)" }}>
@@ -1565,12 +1567,12 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
       </div>
 
       {/* Hover overlay */}
-      <motion.div
+      <m.div
         style={{ position: "absolute", inset: 0, border: `1px solid ${proj.accent}`, borderRadius: 4, pointerEvents: "none" }}
         animate={{ opacity: hovered ? 0.5 : 0 }}
         transition={{ duration: 0.3 }}
       />
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -1632,7 +1634,7 @@ function ProjectsSection() {
       <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad} 0`, position: "relative", zIndex: 1 }}>
         <Reveal delay={0}>
           <div className="flex items-center gap-3 mb-8 md:mb-12" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
-            <motion.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
+            <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
             <span>STUDIO TABI — PROJETOS</span>
           </div>
         </Reveal>
@@ -1645,14 +1647,14 @@ function ProjectsSection() {
           <Reveal delay={0.18}>
             <div className="flex items-center gap-6 pb-2">
               <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>120+ projetos entregues</span>
-              <motion.button
+              <m.button
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
                 onClick={(e) => goTo(content.projectsCta.url, e)}
               >
                 {content.projectsCta.label} <span style={{ fontSize: 13 }}>→</span>
-              </motion.button>
+              </m.button>
             </div>
           </Reveal>
         </div>
@@ -1675,7 +1677,7 @@ function ProjectsSection() {
 
         {/* CTA card */}
         <Reveal delay={0.3}>
-          <motion.div
+          <m.div
             className="flex flex-col items-start justify-between"
             style={{ border: `1px solid rgba(239,239,239,0.10)`, borderRadius: 4, padding: "clamp(28px, 3vw, 40px)", aspectRatio: "1/1", cursor: "pointer", position: "relative", overflow: "hidden" }}
             whileHover={{ borderColor: RED }}
@@ -1687,16 +1689,16 @@ function ProjectsSection() {
               <p style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.6, color: "rgba(239,239,239,0.55)", margin: "0 0 20px" }}>
                 Quer ver o portfólio completo com todos os nossos projetos?
               </p>
-              <motion.button
+              <m.button
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
                 onClick={(e) => goTo(content.projectsCta.url, e)}
               >
                 {content.projectsCta.label} <span style={{ fontSize: 13 }}>→</span>
-              </motion.button>
+              </m.button>
             </div>
-          </motion.div>
+          </m.div>
         </Reveal>
       </div>
     </section>
@@ -1817,7 +1819,7 @@ function FaqItem({ question, answer, index, isOpen, onToggle }: { question: stri
   const inView = useInView(ref, { once: true, margin: "-40px" })
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       style={{ borderTop: "1px solid rgba(239,239,239,0.10)", position: "relative", overflow: "hidden" }}
       initial={{ opacity: 0, y: 20 }}
@@ -1825,7 +1827,7 @@ function FaqItem({ question, answer, index, isOpen, onToggle }: { question: stri
       transition={{ duration: 0.7, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
     >
       {/* Wipe on top border when visible */}
-      <motion.div
+      <m.div
         style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", backgroundColor: isOpen ? RED : "rgba(239,239,239,0.20)", transformOrigin: "left" }}
         initial={{ scaleX: 0 }}
         animate={inView ? { scaleX: 1 } : {}}
@@ -1844,16 +1846,16 @@ function FaqItem({ question, answer, index, isOpen, onToggle }: { question: stri
             {question}
           </span>
         </div>
-        <motion.span
+        <m.span
           style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: 18, color: isOpen ? RED : "rgba(239,239,239,0.30)", flexShrink: 0, lineHeight: 1 }}
           animate={{ rotate: isOpen ? 45 : 0 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
           +
-        </motion.span>
+        </m.span>
       </button>
 
-      <motion.div
+      <m.div
         style={{ overflow: "hidden" }}
         initial={{ height: 0 }}
         animate={{ height: isOpen ? "auto" : 0 }}
@@ -1862,8 +1864,8 @@ function FaqItem({ question, answer, index, isOpen, onToggle }: { question: stri
         <p style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(13px, 0.95vw, 16px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.52)", paddingBottom: "clamp(22px,3vw,32px)", paddingLeft: "clamp(0px, 2vw, 36px)", margin: 0, maxWidth: 720 }}>
           {answer}
         </p>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   )
 }
 
@@ -1883,7 +1885,7 @@ function FaqSection() {
           <div className="md:col-span-4 md:sticky" style={{ top: "clamp(80px, 10vh, 120px)" }}>
             <Reveal delay={0}>
               <div className="flex items-center gap-3 mb-8" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
-                <motion.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
+                <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
                 <span>STUDIO TABI — FAQ</span>
               </div>
             </Reveal>
@@ -1898,13 +1900,13 @@ function FaqSection() {
               <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.7, color: "rgba(239,239,239,0.42)", marginBottom: 28 }}>
                 Não encontrou o que procura? Entre em contato diretamente com a equipe.
               </p>
-              <motion.button
+              <m.button
                 style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
               >
                 FALAR COM A EQUIPE <span style={{ fontSize: 13 }}>→</span>
-              </motion.button>
+              </m.button>
             </Reveal>
           </div>
 
@@ -1962,7 +1964,7 @@ function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-12" style={{ gap: "clamp(40px, 5vw, 60px)" }}>
 
           {/* Brand */}
-          <motion.div
+          <m.div
             className="md:col-span-4"
             initial={{ opacity: 0, y: 24 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -1979,19 +1981,19 @@ function SiteFooter() {
             <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.42)", maxWidth: 280, marginBottom: 28 }}>
               {f.tagline}
             </p>
-            <motion.button
+            <m.button
               style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 24px", borderRadius: 999, border: `1px solid ${RED}`, color: RED, backgroundColor: "rgba(0,0,0,0)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", cursor: "pointer" }}
               whileHover={{ backgroundColor: RED, color: WHITE }}
               transition={{ duration: 0.22 }}
               onClick={(e) => goTo(f.ctaUrl, e)}
             >
               {f.ctaLabel} <span style={{ fontSize: 13 }}>→</span>
-            </motion.button>
-          </motion.div>
+            </m.button>
+          </m.div>
 
           {/* Link columns (editáveis no CMS) */}
           {f.columns.map((col, ci) => (
-            <motion.div
+            <m.div
               key={col.title + ci}
               className="md:col-span-2"
               style={{ minWidth: 0 }}
@@ -2003,22 +2005,22 @@ function SiteFooter() {
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
                 {col.links.map((link, li) => (
                   <li key={link.label + li}>
-                    <motion.a
+                    <m.a
                       href={link.url || "#"}
                       style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "block", transition: "color 0.2s" }}
                       whileHover={{ color: WHITE }}
                       transition={{ duration: 0.15 }}
                     >
                       {link.label}
-                    </motion.a>
+                    </m.a>
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </m.div>
           ))}
 
           {/* Coluna de contato */}
-          <motion.div
+          <m.div
             className="md:col-span-2"
             style={{ minWidth: 0 }}
             initial={{ opacity: 0, y: 24 }}
@@ -2031,11 +2033,11 @@ function SiteFooter() {
               <li><a href={`tel:${f.phone.replace(/[^+\d]/g, "")}`} style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "block" }}>{f.phone}</a></li>
               <li><span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", display: "block" }}>{f.city}</span></li>
             </ul>
-          </motion.div>
+          </m.div>
 
           {/* Dynamic pages created in WordPress */}
           {content.pages.length > 0 && (
-            <motion.div
+            <m.div
               className="md:col-span-2"
               style={{ minWidth: 0 }}
               initial={{ opacity: 0, y: 24 }}
@@ -2057,11 +2059,11 @@ function SiteFooter() {
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Social */}
-          <motion.div
+          <m.div
             className="md:col-span-2"
             initial={{ opacity: 0, y: 24 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -2071,7 +2073,7 @@ function SiteFooter() {
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
               {f.social.map((s, si) => (
                 <li key={s.label + si}>
-                  <motion.a
+                  <m.a
                     href={s.url || "#"}
                     target={s.url && s.url.startsWith("http") ? "_blank" : undefined}
                     rel={s.url && s.url.startsWith("http") ? "noopener noreferrer" : undefined}
@@ -2083,18 +2085,18 @@ function SiteFooter() {
                   >
                     {s.label}
                     <span style={{ fontSize: 10, opacity: 0.4 }}>↗</span>
-                  </motion.a>
+                  </m.a>
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </m.div>
 
         </div>
       </div>
 
       {/* Bottom bar */}
       <div style={{ borderTop: "1px solid rgba(239,239,239,0.08)", padding: `20px ${pad}`, position: "relative", zIndex: 1 }}>
-        <motion.div
+        <m.div
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
@@ -2105,7 +2107,7 @@ function SiteFooter() {
           </span>
           <div className="flex items-center gap-6">
             {f.legal.map((item, i) => (
-              <motion.a
+              <m.a
                 key={item.label + i}
                 href={item.url || "#"}
                 style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)", textDecoration: "none" }}
@@ -2113,7 +2115,7 @@ function SiteFooter() {
                 transition={{ duration: 0.15 }}
               >
                 {item.label}
-              </motion.a>
+              </m.a>
             ))}
             {f.madeIn && (
               <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.08em", color: "rgba(239,239,239,0.18)" }}>
@@ -2121,7 +2123,7 @@ function SiteFooter() {
               </span>
             )}
           </div>
-        </motion.div>
+        </m.div>
       </div>
 
     </footer>
@@ -2144,5 +2146,12 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  // LazyMotion + `m` carregam apenas o conjunto de recursos que o site usa
+  // (animações, variantes, exit, hover/inView) em vez do pacote completo do
+  // Framer Motion — reduz o JavaScript inicial (melhor TBT no PageSpeed).
+  return (
+    <LazyMotion features={domAnimation}>
+      <RouterProvider router={router} />
+    </LazyMotion>
+  )
 }
