@@ -64,7 +64,7 @@ function stcms_default_options() {
 		'sections' => array(
 			'about_eyebrow'      => 'STUDIO TABI — SOBRE NÓS',
 			'about_cta_label'    => 'CONHEÇA NOSSA HISTÓRIA',
-			'about_cta_url'      => '#sobre',
+			'about_cta_url'      => '/sobre',
 			'about_pillars_label'=> 'COMO TRABALHAMOS',
 			'services_eyebrow'   => 'STUDIO TABI — SERVIÇOS',
 			'services_cta_label' => 'VER TODOS OS SERVIÇOS',
@@ -87,10 +87,10 @@ function stcms_default_options() {
 				array( 'numeric' => 3,   'suffix' => '×', 'label' => 'RETORNO MÉDIO EM 12M' ),
 			),
 			'pillars'    => array(
-				array( 'title' => 'Identidade que comunica',  'body' => 'Marcas que carregam intenção em cada detalhe — do logotipo ao tom de voz. Construímos sistemas visuais que resistem ao tempo e crescem com o negócio.' ),
-				array( 'title' => 'Experiência que converte', 'body' => 'Interface não é arte — é arquitetura de decisões. Cada tela, cada fluxo, cada micro-interação é desenhada para mover o usuário em direção ao objetivo.' ),
-				array( 'title' => 'Tecnologia que escala',    'body' => 'Código sem dívida técnica. Estruturas que aguentam crescimento sem reescritas. Integrações que funcionam na primeira vez e continuam funcionando.' ),
-				array( 'title' => 'Estratégia que orienta',   'body' => 'Dados, mercado e comportamento do usuário traduzidos em decisões claras. Sem achismos, sem modismos — só o que move o ponteiro.' ),
+				array( 'title' => 'Diagnóstico',     'body' => 'Mergulhamos no negócio, no mercado e nos objetivos. Antes de qualquer pixel, entendemos onde você está e onde precisa chegar.' ),
+				array( 'title' => 'Narrativa',       'body' => 'Definimos a história e o posicionamento da marca — a mensagem que guia cada decisão de design, conteúdo e produto.' ),
+				array( 'title' => 'Design',          'body' => 'Traduzimos a estratégia em identidade e interface. Cada tela, cor e movimento com intenção, hierarquia e propósito.' ),
+				array( 'title' => 'Desenvolvimento', 'body' => 'Construímos com código limpo, rápido e escalável. Da ideia ao ar, sem dívida técnica e pronto para crescer.' ),
 			),
 		),
 		'footer' => array(

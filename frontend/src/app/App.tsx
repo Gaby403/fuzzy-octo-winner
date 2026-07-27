@@ -199,6 +199,8 @@ export function HomeSite() {
   const heroRef = useRef<HTMLElement>(null)
   const heroHeightRef = useRef(800)
   const [menuOpen, setMenuOpen] = useState(false)
+  // Header fixo aparece depois de rolar um pouco (some no topo, onde o nav do hero já está).
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
     const el = heroRef.current
@@ -207,6 +209,13 @@ export function HomeSite() {
     const ro = new ResizeObserver(([e]) => { heroHeightRef.current = e.contentRect.height })
     ro.observe(el)
     return () => ro.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 140)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
   const { scrollYProgress } = useScroll({
@@ -294,10 +303,47 @@ export function HomeSite() {
     <>
       <style>{RESPONSIVE_CSS}</style>
 
+      {/* ── Header fixo (aparece ao rolar) ── */}
+      <m.header
+        aria-label="Cabeçalho fixo"
+        className="fixed top-0 left-0 w-full flex items-center justify-between"
+        style={{
+          zIndex: 45,
+          padding: "clamp(12px, 1.6vw, 20px) clamp(20px, 4vw, 82px)",
+          background: "rgba(17,17,17,0.82)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(239,239,239,0.08)",
+          pointerEvents: scrolled ? "auto" : "none",
+        }}
+        initial={false}
+        animate={{ y: scrolled ? "0%" : "-105%", opacity: scrolled ? 1 : 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <a href="#top" onClick={(e) => goTo("#top", e)} aria-label="Voltar ao topo" style={{ display: "inline-flex", alignItems: "center", color: WHITE }}>
+          {content.site.logoUrl ? (
+            <img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} style={{ height: "clamp(24px, 3vw, 38px)", width: "auto", display: "block" }} />
+          ) : (
+            <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(13px, 1.2vw, 18px)", letterSpacing: "-0.04em", textTransform: "uppercase" }}>
+              {content.nav.brand}
+            </span>
+          )}
+        </a>
+        <button
+          className="flex flex-col justify-center items-end gap-[5px] cursor-pointer bg-transparent border-none p-2 -mr-2"
+          style={{ color: WHITE }}
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label="Abrir menu"
+          aria-expanded={menuOpen}
+        >
+          <m.span className="block h-px bg-current" animate={{ width: 20, rotate: menuOpen ? 45 : 0, y: menuOpen ? 6 : 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }} />
+          <m.span className="block h-px bg-current" animate={{ width: menuOpen ? 20 : 12, rotate: menuOpen ? -45 : 0, y: menuOpen ? -1 : 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }} />
+        </button>
+      </m.header>
+
       {/* Scroll zone — hero is sticky inside. Ends on the moon (no 2nd sunrise).
           A altura (= quanto scroll para completar) é responsiva: menor no mobile
           para a animação ficar mais rápida e menos arrastada. Ver RESPONSIVE_CSS. */}
-      <div ref={containerRef} className="hero-scroll-zone" style={{ position: "relative" }}>
+      <div id="top" ref={containerRef} className="hero-scroll-zone" style={{ position: "relative" }}>
         <m.section
           ref={heroRef}
           className="sticky top-0 w-full overflow-hidden isolate"
@@ -525,7 +571,7 @@ export function HomeSite() {
           {/* ── Content ── */}
           <div
             className="hero-content absolute top-0 left-0 bottom-0 flex flex-col justify-center items-start pointer-events-none"
-            style={{ zIndex: 10, width: "min(46%, 780px)", padding: "55px 0 155px clamp(20px, 4vw, 82px)" }}
+            style={{ zIndex: 10, width: "min(46%, 780px)", padding: "clamp(96px, 13vh, 150px) 0 clamp(120px, 15vh, 165px) clamp(20px, 4vw, 82px)" }}
           >
             <m.div
               className="flex items-center gap-3 mb-7"
@@ -703,48 +749,65 @@ function Stat({ numeric, suffix, label, delay }: { numeric: number; suffix: stri
 }
 
 // ── Pillar ───────────────────────────────────────────────────────────────────
+// Hover "estilo tabi": barra vermelha, wash em degradê e a marca 旅 surgindo.
+// Ativa no hover (desktop) OU quando o pilar entra no centro da tela (mobile),
+// para prender o usuário nas duas plataformas.
 function Pillar({ index, title, body, delay }: { index: string; title: string; body: string; delay: number }) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: "-50px" })
+  const centered = useInView(ref, { margin: "-45% 0px -45% 0px" })
+  const [hovered, setHovered] = useState(false)
+  const active = hovered || centered
+  const EASE = [0.16, 1, 0.3, 1] as const
   return (
-    <div ref={ref} style={{ position: "relative" }}>
-      <div style={{ position: "relative", height: "1px", backgroundColor: "rgba(239,239,239,0.08)" }}>
-        <m.div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(239,239,239,0.22)", transformOrigin: "left" }}
-          initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }} />
-      </div>
-      <m.div className="flex items-start gap-4 md:gap-5 py-6 md:py-8"
-        initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
-        transition={{ duration: 0.5, delay: delay + 0.15 }}>
-        <m.span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.14em", color: RED, paddingTop: "3px", flexShrink: 0 }}
-          initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.4, delay: delay + 0.2 }}>
+    <m.div
+      ref={ref}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      style={{ position: "relative", overflow: "hidden", borderTop: "1px solid rgba(239,239,239,0.10)", cursor: "pointer" }}
+      initial={{ opacity: 0 }}
+      animate={inView ? { opacity: 1 } : {}}
+      transition={{ duration: 0.5, delay: delay + 0.1 }}
+    >
+      {/* Wash vermelho */}
+      <m.div aria-hidden="true"
+        style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(242,12,37,0.12), rgba(242,12,37,0.03) 55%, transparent)", transformOrigin: "left", pointerEvents: "none" }}
+        animate={{ scaleX: active ? 1 : 0, opacity: active ? 1 : 0 }} transition={{ duration: 0.5, ease: EASE }} />
+      {/* Barra vermelha à esquerda */}
+      <m.div aria-hidden="true"
+        style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: RED, transformOrigin: "top", pointerEvents: "none" }}
+        animate={{ scaleY: active ? 1 : 0 }} transition={{ duration: 0.45, ease: EASE }} />
+      {/* Marca Tabi (旅) surgindo */}
+      <m.div aria-hidden="true" className="hidden sm:block"
+        style={{ position: "absolute", right: "clamp(16px,4vw,72px)", top: "50%", width: "clamp(64px,7vw,120px)", pointerEvents: "none" }}
+        animate={{ opacity: active ? 0.16 : 0, x: active ? 0 : 28, rotate: active ? 0 : -8, y: "-50%" }}
+        transition={{ duration: 0.6, ease: EASE }}>
+        <TabiMark width="100%" color={RED} />
+      </m.div>
+
+      <m.div className="flex items-center gap-4 md:gap-8" style={{ position: "relative", zIndex: 1 }}
+        animate={{ paddingTop: active ? 32 : 26, paddingBottom: active ? 32 : 26, paddingLeft: active ? 20 : 10 }}
+        transition={{ duration: 0.4, ease: EASE }}>
+        <m.span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(28px, 3.4vw, 54px)", lineHeight: 1, letterSpacing: "-0.05em", flexShrink: 0, width: "clamp(46px, 5vw, 88px)" }}
+          animate={{ color: active ? RED : "rgba(239,239,239,0.18)", scale: active ? 1.06 : 1 }} transition={{ duration: 0.35 }}>
           {index}
         </m.span>
-        <div className="flex flex-col gap-2 md:gap-3 flex-1">
-          <div style={{ overflow: "hidden" }}>
-            <m.span className="block"
-              style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(16px, 1.6vw, 26px)", letterSpacing: "-0.03em", textTransform: "uppercase", color: WHITE, lineHeight: 1 }}
-              initial={{ y: "105%" }} animate={inView ? { y: "0%" } : {}}
-              transition={{ duration: 0.7, delay: delay + 0.18, ease: [0.16, 1, 0.3, 1] }}>
-              {title}
-            </m.span>
-          </div>
-          <m.span
-            style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(11px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.65, color: "rgba(239,239,239,0.48)" }}
-            initial={{ opacity: 0, y: 8 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: delay + 0.30, ease: "easeOut" }}>
+        <div className="flex flex-col gap-1.5 flex-1" style={{ minWidth: 0 }}>
+          <m.h3 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 2vw, 32px)", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.02, margin: 0 }}
+            animate={{ x: active ? 6 : 0, color: active ? WHITE : "rgba(239,239,239,0.82)" }} transition={{ duration: 0.35, ease: EASE }}>
+            {title}
+          </m.h3>
+          <m.p style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(11px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.65, margin: 0, maxWidth: 560 }}
+            animate={{ x: active ? 6 : 0, color: active ? "rgba(239,239,239,0.72)" : "rgba(239,239,239,0.42)" }} transition={{ duration: 0.35, ease: EASE }}>
             {body}
-          </m.span>
+          </m.p>
         </div>
-        <m.span style={{ color: "rgba(239,239,239,0.18)", fontSize: 13, flexShrink: 0, paddingTop: 3 }}
-          className="hidden sm:block"
-          initial={{ opacity: 0, x: -6 }} animate={inView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.5, delay: delay + 0.38 }}>
+        <m.span aria-hidden="true" style={{ fontSize: "clamp(16px, 1.6vw, 24px)", flexShrink: 0 }}
+          animate={{ color: active ? RED : "rgba(239,239,239,0.2)", x: active ? 5 : 0 }} transition={{ duration: 0.35, ease: EASE }}>
           →
         </m.span>
       </m.div>
-    </div>
+    </m.div>
   )
 }
 
@@ -774,7 +837,13 @@ function AboutSection() {
         <TabiMark width="100%" color={WHITE} />
       </m.div>
 
-      <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.08)" }} />
+      {/* Linha de destaque vermelha que "varre" ao entrar na seção (transição para o About) */}
+      <div style={{ position: "relative", width: "100%", height: "2px", backgroundColor: "rgba(239,239,239,0.08)", overflow: "hidden" }}>
+        <m.div aria-hidden="true"
+          style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${RED} 0%, ${RED} 55%, rgba(242,12,37,0) 100%)`, transformOrigin: "left" }}
+          initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true, margin: "-8% 0px" }}
+          transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1] }} />
+      </div>
 
       {/* ── Upper: eyebrow + headline + text ── */}
       <div style={{ padding: `clamp(56px, 9vw, 130px) ${pad} 0`, position: "relative", zIndex: 1 }}>
@@ -843,7 +912,7 @@ function AboutSection() {
               {sec.pillarsLabel}
             </span>
             <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.20)" }}>
-              04 PILARES
+              {`0${PILLARS.length}`} ETAPAS
             </span>
           </div>
         </Reveal>
@@ -2131,6 +2200,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, Component: HomeSite },
       { path: "projetos", Component: AllProjects },
+      { path: "sobre", lazy: lazyPage(() => import("./pages/About")) },
       { path: "servicos", lazy: lazyPage(() => import("./pages/Services")) },
       { path: "servicos/:slug", lazy: lazyPage(() => import("./pages/ServiceDetail")) },
       { path: "contato", lazy: lazyPage(() => import("./pages/Contact")) },

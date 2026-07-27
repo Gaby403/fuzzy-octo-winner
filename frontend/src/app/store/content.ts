@@ -146,7 +146,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     description: "Conte um pouco sobre o seu projeto. Respondemos em até 1 dia útil.",
   },
   sections: {
-    about: { eyebrow: "STUDIO TABI — SOBRE NÓS", pillarsLabel: "COMO TRABALHAMOS", ctaLabel: "CONHEÇA NOSSA HISTÓRIA", ctaUrl: "#sobre" },
+    about: { eyebrow: "STUDIO TABI — SOBRE NÓS", pillarsLabel: "COMO TRABALHAMOS", ctaLabel: "CONHEÇA NOSSA HISTÓRIA", ctaUrl: "/sobre" },
     services: { eyebrow: "STUDIO TABI — SERVIÇOS", ctaLabel: "VER TODOS OS SERVIÇOS", ctaUrl: "/servicos" },
     projects: { eyebrow: "STUDIO TABI — PROJETOS", note: "120+ projetos entregues", cardText: "Quer ver o portfólio completo com todos os nossos projetos?" },
     faq: { eyebrow: "STUDIO TABI — FAQ", note: "Não encontrou o que procura? Entre em contato diretamente com a equipe.", ctaLabel: "FALAR COM A EQUIPE", ctaUrl: "/contato" },
@@ -161,10 +161,10 @@ export const DEFAULT_CONTENT: SiteContent = {
       { numeric: 3,   suffix: "×", label: "RETORNO MÉDIO EM 12M" },
     ],
     pillars: [
-      { title: "Identidade que comunica",    body: "Marcas que carregam intenção em cada detalhe — do logotipo ao tom de voz. Construímos sistemas visuais que resistem ao tempo e crescem com o negócio." },
-      { title: "Experiência que converte",   body: "Interface não é arte — é arquitetura de decisões. Cada tela, cada fluxo, cada micro-interação é desenhada para mover o usuário em direção ao objetivo." },
-      { title: "Tecnologia que escala",      body: "Código sem dívida técnica. Estruturas que aguentam crescimento sem reescritas. Integrações que funcionam na primeira vez e continuam funcionando." },
-      { title: "Estratégia que orienta",     body: "Dados, mercado e comportamento do usuário traduzidos em decisões claras. Sem achismos, sem modismos — só o que move o ponteiro." },
+      { title: "Diagnóstico",     body: "Mergulhamos no negócio, no mercado e nos objetivos. Antes de qualquer pixel, entendemos onde você está e onde precisa chegar." },
+      { title: "Narrativa",       body: "Definimos a história e o posicionamento da marca — a mensagem que guia cada decisão de design, conteúdo e produto." },
+      { title: "Design",          body: "Traduzimos a estratégia em identidade e interface. Cada tela, cor e movimento com intenção, hierarquia e propósito." },
+      { title: "Desenvolvimento", body: "Construímos com código limpo, rápido e escalável. Da ideia ao ar, sem dívida técnica e pronto para crescer." },
     ],
   },
   services: [
