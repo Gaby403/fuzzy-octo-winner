@@ -33,7 +33,7 @@ function stcms_default_options() {
 				array( 'label' => 'TRABALHOS', 'url' => '#trabalhos' ),
 				array( 'label' => 'SERVIÇOS', 'url' => '#servicos' ),
 				array( 'label' => 'SOBRE', 'url' => '#sobre' ),
-				array( 'label' => 'CONTATO', 'url' => '#contato' ),
+				array( 'label' => 'CONTATO', 'url' => '/contato' ),
 			),
 		),
 		'hero'   => array(

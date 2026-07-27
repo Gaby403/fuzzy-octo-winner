@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { useContent, submitContact } from "../store/content"
 
 const RED = "#F20C25"
@@ -16,6 +16,7 @@ const FONT_BODY = '"Be Vietnam Pro", sans-serif'
  */
 export default function Contact() {
   const { content } = useContent()
+  const navigate = useNavigate()
   const f = content.footer
 
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", website: "" })
@@ -38,8 +39,9 @@ export default function Contact() {
     const res = await submitContact(form)
     if (res.ok) {
       setState("ok")
-      setFeedback(res.message)
       setForm({ name: "", email: "", subject: "", message: "", website: "" })
+      // Redireciona para a página de agradecimento com a animação do kanji.
+      navigate("/obrigado")
     } else {
       setState("error")
       setFeedback(res.message)

@@ -111,7 +111,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       { label: "TRABALHOS", url: "#trabalhos" },
       { label: "SERVIÇOS", url: "#servicos" },
       { label: "SOBRE", url: "#sobre" },
-      { label: "CONTATO", url: "#contato" },
+      { label: "CONTATO", url: "/contato" },
     ],
     ctaLabel: "INICIAR PROJETO",
     ctaUrl: "/contato",
