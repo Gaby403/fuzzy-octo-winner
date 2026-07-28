@@ -266,6 +266,11 @@ class STCMS_Rest {
 	 * caindo para o e-mail do admin do WordPress se estiver vazio.
 	 */
 	public static function submit_contact( WP_REST_Request $req ) {
+		$bloqueio = self::bloqueio_de_escrita( 'contact', 5 );
+		if ( $bloqueio ) {
+			return $bloqueio;
+		}
+
 		$p = $req->get_json_params();
 		if ( ! is_array( $p ) ) {
 			$p = $req->get_params();
@@ -454,6 +459,11 @@ class STCMS_Rest {
 
 	/** Inscrição na newsletter: guarda o e-mail e avisa o dono do site. */
 	public static function subscribe_newsletter( WP_REST_Request $req ) {
+		$bloqueio = self::bloqueio_de_escrita( 'subscribe', 8 );
+		if ( $bloqueio ) {
+			return $bloqueio;
+		}
+
 		$p     = $req->get_json_params();
 		$email = sanitize_email( is_array( $p ) ? ( $p['email'] ?? '' ) : '' );
 		if ( ! is_email( $email ) ) {
@@ -481,6 +491,73 @@ class STCMS_Rest {
 	 * Rodapé → e-mail do administrador do WordPress. Assim o endereço de
 	 * exibição no site pode ser diferente do que recebe as mensagens.
 	 */
+	private static function client_ip() {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : '';
+		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
+	}
+
+	private static function site_origins() {
+		$lista = array();
+		$opt   = trim( (string) get_option( 'stcms_site_origin', '' ) );
+		if ( $opt ) {
+			foreach ( explode( ',', $opt ) as $o ) {
+				$o = trim( $o );
+				if ( $o ) {
+					$lista[] = untrailingslashit( $o );
+				}
+			}
+		}
+		$home = untrailingslashit( (string) get_home_url() );
+		if ( $home ) {
+			$lista[] = $home;
+		}
+		return array_unique( $lista );
+	}
+
+	private static function origem_permitida() {
+		$origin = isset( $_SERVER['HTTP_ORIGIN'] ) ? untrailingslashit( esc_url_raw( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) ) : '';
+		if ( '' === $origin ) {
+			return true;
+		}
+		$host = wp_parse_url( $origin, PHP_URL_HOST );
+		foreach ( self::site_origins() as $p ) {
+			$ph = wp_parse_url( $p, PHP_URL_HOST );
+			if ( ! $ph || ! $host ) {
+				continue;
+			}
+			if ( $host === $ph ) {
+				return true;
+			}
+			if ( substr( $host, -strlen( '.' . $ph ) ) === '.' . $ph ) {
+				return true;
+			}
+			if ( substr( $ph, -strlen( '.' . $host ) ) === '.' . $host ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static function limite_excedido( $chave, $maximo, $janela ) {
+		$id = 'stcms_rl_' . $chave . '_' . md5( self::client_ip() );
+		$n  = (int) get_transient( $id );
+		if ( $n >= $maximo ) {
+			return true;
+		}
+		set_transient( $id, $n + 1, $janela );
+		return false;
+	}
+
+	private static function bloqueio_de_escrita( $chave, $maximo ) {
+		if ( ! self::origem_permitida() ) {
+			return new WP_REST_Response( array( 'ok' => false, 'message' => 'Origem nao autorizada.' ), 403 );
+		}
+		if ( self::limite_excedido( $chave, $maximo, HOUR_IN_SECONDS ) ) {
+			return new WP_REST_Response( array( 'ok' => false, 'message' => 'Muitas tentativas. Aguarde alguns minutos e tente novamente.' ), 429 );
+		}
+		return null;
+	}
+
 	private static function form_recipient() {
 		$o = STCMS_Options::get();
 		$form = trim( (string) ( $o['site']['form_email'] ?? '' ) );
