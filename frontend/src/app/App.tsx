@@ -1382,6 +1382,8 @@ function ProjectCard({ proj, index, onClick }: { proj: Project; index: number; o
   return (
     <m.div
       ref={ref}
+      data-cursor
+      data-cursor-label="Ver"
       style={{ position: "relative", overflow: "hidden", borderRadius: 4, cursor: "pointer", aspectRatio: proj.featured ? "4/3" : "1/1" }}
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}

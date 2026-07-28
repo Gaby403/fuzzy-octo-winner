@@ -46,6 +46,23 @@
   to   { background-position: -200% 0; }
 }
 
+/* Smooth scroll (Lenis) — regras recomendadas para não conflitar com o CSS. */
+html.lenis,
+html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* Cursor customizado: esconde o cursor nativo, exceto em campos de texto. */
+.has-custom-cursor,
+.has-custom-cursor a,
+.has-custom-cursor button,
+.has-custom-cursor [data-cursor] { cursor: none; }
+.has-custom-cursor input,
+.has-custom-cursor textarea,
+.has-custom-cursor select,
+.has-custom-cursor [contenteditable="true"] { cursor: auto; }
+
 /* Respeita quem prefere menos movimento (reduz animações). */
 @media (prefers-reduced-motion: reduce) {
   *,

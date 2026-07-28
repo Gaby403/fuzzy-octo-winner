@@ -4,6 +4,8 @@ import { ContentContext, fetchContent, DEFAULT_CONTENT, SiteContent } from "./st
 import { UIProvider } from "./contexts/UIContext"
 import { Header, HEADER_HEIGHT } from "./components/layout/Header"
 import { Footer } from "./components/layout/Footer"
+import { SmoothScroll } from "./components/system/SmoothScroll"
+import { CustomCursor } from "./components/system/CustomCursor"
 import { initAnalytics, trackEvent } from "./utils/analytics"
 
 /** Cria/atualiza uma <meta> no <head> pelo atributo-chave (name ou property). */
@@ -182,6 +184,8 @@ export default function Root() {
   return (
     <ContentContext.Provider value={{ content, loading }}>
       <UIProvider>
+        <SmoothScroll />
+        <CustomCursor />
         <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
         <Header />
         {/* Espaçador nas páginas internas para o conteúdo não ficar sob o header fixo.

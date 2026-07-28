@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router"
 import { trackEvent } from "../utils/analytics"
+import { scrollToEl } from "../components/system/SmoothScroll"
 
 /**
  * Resolve um link vindo do CMS (âncora "#sec", rota interna "/rota" ou URL
@@ -17,7 +18,7 @@ export function useGoTo() {
     if (e?.preventDefault) e.preventDefault()
     if (url.startsWith("#")) {
       const el = document.querySelector(url)
-      if (el) el.scrollIntoView({ behavior: "smooth" })
+      if (el) scrollToEl(el as HTMLElement)
       else navigate("/" + url)
     } else {
       navigate(url)
