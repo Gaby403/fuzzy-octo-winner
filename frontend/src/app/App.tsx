@@ -19,6 +19,7 @@ import Root from "./Root"
 import { TabiMark } from "./components/TabiMark"
 import { TabiStroke } from "./components/TabiStroke"
 import { ProcessIcon } from "./components/ui/ProcessIcon"
+import { TextReveal } from "./components/ui/TextReveal"
 
 // Rotas secundárias carregadas sob demanda (code-splitting) para reduzir o
 // JavaScript inicial da home e melhorar a performance (PageSpeed / TBT).
@@ -707,16 +708,16 @@ function AboutSection() {
           </h2>
 
           <div className="flex flex-col" style={{ gap: "clamp(24px, 4vw, 56px)" }}>
-            <Reveal delay={0.12}>
-              <p style={{ fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.62)", margin: 0 }}>
-                {content.about.paragraph1}
-              </p>
-            </Reveal>
-            <Reveal delay={0.18}>
-              <p style={{ fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.62)", margin: 0 }}>
-                {content.about.paragraph2}
-              </p>
-            </Reveal>
+            <TextReveal
+              text={content.about.paragraph1}
+              delay={0.1}
+              style={{ fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.62)", margin: 0 }}
+            />
+            <TextReveal
+              text={content.about.paragraph2}
+              delay={0.16}
+              style={{ fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.62)", margin: 0 }}
+            />
             <Reveal delay={0.24}>
               <m.button className="flex items-center gap-3 self-start"
                 style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif' }}
