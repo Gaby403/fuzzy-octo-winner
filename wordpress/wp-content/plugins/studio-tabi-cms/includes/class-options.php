@@ -18,6 +18,7 @@ class STCMS_Options {
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_create_process_pages' ) );
 	}
 
 	/**
@@ -187,6 +188,10 @@ class STCMS_Options {
 							</td>
 						</tr>
 					</table>
+				<?php self::card_close(); ?>
+
+				<?php self::card_open( 'inner_pages', 'dashicons-media-document', 'Páginas internas', 'Atalhos para editar o texto completo de cada página de processo e de serviço' ); ?>
+					<?php self::render_inner_pages(); ?>
 				<?php self::card_close(); ?>
 
 				<?php self::card_open( 'contact', 'dashicons-email-alt', 'Página de contato', 'Textos da página /contato (o e-mail/telefone vêm do Rodapé)' ); ?>
@@ -433,6 +438,115 @@ class STCMS_Options {
 	}
 
 	/* ------------------------------------------------------------- sanitize   */
+
+	/**
+	 * Lista as páginas internas do site com link direto para o editor certo.
+	 *
+	 * As etapas do processo moram em Páginas do WordPress (mesmo slug da etapa)
+	 * e os serviços no CPT st_service. Reunir tudo aqui evita que o editor
+	 * precise adivinhar onde cada texto é alterado.
+	 */
+	private static function render_inner_pages() {
+		$o = self::get();
+
+		echo '<table class="widefat striped" style="margin-bottom:18px"><thead><tr>'
+			. '<th>Página</th><th>Endereço</th><th>Situação</th><th style="width:130px">Ação</th>'
+			. '</tr></thead><tbody>';
+
+		// --- Etapas do processo (Páginas do WordPress) ---
+		$missing = array();
+		foreach ( (array) $o['process'] as $step ) {
+			$slug = isset( $step['slug'] ) ? $step['slug'] : '';
+			if ( '' === $slug ) {
+				continue;
+			}
+			$page = get_page_by_path( $slug );
+			$url  = '/processo/' . $slug;
+			if ( $page ) {
+				printf(
+					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:#1a7f37">Publicada</td><td><a class="button" href="%s">Editar texto</a></td></tr>',
+					esc_html( $step['title'] ),
+					esc_html( $url ),
+					esc_url( get_edit_post_link( $page->ID ) )
+				);
+			} else {
+				$missing[] = $step;
+				printf(
+					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:#b32d2e">Página ausente</td><td>—</td></tr>',
+					esc_html( $step['title'] ),
+					esc_html( $url )
+				);
+			}
+		}
+
+		// --- Serviços (CPT) ---
+		$services = get_posts(
+			array(
+				'post_type'   => 'st_service',
+				'numberposts' => -1,
+				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
+				'order'       => 'ASC',
+			)
+		);
+		foreach ( $services as $s ) {
+			$has = '' !== trim( (string) get_post_meta( $s->ID, 'stcms_page_content', true ) );
+			printf(
+				'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:%s">%s</td><td><a class="button" href="%s">Editar texto</a></td></tr>',
+				esc_html( get_the_title( $s ) ),
+				esc_html( '/servicos/' . $s->post_name ),
+				$has ? '#1a7f37' : '#8a6d00',
+				$has ? 'Texto próprio' : 'Usando a descrição curta',
+				esc_url( get_edit_post_link( $s->ID ) )
+			);
+		}
+
+		echo '</tbody></table>';
+
+		if ( $missing ) {
+			$url = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_create_pages=1' ), 'stcms_create_pages' );
+			printf(
+				'<p><a href="%s" class="button button-secondary">Criar as %d página(s) de processo que faltam</a></p>',
+				esc_url( $url ),
+				count( $missing )
+			);
+		}
+
+		echo '<p class="description">As etapas do processo são <strong>Páginas</strong> do WordPress com o mesmo slug da etapa. Os serviços têm um editor próprio dentro de cada serviço, no bloco “Conteúdo da página interna”.</p>';
+	}
+
+	/**
+	 * Cria as Páginas das etapas de processo que ainda não existem, usando o
+	 * resumo da etapa como texto inicial. Disparado pelo botão do card.
+	 */
+	public static function maybe_create_process_pages() {
+		if ( empty( $_GET['stcms_create_pages'] ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		check_admin_referer( 'stcms_create_pages' );
+
+		$o       = self::get();
+		$created = 0;
+		foreach ( (array) $o['process'] as $step ) {
+			$slug = isset( $step['slug'] ) ? $step['slug'] : '';
+			if ( '' === $slug || get_page_by_path( $slug ) ) {
+				continue;
+			}
+			$id = wp_insert_post(
+				array(
+					'post_type'    => 'page',
+					'post_status'  => 'publish',
+					'post_title'   => $step['title'],
+					'post_name'    => $slug,
+					'post_content' => isset( $step['summary'] ) ? wpautop( $step['summary'] ) : '',
+				)
+			);
+			if ( $id && ! is_wp_error( $id ) ) {
+				$created++;
+			}
+		}
+		wp_safe_redirect( admin_url( 'admin.php?page=studio-tabi&stcms_created=' . $created ) );
+		exit;
+	}
 
 	public static function sanitize( $input ) {
 		$out = self::get();

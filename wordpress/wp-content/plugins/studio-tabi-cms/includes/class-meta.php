@@ -49,6 +49,7 @@ class STCMS_Meta {
 
 	public static function add_boxes() {
 		add_meta_box( 'stcms_service', 'Dados do serviço', array( __CLASS__, 'render_service' ), 'st_service', 'side', 'high' );
+		add_meta_box( 'stcms_service_page', 'Conteúdo da página interna (/servicos/…)', array( __CLASS__, 'render_service_page' ), 'st_service', 'normal', 'high' );
 		add_meta_box( 'stcms_project', 'Dados do projeto', array( __CLASS__, 'render_project' ), 'st_project', 'normal', 'high' );
 	}
 
@@ -86,7 +87,28 @@ class STCMS_Meta {
 	public static function render_service( $post ) {
 		wp_nonce_field( 'stcms_meta', 'stcms_meta_nonce' );
 		self::text_row( 'Número (ex: 01)', 'stcms_num', self::field( $post->ID, 'stcms_num' ) );
-		echo '<p style="color:#787c82;font-size:12px">O <strong>título</strong> do post é o nome do serviço e o <strong>conteúdo</strong> é a descrição.</p>';
+		echo '<p style="color:#787c82;font-size:12px">O <strong>título</strong> do post é o nome do serviço e o <strong>conteúdo</strong> é a descrição curta (card da home).</p>';
+	}
+
+	/**
+	 * Editor rico do texto que aparece na página interna do serviço
+	 * (/servicos/slug). É separado do conteúdo do post, que fica sendo a
+	 * descrição curta usada nos cards — assim a página pode ser bem mais
+	 * extensa sem inchar a home.
+	 */
+	public static function render_service_page( $post ) {
+		wp_nonce_field( 'stcms_meta', 'stcms_meta_nonce' );
+		$value = get_post_meta( $post->ID, 'stcms_page_content', true );
+		echo '<p style="color:#787c82;font-size:12px;margin-top:0">Texto completo exibido em <strong>/servicos/' . esc_html( $post->post_name ) . '</strong>. Se ficar vazio, a página usa a descrição curta.</p>';
+		wp_editor(
+			$value,
+			'stcms_page_content',
+			array(
+				'textarea_name' => 'stcms_page_content',
+				'textarea_rows' => 12,
+				'media_buttons' => true,
+			)
+		);
 	}
 
 	/* ------------------------------------------------------------- project ui */
@@ -282,6 +304,10 @@ class STCMS_Meta {
 
 		if ( 'st_service' === $post->post_type ) {
 			self::save_text( $post_id, 'stcms_num' );
+			// Conteúdo rico da página interna: aceita o HTML permitido a posts.
+			if ( isset( $_POST['stcms_page_content'] ) ) {
+				update_post_meta( $post_id, 'stcms_page_content', wp_kses_post( wp_unslash( $_POST['stcms_page_content'] ) ) );
+			}
 		}
 
 		if ( 'st_project' === $post->post_type ) {

@@ -641,12 +641,16 @@ class STCMS_Rest {
 		);
 		$out = array();
 		foreach ( $posts as $p ) {
+			// Página interna: usa o editor dedicado; se vazio, cai na descrição
+			// curta, mantendo o comportamento de instalações antigas.
+			$page = (string) get_post_meta( $p->ID, 'stcms_page_content', true );
+			$rich = '' !== trim( $page ) ? $page : $p->post_content;
 			$out[] = array(
 				'num'     => (string) get_post_meta( $p->ID, 'stcms_num', true ),
 				'title'   => self::title( $p ),
 				'body'    => self::plain( $p->post_content ),
 				'slug'    => $p->post_name,
-				'content' => apply_filters( 'the_content', $p->post_content ),
+				'content' => apply_filters( 'the_content', $rich ),
 				'image'   => get_the_post_thumbnail_url( $p, 'large' ) ? get_the_post_thumbnail_url( $p, 'large' ) : '',
 			);
 		}

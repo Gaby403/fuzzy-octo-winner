@@ -1,7 +1,10 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { Link, useParams } from "react-router"
-import { m } from "motion/react"
+import { m, useScroll, useSpring, useTransform } from "motion/react"
 import { useContent } from "../store/content"
+import { Breadcrumbs } from "../components/Breadcrumbs"
+import { TabiStroke } from "../components/TabiStroke"
+import { TextReveal } from "../components/ui/TextReveal"
 
 const RED = "#F20C25"
 const RED_BTN = "#DA0A20"
@@ -26,15 +29,26 @@ export default function ServiceDetail() {
   const next = services.length ? services[(Math.max(idx, 0) + 1) % services.length] : null
   const pad = "clamp(20px, 4vw, 82px)"
 
+  // Mesma assinatura das páginas de processo: o 旅 se desenha conforme a
+  // leitura avança e some antes do rodapé.
+  const pageRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: pageRef, offset: ["start start", "end end"] })
+  const drawProgress = useSpring(scrollYProgress, { stiffness: 80, damping: 24, restDelta: 0.001 })
+  const markOpacity = useTransform(scrollYProgress, [0, 0.06, 0.82, 0.95], [0, 0.18, 0.18, 0])
+
   useEffect(() => {
     document.title = service ? `${service.title} — ${content.site.title}` : `Serviço — ${content.site.title}`
     window.scrollTo(0, 0)
   }, [service, content.site.title])
 
   return (
-    <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
+    <div ref={pageRef} style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY, position: "relative", overflow: "hidden" }}>
+      <m.div aria-hidden="true" className="hidden md:block pointer-events-none"
+        style={{ position: "fixed", right: "2%", top: "18%", width: "clamp(200px, 22vw, 360px)", opacity: markOpacity, zIndex: 0 }}>
+        <TabiStroke key={slug} width="100%" color={RED} strokeWidth={0.8} progress={drawProgress} />
+      </m.div>
 
-      <main id="conteudo" style={{ maxWidth: 900, margin: "0 auto", padding: `clamp(44px,7vw,88px) ${pad} 120px` }}>
+      <main id="conteudo" style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto", padding: `clamp(44px,7vw,88px) ${pad} 120px` }}>
         {!service ? (
           <div>
             <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(36px,7vw,64px)", letterSpacing: "-0.04em", textTransform: "uppercase", margin: "0 0 16px" }}>
@@ -47,8 +61,9 @@ export default function ServiceDetail() {
           </div>
         ) : (
           <article>
+            <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Serviços", to: "/servicos" }, { label: service.title }]} />
             <m.p
-              style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED_INK, margin: "0 0 14px" }}
+              style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED_INK, margin: "22px 0 14px" }}
               initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: EASE }}
             >
               SERVIÇO {service.num}
@@ -71,7 +86,7 @@ export default function ServiceDetail() {
                 dangerouslySetInnerHTML={{ __html: service.content }}
               />
             ) : (
-              <p style={{ lineHeight: 1.8, fontSize: 17, color: "rgba(239,239,239,0.78)", margin: 0 }}>{service.body}</p>
+              <TextReveal text={service.body} style={{ lineHeight: 1.8, fontSize: 17, color: "rgba(239,239,239,0.78)", margin: 0 }} />
             )}
 
             {/* CTA */}
