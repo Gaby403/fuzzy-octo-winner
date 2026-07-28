@@ -16,6 +16,8 @@
 - [Home](https://studiotabi.com.br/): visão geral, sobre, serviços, projetos e FAQ.
 - [Serviços](https://studiotabi.com.br/servicos): lista completa de serviços.
 - [Projetos / Portfólio](https://studiotabi.com.br/projetos): trabalhos entregues.
+- [Blog](https://studiotabi.com.br/blog): artigos sobre estratégia, design e tecnologia.
+- [Sobre](https://studiotabi.com.br/sobre): história, números e processo do studio.
 - [Contato](https://studiotabi.com.br/contato): formulário para orçamento e conversa.
 
 ## Contato

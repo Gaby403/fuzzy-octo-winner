@@ -35,6 +35,17 @@
   border-radius: 3px;
 }
 
+/* Loading skeleton (blog e listagens). */
+.stcms-skeleton {
+  background: linear-gradient(100deg, rgba(239,239,239,0.04) 30%, rgba(239,239,239,0.10) 50%, rgba(239,239,239,0.04) 70%);
+  background-size: 200% 100%;
+  animation: stcms-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes stcms-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
 /* Respeita quem prefere menos movimento (reduz animações). */
 @media (prefers-reduced-motion: reduce) {
   *,

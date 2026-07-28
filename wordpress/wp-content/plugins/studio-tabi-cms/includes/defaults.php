@@ -31,8 +31,9 @@ function stcms_default_options() {
 			'cta_url'   => '/contato',
 			'links'     => array(
 				array( 'label' => 'TRABALHOS', 'url' => '#trabalhos' ),
-				array( 'label' => 'SERVIÇOS', 'url' => '#servicos' ),
-				array( 'label' => 'SOBRE', 'url' => '#sobre' ),
+				array( 'label' => 'SERVIÇOS', 'url' => '/servicos' ),
+				array( 'label' => 'SOBRE', 'url' => '/sobre' ),
+				array( 'label' => 'BLOG', 'url' => '/blog' ),
 				array( 'label' => 'CONTATO', 'url' => '/contato' ),
 			),
 		),

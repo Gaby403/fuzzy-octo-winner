@@ -66,6 +66,46 @@ class STCMS_Rest {
 				),
 			)
 		);
+		// Blog (posts nativos do WordPress).
+		register_rest_route(
+			self::NS,
+			'/posts',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'get_posts_list' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+		register_rest_route(
+			self::NS,
+			'/post/(?P<slug>[a-zA-Z0-9\-_%]+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'get_single_post' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'slug' => array( 'sanitize_callback' => 'sanitize_title' ),
+				),
+			)
+		);
+		register_rest_route(
+			self::NS,
+			'/categories',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'get_categories_list' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+		register_rest_route(
+			self::NS,
+			'/subscribe',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'subscribe_newsletter' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 	}
 
 	/**
@@ -253,6 +293,155 @@ class STCMS_Rest {
 		}
 
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Mensagem enviada! Em breve entraremos em contato.' ), 200 );
+	}
+
+	/* ------------------------------------------------------------- blog       */
+
+	/** Lista paginada de posts do blog (posts nativos do WordPress). */
+	public static function get_posts_list( WP_REST_Request $req ) {
+		$page     = max( 1, (int) $req->get_param( 'page' ) );
+		$per_page = min( 24, max( 1, (int) ( $req->get_param( 'per_page' ) ?: 9 ) ) );
+		$search   = sanitize_text_field( (string) $req->get_param( 'search' ) );
+		$category = sanitize_title( (string) $req->get_param( 'category' ) );
+
+		$args = array(
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'posts_per_page' => $per_page,
+			'paged'          => $page,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+		);
+		if ( '' !== $search ) {
+			$args['s'] = $search;
+		}
+		if ( '' !== $category ) {
+			$args['category_name'] = $category;
+		}
+
+		$q     = new WP_Query( $args );
+		$items = array();
+		foreach ( $q->posts as $p ) {
+			$items[] = self::post_card( $p );
+		}
+		wp_reset_postdata();
+
+		return new WP_REST_Response(
+			array(
+				'items'      => $items,
+				'total'      => (int) $q->found_posts,
+				'totalPages' => (int) $q->max_num_pages,
+				'page'       => $page,
+				'perPage'    => $per_page,
+			),
+			200
+		);
+	}
+
+	/** Resumo de um post para listagens (card). */
+	private static function post_card( $p ) {
+		$cats = array();
+		foreach ( (array) get_the_category( $p->ID ) as $c ) {
+			$cats[] = array( 'name' => self::decode( $c->name ), 'slug' => $c->slug );
+		}
+		$plain = wp_strip_all_tags( $p->post_content );
+		$words = str_word_count( $plain );
+		return array(
+			'id'          => $p->ID,
+			'slug'        => $p->post_name,
+			'title'       => self::title( $p ),
+			'excerpt'     => self::decode( wp_trim_words( has_excerpt( $p ) ? get_the_excerpt( $p ) : $plain, 26, '…' ) ),
+			'date'        => get_the_date( 'j M Y', $p ),
+			'dateISO'     => get_the_date( 'c', $p ),
+			'author'      => self::decode( get_the_author_meta( 'display_name', $p->post_author ) ),
+			'image'       => get_the_post_thumbnail_url( $p, 'large' ) ? get_the_post_thumbnail_url( $p, 'large' ) : '',
+			'categories'  => $cats,
+			'readingTime' => max( 1, (int) ceil( $words / 200 ) ),
+		);
+	}
+
+	/** Post único com conteúdo completo, autor e relacionados. */
+	public static function get_single_post( WP_REST_Request $req ) {
+		$slug = $req->get_param( 'slug' );
+		$post = get_page_by_path( $slug, OBJECT, 'post' );
+		if ( ! $post || 'publish' !== $post->post_status ) {
+			return new WP_REST_Response( array( 'message' => 'Artigo não encontrado.' ), 404 );
+		}
+
+		$card = self::post_card( $post );
+
+		// Relacionados: mesma categoria, exceto o próprio.
+		$cat_ids = wp_get_post_categories( $post->ID );
+		$related = array();
+		if ( $cat_ids ) {
+			$rq = new WP_Query(
+				array(
+					'post_type'      => 'post',
+					'post_status'    => 'publish',
+					'posts_per_page' => 3,
+					'post__not_in'   => array( $post->ID ),
+					'category__in'   => $cat_ids,
+					'orderby'        => 'date',
+					'order'          => 'DESC',
+				)
+			);
+			foreach ( $rq->posts as $rp ) {
+				$related[] = self::post_card( $rp );
+			}
+			wp_reset_postdata();
+		}
+
+		$tags = array();
+		foreach ( (array) get_the_tags( $post->ID ) as $t ) {
+			$tags[] = array( 'name' => self::decode( $t->name ), 'slug' => $t->slug );
+		}
+
+		$data = array_merge(
+			$card,
+			array(
+				'content'      => apply_filters( 'the_content', $post->post_content ),
+				'tags'         => $tags,
+				'authorBio'    => self::decode( get_the_author_meta( 'description', $post->post_author ) ),
+				'authorAvatar' => get_avatar_url( $post->post_author, array( 'size' => 96 ) ),
+				'related'      => $related,
+			)
+		);
+		return new WP_REST_Response( $data, 200 );
+	}
+
+	/** Categorias do blog (com contagem). */
+	public static function get_categories_list() {
+		$cats = get_categories( array( 'hide_empty' => true ) );
+		$out  = array();
+		foreach ( $cats as $c ) {
+			$out[] = array(
+				'name'  => self::decode( $c->name ),
+				'slug'  => $c->slug,
+				'count' => (int) $c->count,
+			);
+		}
+		return new WP_REST_Response( $out, 200 );
+	}
+
+	/** Inscrição na newsletter: guarda o e-mail e avisa o dono do site. */
+	public static function subscribe_newsletter( WP_REST_Request $req ) {
+		$p     = $req->get_json_params();
+		$email = sanitize_email( is_array( $p ) ? ( $p['email'] ?? '' ) : '' );
+		if ( ! is_email( $email ) ) {
+			return new WP_REST_Response( array( 'ok' => false, 'message' => 'Informe um e-mail válido.' ), 422 );
+		}
+		$list = get_option( 'stcms_newsletter', array() );
+		if ( ! is_array( $list ) ) {
+			$list = array();
+		}
+		if ( ! in_array( $email, $list, true ) ) {
+			$list[] = $email;
+			update_option( 'stcms_newsletter', $list );
+			$o         = STCMS_Options::get();
+			$recipient = ( ! empty( $o['footer']['email'] ) && is_email( $o['footer']['email'] ) ) ? $o['footer']['email'] : get_option( 'admin_email' );
+			wp_mail( $recipient, '[' . get_bloginfo( 'name' ) . '] Nova inscrição na newsletter', "Novo e-mail inscrito: {$email}" );
+		}
+		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Inscrição confirmada! Obrigado.' ), 200 );
 	}
 
 	/**

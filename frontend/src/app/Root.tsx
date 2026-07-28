@@ -130,8 +130,31 @@ export default function Root() {
       name: site.title,
       url: origin,
       inLanguage: "pt-BR",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${origin}/blog?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
     })
   }, [content])
+
+  // FAQPage schema — apenas na home (onde a seção de FAQ é exibida).
+  useEffect(() => {
+    const existing = document.getElementById("ld-faq")
+    if (location.pathname !== "/" || !content.faq?.length) {
+      if (existing) existing.remove()
+      return
+    }
+    upsertJsonLd("ld-faq", {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: content.faq.map(f => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    })
+  }, [content.faq, location.pathname])
 
   return (
     <ContentContext.Provider value={{ content, loading }}>

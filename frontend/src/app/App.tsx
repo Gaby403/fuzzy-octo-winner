@@ -2206,10 +2206,13 @@ const router = createBrowserRouter([
       { path: "sobre", lazy: lazyPage(() => import("./pages/About")) },
       { path: "servicos", lazy: lazyPage(() => import("./pages/Services")) },
       { path: "servicos/:slug", lazy: lazyPage(() => import("./pages/ServiceDetail")) },
+      { path: "blog", lazy: lazyPage(() => import("./pages/Blog")) },
+      { path: "blog/:slug", lazy: lazyPage(() => import("./pages/Article")) },
       { path: "contato", lazy: lazyPage(() => import("./pages/Contact")) },
       { path: "obrigado", lazy: lazyPage(() => import("./pages/ThankYou")) },
       { path: "admin", lazy: lazyPage(() => import("./pages/Admin")) },
       { path: "p/:slug", lazy: lazyPage(() => import("./pages/Page")) },
+      { path: "*", lazy: lazyPage(() => import("./pages/NotFound")) },
     ],
   },
 ])

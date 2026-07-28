@@ -120,8 +120,9 @@ export const DEFAULT_CONTENT: SiteContent = {
     brand: "STUDIO TABI",
     links: [
       { label: "TRABALHOS", url: "#trabalhos" },
-      { label: "SERVIÇOS", url: "#servicos" },
-      { label: "SOBRE", url: "#sobre" },
+      { label: "SERVIÇOS", url: "/servicos" },
+      { label: "SOBRE", url: "/sobre" },
+      { label: "BLOG", url: "/blog" },
       { label: "CONTATO", url: "/contato" },
     ],
     ctaLabel: "INICIAR PROJETO",
