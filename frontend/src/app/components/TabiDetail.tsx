@@ -11,7 +11,7 @@ import { TabiStroke } from "./TabiStroke"
 export function TabiDetail({
   corner = "bottom-right",
   size = "clamp(120px, 12vw, 180px)",
-  opacity = 0.09,
+  opacity = 0.2,
   color = "#F20C25",
 }: {
   corner?: "bottom-right" | "top-right" | "bottom-left"
@@ -32,7 +32,7 @@ export function TabiDetail({
       className="hidden md:block pointer-events-none"
       style={{ position: "absolute", width: size, opacity, zIndex: 0, ...pos }}
     >
-      <TabiStroke width="100%" color={color} strokeWidth={1} duration={2.6} />
+      <TabiStroke width="100%" color={color} strokeWidth={1.4} duration={2.6} />
     </div>
   )
 }

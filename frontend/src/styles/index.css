@@ -90,9 +90,3 @@ html.lenis body { height: auto; }
     scroll-behavior: auto !important;
   }
 }
-
-/* Faixa livre embaixo das etapas para o 旅 traçado respirar. Só no desktop:
-   no mobile a marca é ocultada e o espaço extra seria buraco vazio. */
-@media (min-width: 768px) {
-  .steps-block { padding-bottom: clamp(190px, 20vw, 300px) !important; }
-}

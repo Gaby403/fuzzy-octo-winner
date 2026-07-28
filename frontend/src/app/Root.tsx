@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Outlet, useLocation } from "react-router"
 import { ContentContext, fetchContent, DEFAULT_CONTENT, SiteContent } from "./store/content"
 import { UIProvider } from "./contexts/UIContext"
@@ -7,6 +7,7 @@ import { Footer } from "./components/layout/Footer"
 import { SmoothScroll } from "./components/system/SmoothScroll"
 import { CustomCursor } from "./components/system/CustomCursor"
 import { PageTransition } from "./components/system/PageTransition"
+import { DeferUntilIdle } from "./components/system/DeferUntilIdle"
 import { initAnalytics, trackEvent } from "./utils/analytics"
 
 /** Cria/atualiza uma <meta> no <head> pelo atributo-chave (name ou property). */
@@ -191,14 +192,23 @@ export default function Root() {
     })
   }, [content.faq, location.pathname])
 
+  // Memoiza o valor do contexto: sem isso, cada render do Root cria um objeto
+  // novo e obriga TODOS os consumidores a re-renderizar — era parte da tarefa
+  // longa que aparecia quando o conteúdo do CMS chegava.
+  const ctx = useMemo(() => ({ content, loading }), [content, loading])
+
   const isHome = location.pathname === "/"
 
   return (
-    <ContentContext.Provider value={{ content, loading }}>
+    <ContentContext.Provider value={ctx}>
       <UIProvider>
-        <SmoothScroll />
-        <CustomCursor />
-        <PageTransition />
+        {/* Enfeites entram após a primeira pintura: não podem disputar a
+            thread principal com o conteúdo (TBT no celular). */}
+        <DeferUntilIdle>
+          <SmoothScroll />
+          <CustomCursor />
+          <PageTransition />
+        </DeferUntilIdle>
         <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
         <Header />
         {/* Espaçador nas páginas internas para o conteúdo não ficar sob o header fixo.

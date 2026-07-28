@@ -79,7 +79,7 @@ export default function Contact() {
 
   return (
     <div style={{ minHeight: "100svh", position: "relative", overflow: "hidden", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
-      <TabiDetail corner="top-right" opacity={0.07} />
+      <TabiDetail corner="top-right" opacity={0.16} />
 
       <main id="conteudo"
         className="contact-grid"
