@@ -378,14 +378,26 @@ function mergeContent(remote: Partial<SiteContent> | null | undefined): SiteCont
  * on any network/parse error so the site is never blank.
  */
 export async function fetchContent(): Promise<SiteContent> {
-  if (!WP_API) return DEFAULT_CONTENT
+  if (!WP_API) {
+    console.warn(
+      "[Studio Tabi] MODO OFFLINE: window.__STUDIO_TABI_API__ está vazio em config.js. " +
+      "O site está mostrando o conteúdo padrão embutido e NÃO o conteúdo do CMS. " +
+      'Defina a URL do WordPress em config.js, ex.: window.__STUDIO_TABI_API__ = "https://cms.studiotabi.com.br";'
+    )
+    return DEFAULT_CONTENT
+  }
   try {
     const res = await fetch(`${WP_API}${CONTENT_ENDPOINT}`, { headers: { Accept: "application/json" } })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = (await res.json()) as Partial<SiteContent>
     return mergeContent(data)
   } catch (err) {
-    console.warn("[Studio Tabi] Falha ao carregar conteúdo do WordPress, usando conteúdo padrão.", err)
+    console.warn(
+      `[Studio Tabi] Falha ao carregar o conteúdo do WordPress em ${WP_API}${CONTENT_ENDPOINT} — ` +
+      "usando o conteúdo padrão. Verifique: (1) o endpoint abre no navegador e devolve JSON; " +
+      "(2) o CORS permite a origem do site; (3) os permalinks do WP não estão em 'Simples'.",
+      err
+    )
     return DEFAULT_CONTENT
   }
 }

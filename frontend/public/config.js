@@ -11,4 +11,4 @@
  *
  * Se deixar vazio, o site mostra o conteúdo padrão embutido (modo offline).
  */
-window.__STUDIO_TABI_API__ = "";
+window.__STUDIO_TABI_API__ = "https://cms.studiotabi.com.br";
