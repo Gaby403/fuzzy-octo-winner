@@ -324,13 +324,22 @@ export const DEFAULT_CONTENT: SiteContent = {
 }
 
 /**
+ * Endereço do WordPress usado quando nada mais define um. Existe para o site
+ * não cair em "modo offline" silencioso quando o config.js do servidor está
+ * desatualizado ou em cache — falha comum de deploy. O config.js continua
+ * tendo prioridade e pode apontar para qualquer outro endereço.
+ */
+const FALLBACK_WP_API = "https://cms.studiotabi.com.br"
+
+/**
  * Base URL of the WordPress install, e.g. https://cms.studiotabi.com.br
  *
  * Resolution order:
  *   1. window.__STUDIO_TABI_API__  → runtime config (public/config.js), editável
  *      diretamente no servidor SEM recompilar. É o que o zip de deploy usa.
  *   2. VITE_WP_API                 → valor de build (dev local).
- *   3. ""                          → usa o conteúdo padrão embutido (offline).
+ *   3. FALLBACK_WP_API             → último recurso, para nunca ficar offline
+ *      por causa de um config.js velho em cache.
  */
 declare global {
   interface Window {
@@ -341,7 +350,14 @@ declare global {
 function resolveApiBase(): string {
   const runtime = typeof window !== "undefined" ? window.__STUDIO_TABI_API__ : undefined
   const build = import.meta.env.VITE_WP_API as string | undefined
-  return (runtime || build || "").replace(/\/$/, "")
+  const resolved = (runtime || build || FALLBACK_WP_API).trim()
+  if (!runtime && typeof console !== "undefined") {
+    console.info(
+      `[Studio Tabi] config.js não definiu a URL do WordPress; usando o padrão ${FALLBACK_WP_API}. ` +
+      "Se o endereço do CMS for outro, atualize o config.js no servidor."
+    )
+  }
+  return resolved.replace(/\/$/, "")
 }
 
 export const WP_API: string = resolveApiBase()

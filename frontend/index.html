@@ -14,8 +14,11 @@
        não paga DNS + TLS, o que adianta o preenchimento da página. -->
   <link rel="preconnect" href="https://cms.studiotabi.com.br" crossorigin/>
   <link rel="dns-prefetch" href="https://cms.studiotabi.com.br"/>
-  <!-- Configuração de runtime: aponta para o WordPress. Editável no servidor. -->
-  <script src="/config.js"></script>
+  <!-- Configuração de runtime: aponta para o WordPress. Editável no servidor.
+       O ?v evita que uma versão antiga fique presa no cache do navegador/CDN
+       e deixe o site sem conteúdo do CMS. Ao alterar o config.js, troque o
+       número para forçar a releitura. -->
+  <script src="/config.js?v=2"></script>
 </head>
 <body>
   <div id="root"></div>
