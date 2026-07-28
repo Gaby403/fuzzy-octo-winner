@@ -33,4 +33,20 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+
+  build: {
+    // Alvo moderno = bundle menor (sem transpile desnecessário) e melhor desempenho.
+    target: 'es2020',
+    // Divide dependências grandes em chunks próprios: melhora o cache entre
+    // deploys e paraleliza o download. framer-motion e react ficam separados
+    // do código do app, que muda com mais frequência.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-motion': ['motion', 'framer-motion'],
+          'vendor-react': ['react', 'react-dom', 'react-router'],
+        },
+      },
+    },
+  },
 })

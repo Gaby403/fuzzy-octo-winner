@@ -21,8 +21,11 @@ import { TabiMark } from "./components/TabiMark"
 const lazyPage = (importer: () => Promise<{ default: React.ComponentType }>) =>
   async () => ({ Component: (await importer()).default })
 
-const RED = "#F20C25"
+const RED = "#F20C25"        // marca — grafismos e textos grandes (contraste AA para texto grande)
+const RED_BTN = "#DA0A20"    // botões preenchidos (fundo) — texto branco passa AA (5.2:1)
+const RED_INK = "#FF3547"    // texto/links vermelhos pequenos em fundo escuro — passa AA (5.3:1)
 const WHITE = "#EFEFEF"
+const PURE_WHITE = "#FFFFFF"
 const BLACK = "#111111"
 
 const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1]
@@ -254,7 +257,7 @@ export function HomeSite() {
   const descColor    = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.58)", "rgba(239,239,239,0.70)"])
   const eyebrowColor = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.52)", "rgba(239,239,239,0.62)"])
   const navColor     = useTransform(phase, [0.05, 0.14], [BLACK, WHITE])
-  const ctaColorFg   = useTransform(phase, [0.05, 0.14], [RED, RED])
+  const ctaColorFg   = useTransform(phase, [0.05, 0.14], [RED_BTN, RED_INK])
 
   // ── Sunset & moonrise — same distance, same speed, opposite directions ──
   const SUNSET_START = 0.30
@@ -544,7 +547,7 @@ export function HomeSite() {
                     onClick={(e) => { setMenuOpen(false); goTo(item.url, e) }}
                     whileHover={{ x: 6 } as any}
                   >
-                    <span style={{ fontSize: 8, color: RED, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 600, letterSpacing: "0.1em", opacity: 0.7 }}>
+                    <span style={{ fontSize: 8, color: RED_INK, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 600, letterSpacing: "0.1em" }}>
                       0{i + 1}
                     </span>
                     {item.label}
@@ -561,7 +564,7 @@ export function HomeSite() {
                   {content.nav.ctaLabel}
                 </p>
                 <a href={`mailto:${content.footer.email}`}
-                  style={{ fontSize: 13, color: RED, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 500, textDecoration: "none" }}>
+                  style={{ fontSize: 13, color: RED_INK, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 500, textDecoration: "none" }}>
                   {content.footer.email}
                 </a>
               </m.div>
@@ -631,8 +634,8 @@ export function HomeSite() {
             >
               <m.button
                 className="group flex items-center gap-3 rounded-full border font-semibold"
-                style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", letterSpacing: "0.13em", padding: "13px 26px", borderColor: RED, color: RED, backgroundColor: "rgba(0,0,0,0)", cursor: "pointer" }}
-                whileHover={{ backgroundColor: RED, color: WHITE }}
+                style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", letterSpacing: "0.13em", padding: "13px 26px", borderColor: RED_BTN, color: RED_BTN, backgroundColor: "rgba(0,0,0,0)", cursor: "pointer" }}
+                whileHover={{ backgroundColor: RED_BTN, color: PURE_WHITE }}
                 transition={{ duration: 0.22 }}
                 onClick={(e) => goTo(content.hero.ctaPrimary.url, e)}
               >
@@ -642,8 +645,8 @@ export function HomeSite() {
 
               <m.button
                 className="hero-cta-secondary"
-                style={{ fontSize: "9.5px", letterSpacing: "0.13em", color: ctaColorFg, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 500, opacity: 0.5 }}
-                whileHover={{ opacity: 1 }}
+                style={{ fontSize: "9.5px", letterSpacing: "0.13em", color: ctaColorFg, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 600, opacity: 1, textDecorationLine: "underline", textDecorationColor: "rgba(0,0,0,0)", textUnderlineOffset: 4 }}
+                whileHover={{ textDecorationColor: "currentColor" } as any}
                 transition={{ duration: 0.2 }}
                 onClick={(e) => goTo(content.hero.ctaSecondary.url, e)}
               >
@@ -881,7 +884,7 @@ function AboutSection() {
             </Reveal>
             <Reveal delay={0.24}>
               <m.button className="flex items-center gap-3 self-start"
-                style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif' }}
+                style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif' }}
                 whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }}
                 onClick={(e) => goTo(sec.ctaUrl, e)}>
                 {sec.ctaLabel}
@@ -959,7 +962,7 @@ function ServiceCard({ num, title, body, delay, to, onNavigate }: { num: string;
         animate={inView ? { scaleX: 1 } : {}}
         transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
       />
-      <span style={{ display: "block", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED, marginBottom: 16 }}>{num}</span>
+      <span style={{ display: "block", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED_INK, marginBottom: 16 }}>{num}</span>
       <div style={{ overflow: "hidden", marginBottom: 14 }}>
         <m.h3
           style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 1.7vw, 28px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, lineHeight: 0.95, margin: 0 }}
@@ -1019,7 +1022,7 @@ function ServicesSection() {
           </h2>
           <Reveal delay={0.18}>
             <m.button
-              style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", paddingBottom: 8 }}
+              style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", paddingBottom: 8 }}
               whileHover={{ gap: "18px" } as any}
               transition={{ duration: 0.22 }}
               onClick={(e) => goTo(sec.ctaUrl, e)}
@@ -1706,7 +1709,7 @@ function ProjectsSection() {
             <div className="flex items-center gap-6 pb-2">
               <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>{sec.note}</span>
               <m.button
-                style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
+                style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
                 onClick={(e) => goTo(content.projectsCta.url, e)}
@@ -1748,7 +1751,7 @@ function ProjectsSection() {
                 {sec.cardText}
               </p>
               <m.button
-                style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
+                style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
                 onClick={(e) => goTo(content.projectsCta.url, e)}
@@ -1963,7 +1966,7 @@ function FaqSection() {
                 {sec.note}
               </p>
               <m.button
-                style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
+                style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
                 whileHover={{ gap: "18px" } as any}
                 transition={{ duration: 0.22 }}
                 onClick={(e) => goTo(sec.ctaUrl, e)}
@@ -2045,8 +2048,8 @@ function SiteFooter() {
               {f.tagline}
             </p>
             <m.button
-              style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 24px", borderRadius: 999, border: `1px solid ${RED}`, color: RED, backgroundColor: "rgba(0,0,0,0)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", cursor: "pointer" }}
-              whileHover={{ backgroundColor: RED, color: WHITE }}
+              style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 24px", borderRadius: 999, border: `1px solid ${RED_INK}`, color: RED_INK, backgroundColor: "rgba(0,0,0,0)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", cursor: "pointer" }}
+              whileHover={{ backgroundColor: RED_BTN, borderColor: RED_BTN, color: PURE_WHITE }}
               transition={{ duration: 0.22 }}
               onClick={(e) => goTo(f.ctaUrl, e)}
             >

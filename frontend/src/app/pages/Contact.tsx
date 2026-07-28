@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router"
 import { useContent, submitContact } from "../store/content"
 
 const RED = "#F20C25"
+const RED_BTN = "#DA0A20"
+const RED_INK = "#FF3547"
+const PURE_WHITE = "#FFFFFF"
 const WHITE = "#EFEFEF"
 const BLACK = "#111111"
 
@@ -171,8 +174,8 @@ export default function Contact() {
               padding: "15px 30px",
               borderRadius: 999,
               border: "none",
-              background: RED,
-              color: WHITE,
+              background: RED_BTN,
+              color: PURE_WHITE,
               fontFamily: FONT_BODY,
               fontSize: "10px",
               fontWeight: 700,

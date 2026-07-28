@@ -4,6 +4,9 @@ import { m } from "motion/react"
 import { useContent } from "../store/content"
 
 const RED = "#F20C25"
+const RED_BTN = "#DA0A20"
+const RED_INK = "#FF3547"
+const PURE_WHITE = "#FFFFFF"
 const WHITE = "#EFEFEF"
 const BLACK = "#111111"
 const FONT_HEAD = '"Roboto Condensed", sans-serif'
@@ -66,10 +69,10 @@ export default function Services() {
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.7, delay: (i % 3) * 0.06, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  <span style={{ display: "block", fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED, marginBottom: 16 }}>{s.num}</span>
+                  <span style={{ display: "block", fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED_INK, marginBottom: 16 }}>{s.num}</span>
                   <h2 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(18px, 1.7vw, 28px)", letterSpacing: "-0.04em", textTransform: "uppercase", lineHeight: 1.05, margin: "0 0 14px" }}>{s.title}</h2>
                   <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", lineHeight: 1.65, color: "rgba(239,239,239,0.45)", margin: 0 }}>{s.body}</p>
-                  <span aria-hidden="true" style={{ display: "block", marginTop: 20, fontSize: 13, color: RED }}>→</span>
+                  <span aria-hidden="true" style={{ display: "block", marginTop: 20, fontSize: 13, color: RED_INK }}>→</span>
                 </m.a>
               </li>
             )

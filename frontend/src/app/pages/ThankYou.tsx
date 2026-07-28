@@ -5,6 +5,9 @@ import { useContent } from "../store/content"
 import { TabiMark } from "../components/TabiMark"
 
 const RED = "#F20C25"
+const RED_BTN = "#DA0A20"
+const RED_INK = "#FF3547"
+const PURE_WHITE = "#FFFFFF"
 const WHITE = "#EFEFEF"
 const BLACK = "#111111"
 const FONT_HEAD = '"Roboto Condensed", sans-serif'
@@ -118,7 +121,7 @@ export default function ThankYou() {
       >
         <Link
           to="/"
-          style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "14px 28px", borderRadius: 999, background: RED, color: WHITE, textDecoration: "none", fontFamily: FONT_BODY, fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}
+          style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "14px 28px", borderRadius: 999, background: RED_BTN, color: PURE_WHITE, textDecoration: "none", fontFamily: FONT_BODY, fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}
         >
           VOLTAR AO INÍCIO <span style={{ fontSize: 14 }}>→</span>
         </Link>

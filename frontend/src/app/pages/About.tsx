@@ -5,6 +5,9 @@ import { useContent } from "../store/content"
 import { TabiMark } from "../components/TabiMark"
 
 const RED = "#F20C25"
+const RED_BTN = "#DA0A20"
+const RED_INK = "#FF3547"
+const PURE_WHITE = "#FFFFFF"
 const WHITE = "#EFEFEF"
 const BLACK = "#111111"
 const FONT_HEAD = '"Roboto Condensed", sans-serif'
@@ -96,7 +99,7 @@ export default function About() {
           ))}
 
           <div style={{ marginTop: "clamp(40px,6vw,64px)" }}>
-            <Link to="/contato" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "15px 30px", borderRadius: 999, background: RED, color: WHITE, textDecoration: "none", fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
+            <Link to="/contato" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "15px 30px", borderRadius: 999, background: RED_BTN, color: PURE_WHITE, textDecoration: "none", fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
               Vamos conversar <span style={{ fontSize: 14 }}>→</span>
             </Link>
           </div>

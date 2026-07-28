@@ -50,7 +50,7 @@ class STCMS_Seed {
 					'post_type'    => 'st_service',
 					'post_status'  => 'publish',
 					'post_title'   => $s['title'],
-					'post_content' => $s['body'],
+					'post_content' => ! empty( $s['content'] ) ? $s['content'] : $s['body'],
 					'menu_order'   => $order++,
 				)
 			);

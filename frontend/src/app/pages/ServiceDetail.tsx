@@ -4,6 +4,9 @@ import { m } from "motion/react"
 import { useContent } from "../store/content"
 
 const RED = "#F20C25"
+const RED_BTN = "#DA0A20"
+const RED_INK = "#FF3547"
+const PURE_WHITE = "#FFFFFF"
 const WHITE = "#EFEFEF"
 const BLACK = "#111111"
 const FONT_HEAD = '"Roboto Condensed", sans-serif'
@@ -54,12 +57,12 @@ export default function ServiceDetail() {
             <p style={{ color: "rgba(239,239,239,0.55)", lineHeight: 1.7, marginBottom: 28 }}>
               O serviço “{slug}” não existe ou foi removido.
             </p>
-            <Link to="/servicos" style={{ color: RED, textDecoration: "none", fontSize: 12, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase" }}>Ver todos os serviços →</Link>
+            <Link to="/servicos" style={{ color: RED_INK, textDecoration: "none", fontSize: 12, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase" }}>Ver todos os serviços →</Link>
           </div>
         ) : (
           <article>
             <m.p
-              style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED, margin: "0 0 14px" }}
+              style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED_INK, margin: "0 0 14px" }}
               initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: EASE }}
             >
               SERVIÇO {service.num}
@@ -89,7 +92,7 @@ export default function ServiceDetail() {
             <div style={{ marginTop: "clamp(40px,6vw,64px)", paddingTop: "clamp(28px,4vw,40px)", borderTop: "1px solid rgba(239,239,239,0.10)", display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", justifyContent: "space-between" }}>
               <Link
                 to="/contato"
-                style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "14px 28px", borderRadius: 999, background: RED, color: WHITE, textDecoration: "none", fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "14px 28px", borderRadius: 999, background: RED_BTN, color: PURE_WHITE, textDecoration: "none", fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}
               >
                 Solicitar orçamento <span style={{ fontSize: 14 }}>→</span>
               </Link>

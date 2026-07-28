@@ -168,12 +168,36 @@ export const DEFAULT_CONTENT: SiteContent = {
     ],
   },
   services: [
-    { num: "01", slug: "branding-identidade-visual", title: "Branding & Identidade Visual", body: "Sistemas de marca que comunicam com precisão — do logotipo ao tom de voz. Identidades que crescem com o negócio e resistem ao tempo." },
-    { num: "02", slug: "design-de-interface-ui-ux", title: "Design de Interface (UI/UX)", body: "Interfaces construídas a partir do comportamento real do usuário. Cada pixel tem função. Cada fluxo tem intenção." },
-    { num: "03", slug: "websites-imersivos", title: "Websites Imersivos", body: "Sites institucionais com direção visual forte, navegação fluida, responsividade e animações GSAP." },
-    { num: "04", slug: "landing-pages-conversivas", title: "Landing Pages Conversivas", body: "Copy persuasiva, estrutura de oferta e interface pensada para campanhas, tráfego pago e captação de leads." },
-    { num: "05", slug: "motion-para-sites", title: "Motion para Sites", body: "Movimento que conta histórias. Animações de interface e motion graphics que transformam conteúdo em experiência." },
-    { num: "06", slug: "conteudo-copywriting", title: "Conteúdo & Copywriting", body: "Palavras que convertem. Narrativas que constroem autoridade, geram confiança e movem o usuário à ação." },
+    {
+      num: "01", slug: "branding-identidade-visual", title: "Branding & Identidade Visual",
+      body: "Sistemas de marca que comunicam com precisão — do logotipo ao tom de voz. Identidades que crescem com o negócio e resistem ao tempo.",
+      content: "<p>Marca não é logotipo — é a soma de todas as percepções que as pessoas têm do seu negócio. Construímos sistemas de identidade completos: logotipo, paleta, tipografia, grafismos, aplicações e um guia de uso que mantém tudo coerente onde quer que a marca apareça.</p><p>Começamos entendendo o posicionamento e a personalidade da marca, para que cada decisão visual tenha razão de existir. O resultado é uma identidade que transmite intenção, diferencia da concorrência e continua fazendo sentido daqui a cinco anos.</p><ul><li>Naming e verbal branding (tom de voz)</li><li>Logotipo, símbolo e variações</li><li>Sistema visual: cores, tipografia e grafismos</li><li>Manual de marca e kit de aplicação</li></ul>",
+    },
+    {
+      num: "02", slug: "design-de-interface-ui-ux", title: "Design de Interface (UI/UX)",
+      body: "Interfaces construídas a partir do comportamento real do usuário. Cada pixel tem função. Cada fluxo tem intenção.",
+      content: "<p>Interface boa é invisível: o usuário chega onde quer sem perceber o esforço por trás. Desenhamos produtos e sites partindo da pesquisa — quem usa, o que precisa e onde trava — e traduzimos isso em fluxos claros, hierarquia visual e micro-interações que guiam a decisão.</p><p>Entregamos do wireframe ao design system documentado, prontos para o time de desenvolvimento. Cada tela é pensada para reduzir atrito e aumentar conversão, sem abrir mão da estética.</p><ul><li>UX research e arquitetura de informação</li><li>Wireframes e protótipos navegáveis</li><li>UI design e design system</li><li>Testes de usabilidade</li></ul>",
+    },
+    {
+      num: "03", slug: "websites-imersivos", title: "Websites Imersivos",
+      body: "Sites institucionais com direção visual forte, navegação fluida, responsividade e animações.",
+      content: "<p>Um site institucional é o cartão de visita mais importante da marca. Criamos experiências imersivas, com direção de arte forte, animações de scroll e transições que transformam a navegação em algo memorável — sem sacrificar performance nem acessibilidade.</p><p>Cada projeto é responsivo de verdade, rápido no celular e construído para ser encontrado no Google. Você recebe um site que impressiona e que também trabalha pelo seu negócio.</p><ul><li>Direção de arte e storytelling visual</li><li>Animações de scroll e micro-interações</li><li>Responsividade e performance (Core Web Vitals)</li><li>SEO técnico e integração com CMS</li></ul>",
+    },
+    {
+      num: "04", slug: "landing-pages-conversivas", title: "Landing Pages Conversivas",
+      body: "Copy persuasiva, estrutura de oferta e interface pensada para campanhas, tráfego pago e captação de leads.",
+      content: "<p>Uma landing page tem um único objetivo: converter. Estruturamos cada seção — headline, prova social, oferta, objeções e CTA — para conduzir o visitante até a ação, seja um lead, uma venda ou um agendamento.</p><p>Unimos copy persuasiva, design orientado a conversão e testes A/B para extrair o máximo do seu investimento em tráfego pago. Páginas que carregam rápido e convertem mais.</p><ul><li>Copywriting e estrutura de oferta</li><li>Design focado em conversão</li><li>Integração com formulários, pixel e analytics</li><li>Testes A/B e otimização contínua</li></ul>",
+    },
+    {
+      num: "05", slug: "motion-para-sites", title: "Motion para Sites",
+      body: "Movimento que conta histórias. Animações de interface e motion graphics que transformam conteúdo em experiência.",
+      content: "<p>Movimento é linguagem. Uma animação bem colocada guia o olhar, explica uma ideia e dá personalidade à marca. Produzimos motion para interfaces — transições, hover, scroll, loaders — e motion graphics para comunicação, sempre com propósito e performance.</p><p>Nada de animação por enfeite: cada movimento tem função, respeita quem prefere menos animação e roda liso em qualquer dispositivo.</p><ul><li>Animações de interface e transições</li><li>Motion graphics e vídeos curtos</li><li>Animações de scroll e storytelling</li><li>Otimização de performance e acessibilidade</li></ul>",
+    },
+    {
+      num: "06", slug: "conteudo-copywriting", title: "Conteúdo & Copywriting",
+      body: "Palavras que convertem. Narrativas que constroem autoridade, geram confiança e movem o usuário à ação.",
+      content: "<p>Design chama a atenção; a palavra certa fecha o negócio. Desenvolvemos a voz da sua marca e produzimos conteúdo que constrói autoridade, gera confiança e move o usuário à ação — do texto de um botão ao artigo que posiciona você como referência.</p><p>Trabalhamos copy de site, campanhas, e-mail e redes sociais, sempre alinhados à estratégia e ao tom de voz da marca.</p><ul><li>Definição de tom de voz e mensagens-chave</li><li>Copy de sites, landing pages e campanhas</li><li>Conteúdo para blog e redes sociais</li><li>Revisão e consistência editorial</li></ul>",
+    },
   ],
   projects: [
     {
