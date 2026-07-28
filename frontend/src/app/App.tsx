@@ -17,6 +17,7 @@ import { useContent, type SiteContent } from "./store/content"
 import { fetchPosts, type PostCard } from "./store/blog"
 import Root from "./Root"
 import { TabiMark } from "./components/TabiMark"
+import { TabiStroke } from "./components/TabiStroke"
 import { ProcessIcon } from "./components/ui/ProcessIcon"
 
 // Rotas secundárias carregadas sob demanda (code-splitting) para reduzir o
@@ -655,6 +656,13 @@ function AboutSection() {
   const STATS = content.about.stats
   const STEPS = content.process
 
+  // Progresso do scroll ao longo das etapas: alimenta o traço do 旅 e o
+  // trilho lateral, dando a sensação de percorrer uma jornada.
+  const stepsRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: stepsRaw } = useScroll({ target: stepsRef, offset: ["start 80%", "end 60%"] })
+  const stepsProgress = useSpring(stepsRaw, { stiffness: 90, damping: 26, restDelta: 0.001 })
+  const strokeOpacity = useTransform(stepsRaw, [0, 0.08, 0.9, 1], [0, 0.30, 0.30, 0.16])
+
 
   const pad = "clamp(20px, 4vw, 82px)"
 
@@ -735,7 +743,7 @@ function AboutSection() {
       <div style={{ margin: `0 ${pad}`, height: "1px", backgroundColor: "rgba(239,239,239,0.08)", position: "relative", zIndex: 1 }} />
 
       {/* ── Pillars ── */}
-      <div style={{ padding: `0 ${pad} clamp(64px, 10vw, 140px)`, position: "relative", zIndex: 1 }}>
+      <div ref={stepsRef} style={{ padding: `0 ${pad} clamp(64px, 10vw, 140px)`, position: "relative", zIndex: 1 }}>
         <Reveal delay={0}>
           <div className="flex items-center justify-between pt-10 md:pt-12 pb-2">
             <span style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)" }}>
@@ -746,6 +754,14 @@ function AboutSection() {
             </span>
           </div>
         </Reveal>
+
+        {/* Jornada (tabi): o trilho se preenche conforme o visitante percorre
+            as etapas. A marca 旅 fica por conta do hover de cada pilar, para
+            não competirem pela mesma área. */}
+        <div aria-hidden="true" className="hidden md:block"
+          style={{ position: "absolute", left: `calc(${pad} - 14px)`, top: "22%", bottom: "clamp(64px, 10vw, 140px)", width: 2, background: "rgba(239,239,239,0.07)", borderRadius: 2, overflow: "hidden", zIndex: 1 }}>
+          <m.div style={{ width: "100%", height: "100%", background: `linear-gradient(180deg, ${RED} 0%, ${RED_INK} 100%)`, transformOrigin: "top", scaleY: stepsProgress }} />
+        </div>
 
         {STEPS.map((p, i) => (
           <Pillar key={p.slug || p.title} index={`0${i + 1}`} title={p.title} body={p.summary} delay={i * 0.06}

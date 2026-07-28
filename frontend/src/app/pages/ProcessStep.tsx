@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link, useParams } from "react-router"
-import { m } from "motion/react"
+import { m, useScroll, useSpring, useTransform } from "motion/react"
 import { useContent, fetchPage, WpPage } from "../store/content"
 import { Breadcrumbs } from "../components/Breadcrumbs"
+import { TabiStroke } from "../components/TabiStroke"
 import { ProcessIcon } from "../components/ui/ProcessIcon"
 import { colors, fonts, ease, PAGE_PAD } from "../constants/theme"
 
@@ -23,6 +24,13 @@ export default function ProcessStep() {
   const [page, setPage] = useState<WpPage | null>(null)
   const [loaded, setLoaded] = useState(false)
 
+  // O traço do 旅 acompanha a leitura da página (0 no topo, 1 no fim).
+  const pageRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: pageRef, offset: ["start start", "end end"] })
+  const drawProgress = useSpring(scrollYProgress, { stiffness: 80, damping: 24, restDelta: 0.001 })
+  // Some antes do fim para não pairar sobre o rodapé.
+  const markOpacity = useTransform(scrollYProgress, [0, 0.06, 0.82, 0.95], [0, 0.18, 0.18, 0])
+
   useEffect(() => {
     let alive = true
     setLoaded(false)
@@ -33,8 +41,15 @@ export default function ProcessStep() {
   }, [slug, step, content.site.title])
 
   return (
-    <div style={{ minHeight: "100svh", background: colors.black, color: colors.white, fontFamily: fonts.body }}>
-      <main id="conteudo" style={{ maxWidth: 900, margin: "0 auto", padding: `clamp(40px,6vw,72px) ${PAGE_PAD} 120px` }}>
+    <div ref={pageRef} style={{ minHeight: "100svh", background: colors.black, color: colors.white, fontFamily: fonts.body, position: "relative", overflow: "hidden" }}>
+      {/* Assinatura tabi: o kanji da jornada se desenha conforme o visitante
+          percorre a etapa — a leitura completa fecha o traço. */}
+      <m.div aria-hidden="true" className="hidden md:block pointer-events-none"
+        style={{ position: "fixed", right: "2%", top: "18%", width: "clamp(200px, 22vw, 360px)", opacity: markOpacity, zIndex: 0 }}>
+        <TabiStroke key={slug} width="100%" color={colors.red} strokeWidth={0.8} progress={drawProgress} />
+      </m.div>
+
+      <main id="conteudo" style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto", padding: `clamp(40px,6vw,72px) ${PAGE_PAD} 120px` }}>
         <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Como Trabalhamos", to: "/sobre" }, { label: step ? step.title : slug }]} />
 
         {!step ? (
