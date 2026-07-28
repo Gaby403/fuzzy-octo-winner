@@ -489,13 +489,24 @@ class STCMS_Options {
 			)
 		);
 		foreach ( $services as $s ) {
-			$has = '' !== trim( (string) get_post_meta( $s->ID, 'stcms_page_content', true ) );
+			$has  = '' !== trim( (string) get_post_meta( $s->ID, 'stcms_page_content', true ) );
+			$show = '1' === (string) get_post_meta( $s->ID, 'stcms_show_excerpt', true );
+			if ( ! $has ) {
+				$cor = '#8a6d00';
+				$txt = 'Usando a descrição curta';
+			} elseif ( $show ) {
+				$cor = '#1a7f37';
+				$txt = 'Texto próprio + introdução';
+			} else {
+				$cor = '#1a7f37';
+				$txt = 'Texto próprio';
+			}
 			printf(
 				'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:%s">%s</td><td><a class="button" href="%s">Editar texto</a></td></tr>',
 				esc_html( get_the_title( $s ) ),
 				esc_html( '/servicos/' . $s->post_name ),
-				$has ? '#1a7f37' : '#8a6d00',
-				$has ? 'Texto próprio' : 'Usando a descrição curta',
+				esc_attr( $cor ),
+				esc_html( $txt ),
 				esc_url( get_edit_post_link( $s->ID ) )
 			);
 		}

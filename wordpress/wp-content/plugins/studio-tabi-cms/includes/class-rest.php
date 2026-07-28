@@ -651,6 +651,8 @@ class STCMS_Rest {
 				'body'    => self::plain( $p->post_content ),
 				'slug'    => $p->post_name,
 				'content' => apply_filters( 'the_content', $rich ),
+				// Quando true, a página interna abre com a descrição curta.
+				'showExcerpt' => '1' === (string) get_post_meta( $p->ID, 'stcms_show_excerpt', true ),
 				'image'   => get_the_post_thumbnail_url( $p, 'large' ) ? get_the_post_thumbnail_url( $p, 'large' ) : '',
 			);
 		}

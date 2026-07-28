@@ -80,11 +80,20 @@ export default function ServiceDetail() {
             )}
 
             {service.content && service.content.trim() ? (
-              <div
-                className="wp-page-content"
-                style={{ lineHeight: 1.8, fontSize: 16, color: "rgba(239,239,239,0.82)" }}
-                dangerouslySetInnerHTML={{ __html: service.content }}
-              />
+              <>
+                {/* A descrição curta só abre a página quando marcada no CMS. */}
+                {service.showExcerpt && service.body && (
+                  <TextReveal
+                    text={service.body}
+                    style={{ fontSize: "clamp(15px,1.3vw,20px)", lineHeight: 1.7, color: "rgba(239,239,239,0.7)", margin: "0 0 clamp(24px,3vw,36px)", maxWidth: 680 }}
+                  />
+                )}
+                <div
+                  className="wp-page-content"
+                  style={{ lineHeight: 1.8, fontSize: 16, color: "rgba(239,239,239,0.82)" }}
+                  dangerouslySetInnerHTML={{ __html: service.content }}
+                />
+              </>
             ) : (
               <TextReveal text={service.body} style={{ lineHeight: 1.8, fontSize: 17, color: "rgba(239,239,239,0.78)", margin: 0 }} />
             )}

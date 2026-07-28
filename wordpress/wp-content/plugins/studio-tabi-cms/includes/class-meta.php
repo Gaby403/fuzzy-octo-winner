@@ -99,7 +99,13 @@ class STCMS_Meta {
 	public static function render_service_page( $post ) {
 		wp_nonce_field( 'stcms_meta', 'stcms_meta_nonce' );
 		$value = get_post_meta( $post->ID, 'stcms_page_content', true );
+		$show  = '1' === (string) get_post_meta( $post->ID, 'stcms_show_excerpt', true );
+
 		echo '<p style="color:#787c82;font-size:12px;margin-top:0">Texto completo exibido em <strong>/servicos/' . esc_html( $post->post_name ) . '</strong>. Se ficar vazio, a página usa a descrição curta.</p>';
+
+		echo '<p style="margin:0 0 12px"><label><input type="checkbox" name="stcms_show_excerpt" value="1" ' . checked( $show, true, false ) . '> '
+			. 'Exibir também a <strong>descrição curta</strong> como introdução, acima do texto completo</label><br>'
+			. '<span style="color:#787c82;font-size:12px">Desmarcado, a página mostra apenas o texto abaixo — útil quando a descrição curta serve só para o card da home.</span></p>';
 		wp_editor(
 			$value,
 			'stcms_page_content',
@@ -307,6 +313,9 @@ class STCMS_Meta {
 			// Conteúdo rico da página interna: aceita o HTML permitido a posts.
 			if ( isset( $_POST['stcms_page_content'] ) ) {
 				update_post_meta( $post_id, 'stcms_page_content', wp_kses_post( wp_unslash( $_POST['stcms_page_content'] ) ) );
+				// A checkbox só chega quando marcada; o isset acima garante que
+				// estamos no formulário certo antes de gravar o valor vazio.
+				update_post_meta( $post_id, 'stcms_show_excerpt', empty( $_POST['stcms_show_excerpt'] ) ? '' : '1' );
 			}
 		}
 

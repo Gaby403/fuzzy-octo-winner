@@ -65,7 +65,7 @@ export interface SiteContent {
     stats: { numeric: number; suffix: string; label: string }[]
     pillars: { title: string; body: string }[]
   }
-  services: { num: string; title: string; body: string; slug?: string; content?: string; image?: string }[]
+  services: { num: string; title: string; body: string; slug?: string; content?: string; image?: string; showExcerpt?: boolean }[]
   projects: {
     id: string
     name: string
