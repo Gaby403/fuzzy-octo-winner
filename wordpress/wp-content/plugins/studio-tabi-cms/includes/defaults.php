@@ -29,6 +29,9 @@ function stcms_default_options() {
 			'gtm_id'           => '',
 			'recaptcha_site'   => '',
 			'recaptcha_secret' => '',
+			// Para onde vão os formulários (contato/newsletter). Vazio = usa o
+			// e-mail do rodapé; se este também estiver vazio, usa o admin do WP.
+			'form_email'       => '',
 		),
 		'nav'    => array(
 			'brand'     => 'STUDIO TABI',
@@ -85,6 +88,11 @@ function stcms_default_options() {
 			'projects_eyebrow'   => 'STUDIO TABI — PROJETOS',
 			'projects_note'      => '120+ projetos entregues',
 			'projects_card_text' => 'Quer ver o portfólio completo com todos os nossos projetos?',
+			'blog_eyebrow'       => 'STUDIO TABI — INSIGHTS',
+			'blog_title'         => 'DO NOSSO',
+			'blog_highlight'     => 'DIÁRIO.',
+			'blog_note'          => 'Ideias sobre design, estratégia e tecnologia — direto de quem constrói.',
+			'blog_cta_label'     => 'VER TODOS OS ARTIGOS',
 			'faq_eyebrow'        => 'STUDIO TABI — FAQ',
 			'faq_note'           => 'Não encontrou o que procura? Entre em contato diretamente com a equipe.',
 			'faq_cta_label'      => 'FALAR COM A EQUIPE',
@@ -109,6 +117,8 @@ function stcms_default_options() {
 		'footer' => array(
 			'brand'         => 'STUDIO TABI',
 			'tagline'       => 'Design e tecnologia que levam marcas até onde precisam chegar.',
+			'cta_title'     => 'Vamos construir a sua',
+			'cta_highlight' => 'presença digital.',
 			'cta_label'     => 'INICIAR PROJETO',
 			'cta_url'       => '/contato',
 			'col1_title'    => 'Navegação',

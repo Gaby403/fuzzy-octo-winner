@@ -67,12 +67,23 @@ export default function Root() {
   }, [])
 
   // Analytics (GA4 / GTM) e reCAPTCHA — injetados quando o CMS tiver os IDs.
+  // Adiados para depois do carregamento (idle) para não competir com a
+  // renderização inicial: scripts de terceiros são o maior peso no PageSpeed.
   useEffect(() => {
-    initAnalytics({
+    const opts = {
       ga4Id: content.site.ga4Id,
       gtmId: content.site.gtmId,
       recaptchaSite: content.site.recaptchaSite,
-    })
+    }
+    if (!opts.ga4Id && !opts.gtmId && !opts.recaptchaSite) return
+    const start = () => initAnalytics(opts)
+    const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback
+    const id = ric ? ric(start, { timeout: 4000 }) : window.setTimeout(start, 2500)
+    return () => {
+      const cic = (window as unknown as { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback
+      if (ric && cic) cic(id)
+      else window.clearTimeout(id)
+    }
   }, [content.site.ga4Id, content.site.gtmId, content.site.recaptchaSite])
 
   // Page view a cada mudança de rota (SPA) para GA4/GTM.

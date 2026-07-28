@@ -56,6 +56,7 @@ export interface SiteContent {
     about: { eyebrow: string; pillarsLabel: string; ctaLabel: string; ctaUrl: string }
     services: { eyebrow: string; ctaLabel: string; ctaUrl: string }
     projects: { eyebrow: string; note: string; cardText: string }
+    blog: { eyebrow: string; title: string; highlight: string; note: string; ctaLabel: string }
     faq: { eyebrow: string; note: string; ctaLabel: string; ctaUrl: string }
   }
   about: {
@@ -96,6 +97,9 @@ export interface SiteContent {
   footer: {
     brand: string
     tagline: string
+    /** Chamada da faixa de CTA do rodapé (título + destaque em vermelho). */
+    ctaTitle: string
+    ctaHighlight: string
     ctaLabel: string
     ctaUrl: string
     columns: { title: string; links: MenuLink[] }[]
@@ -165,6 +169,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     about: { eyebrow: "STUDIO TABI — SOBRE NÓS", pillarsLabel: "COMO TRABALHAMOS", ctaLabel: "CONHEÇA NOSSA HISTÓRIA", ctaUrl: "/sobre" },
     services: { eyebrow: "STUDIO TABI — SERVIÇOS", ctaLabel: "VER TODOS OS SERVIÇOS", ctaUrl: "/servicos" },
     projects: { eyebrow: "STUDIO TABI — PROJETOS", note: "120+ projetos entregues", cardText: "Quer ver o portfólio completo com todos os nossos projetos?" },
+    blog: { eyebrow: "STUDIO TABI — INSIGHTS", title: "DO NOSSO", highlight: "DIÁRIO.", note: "Ideias sobre design, estratégia e tecnologia — direto de quem constrói.", ctaLabel: "VER TODOS OS ARTIGOS" },
     faq: { eyebrow: "STUDIO TABI — FAQ", note: "Não encontrou o que procura? Entre em contato diretamente com a equipe.", ctaLabel: "FALAR COM A EQUIPE", ctaUrl: "/contato" },
   },
   about: {
@@ -272,6 +277,8 @@ export const DEFAULT_CONTENT: SiteContent = {
   footer: {
     brand: "STUDIO TABI",
     tagline: "Design e tecnologia que levam marcas até onde precisam chegar.",
+    ctaTitle: "Vamos construir a sua",
+    ctaHighlight: "presença digital.",
     ctaLabel: "INICIAR PROJETO",
     ctaUrl: "/contato",
     columns: [
@@ -362,6 +369,7 @@ function mergeContent(remote: Partial<SiteContent> | null | undefined): SiteCont
       about: { ...DEFAULT_CONTENT.sections.about, ...(remote.sections.about || {}) },
       services: { ...DEFAULT_CONTENT.sections.services, ...(remote.sections.services || {}) },
       projects: { ...DEFAULT_CONTENT.sections.projects, ...(remote.sections.projects || {}) },
+      blog: { ...DEFAULT_CONTENT.sections.blog, ...(remote.sections.blog || {}) },
       faq: { ...DEFAULT_CONTENT.sections.faq, ...(remote.sections.faq || {}) },
     } : DEFAULT_CONTENT.sections,
     about: { ...DEFAULT_CONTENT.about, ...(remote.about || {}) },

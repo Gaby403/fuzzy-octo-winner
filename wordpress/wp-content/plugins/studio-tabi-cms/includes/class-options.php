@@ -113,6 +113,7 @@ class STCMS_Options {
 						self::row_text( 'ID do Google Tag Manager', 'site][gtm_id', $o['site']['gtm_id'], 'Ex.: GTM-XXXXXX. Se preenchido, o GA4 pode ser gerido pelo GTM.' );
 						self::row_text( 'reCAPTCHA v3 — Site Key', 'site][recaptcha_site', $o['site']['recaptcha_site'], 'Chave pública (client). Ativa a proteção anti-spam nos formulários.' );
 						self::row_text( 'reCAPTCHA v3 — Secret Key', 'site][recaptcha_secret', $o['site']['recaptcha_secret'], 'Chave secreta (server). Nunca é exposta na API pública.' );
+						self::row_text( 'E-mail que RECEBE os formulários', 'site][form_email', $o['site']['form_email'] ?? '', 'Para onde vão contato e newsletter. Se vazio, usa o e-mail do Rodapé; se este também estiver vazio, usa o e-mail do administrador do WordPress.' );
 						?>
 					</table>
 				<?php self::card_close(); ?>
@@ -227,6 +228,17 @@ class STCMS_Options {
 							?>
 						</table>
 					</div>
+					<div class="stcms-subgroup"><span class="stcms-subtitle">Blog (home)</span>
+						<table class="form-table stcms-fields" role="presentation">
+							<?php
+							self::row_text( 'Eyebrow', 'sections][blog_eyebrow', $o['sections']['blog_eyebrow'] ?? '' );
+							self::row_text( 'Título (1ª linha)', 'sections][blog_title', $o['sections']['blog_title'] ?? '', 'Ex.: DO NOSSO' );
+							self::row_text( 'Título em destaque (2ª linha, vermelho)', 'sections][blog_highlight', $o['sections']['blog_highlight'] ?? '', 'Ex.: DIÁRIO.' );
+							self::row_textarea( 'Nota ao lado do título', 'sections][blog_note', $o['sections']['blog_note'] ?? '' );
+							self::row_text( 'Texto do botão', 'sections][blog_cta_label', $o['sections']['blog_cta_label'] ?? '', 'Leva para /blog. A seção some da home se não houver artigos publicados.' );
+							?>
+						</table>
+					</div>
 					<div class="stcms-subgroup"><span class="stcms-subtitle">FAQ</span>
 						<table class="form-table stcms-fields" role="presentation">
 							<?php
@@ -270,6 +282,8 @@ class STCMS_Options {
 						<?php
 						self::row_text( 'Marca / logo (texto)', 'footer][brand', $o['footer']['brand'] );
 						self::row_textarea( 'Tagline', 'footer][tagline', $o['footer']['tagline'] );
+						self::row_text( 'Chamada do rodapé', 'footer][cta_title', $o['footer']['cta_title'] ?? '', 'Ex.: Vamos construir a sua' );
+						self::row_text( 'Chamada em destaque (vermelho)', 'footer][cta_highlight', $o['footer']['cta_highlight'] ?? '', 'Ex.: presença digital.' );
 						self::row_text( 'Texto do botão (CTA)', 'footer][cta_label', $o['footer']['cta_label'] );
 						?>
 					</table>
@@ -434,6 +448,7 @@ class STCMS_Options {
 			$out['site']['gtm_id']          = sanitize_text_field( $input['site']['gtm_id'] ?? '' );
 			$out['site']['recaptcha_site']  = sanitize_text_field( $input['site']['recaptcha_site'] ?? '' );
 			$out['site']['recaptcha_secret'] = sanitize_text_field( $input['site']['recaptcha_secret'] ?? '' );
+			$out['site']['form_email']      = sanitize_email( $input['site']['form_email'] ?? '' );
 		}
 
 		if ( isset( $input['hero'] ) ) {
@@ -489,11 +504,12 @@ class STCMS_Options {
 
 		if ( isset( $input['sections'] ) ) {
 			$s = $input['sections'];
-			$text_keys = array( 'about_eyebrow', 'about_cta_label', 'about_pillars_label', 'services_eyebrow', 'services_cta_label', 'projects_eyebrow', 'projects_note', 'faq_eyebrow', 'faq_cta_label' );
+			$text_keys = array( 'about_eyebrow', 'about_cta_label', 'about_pillars_label', 'services_eyebrow', 'services_cta_label', 'projects_eyebrow', 'projects_note', 'blog_eyebrow', 'blog_title', 'blog_highlight', 'blog_cta_label', 'faq_eyebrow', 'faq_cta_label' );
 			foreach ( $text_keys as $k ) {
 				$out['sections'][ $k ] = sanitize_text_field( $s[ $k ] ?? '' );
 			}
 			$out['sections']['projects_card_text'] = sanitize_textarea_field( $s['projects_card_text'] ?? '' );
+			$out['sections']['blog_note']          = sanitize_textarea_field( $s['blog_note'] ?? '' );
 			$out['sections']['faq_note']           = sanitize_textarea_field( $s['faq_note'] ?? '' );
 			foreach ( array( 'about_cta_url', 'services_cta_url', 'faq_cta_url' ) as $k ) {
 				$out['sections'][ $k ] = self::sanitize_link_url( $s[ $k ] ?? '' );
@@ -541,6 +557,8 @@ class STCMS_Options {
 		if ( isset( $input['footer'] ) ) {
 			$out['footer']['brand']         = sanitize_text_field( $input['footer']['brand'] ?? '' );
 			$out['footer']['tagline']       = sanitize_text_field( $input['footer']['tagline'] ?? '' );
+			$out['footer']['cta_title']     = sanitize_text_field( $input['footer']['cta_title'] ?? '' );
+			$out['footer']['cta_highlight'] = sanitize_text_field( $input['footer']['cta_highlight'] ?? '' );
 			$out['footer']['cta_label']     = sanitize_text_field( $input['footer']['cta_label'] ?? '' );
 			$out['footer']['cta_url']       = self::sanitize_link_url( $input['footer']['cta_url'] ?? '' );
 			$out['footer']['col1_title']    = sanitize_text_field( $input['footer']['col1_title'] ?? '' );

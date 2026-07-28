@@ -175,6 +175,15 @@ export default function Contact() {
             {state === "sending" ? "ENVIANDO…" : "ENVIAR MENSAGEM"} <span style={{ fontSize: 14 }}>→</span>
           </button>
 
+          {/* Aviso exigido pelo Google quando o badge do reCAPTCHA fica oculto. */}
+          {content.site.recaptchaSite && (
+            <p style={{ margin: "14px 0 0", fontSize: 11, lineHeight: 1.6, color: "rgba(239,239,239,0.35)" }}>
+              Protegido por reCAPTCHA — aplicam-se a{" "}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: RED_INK }}>Política de Privacidade</a> e os{" "}
+              <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" style={{ color: RED_INK }}>Termos de Serviço</a> do Google.
+            </p>
+          )}
+
           {feedback && (
             <p
               role="status"

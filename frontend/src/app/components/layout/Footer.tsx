@@ -35,10 +35,10 @@ export function Footer() {
           initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, ease: ease.out }}
         >
           <h2 style={{ fontFamily: fonts.head, fontWeight: 900, fontSize: "clamp(28px,4vw,56px)", letterSpacing: "-0.04em", textTransform: "uppercase", lineHeight: 0.95, margin: 0, maxWidth: 720 }}>
-            Vamos construir a sua <span style={{ color: colors.red }}>presença digital.</span>
+            {f.ctaTitle} <span style={{ color: colors.red }}>{f.ctaHighlight}</span>
           </h2>
           <button
-            onClick={(e) => goTo(f.ctaUrl, e)}
+            onClick={(e) => goTo(f.ctaUrl || "/contato", e)}
             style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 12, padding: "16px 32px", borderRadius: 999, border: "none", background: colors.redBtn, color: colors.pureWhite, fontFamily: fonts.body, fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer" }}
           >
             {f.ctaLabel} <span style={{ fontSize: 14 }}>→</span>
@@ -53,7 +53,7 @@ export function Footer() {
           <div className="md:col-span-4">
             <div style={{ marginBottom: 18 }}>
               {content.site.logoUrl ? (
-                <img src={content.site.logoUrl} alt={f.brand || content.site.title} style={{ height: "clamp(30px, 3.4vw, 44px)", width: "auto", display: "block" }} />
+                <img src={content.site.logoUrl} alt={f.brand || content.site.title} loading="lazy" decoding="async" style={{ height: "clamp(30px, 3.4vw, 44px)", width: "auto", display: "block" }} />
               ) : (
                 <span style={{ fontFamily: fonts.head, fontWeight: 900, fontSize: "clamp(18px, 1.6vw, 26px)", letterSpacing: "-0.05em", textTransform: "uppercase", color: colors.white }}>{f.brand}</span>
               )}

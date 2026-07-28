@@ -208,6 +208,13 @@ class STCMS_Rest {
 					'note'     => self::decode( $o['sections']['projects_note'] ),
 					'cardText' => self::decode( $o['sections']['projects_card_text'] ),
 				),
+				'blog' => array(
+					'eyebrow'   => self::decode( $o['sections']['blog_eyebrow'] ?? '' ),
+					'title'     => self::decode( $o['sections']['blog_title'] ?? '' ),
+					'highlight' => self::decode( $o['sections']['blog_highlight'] ?? '' ),
+					'note'      => self::decode( $o['sections']['blog_note'] ?? '' ),
+					'ctaLabel'  => self::decode( $o['sections']['blog_cta_label'] ?? '' ),
+				),
 				'faq' => array(
 					'eyebrow'  => self::decode( $o['sections']['faq_eyebrow'] ),
 					'note'     => self::decode( $o['sections']['faq_note'] ),
@@ -227,6 +234,8 @@ class STCMS_Rest {
 			'footer'   => array(
 				'brand'        => self::decode( $o['footer']['brand'] ),
 				'tagline'      => $o['footer']['tagline'],
+				'ctaTitle'     => self::decode( $o['footer']['cta_title'] ?? '' ),
+				'ctaHighlight' => self::decode( $o['footer']['cta_highlight'] ?? '' ),
 				'ctaLabel'     => self::decode( $o['footer']['cta_label'] ),
 				'ctaUrl'       => (string) $o['footer']['cta_url'],
 				'columns'      => array(
@@ -287,10 +296,7 @@ class STCMS_Rest {
 			);
 		}
 
-		$o         = STCMS_Options::get();
-		$recipient = ( ! empty( $o['footer']['email'] ) && is_email( $o['footer']['email'] ) )
-			? $o['footer']['email']
-			: get_option( 'admin_email' );
+		$recipient = self::form_recipient();
 
 		$site_name   = get_bloginfo( 'name' );
 		$mail_title  = $subject ? $subject : 'Nova mensagem pelo site';
@@ -463,11 +469,29 @@ class STCMS_Rest {
 		if ( ! in_array( $email, $list, true ) ) {
 			$list[] = $email;
 			update_option( 'stcms_newsletter', $list );
-			$o         = STCMS_Options::get();
-			$recipient = ( ! empty( $o['footer']['email'] ) && is_email( $o['footer']['email'] ) ) ? $o['footer']['email'] : get_option( 'admin_email' );
-			wp_mail( $recipient, '[' . get_bloginfo( 'name' ) . '] Nova inscrição na newsletter', "Novo e-mail inscrito: {$email}" );
+			wp_mail( self::form_recipient(), '[' . get_bloginfo( 'name' ) . '] Nova inscrição na newsletter', "Novo e-mail inscrito: {$email}" );
 		}
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Inscrição confirmada! Obrigado.' ), 200 );
+	}
+
+	/**
+	 * Para onde vão os e-mails dos formulários (contato e newsletter).
+	 *
+	 * Ordem: "E-mail que recebe os formulários" (Integrações) → e-mail do
+	 * Rodapé → e-mail do administrador do WordPress. Assim o endereço de
+	 * exibição no site pode ser diferente do que recebe as mensagens.
+	 */
+	private static function form_recipient() {
+		$o = STCMS_Options::get();
+		$form = trim( (string) ( $o['site']['form_email'] ?? '' ) );
+		if ( $form && is_email( $form ) ) {
+			return $form;
+		}
+		$footer = trim( (string) ( $o['footer']['email'] ?? '' ) );
+		if ( $footer && is_email( $footer ) ) {
+			return $footer;
+		}
+		return get_option( 'admin_email' );
 	}
 
 	/**

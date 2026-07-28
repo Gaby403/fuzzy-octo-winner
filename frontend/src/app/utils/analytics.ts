@@ -118,19 +118,45 @@ export function trackEvent(event: string, params: Record<string, unknown> = {}) 
  */
 export function getRecaptchaToken(siteKey: string, action: string): Promise<string> {
   const key = (siteKey || "").trim()
-  if (!key || typeof window === "undefined" || !window.grecaptcha) {
-    return Promise.resolve("")
-  }
+  if (!key || typeof window === "undefined") return Promise.resolve("")
+
+  // O script é carregado de forma adiada (idle) para não pesar no PageSpeed.
+  // Se o visitante enviar o formulário antes disso, carregamos sob demanda e
+  // aguardamos — assim o token nunca sai vazio por causa do defer.
+  loadScript("recaptcha-v3", {
+    async: true,
+    defer: true,
+    src: `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(key)}`,
+  })
+  injectedRecaptcha = key
+
+  const execute = (): Promise<string> =>
+    new Promise(resolve => {
+      try {
+        window.grecaptcha!.ready(() => {
+          window.grecaptcha!
+            .execute(key, { action })
+            .then(token => resolve(token || ""))
+            .catch(() => resolve(""))
+        })
+      } catch {
+        resolve("")
+      }
+    })
+
+  if (window.grecaptcha) return execute()
+
+  // Aguarda o grecaptcha aparecer (máx. ~5s) antes de desistir.
   return new Promise(resolve => {
-    try {
-      window.grecaptcha!.ready(() => {
-        window.grecaptcha!
-          .execute(key, { action })
-          .then(token => resolve(token || ""))
-          .catch(() => resolve(""))
-      })
-    } catch {
-      resolve("")
-    }
+    const started = Date.now()
+    const tick = window.setInterval(() => {
+      if (window.grecaptcha) {
+        window.clearInterval(tick)
+        execute().then(resolve)
+      } else if (Date.now() - started > 5000) {
+        window.clearInterval(tick)
+        resolve("")
+      }
+    }, 100)
   })
 }

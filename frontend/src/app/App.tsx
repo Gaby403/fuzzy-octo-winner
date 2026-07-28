@@ -14,6 +14,7 @@ import {
 import { RouterProvider, createBrowserRouter, Link, useSearchParams } from "react-router"
 import { useGoTo } from "./hooks/useGoTo"
 import { useContent, type SiteContent } from "./store/content"
+import { fetchPosts, type PostCard } from "./store/blog"
 import Root from "./Root"
 import { TabiMark } from "./components/TabiMark"
 import { ProcessIcon } from "./components/ui/ProcessIcon"
@@ -479,6 +480,7 @@ export function HomeSite() {
         <AboutSection />
         <ServicesSection />
         <ProjectsSection />
+        <BlogSection />
         <FaqSection />
       </main>
     </>
@@ -1028,7 +1030,7 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
         {/* Background */}
         <div style={{ position: "absolute", inset: 0, background: proj.bg }} />
         {proj.imageUrl && (
-          <img src={proj.imageUrl} alt={proj.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} />
+          <img src={proj.imageUrl} alt={proj.name} loading="lazy" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} />
         )}
         <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 70% 50%, ${proj.accent}30 0%, transparent 65%)` }} />
         {/* Grid lines */}
@@ -1592,6 +1594,146 @@ function ProjectsSection() {
       </div>
     </section>
     </>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BLOG SECTION (home) — últimos artigos publicados no WordPress
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Card de um artigo do blog, no mesmo idioma visual dos cards de projeto. */
+function BlogCard({ post, index }: { post: PostCard; index: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: "-80px" })
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <m.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.9, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+    >
+      <Link
+        to={`/blog/${post.slug}`}
+        data-cursor
+        data-cursor-label="Ler"
+        style={{ display: "flex", flexDirection: "column", height: "100%", textDecoration: "none", color: "inherit" }}
+      >
+        {/* Capa */}
+        <div style={{ position: "relative", overflow: "hidden", borderRadius: 4, aspectRatio: "16/10", background: "rgba(239,239,239,0.05)" }}>
+          {post.image ? (
+            <m.img
+              src={post.image}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+              initial={false}
+              animate={{ scale: hovered ? 1.06 : 1 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            />
+          ) : (
+            <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.10 }}>
+              <TabiMark width="42%" color={WHITE} />
+            </div>
+          )}
+          <m.div
+            aria-hidden="true"
+            style={{ position: "absolute", inset: 0, background: `linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)` }}
+            animate={{ opacity: hovered ? 1 : 0.7 }}
+            transition={{ duration: 0.3 }}
+          />
+          {/* Barra vermelha que cresce no hover (assinatura tabi) */}
+          <m.div
+            aria-hidden="true"
+            style={{ position: "absolute", left: 0, bottom: 0, height: 3, background: RED }}
+            initial={false}
+            animate={{ width: hovered ? "100%" : "0%" }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          />
+        </div>
+
+        {/* Meta + título */}
+        <div style={{ paddingTop: 18, display: "flex", flexDirection: "column", flex: 1 }}>
+          <div className="flex items-center gap-3" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.13em", color: "rgba(239,239,239,0.35)", textTransform: "uppercase", marginBottom: 12 }}>
+            {post.categories[0] && <span style={{ color: RED_INK }}>{post.categories[0].name}</span>}
+            {post.categories[0] && <span aria-hidden="true">·</span>}
+            <time dateTime={post.dateISO}>{post.date}</time>
+            {post.readingTime > 0 && <><span aria-hidden="true">·</span><span>{post.readingTime} min</span></>}
+          </div>
+          <m.h3
+            style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(19px, 1.7vw, 27px)", letterSpacing: "-0.035em", textTransform: "uppercase", lineHeight: 1.04, margin: "0 0 10px" }}
+            animate={{ color: hovered ? RED_INK : WHITE }}
+            transition={{ duration: 0.25 }}
+          >
+            {post.title}
+          </m.h3>
+          <p style={{ fontSize: "clamp(12px, 0.92vw, 14.5px)", lineHeight: 1.65, color: "rgba(239,239,239,0.50)", margin: 0 }}>
+            {post.excerpt}
+          </p>
+        </div>
+      </Link>
+    </m.div>
+  )
+}
+
+/**
+ * Seção "Do nosso diário" na home: mostra os 3 artigos mais recentes do blog.
+ * Se o WordPress não retornar posts (site offline ou blog vazio), a seção
+ * inteira desaparece — a home nunca mostra um bloco vazio.
+ */
+function BlogSection() {
+  const { content } = useContent()
+  const sec = content.sections.blog
+  const pad = "clamp(20px, 4vw, 82px)"
+  const [posts, setPosts] = useState<PostCard[]>([])
+
+  useEffect(() => {
+    let alive = true
+    fetchPosts({ perPage: 3 }).then(r => { if (alive) setPosts(r.items) })
+    return () => { alive = false }
+  }, [])
+
+  if (!posts.length) return null
+
+  return (
+    <section id="blog" style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative" }}>
+      <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }} />
+
+      <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad} clamp(64px, 10vw, 120px)` }}>
+        <Reveal delay={0}>
+          <div className="flex items-center gap-3 mb-8 md:mb-12" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
+            <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />
+            <span>{sec.eyebrow}</span>
+          </div>
+        </Reveal>
+
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-0" style={{ marginBottom: "clamp(32px, 5vw, 60px)" }}>
+          <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
+            <HeadlineLine delay={0.05}>{sec.title}</HeadlineLine>
+            <HeadlineLine delay={0.12} color={RED}>{sec.highlight}</HeadlineLine>
+          </h2>
+          <Reveal delay={0.18}>
+            <div className="flex items-center gap-6 pb-2">
+              <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)", maxWidth: 300 }}>{sec.note}</span>
+              <Link
+                to="/blog"
+                style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, textDecoration: "none", display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap" }}
+              >
+                {sec.ctaLabel} <span aria-hidden="true" style={{ fontSize: 13 }}>→</span>
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3" style={{ gap: "clamp(20px, 2.4vw, 34px)" }}>
+          {posts.map((p, i) => <BlogCard key={p.id} post={p} index={i} />)}
+        </div>
+      </div>
+    </section>
   )
 }
 

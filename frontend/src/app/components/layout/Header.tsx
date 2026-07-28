@@ -5,8 +5,10 @@ import { useContent } from "../../store/content"
 import { useUI } from "../../contexts/UIContext"
 
 const RED = "#F20C25"
+const RED_BTN = "#DA0A20"
 const RED_INK = "#FF3547"
 const WHITE = "#EFEFEF"
+const PURE_WHITE = "#FFFFFF"
 const BLACK = "#111111"
 const FONT_HEAD = '"Roboto Condensed", sans-serif'
 const FONT_BODY = '"Be Vietnam Pro", sans-serif'
@@ -86,7 +88,7 @@ export function Header() {
   const brand = (
     <Link to="/" aria-label={`${content.site.title} — página inicial`} style={{ display: "inline-flex", alignItems: "center", color: iconColor, textDecoration: "none", pointerEvents: "auto" }}>
       {content.site.logoUrl ? (
-        <img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} style={{ height: "clamp(24px, 3vw, 40px)", width: "auto", display: "block" }} />
+        <img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} fetchPriority="high" decoding="async" style={{ height: "clamp(24px, 3vw, 40px)", width: "auto", display: "block" }} />
       ) : (
         <span style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(14px, 1.3vw, 20px)", letterSpacing: "-0.04em", textTransform: "uppercase" }}>{content.nav.brand}</span>
       )}
@@ -162,9 +164,18 @@ export function Header() {
               </nav>
 
               <div style={{ marginTop: 24 }}>
-                <p style={{ fontSize: 10, letterSpacing: "0.12em", color: "rgba(239,239,239,0.35)", marginBottom: 14, fontFamily: FONT_BODY, fontWeight: 600, textTransform: "uppercase" }}>{content.nav.ctaLabel}</p>
+                {content.nav.ctaLabel && (
+                  <a
+                    href={content.nav.ctaUrl || "/contato"}
+                    onClick={(e) => go(content.nav.ctaUrl || "/contato", e)}
+                    data-cursor
+                    style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "13px 24px", borderRadius: 999, background: RED_BTN, color: PURE_WHITE, fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", textDecoration: "none" }}
+                  >
+                    {content.nav.ctaLabel} <span aria-hidden="true" style={{ fontSize: 14 }}>→</span>
+                  </a>
+                )}
                 {content.footer.email && (
-                  <a href={`mailto:${content.footer.email}`} style={{ fontSize: 14, color: RED_INK, fontFamily: FONT_BODY, fontWeight: 600, textDecoration: "none" }}>{content.footer.email}</a>
+                  <a href={`mailto:${content.footer.email}`} style={{ display: "block", marginTop: 16, fontSize: 14, color: RED_INK, fontFamily: FONT_BODY, fontWeight: 600, textDecoration: "none" }}>{content.footer.email}</a>
                 )}
               </div>
             </m.div>

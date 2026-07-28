@@ -63,6 +63,10 @@ html.lenis body { height: auto; }
 .has-custom-cursor select,
 .has-custom-cursor [contenteditable="true"] { cursor: auto; }
 
+/* Badge do reCAPTCHA escondido — permitido pelo Google desde que o aviso
+   legal apareça no formulário (ver texto abaixo do botão em Contato). */
+.grecaptcha-badge { visibility: hidden; }
+
 /* Respeita quem prefere menos movimento (reduz animações). */
 @media (prefers-reduced-motion: reduce) {
   *,

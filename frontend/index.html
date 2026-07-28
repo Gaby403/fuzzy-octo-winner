@@ -10,6 +10,10 @@
        Roboto Condensed (título do hero) e Be Vietnam Pro 400 (corpo). -->
   <link rel="preload" as="font" type="font/woff2" href="/fonts/ieVl2ZhZI2eCN5jzbjEETS9weq8-19K7DQ.woff2" crossorigin/>
   <link rel="preload" as="font" type="font/woff2" href="/fonts/QdVPSTAyLFyeg_IDWvOJmVES_Hw3BXo.woff2" crossorigin/>
+  <!-- Abre a conexão com o CMS antecipadamente: o primeiro fetch do conteúdo
+       não paga DNS + TLS, o que adianta o preenchimento da página. -->
+  <link rel="preconnect" href="https://cms.studiotabi.com.br" crossorigin/>
+  <link rel="dns-prefetch" href="https://cms.studiotabi.com.br"/>
   <!-- Configuração de runtime: aponta para o WordPress. Editável no servidor. -->
   <script src="/config.js"></script>
 </head>

@@ -37,6 +37,12 @@ export default defineConfig({
   build: {
     // Alvo moderno = bundle menor (sem transpile desnecessário) e melhor desempenho.
     target: 'es2020',
+    // CSS por rota some com o custo de baixar todo o CSS no primeiro paint.
+    cssCodeSplit: true,
+    // Sourcemaps fora do bundle de produção (menos bytes servidos).
+    sourcemap: false,
+    // Inline só de assets muito pequenos; o resto vira arquivo cacheável.
+    assetsInlineLimit: 2048,
     // Divide dependências grandes em chunks próprios: melhora o cache entre
     // deploys e paraleliza o download. framer-motion e react ficam separados
     // do código do app, que muda com mais frequência.
