@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router"
 import { m, useScroll, useSpring } from "motion/react"
 import { useContent } from "../store/content"
 import { fetchPost, PostFull } from "../store/blog"
-import { PageHeader } from "../components/PageHeader"
 import { Breadcrumbs } from "../components/Breadcrumbs"
 import { subscribeNewsletter } from "../store/blog"
 
@@ -79,12 +78,11 @@ export default function Article() {
   const shareUrl = typeof window !== "undefined" ? window.location.href : ""
 
   if (status === "loading") {
-    return <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}><PageHeader backTo="/blog" backLabel="← BLOG" /><main id="conteudo" style={{ padding: `60px ${pad}` }}><p style={{ color: "rgba(239,239,239,0.5)" }}>Carregando…</p></main></div>
+    return <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}><main id="conteudo" style={{ padding: `60px ${pad}` }}><p style={{ color: "rgba(239,239,239,0.5)" }}>Carregando…</p></main></div>
   }
   if (status === "missing" || !post) {
     return (
       <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
-        <PageHeader backTo="/blog" backLabel="← BLOG" />
         <main id="conteudo" style={{ maxWidth: 760, margin: "0 auto", padding: `clamp(48px,8vw,96px) ${pad} 120px` }}>
           <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(36px,7vw,64px)", textTransform: "uppercase", margin: "0 0 16px" }}>Artigo não <span style={{ color: RED }}>encontrado</span></h1>
           <Link to="/blog" style={{ color: RED_INK, textDecoration: "none", fontWeight: 600 }}>← Voltar ao blog</Link>
@@ -97,7 +95,6 @@ export default function Article() {
     <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
       {/* Barra de progresso de leitura */}
       <m.div aria-hidden="true" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, background: RED, transformOrigin: "left", scaleX: progress, zIndex: 60 }} />
-      <PageHeader backTo="/blog" backLabel="← BLOG" />
 
       <main id="conteudo" ref={articleRef}>
         <div style={{ maxWidth: 820, margin: "0 auto", padding: `clamp(32px,5vw,56px) ${pad} 0` }}>

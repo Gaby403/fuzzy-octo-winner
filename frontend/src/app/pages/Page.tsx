@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useParams, Link } from "react-router"
+import { useParams } from "react-router"
 import { fetchPage, useContent, WpPage } from "../store/content"
 
 const RED = "#F20C25"
@@ -37,22 +37,6 @@ export default function Page() {
 
   return (
     <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: '"Be Vietnam Pro", sans-serif' }}>
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "22px clamp(20px,5vw,64px)",
-          borderBottom: "1px solid rgba(239,239,239,0.08)",
-        }}
-      >
-        <Link to="/" style={{ textDecoration: "none", color: WHITE, fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: 20, letterSpacing: "-0.04em", textTransform: "uppercase" }}>
-          {content.site.title.split(" ")[0] || "STUDIO"} <span style={{ color: RED }}>{content.site.title.split(" ").slice(1).join(" ") || "TABI"}</span>
-        </Link>
-        <Link to="/" style={{ textDecoration: "none", color: "rgba(239,239,239,0.55)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em" }}>
-          ← VOLTAR
-        </Link>
-      </header>
 
       <main id="conteudo" style={{ maxWidth: 760, margin: "0 auto", padding: "clamp(48px,8vw,96px) clamp(20px,5vw,32px) 120px" }}>
         {state === "loading" && (

@@ -3,7 +3,6 @@ import { Link, useSearchParams } from "react-router"
 import { m } from "motion/react"
 import { useContent } from "../store/content"
 import { fetchPosts, fetchCategories, PostCard, BlogCategory } from "../store/blog"
-import { PageHeader } from "../components/PageHeader"
 import { Breadcrumbs } from "../components/Breadcrumbs"
 
 const RED = "#F20C25"
@@ -58,7 +57,6 @@ export default function Blog() {
 
   return (
     <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
-      <PageHeader />
       <main id="conteudo">
         <div style={{ padding: `clamp(40px, 6vw, 72px) ${pad} clamp(24px, 3vw, 40px)` }}>
           <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Blog" }]} />

@@ -31,20 +31,6 @@ export default function About() {
 
   return (
     <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
-      <header
-        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: `22px ${pad}`, borderBottom: "1px solid rgba(239,239,239,0.08)", position: "sticky", top: 0, background: "rgba(17,17,17,0.86)", backdropFilter: "blur(10px)", zIndex: 20 }}
-      >
-        <Link to="/" aria-label="Voltar para a home" style={{ textDecoration: "none", color: WHITE, display: "inline-flex", alignItems: "center" }}>
-          {content.site.logoUrl ? (
-            <img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} style={{ height: "clamp(26px, 3.4vw, 40px)", width: "auto", display: "block" }} />
-          ) : (
-            <span style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: 20, letterSpacing: "-0.04em", textTransform: "uppercase" }}>
-              {content.site.title.split(" ")[0] || "STUDIO"} <span style={{ color: RED }}>{content.site.title.split(" ").slice(1).join(" ") || "TABI"}</span>
-            </span>
-          )}
-        </Link>
-        <Link to="/" style={{ textDecoration: "none", color: "rgba(239,239,239,0.55)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em" }}>← VOLTAR</Link>
-      </header>
 
       <main id="conteudo" style={{ position: "relative", overflow: "hidden" }}>
         {/* Marca Tabi de fundo */}

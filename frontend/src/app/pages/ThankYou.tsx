@@ -49,14 +49,6 @@ export default function ThankYou() {
         overflow: "hidden",
       }}
     >
-      {/* Voltar (topo) */}
-      <Link
-        to="/"
-        style={{ position: "absolute", top: 24, left: "clamp(20px,5vw,48px)", textDecoration: "none", color: "rgba(239,239,239,0.55)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", fontFamily: FONT_BODY }}
-      >
-        ← VOLTAR AO INÍCIO
-      </Link>
-
       {/* Kanji Tabi animado dentro do círculo vermelho (como o "sol" do hero) */}
       <m.div
         style={{ position: "relative", width: "clamp(180px, 34vw, 300px)", height: "clamp(180px, 34vw, 300px)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "clamp(32px, 5vw, 56px)" }}

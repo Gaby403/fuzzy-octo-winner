@@ -3,7 +3,6 @@ import { Link } from "react-router"
 import { m } from "motion/react"
 import { useContent } from "../store/content"
 import { TabiMark } from "../components/TabiMark"
-import { PageHeader } from "../components/PageHeader"
 
 const RED = "#F20C25"
 const RED_BTN = "#DA0A20"
@@ -34,7 +33,6 @@ export default function NotFound() {
 
   return (
     <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY, display: "flex", flexDirection: "column" }}>
-      <PageHeader />
       <main id="conteudo" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "60px clamp(20px,5vw,32px)", position: "relative", overflow: "hidden" }}>
         <m.div style={{ position: "relative", width: "clamp(150px,26vw,240px)", height: "clamp(150px,26vw,240px)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "clamp(24px,4vw,44px)" }}
           initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1, ease: EASE }}>

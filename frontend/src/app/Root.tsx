@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { Outlet, useLocation } from "react-router"
 import { ContentContext, fetchContent, DEFAULT_CONTENT, SiteContent } from "./store/content"
+import { UIProvider } from "./contexts/UIContext"
+import { Header, HEADER_HEIGHT } from "./components/layout/Header"
 
 /** Cria/atualiza uma <meta> no <head> pelo atributo-chave (name ou property). */
 function upsertMeta(attr: "name" | "property", key: string, value: string) {
@@ -156,10 +158,18 @@ export default function Root() {
     })
   }, [content.faq, location.pathname])
 
+  const isHome = location.pathname === "/"
+
   return (
     <ContentContext.Provider value={{ content, loading }}>
-      <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
-      <Outlet />
+      <UIProvider>
+        <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
+        <Header />
+        {/* Espaçador nas páginas internas para o conteúdo não ficar sob o header fixo.
+            Na home, o header sobrepõe a Hero (fundo claro no topo). */}
+        {!isHome && <div aria-hidden="true" style={{ height: HEADER_HEIGHT }} />}
+        <Outlet />
+      </UIProvider>
     </ContentContext.Provider>
   )
 }

@@ -201,9 +201,6 @@ export function HomeSite() {
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLElement>(null)
   const heroHeightRef = useRef(800)
-  const [menuOpen, setMenuOpen] = useState(false)
-  // Header fixo aparece depois de rolar um pouco (some no topo, onde o nav do hero já está).
-  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
     const el = heroRef.current
@@ -212,13 +209,6 @@ export function HomeSite() {
     const ro = new ResizeObserver(([e]) => { heroHeightRef.current = e.contentRect.height })
     ro.observe(el)
     return () => ro.disconnect()
-  }, [])
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 140)
-    onScroll()
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
   const { scrollYProgress } = useScroll({
@@ -256,7 +246,6 @@ export function HomeSite() {
   const titleColor   = useTransform(phase, [0.05, 0.14], [BLACK, WHITE])
   const descColor    = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.58)", "rgba(239,239,239,0.70)"])
   const eyebrowColor = useTransform(phase, [0.05, 0.14], ["rgba(17,17,17,0.52)", "rgba(239,239,239,0.62)"])
-  const navColor     = useTransform(phase, [0.05, 0.14], [BLACK, WHITE])
   const ctaColorFg   = useTransform(phase, [0.05, 0.14], [RED_BTN, RED_INK])
 
   // ── Sunset & moonrise — same distance, same speed, opposite directions ──
@@ -305,43 +294,6 @@ export function HomeSite() {
   return (
     <>
       <style>{RESPONSIVE_CSS}</style>
-
-      {/* ── Header fixo (aparece ao rolar) ── */}
-      <m.header
-        aria-label="Cabeçalho fixo"
-        className="fixed top-0 left-0 w-full flex items-center justify-between"
-        style={{
-          zIndex: 45,
-          padding: "clamp(12px, 1.6vw, 20px) clamp(20px, 4vw, 82px)",
-          background: "rgba(17,17,17,0.82)",
-          backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(239,239,239,0.08)",
-          pointerEvents: scrolled ? "auto" : "none",
-        }}
-        initial={false}
-        animate={{ y: scrolled ? "0%" : "-105%", opacity: scrolled ? 1 : 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <a href="#top" onClick={(e) => goTo("#top", e)} aria-label="Voltar ao topo" style={{ display: "inline-flex", alignItems: "center", color: WHITE }}>
-          {content.site.logoUrl ? (
-            <img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} style={{ height: "clamp(24px, 3vw, 38px)", width: "auto", display: "block" }} />
-          ) : (
-            <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(13px, 1.2vw, 18px)", letterSpacing: "-0.04em", textTransform: "uppercase" }}>
-              {content.nav.brand}
-            </span>
-          )}
-        </a>
-        <button
-          className="flex flex-col justify-center items-end gap-[5px] cursor-pointer bg-transparent border-none p-2 -mr-2"
-          style={{ color: WHITE }}
-          onClick={() => setMenuOpen(o => !o)}
-          aria-label="Abrir menu"
-          aria-expanded={menuOpen}
-        >
-          <m.span className="block h-px bg-current" animate={{ width: 20, rotate: menuOpen ? 45 : 0, y: menuOpen ? 6 : 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }} />
-          <m.span className="block h-px bg-current" animate={{ width: menuOpen ? 20 : 12, rotate: menuOpen ? -45 : 0, y: menuOpen ? -1 : 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }} />
-        </button>
-      </m.header>
 
       {/* Scroll zone — hero is sticky inside. Ends on the moon (no 2nd sunrise).
           A altura (= quanto scroll para completar) é responsiva: menor no mobile
@@ -456,120 +408,6 @@ export function HomeSite() {
               <path d={MOUNTAIN_PATHS.front} fill="currentColor" />
             </m.svg>
           </div>
-
-          {/* ── Nav ── */}
-          <m.nav
-            aria-label="Navegação principal"
-            className="absolute top-0 left-0 w-full flex items-center justify-between pointer-events-auto"
-            style={{ zIndex: 30, padding: "clamp(18px, 3vw, 40px) clamp(20px, 4vw, 82px)", color: navColor }}
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-          >
-            {content.site.logoUrl ? (
-              <a href="#top" className="pointer-events-auto" style={{ display: "inline-flex", alignItems: "center" }}>
-                <img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} style={{ height: "clamp(26px, 3.4vw, 44px)", width: "auto", display: "block" }} />
-              </a>
-            ) : (
-              <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(13px, 1.2vw, 19px)", letterSpacing: "-0.04em", textTransform: "uppercase" }}>
-                {content.nav.brand}
-              </span>
-            )}
-            {/* Hamburger (desktop + mobile) — abre o mesmo menu animado */}
-            <button
-              className="flex flex-col justify-center items-end gap-[5px] cursor-pointer bg-transparent border-none p-2 -mr-2"
-              style={{ color: "currentColor" }}
-              onClick={() => setMenuOpen(o => !o)}
-              aria-label="Menu"
-            >
-              <m.span
-                className="block h-px bg-current"
-                animate={{ width: menuOpen ? 20 : 20, rotate: menuOpen ? 45 : 0, y: menuOpen ? 6 : 0 }}
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              />
-              <m.span
-                className="block h-px bg-current"
-                animate={{ width: menuOpen ? 20 : 12, rotate: menuOpen ? -45 : 0, y: menuOpen ? -1 : 0 }}
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              />
-            </button>
-          </m.nav>
-
-          {/* ── Drawer (desktop + mobile) ── */}
-          <m.div
-            className="fixed inset-0 pointer-events-none"
-            style={{ zIndex: 25 }}
-            animate={{ opacity: menuOpen ? 1 : 0 }}
-            transition={{ duration: 0.22 }}
-          >
-            {/* Backdrop */}
-            <div
-              className="absolute inset-0"
-              style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", pointerEvents: menuOpen ? "auto" : "none" }}
-              onClick={() => setMenuOpen(false)}
-            />
-            {/* Panel */}
-            <m.div
-              className="absolute top-0 right-0 h-full flex flex-col"
-              style={{
-                width: "min(380px, 86vw)",
-                background: "#111111",
-                pointerEvents: menuOpen ? "auto" : "none",
-                paddingTop: "clamp(72px, 12svh, 100px)",
-                paddingBottom: 40,
-                paddingLeft: 32,
-                paddingRight: 32,
-              }}
-              initial={{ x: "100%" }}
-              animate={{ x: menuOpen ? "0%" : "100%" }}
-              transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-            >
-              {/* Nav items */}
-              <nav aria-label="Menu" className="flex flex-col gap-1 flex-1">
-                {content.nav.links.map((item, i) => (
-                  <m.a
-                    key={item.label}
-                    href={item.url || "#"}
-                    className="text-left bg-transparent border-none cursor-pointer group flex items-center gap-3 py-4 border-b"
-                    style={{
-                      fontFamily: '"Roboto Condensed", sans-serif',
-                      fontWeight: 900,
-                      fontSize: "clamp(22px, 6vw, 30px)",
-                      letterSpacing: "-0.04em",
-                      textTransform: "uppercase",
-                      color: WHITE,
-                      textDecoration: "none",
-                      borderColor: "rgba(239,239,239,0.08)",
-                    }}
-                    initial={{ x: 24, opacity: 0 }}
-                    animate={{ x: menuOpen ? 0 : 24, opacity: menuOpen ? 1 : 0 }}
-                    transition={{ duration: 0.4, delay: menuOpen ? 0.12 + i * 0.06 : 0, ease: [0.16, 1, 0.3, 1] }}
-                    onClick={(e) => { setMenuOpen(false); goTo(item.url, e) }}
-                    whileHover={{ x: 6 } as any}
-                  >
-                    <span style={{ fontSize: 8, color: RED_INK, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 600, letterSpacing: "0.1em" }}>
-                      0{i + 1}
-                    </span>
-                    {item.label}
-                  </m.a>
-                ))}
-              </nav>
-              {/* Bottom CTA */}
-              <m.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: menuOpen ? 1 : 0, y: menuOpen ? 0 : 12 }}
-                transition={{ duration: 0.4, delay: menuOpen ? 0.38 : 0 }}
-              >
-                <p style={{ fontSize: 10, letterSpacing: "0.12em", color: "rgba(239,239,239,0.35)", marginBottom: 16, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 600 }}>
-                  {content.nav.ctaLabel}
-                </p>
-                <a href={`mailto:${content.footer.email}`}
-                  style={{ fontSize: 13, color: RED_INK, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 500, textDecoration: "none" }}>
-                  {content.footer.email}
-                </a>
-              </m.div>
-            </m.div>
-          </m.div>
 
           {/* ── Content ── */}
           <div
@@ -1818,24 +1656,6 @@ function AllProjects() {
           <ProjectDetail key={selectedProj.id} proj={selectedProj} onClose={handleClose} onPrev={handlePrev} onNext={handleNext} />
         )}
       </AnimatePresence>
-
-      {/* Header */}
-      <header
-        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: `22px ${pad}`, borderBottom: "1px solid rgba(239,239,239,0.08)", position: "sticky", top: 0, background: "rgba(17,17,17,0.86)", backdropFilter: "blur(10px)", zIndex: 20 }}
-      >
-        <Link to="/" style={{ textDecoration: "none", color: WHITE, display: "inline-flex", alignItems: "center" }}>
-          {content.site.logoUrl ? (
-            <img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} style={{ height: "clamp(26px, 3.4vw, 40px)", width: "auto", display: "block" }} />
-          ) : (
-            <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: 20, letterSpacing: "-0.04em", textTransform: "uppercase" }}>
-              {content.site.title.split(" ")[0] || "STUDIO"} <span style={{ color: RED }}>{content.site.title.split(" ").slice(1).join(" ") || "TABI"}</span>
-            </span>
-          )}
-        </Link>
-        <Link to="/" style={{ textDecoration: "none", color: "rgba(239,239,239,0.55)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em" }}>
-          ← VOLTAR
-        </Link>
-      </header>
 
       <main id="conteudo">
         {/* Title */}
