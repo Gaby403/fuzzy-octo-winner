@@ -1928,10 +1928,14 @@ function FaqSection() {
               </div>
             </Reveal>
 
-            <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(38px, 4.5vw, 76px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 24px", lineHeight: 0.85 }}>
+            {/* O topo do clamp é 64px (não 76): acima de ~1400px o contêiner
+                para de crescer, mas a fonte continuava subindo e "FREQUENTES."
+                estourava a largura da coluna. */}
+            <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(38px, 4.5vw, 64px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 24px", lineHeight: 0.85 }}>
               <HeadlineLine delay={0.05}>PERGUNTAS</HeadlineLine>
-              <HeadlineLine delay={0.12}>FREQUENTES</HeadlineLine>
-              <HeadlineLine delay={0.19} color={RED}>.</HeadlineLine>
+              {/* O ponto acompanha a palavra; numa linha própria ele virava
+                  um círculo vermelho solto abaixo do título. */}
+              <HeadlineLine delay={0.12}>FREQUENTES<span style={{ color: RED }}>.</span></HeadlineLine>
             </h2>
 
             <Reveal delay={0.25}>
