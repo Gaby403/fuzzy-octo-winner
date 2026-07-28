@@ -1,56 +1,49 @@
-import { useEffect } from "react"
-import { Link } from "react-router"
-import { m } from "motion/react"
-import { useContent } from "../store/content"
-import { TabiMark } from "../components/TabiMark"
-import { ProcessIcon } from "../components/ui/ProcessIcon"
-import { TabiDetail } from "../components/TabiDetail"
-
-const RED = "#F20C25"
-const RED_BTN = "#DA0A20"
-const RED_INK = "#FF3547"
-const PURE_WHITE = "#FFFFFF"
-const WHITE = "#EFEFEF"
-const BLACK = "#111111"
-const FONT_HEAD = '"Roboto Condensed", sans-serif'
-const FONT_BODY = '"Be Vietnam Pro", sans-serif'
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
-
-/**
- * Página "Sobre" (/sobre) — versão completa, montada a partir do conteúdo
- * editável de "Sobre" no CMS (parágrafos, estatísticas e etapas).
- */
+import { useEffect } from "react";
+import { Link } from "react-router";
+import { m } from "motion/react";
+import { useContent } from "../store/content";
+import { TabiMark } from "../components/TabiMark";
+import { ProcessIcon } from "../components/ui/ProcessIcon";
+import { TabiDetail } from "../components/TabiDetail";
+const RED = "#F20C25";
+const RED_BTN = "#DA0A20";
+const RED_INK = "#FF3547";
+const PURE_WHITE = "#FFFFFF";
+const WHITE = "#EFEFEF";
+const BLACK = "#111111";
+const FONT_HEAD = '"Roboto Condensed", sans-serif';
+const FONT_BODY = '"Be Vietnam Pro", sans-serif';
+const EASE: [
+    number,
+    number,
+    number,
+    number
+] = [0.16, 1, 0.3, 1];
 export default function About() {
-  const { content } = useContent()
-  const a = content.about
-  const sec = content.sections.about
-  const pad = "clamp(20px, 4vw, 82px)"
-
-  useEffect(() => {
-    document.title = `Sobre — ${content.site.title}`
-    window.scrollTo(0, 0)
-  }, [content.site.title])
-
-  return (
-    <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
+    const { content } = useContent();
+    const a = content.about;
+    const sec = content.sections.about;
+    const pad = "clamp(20px, 4vw, 82px)";
+    useEffect(() => {
+        document.title = `Sobre — ${content.site.title}`;
+        window.scrollTo(0, 0);
+    }, [content.site.title]);
+    return (<div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
 
       <main id="conteudo" style={{ position: "relative", overflow: "hidden" }}>
-      <TabiDetail corner="bottom-left" />
-        {/* Marca Tabi de fundo */}
+      <TabiDetail corner="bottom-left"/>
+        
         <div aria-hidden="true" style={{ position: "absolute", right: "-6%", top: "2%", width: "clamp(240px, 34vw, 560px)", opacity: 0.05, pointerEvents: "none" }}>
-          <TabiMark width="100%" color={WHITE} />
+          <TabiMark width="100%" color={WHITE}/>
         </div>
 
-        {/* Intro */}
+        
         <section style={{ padding: `clamp(48px, 8vw, 96px) ${pad} clamp(32px, 5vw, 64px)`, position: "relative", zIndex: 1 }}>
           <div className="flex items-center gap-3 mb-6" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
-            <span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} />
+            <span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }}/>
             <span>{sec.eyebrow}</span>
           </div>
-          <m.h1
-            style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(44px, 7vw, 100px)", letterSpacing: "-0.05em", textTransform: "uppercase", lineHeight: 0.9, margin: "0 0 36px", maxWidth: 1000 }}
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE }}
-          >
+          <m.h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(44px, 7vw, 100px)", letterSpacing: "-0.05em", textTransform: "uppercase", lineHeight: 0.9, margin: "0 0 36px", maxWidth: 1000 }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE }}>
             NÃO FAZEMOS SITES. <span style={{ color: RED }}>CONSTRUÍMOS PRESENÇA.</span>
           </m.h1>
           <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(20px,4vw,60px)", maxWidth: 980 }}>
@@ -59,36 +52,31 @@ export default function About() {
           </div>
         </section>
 
-        {/* Stats */}
+        
         <section className="grid grid-cols-2 md:grid-cols-4" style={{ padding: `clamp(32px,5vw,64px) ${pad}`, gap: "clamp(20px,3vw,48px)", borderTop: "1px solid rgba(239,239,239,0.08)", position: "relative", zIndex: 1 }}>
-          {a.stats.map((s, i) => (
-            <m.div key={s.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.08, ease: EASE }}>
+          {a.stats.map((s, i) => (<m.div key={s.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.08, ease: EASE }}>
               <div style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(36px,4.5vw,72px)", lineHeight: 0.9, letterSpacing: "-0.04em" }}>
                 {s.numeric}<span style={{ color: RED }}>{s.suffix}</span>
               </div>
               <div style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.14em", color: "rgba(239,239,239,0.4)", marginTop: 10 }}>{s.label}</div>
-            </m.div>
-          ))}
+            </m.div>))}
         </section>
 
-        {/* Etapas */}
+        
         <section style={{ padding: `clamp(40px,6vw,80px) ${pad} clamp(56px,9vw,120px)`, position: "relative", zIndex: 1 }}>
           <div className="flex items-center justify-between" style={{ marginBottom: "clamp(16px,2vw,28px)" }}>
             <span style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)" }}>{sec.pillarsLabel}</span>
             <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.20)" }}>{`0${content.process.length}`} ETAPAS</span>
           </div>
-          {content.process.map((p, i) => (
-            <Link key={p.slug || p.title} to={p.slug ? `/processo/${p.slug}` : "#"}
-              style={{ textDecoration: "none", color: "inherit", borderTop: "1px solid rgba(239,239,239,0.10)", display: "flex", alignItems: "center", gap: "clamp(14px,3vw,32px)", padding: "clamp(22px,3vw,34px) 0" }}>
-              <span aria-hidden="true" className="hidden sm:flex" style={{ color: RED, flexShrink: 0 }}><ProcessIcon name={p.icon} size={30} /></span>
+          {content.process.map((p, i) => (<Link key={p.slug || p.title} to={p.slug ? `/processo/${p.slug}` : "#"} style={{ textDecoration: "none", color: "inherit", borderTop: "1px solid rgba(239,239,239,0.10)", display: "flex", alignItems: "center", gap: "clamp(14px,3vw,32px)", padding: "clamp(22px,3vw,34px) 0" }}>
+              <span aria-hidden="true" className="hidden sm:flex" style={{ color: RED, flexShrink: 0 }}><ProcessIcon name={p.icon} size={30}/></span>
               <span style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(24px,3vw,44px)", lineHeight: 1, letterSpacing: "-0.05em", color: RED, flexShrink: 0, width: "clamp(40px,4vw,72px)" }}>{`0${i + 1}`}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h2 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(18px,2vw,32px)", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.05, margin: "0 0 8px" }}>{p.title}</h2>
                 <p style={{ fontSize: "clamp(12px,0.9vw,15px)", lineHeight: 1.65, color: "rgba(239,239,239,0.5)", margin: 0, maxWidth: 620 }}>{p.summary}</p>
               </div>
               <span aria-hidden="true" style={{ color: RED_INK, flexShrink: 0, fontSize: 18 }}>→</span>
-            </Link>
-          ))}
+            </Link>))}
 
           <div style={{ marginTop: "clamp(40px,6vw,64px)" }}>
             <Link to="/contato" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "15px 30px", borderRadius: 999, background: RED_BTN, color: PURE_WHITE, textDecoration: "none", fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
@@ -97,6 +85,5 @@ export default function About() {
           </div>
         </section>
       </main>
-    </div>
-  )
+    </div>);
 }

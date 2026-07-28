@@ -1,11 +1,4 @@
 <?php
-/**
- * Studio Tabi admin options page for the singleton content blocks
- * (Site, Hero, Sobre, Rodapé). Everything is stored in a single option
- * `stcms_options` and validated against the defaults.
- *
- * @package StudioTabiCMS
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,9 +14,6 @@ class STCMS_Options {
 		add_action( 'admin_init', array( __CLASS__, 'maybe_create_process_pages' ) );
 	}
 
-	/**
-	 * Merged current options (stored values on top of defaults).
-	 */
 	public static function get() {
 		$stored = get_option( self::OPTION, array() );
 		if ( ! is_array( $stored ) ) {
@@ -47,8 +37,6 @@ class STCMS_Options {
 		return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
 	}
 
-	/* --------------------------------------------------------------- menu/reg */
-
 	public static function menu() {
 		add_menu_page(
 			'Studio Tabi',
@@ -69,8 +57,6 @@ class STCMS_Options {
 			array( 'sanitize_callback' => array( __CLASS__, 'sanitize' ) )
 		);
 	}
-
-	/* ------------------------------------------------------------- rendering  */
 
 	public static function render_page() {
 		$o = self::get();
@@ -345,10 +331,6 @@ class STCMS_Options {
 		<?php
 	}
 
-	/**
-	 * Abre um "card" de seção com cabeçalho (ícone + título + subtítulo) e um
-	 * botão para recolher/expandir. Fechar com card_close().
-	 */
 	private static function card_open( $id, $icon, $title, $subtitle ) {
 		printf(
 			'<section class="stcms-card" data-card="%1$s">'
@@ -437,15 +419,6 @@ class STCMS_Options {
 		echo '</div>';
 	}
 
-	/* ------------------------------------------------------------- sanitize   */
-
-	/**
-	 * Lista as páginas internas do site com link direto para o editor certo.
-	 *
-	 * As etapas do processo moram em Páginas do WordPress (mesmo slug da etapa)
-	 * e os serviços no CPT st_service. Reunir tudo aqui evita que o editor
-	 * precise adivinhar onde cada texto é alterado.
-	 */
 	private static function render_inner_pages() {
 		$o = self::get();
 
@@ -453,7 +426,6 @@ class STCMS_Options {
 			. '<th>Página</th><th>Endereço</th><th>Situação</th><th style="width:130px">Ação</th>'
 			. '</tr></thead><tbody>';
 
-		// --- Etapas do processo (Páginas do WordPress) ---
 		$missing = array();
 		foreach ( (array) $o['process'] as $step ) {
 			$slug = isset( $step['slug'] ) ? $step['slug'] : '';
@@ -479,7 +451,6 @@ class STCMS_Options {
 			}
 		}
 
-		// --- Serviços (CPT) ---
 		$services = get_posts(
 			array(
 				'post_type'   => 'st_service',
@@ -525,10 +496,6 @@ class STCMS_Options {
 		echo '<p class="description">As etapas do processo são <strong>Páginas</strong> do WordPress com o mesmo slug da etapa. Os serviços têm um editor próprio dentro de cada serviço, no bloco “Conteúdo da página interna”.</p>';
 	}
 
-	/**
-	 * Cria as Páginas das etapas de processo que ainda não existem, usando o
-	 * resumo da etapa como texto inicial. Disparado pelo botão do card.
-	 */
 	public static function maybe_create_process_pages() {
 		if ( empty( $_GET['stcms_create_pages'] ) || ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -568,7 +535,7 @@ class STCMS_Options {
 			$out['site']['tagline']    = sanitize_text_field( $input['site']['tagline'] ?? '' );
 			$out['site']['logo_id']    = (int) ( $input['site']['logo_id'] ?? 0 );
 			$out['site']['favicon_id'] = (int) ( $input['site']['favicon_id'] ?? 0 );
-			// Integrações (Analytics / anti-spam). O secret NUNCA é exposto na API.
+
 			$out['site']['ga4_id']          = sanitize_text_field( $input['site']['ga4_id'] ?? '' );
 			$out['site']['gtm_id']          = sanitize_text_field( $input['site']['gtm_id'] ?? '' );
 			$out['site']['recaptcha_site']  = sanitize_text_field( $input['site']['recaptcha_site'] ?? '' );
@@ -704,10 +671,6 @@ class STCMS_Options {
 		return $out;
 	}
 
-	/**
-	 * Sanitize a single link destination: allows "#anchor", relative paths
-	 * ("/projetos", "/p/slug") and full URLs (http, mailto, tel, wa.me…).
-	 */
 	private static function sanitize_link_url( $url ) {
 		$url = trim( (string) $url );
 		if ( '' === $url ) {
@@ -719,9 +682,6 @@ class STCMS_Options {
 		return esc_url_raw( $url, array( 'http', 'https', 'mailto', 'tel' ) );
 	}
 
-	/**
-	 * Sanitize a repeater of {label, url} link rows, dropping empty ones.
-	 */
 	private static function sanitize_links( $rows ) {
 		$out = array();
 		foreach ( (array) $rows as $row ) {
@@ -730,7 +690,7 @@ class STCMS_Options {
 			}
 			$label = sanitize_text_field( $row['label'] ?? '' );
 			$url   = trim( (string) ( $row['url'] ?? '' ) );
-			// Allow "#", relative paths and full URLs.
+
 			if ( '' !== $url && '#' !== $url && ! preg_match( '#^(/|\#)#', $url ) ) {
 				$url = esc_url_raw( $url );
 			}

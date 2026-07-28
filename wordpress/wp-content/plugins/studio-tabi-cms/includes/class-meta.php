@@ -1,11 +1,4 @@
 <?php
-/**
- * Custom meta boxes for the st_service and st_project post types.
- * Uses only native WordPress APIs (no ACF dependency) so the plugin is
- * fully self-contained and portable to any host, including Hostinger.
- *
- * @package StudioTabiCMS
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,13 +10,10 @@ class STCMS_Meta {
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save' ), 10, 2 );
 		add_action( 'edit_form_after_title', array( __CLASS__, 'title_hint' ) );
-		// Placeholder amigável no campo de título de cada tipo.
+
 		add_filter( 'enter_title_here', array( __CLASS__, 'title_placeholder' ), 10, 2 );
 	}
 
-	/**
-	 * Dica logo abaixo do campo de título, explicando o que é título x conteúdo.
-	 */
 	public static function title_hint( $post ) {
 		$hints = array(
 			'st_service' => 'Título = <strong>nome do serviço</strong>. O texto grande abaixo (conteúdo) é a <strong>descrição</strong>.',
@@ -35,9 +25,6 @@ class STCMS_Meta {
 		}
 	}
 
-	/**
-	 * Texto de exemplo dentro do campo de título.
-	 */
 	public static function title_placeholder( $text, $post ) {
 		$map = array(
 			'st_service' => 'Nome do serviço',
@@ -52,8 +39,6 @@ class STCMS_Meta {
 		add_meta_box( 'stcms_service_page', 'Conteúdo da página interna (/servicos/…)', array( __CLASS__, 'render_service_page' ), 'st_service', 'normal', 'high' );
 		add_meta_box( 'stcms_project', 'Dados do projeto', array( __CLASS__, 'render_project' ), 'st_project', 'normal', 'high' );
 	}
-
-	/* ---------------------------------------------------------------- helpers */
 
 	private static function field( $post_id, $key, $default = '' ) {
 		$v = get_post_meta( $post_id, $key, true );
@@ -82,20 +67,12 @@ class STCMS_Meta {
 		);
 	}
 
-	/* ------------------------------------------------------------- service ui */
-
 	public static function render_service( $post ) {
 		wp_nonce_field( 'stcms_meta', 'stcms_meta_nonce' );
 		self::text_row( 'Número (ex: 01)', 'stcms_num', self::field( $post->ID, 'stcms_num' ) );
 		echo '<p style="color:#787c82;font-size:12px">O <strong>título</strong> do post é o nome do serviço e o <strong>conteúdo</strong> é a descrição curta (card da home).</p>';
 	}
 
-	/**
-	 * Editor rico do texto que aparece na página interna do serviço
-	 * (/servicos/slug). É separado do conteúdo do post, que fica sendo a
-	 * descrição curta usada nos cards — assim a página pode ser bem mais
-	 * extensa sem inchar a home.
-	 */
 	public static function render_service_page( $post ) {
 		wp_nonce_field( 'stcms_meta', 'stcms_meta_nonce' );
 		$value = get_post_meta( $post->ID, 'stcms_page_content', true );
@@ -116,8 +93,6 @@ class STCMS_Meta {
 			)
 		);
 	}
-
-	/* ------------------------------------------------------------- project ui */
 
 	public static function render_project( $post ) {
 		wp_nonce_field( 'stcms_meta', 'stcms_meta_nonce' );
@@ -160,12 +135,6 @@ class STCMS_Meta {
 		self::documents_field( $post->ID );
 	}
 
-	/**
-	 * Cover picker: a single image used as the project's thumbnail on the home
-	 * grid and on the /projetos page. Falls back to the WordPress "Imagem
-	 * destacada" (featured image) when empty. Uses the same markup that
-	 * admin.js already wires up (.stcms-media / .stcms-media-pick).
-	 */
 	private static function cover_field( $post_id ) {
 		$id  = (int) self::field( $post_id, 'stcms_cover', 0 );
 		$url = $id ? wp_get_attachment_image_url( $id, 'medium' ) : '';
@@ -181,10 +150,6 @@ class STCMS_Meta {
 		echo '</div></div>';
 	}
 
-	/**
-	 * PDF/documents picker: stores a comma-separated list of attachment IDs and
-	 * shows the file names with a remove button.
-	 */
 	private static function documents_field( $post_id ) {
 		$raw = get_post_meta( $post_id, 'stcms_documents', true );
 		$ids = $raw ? array_values( array_filter( array_map( 'intval', explode( ',', $raw ) ) ) ) : array();
@@ -218,10 +183,6 @@ class STCMS_Meta {
 		echo '</div>';
 	}
 
-	/**
-	 * Gallery picker: stores a comma-separated list of attachment IDs and shows
-	 * thumbnails with a remove button. Uses the WordPress media library.
-	 */
 	private static function gallery_field( $post_id ) {
 		$raw = get_post_meta( $post_id, 'stcms_gallery', true );
 		$ids = $raw ? array_values( array_filter( array_map( 'intval', explode( ',', $raw ) ) ) ) : array();
@@ -250,15 +211,6 @@ class STCMS_Meta {
 		echo '</div>';
 	}
 
-	/**
-	 * Render a simple JS-driven repeater. Rows are stored as nested arrays
-	 * under the given base name, e.g. name="stcms_results[0][label]".
-	 *
-	 * @param string $label  Section label.
-	 * @param string $base   Base field name.
-	 * @param array  $rows   Existing rows.
-	 * @param array  $cols   column_key => label map.
-	 */
 	private static function repeater( $label, $base, $rows, $cols ) {
 		$rows = array_values( array_filter( (array) $rows, 'is_array' ) );
 		echo '<div class="stcms-repeater" data-base="' . esc_attr( $base ) . '" style="margin:14px 0;border-top:1px solid #dcdcde;padding-top:10px">';
@@ -296,8 +248,6 @@ class STCMS_Meta {
 		echo '</div>';
 	}
 
-	/* ----------------------------------------------------------------- saving */
-
 	public static function save( $post_id, $post ) {
 		if ( ! isset( $_POST['stcms_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['stcms_meta_nonce'] ) ), 'stcms_meta' ) ) {
 			return;
@@ -311,11 +261,10 @@ class STCMS_Meta {
 
 		if ( 'st_service' === $post->post_type ) {
 			self::save_text( $post_id, 'stcms_num' );
-			// Conteúdo rico da página interna: aceita o HTML permitido a posts.
+
 			if ( isset( $_POST['stcms_page_content'] ) ) {
 				update_post_meta( $post_id, 'stcms_page_content', wp_kses_post( wp_unslash( $_POST['stcms_page_content'] ) ) );
-				// A checkbox só chega quando marcada; o isset acima garante que
-				// estamos no formulário certo antes de gravar o valor vazio.
+
 				update_post_meta( $post_id, 'stcms_show_excerpt', empty( $_POST['stcms_show_excerpt'] ) ? '' : '1' );
 			}
 		}
@@ -332,18 +281,17 @@ class STCMS_Meta {
 			self::save_repeater( $post_id, 'stcms_results' );
 			self::save_repeater( $post_id, 'stcms_mockup' );
 
-			// URL do projeto (link externo)
 			if ( isset( $_POST['stcms_url'] ) ) {
 				update_post_meta( $post_id, 'stcms_url', esc_url_raw( wp_unslash( $_POST['stcms_url'] ) ) );
 			}
-			// Foto de capa (miniatura na home): ID do anexo
+
 			update_post_meta( $post_id, 'stcms_cover', (int) ( $_POST['stcms_cover'] ?? 0 ) );
-			// Galeria: lista de IDs de anexos separada por vírgula
+
 			if ( isset( $_POST['stcms_gallery'] ) ) {
 				$ids   = array_filter( array_map( 'intval', explode( ',', sanitize_text_field( wp_unslash( $_POST['stcms_gallery'] ) ) ) ) );
 				update_post_meta( $post_id, 'stcms_gallery', implode( ',', $ids ) );
 			}
-			// Documentos (PDFs): lista de IDs de anexos separada por vírgula
+
 			if ( isset( $_POST['stcms_documents'] ) ) {
 				$docs = array_filter( array_map( 'intval', explode( ',', sanitize_text_field( wp_unslash( $_POST['stcms_documents'] ) ) ) ) );
 				update_post_meta( $post_id, 'stcms_documents', implode( ',', $docs ) );
@@ -369,7 +317,7 @@ class STCMS_Meta {
 			return;
 		}
 		$clean = array();
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
 		foreach ( wp_unslash( $_POST[ $key ] ) as $row ) {
 			if ( ! is_array( $row ) ) {
 				continue;

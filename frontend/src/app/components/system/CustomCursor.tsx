@@ -1,83 +1,55 @@
-import { useEffect, useState } from "react"
-import { m, useMotionValue, useSpring, AnimatePresence } from "motion/react"
-
-const RED_INK = "#FF3547"
-
-/**
- * Cursor customizado estilo agência: um ponto que segue o mouse direto e um
- * anel que segue com mola e cresce sobre elementos interativos. Elementos
- * podem exibir um rótulo com data-cursor-label (ex.: "VER", "ABRIR").
- *
- * Só ativa em dispositivos com ponteiro fino (desktop) e é desligado quando
- * o usuário pede menos movimento — nunca prejudica acessibilidade nem toque.
- */
+import { useEffect, useState } from "react";
+import { m, useMotionValue, useSpring, AnimatePresence } from "motion/react";
+const RED_INK = "#FF3547";
 export function CustomCursor() {
-  const [enabled, setEnabled] = useState(false)
-  const [hovering, setHovering] = useState(false)
-  const [label, setLabel] = useState("")
-
-  const x = useMotionValue(-100)
-  const y = useMotionValue(-100)
-  const ringX = useSpring(x, { stiffness: 350, damping: 30, mass: 0.6 })
-  const ringY = useSpring(y, { stiffness: 350, damping: 30, mass: 0.6 })
-
-  useEffect(() => {
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (!finePointer || reduced) return
-
-    setEnabled(true)
-    document.documentElement.classList.add("has-custom-cursor")
-
-    const move = (e: MouseEvent) => {
-      x.set(e.clientX)
-      y.set(e.clientY)
-    }
-    const over = (e: MouseEvent) => {
-      const el = (e.target as HTMLElement | null)?.closest("a, button, [data-cursor]") as HTMLElement | null
-      setHovering(!!el)
-      setLabel(el?.getAttribute("data-cursor-label") || "")
-    }
-
-    window.addEventListener("mousemove", move, { passive: true })
-    window.addEventListener("mouseover", over, { passive: true })
-    return () => {
-      window.removeEventListener("mousemove", move)
-      window.removeEventListener("mouseover", over)
-      document.documentElement.classList.remove("has-custom-cursor")
-    }
-  }, [x, y])
-
-  if (!enabled) return null
-
-  return (
-    <>
-      {/* Ponto central — segue o mouse diretamente */}
+    const [enabled, setEnabled] = useState(false);
+    const [hovering, setHovering] = useState(false);
+    const [label, setLabel] = useState("");
+    const x = useMotionValue(-100);
+    const y = useMotionValue(-100);
+    const ringX = useSpring(x, { stiffness: 350, damping: 30, mass: 0.6 });
+    const ringY = useSpring(y, { stiffness: 350, damping: 30, mass: 0.6 });
+    useEffect(() => {
+        const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!finePointer || reduced)
+            return;
+        setEnabled(true);
+        document.documentElement.classList.add("has-custom-cursor");
+        const move = (e: MouseEvent) => {
+            x.set(e.clientX);
+            y.set(e.clientY);
+        };
+        const over = (e: MouseEvent) => {
+            const el = (e.target as HTMLElement | null)?.closest("a, button, [data-cursor]") as HTMLElement | null;
+            setHovering(!!el);
+            setLabel(el?.getAttribute("data-cursor-label") || "");
+        };
+        window.addEventListener("mousemove", move, { passive: true });
+        window.addEventListener("mouseover", over, { passive: true });
+        return () => {
+            window.removeEventListener("mousemove", move);
+            window.removeEventListener("mouseover", over);
+            document.documentElement.classList.remove("has-custom-cursor");
+        };
+    }, [x, y]);
+    if (!enabled)
+        return null;
+    return (<>
+      
       <m.div aria-hidden style={{ position: "fixed", top: 0, left: 0, x, y, zIndex: 10000, pointerEvents: "none" }}>
-        <div style={{ width: 6, height: 6, marginLeft: -3, marginTop: -3, borderRadius: "50%", background: RED_INK }} />
+        <div style={{ width: 6, height: 6, marginLeft: -3, marginTop: -3, borderRadius: "50%", background: RED_INK }}/>
       </m.div>
 
-      {/* Anel — segue com mola e cresce sobre elementos interativos */}
+      
       <m.div aria-hidden style={{ position: "fixed", top: 0, left: 0, x: ringX, y: ringY, zIndex: 9999, pointerEvents: "none", mixBlendMode: "difference" }}>
-        <m.div
-          style={{ width: 40, height: 40, marginLeft: -20, marginTop: -20, borderRadius: "50%", border: "1.5px solid #fff", display: "flex", alignItems: "center", justifyContent: "center" }}
-          animate={{ scale: hovering ? 1.6 : 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 22 }}
-        >
+        <m.div style={{ width: 40, height: 40, marginLeft: -20, marginTop: -20, borderRadius: "50%", border: "1.5px solid #fff", display: "flex", alignItems: "center", justifyContent: "center" }} animate={{ scale: hovering ? 1.6 : 1 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}>
           <AnimatePresence>
-            {label && (
-              <m.span
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.5 }}
-                style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#fff", whiteSpace: "nowrap" }}
-              >
+            {label && (<m.span initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#fff", whiteSpace: "nowrap" }}>
                 {label}
-              </m.span>
-            )}
+              </m.span>)}
           </AnimatePresence>
         </m.div>
       </m.div>
-    </>
-  )
+    </>);
 }

@@ -1,10 +1,4 @@
 <?php
-/**
- * Registers the custom post types that power the site content:
- * Serviços, Projetos and FAQ.
- *
- * @package StudioTabiCMS
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -61,9 +55,6 @@ class STCMS_CPT {
 		);
 	}
 
-	/**
-	 * Build a full label array from a singular / plural pair (pt-BR).
-	 */
 	private static function labels( $singular, $plural ) {
 		return array(
 			'name'                  => $plural,

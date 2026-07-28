@@ -1,11 +1,4 @@
 <?php
-/**
- * Seeds the default content on plugin activation so a fresh install already
- * looks like the shipped design. Runs only once (guarded by an option) and
- * never overwrites content the user has created.
- *
- * @package StudioTabiCMS
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class STCMS_Seed {
 
 	public static function activate() {
-		// Make sure the CPTs exist for this request before inserting posts.
+
 		STCMS_CPT::register();
 
 		if ( get_option( 'stcms_seeded' ) ) {
@@ -35,12 +28,8 @@ class STCMS_Seed {
 		flush_rewrite_rules();
 	}
 
-	/**
-	 * Semeia alguns artigos de exemplo no blog (posts nativos) + categorias,
-	 * para que a listagem já venha preenchida numa instalação nova.
-	 */
 	private static function seed_posts() {
-		// Só semeia se não houver nenhum post publicado além do "Hello World".
+
 		$existing = get_posts( array( 'post_type' => 'post', 'post_status' => 'publish', 'numberposts' => 5, 'fields' => 'ids' ) );
 		$only_hello = ( 1 === count( $existing ) && 'hello-world' === get_post_field( 'post_name', $existing[0] ) );
 		if ( count( $existing ) > 1 || ( 1 === count( $existing ) && ! $only_hello ) ) {
@@ -94,10 +83,6 @@ class STCMS_Seed {
 		}
 	}
 
-	/**
-	 * Cria as páginas de conteúdo das etapas do processo (slugs fixos),
-	 * consumidas em /processo/{slug} pelo front-end.
-	 */
 	private static function seed_process_pages() {
 		$pages = array(
 			'diagnostico' => array(

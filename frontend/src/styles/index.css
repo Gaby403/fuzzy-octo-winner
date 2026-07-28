@@ -1,12 +1,9 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
-/* Depois do Tailwind: o preflight zera títulos e listas do conteúdo do WP. */
+
 @import './wp-content.css';
 
-/* ── Acessibilidade ─────────────────────────────────────────────────────── */
-
-/* Link "pular para o conteúdo": invisível até receber foco por teclado. */
 .skip-link {
   position: fixed;
   top: 8px;
@@ -30,14 +27,12 @@
   outline-offset: 2px;
 }
 
-/* Anel de foco visível e consistente para navegação por teclado. */
 :focus-visible {
   outline: 2px solid #F20C25;
   outline-offset: 3px;
   border-radius: 3px;
 }
 
-/* Loading skeleton (blog e listagens). */
 .stcms-skeleton {
   background: linear-gradient(100deg, rgba(239,239,239,0.04) 30%, rgba(239,239,239,0.10) 50%, rgba(239,239,239,0.04) 70%);
   background-size: 200% 100%;
@@ -48,14 +43,12 @@
   to   { background-position: -200% 0; }
 }
 
-/* Smooth scroll (Lenis) — regras recomendadas para não conflitar com o CSS. */
 html.lenis,
 html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
 
-/* Cursor customizado: esconde o cursor nativo, exceto em campos de texto. */
 .has-custom-cursor,
 .has-custom-cursor a,
 .has-custom-cursor button,
@@ -65,9 +58,6 @@ html.lenis body { height: auto; }
 .has-custom-cursor select,
 .has-custom-cursor [contenteditable="true"] { cursor: auto; }
 
-/* FAQ: a coluna da esquerda só fica fixa (sticky) quando a tela tem altura
-   suficiente para exibi-la inteira. Em notebooks de tela baixa ela rola
-   normalmente, em vez de ter o rodapé da coluna cortado. */
 @media (min-width: 768px) and (min-height: 860px) {
   .faq-aside {
     position: sticky;
@@ -75,11 +65,8 @@ html.lenis body { height: auto; }
   }
 }
 
-/* Badge do reCAPTCHA escondido — permitido pelo Google desde que o aviso
-   legal apareça no formulário (ver texto abaixo do botão em Contato). */
 .grecaptcha-badge { visibility: hidden; }
 
-/* Respeita quem prefere menos movimento (reduz animações). */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

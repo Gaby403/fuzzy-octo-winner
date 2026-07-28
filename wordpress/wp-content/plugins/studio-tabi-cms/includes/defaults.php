@@ -1,21 +1,9 @@
 <?php
-/**
- * Default seed content for Studio Tabi CMS.
- * Mirrors the DEFAULT_CONTENT object of the React front-end so a fresh
- * WordPress install boots with the same content the design ships with.
- *
- * @package StudioTabiCMS
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Singleton options defaults (hero / about / footer / site).
- *
- * @return array
- */
 function stcms_default_options() {
 	return array(
 		'site'   => array(
@@ -24,13 +12,12 @@ function stcms_default_options() {
 			'tagline'          => 'Design e tecnologia que levam marcas até onde precisam chegar.',
 			'logo_id'          => 0,
 			'favicon_id'       => 0,
-			// Integrações (Analytics / anti-spam). O secret do reCAPTCHA NUNCA é exposto na API.
+
 			'ga4_id'           => '',
 			'gtm_id'           => '',
 			'recaptcha_site'   => '',
 			'recaptcha_secret' => '',
-			// Para onde vão os formulários (contato/newsletter). Vazio = usa o
-			// e-mail do rodapé; se este também estiver vazio, usa o admin do WP.
+
 			'form_email'       => '',
 		),
 		'nav'    => array(
@@ -69,14 +56,14 @@ function stcms_default_options() {
 			'highlight'   => 'CONVERSAR.',
 			'description' => 'Conte um pouco sobre o seu projeto. Respondemos em até 1 dia útil.',
 		),
-		// Processo "Como Trabalhamos" — cada etapa vira uma página /processo/{slug}.
+
 		'process' => array(
 			array( 'title' => 'Diagnóstico',     'slug' => 'diagnostico',    'icon' => 'diagnostico', 'summary' => 'Mergulhamos no negócio, no mercado e nos objetivos para entender onde você está e onde precisa chegar.' ),
 			array( 'title' => 'Narrativa',       'slug' => 'narrativa',      'icon' => 'narrativa',   'summary' => 'Definimos a história e o posicionamento da marca — a mensagem que guia cada decisão.' ),
 			array( 'title' => 'Design',          'slug' => 'design',         'icon' => 'design',      'summary' => 'Traduzimos a estratégia em identidade e interface, com intenção, hierarquia e propósito.' ),
 			array( 'title' => 'Desenvolvimento', 'slug' => 'desenvolvimento','icon' => 'desenvolvimento', 'summary' => 'Construímos com código limpo, rápido e escalável — da ideia ao ar, pronto para crescer.' ),
 		),
-		// Rótulos e botões das seções da home (eyebrows, notas e CTAs editáveis).
+
 		'sections' => array(
 			'about_eyebrow'      => 'STUDIO TABI — SOBRE NÓS',
 			'about_cta_label'    => 'CONHEÇA NOSSA HISTÓRIA',
@@ -157,11 +144,6 @@ function stcms_default_options() {
 	);
 }
 
-/**
- * Default services (seed into st_service CPT).
- *
- * @return array
- */
 function stcms_default_services() {
 	return array(
 		array( 'num' => '01', 'title' => 'Branding & Identidade Visual', 'body' => 'Sistemas de marca que comunicam com precisão — do logotipo ao tom de voz. Identidades que crescem com o negócio e resistem ao tempo.', 'content' => '<p>Marca não é logotipo — é a soma de todas as percepções que as pessoas têm do seu negócio. Construímos sistemas de identidade completos: logotipo, paleta, tipografia, grafismos, aplicações e um guia de uso que mantém tudo coerente onde quer que a marca apareça.</p><p>Começamos entendendo o posicionamento e a personalidade da marca, para que cada decisão visual tenha razão de existir. O resultado é uma identidade que transmite intenção, diferencia da concorrência e continua fazendo sentido daqui a cinco anos.</p>' ),
@@ -173,11 +155,6 @@ function stcms_default_services() {
 	);
 }
 
-/**
- * Default FAQ (seed into st_faq CPT).
- *
- * @return array
- */
 function stcms_default_faq() {
 	return array(
 		array( 'q' => 'Como funciona o processo de trabalho?', 'a' => 'Iniciamos com um diagnóstico aprofundado do negócio, mercado e objetivos. Em seguida, criamos um roadmap claro com entregas, prazos e marcos de aprovação. Trabalhamos em sprints curtos com checkpoints semanais para garantir alinhamento contínuo — sem surpresas no final.' ),
@@ -189,11 +166,6 @@ function stcms_default_faq() {
 	);
 }
 
-/**
- * Default projects (seed into st_project CPT).
- *
- * @return array
- */
 function stcms_default_projects() {
 	return array(
 		array(

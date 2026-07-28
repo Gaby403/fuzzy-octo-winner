@@ -1,94 +1,76 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router"
-import { useContent, submitContact } from "../store/content"
-import { getRecaptchaToken, trackEvent } from "../utils/analytics"
-import { TabiDetail } from "../components/TabiDetail"
-
-const RED = "#F20C25"
-const RED_BTN = "#DA0A20"
-const RED_INK = "#FF3547"
-const PURE_WHITE = "#FFFFFF"
-const WHITE = "#EFEFEF"
-const BLACK = "#111111"
-
-const FONT_HEAD = '"Roboto Condensed", sans-serif'
-const FONT_BODY = '"Be Vietnam Pro", sans-serif'
-
-/**
- * Página de contato (/contato) com formulário que envia para o WordPress
- * (studio-tabi/v1/contact → e-mail do dono do site). As informações de
- * contato (e-mail, telefone, cidade) vêm do rodapé, editáveis no CMS.
- */
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { useContent, submitContact } from "../store/content";
+import { getRecaptchaToken, trackEvent } from "../utils/analytics";
+import { TabiDetail } from "../components/TabiDetail";
+const RED = "#F20C25";
+const RED_BTN = "#DA0A20";
+const RED_INK = "#FF3547";
+const PURE_WHITE = "#FFFFFF";
+const WHITE = "#EFEFEF";
+const BLACK = "#111111";
+const FONT_HEAD = '"Roboto Condensed", sans-serif';
+const FONT_BODY = '"Be Vietnam Pro", sans-serif';
 export default function Contact() {
-  const { content } = useContent()
-  const navigate = useNavigate()
-  const f = content.footer
+    const { content } = useContent();
+    const navigate = useNavigate();
+    const f = content.footer;
+    const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
+    const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle");
+    const [feedback, setFeedback] = useState("");
+    useEffect(() => {
+        document.title = `Contato — ${content.site.title}`;
+        window.scrollTo(0, 0);
+    }, [content.site.title]);
+    const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm(prev => ({ ...prev, [k]: e.target.value }));
+    const onSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (state === "sending")
+            return;
+        setState("sending");
+        setFeedback("");
+        const recaptchaToken = await getRecaptchaToken(content.site.recaptchaSite, "contact");
+        const res = await submitContact({ ...form, recaptchaToken });
+        if (res.ok) {
+            setState("ok");
+            setForm({ name: "", email: "", subject: "", message: "", website: "" });
+            trackEvent("contact_submit");
+            navigate("/obrigado");
+        }
+        else {
+            setState("error");
+            setFeedback(res.message);
+        }
+    };
+    const label: React.CSSProperties = {
+        display: "block",
+        fontFamily: FONT_BODY,
+        fontSize: "9px",
+        fontWeight: 600,
+        letterSpacing: "0.17em",
+        textTransform: "uppercase",
+        color: "rgba(239,239,239,0.45)",
+        marginBottom: 8,
+    };
+    const field: React.CSSProperties = {
+        width: "100%",
+        background: "rgba(239,239,239,0.04)",
+        border: "1px solid rgba(239,239,239,0.14)",
+        borderRadius: 8,
+        color: WHITE,
+        fontFamily: FONT_BODY,
+        fontSize: 15,
+        padding: "13px 15px",
+        outline: "none",
+    };
+    return (<div style={{ minHeight: "100svh", position: "relative", overflow: "hidden", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
+      <TabiDetail corner="top-right" opacity={0.16}/>
 
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", website: "" })
-  const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle")
-  const [feedback, setFeedback] = useState("")
-
-  useEffect(() => {
-    document.title = `Contato — ${content.site.title}`
-    window.scrollTo(0, 0)
-  }, [content.site.title])
-
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm(prev => ({ ...prev, [k]: e.target.value }))
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (state === "sending") return
-    setState("sending")
-    setFeedback("")
-    const recaptchaToken = await getRecaptchaToken(content.site.recaptchaSite, "contact")
-    const res = await submitContact({ ...form, recaptchaToken })
-    if (res.ok) {
-      setState("ok")
-      setForm({ name: "", email: "", subject: "", message: "", website: "" })
-      trackEvent("contact_submit")
-      // Redireciona para a página de agradecimento com a animação do kanji.
-      navigate("/obrigado")
-    } else {
-      setState("error")
-      setFeedback(res.message)
-    }
-  }
-
-  const label: React.CSSProperties = {
-    display: "block",
-    fontFamily: FONT_BODY,
-    fontSize: "9px",
-    fontWeight: 600,
-    letterSpacing: "0.17em",
-    textTransform: "uppercase",
-    color: "rgba(239,239,239,0.45)",
-    marginBottom: 8,
-  }
-  const field: React.CSSProperties = {
-    width: "100%",
-    background: "rgba(239,239,239,0.04)",
-    border: "1px solid rgba(239,239,239,0.14)",
-    borderRadius: 8,
-    color: WHITE,
-    fontFamily: FONT_BODY,
-    fontSize: 15,
-    padding: "13px 15px",
-    outline: "none",
-  }
-
-  return (
-    <div style={{ minHeight: "100svh", position: "relative", overflow: "hidden", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
-      <TabiDetail corner="top-right" opacity={0.16} />
-
-      <main id="conteudo"
-        className="contact-grid"
-        style={{ maxWidth: 1120, margin: "0 auto", padding: "clamp(44px,7vw,88px) clamp(20px,5vw,32px) 120px", display: "grid", gridTemplateColumns: "1fr", gap: "clamp(40px,6vw,72px)" }}
-      >
-        {/* Coluna esquerda — chamada + contatos */}
+      <main id="conteudo" className="contact-grid" style={{ maxWidth: 1120, margin: "0 auto", padding: "clamp(44px,7vw,88px) clamp(20px,5vw,32px) 120px", display: "grid", gridTemplateColumns: "1fr", gap: "clamp(40px,6vw,72px)" }}>
+        
         <div>
           <div className="flex items-center gap-3" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.45)", marginBottom: 22 }}>
-            <span className="block rounded-full" style={{ width: 7, height: 7, backgroundColor: RED }} />
+            <span className="block rounded-full" style={{ width: 7, height: 7, backgroundColor: RED }}/>
             <span>{content.site.title.toUpperCase()} — CONTATO</span>
           </div>
           <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(40px,6vw,76px)", letterSpacing: "-0.05em", textTransform: "uppercase", lineHeight: 0.9, margin: "0 0 24px" }}>
@@ -99,106 +81,81 @@ export default function Contact() {
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            {f.email && (
-              <a href={`mailto:${f.email}`} style={{ textDecoration: "none", color: WHITE }}>
+            {f.email && (<a href={`mailto:${f.email}`} style={{ textDecoration: "none", color: WHITE }}>
                 <span style={label}>E-mail</span>
                 <span style={{ fontSize: 16, color: "rgba(239,239,239,0.85)" }}>{f.email}</span>
-              </a>
-            )}
-            {f.phone && (
-              <a href={`tel:${f.phone.replace(/[^+\d]/g, "")}`} style={{ textDecoration: "none", color: WHITE }}>
+              </a>)}
+            {f.phone && (<a href={`tel:${f.phone.replace(/[^+\d]/g, "")}`} style={{ textDecoration: "none", color: WHITE }}>
                 <span style={label}>Telefone</span>
                 <span style={{ fontSize: 16, color: "rgba(239,239,239,0.85)" }}>{f.phone}</span>
-              </a>
-            )}
-            {f.city && (
-              <div>
+              </a>)}
+            {f.city && (<div>
                 <span style={label}>Localização</span>
                 <span style={{ fontSize: 16, color: "rgba(239,239,239,0.85)" }}>{f.city}</span>
-              </div>
-            )}
+              </div>)}
           </div>
         </div>
 
-        {/* Coluna direita — formulário */}
+        
         <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div>
             <label style={label} htmlFor="c-name">Nome</label>
-            <input id="c-name" style={field} type="text" value={form.name} onChange={set("name")} required placeholder="Seu nome" autoComplete="name" />
+            <input id="c-name" style={field} type="text" value={form.name} onChange={set("name")} required placeholder="Seu nome" autoComplete="name"/>
           </div>
           <div>
             <label style={label} htmlFor="c-email">E-mail</label>
-            <input id="c-email" style={field} type="email" value={form.email} onChange={set("email")} required placeholder="voce@email.com" autoComplete="email" />
+            <input id="c-email" style={field} type="email" value={form.email} onChange={set("email")} required placeholder="voce@email.com" autoComplete="email"/>
           </div>
           <div>
             <label style={label} htmlFor="c-subject">Assunto</label>
-            <input id="c-subject" style={field} type="text" value={form.subject} onChange={set("subject")} placeholder="Sobre o que quer falar?" />
+            <input id="c-subject" style={field} type="text" value={form.subject} onChange={set("subject")} placeholder="Sobre o que quer falar?"/>
           </div>
           <div>
             <label style={label} htmlFor="c-message">Mensagem</label>
-            <textarea id="c-message" style={{ ...field, minHeight: 140, resize: "vertical" }} value={form.message} onChange={set("message")} required placeholder="Conte sobre o seu projeto…" />
+            <textarea id="c-message" style={{ ...field, minHeight: 140, resize: "vertical" }} value={form.message} onChange={set("message")} required placeholder="Conte sobre o seu projeto…"/>
           </div>
 
-          {/* Honeypot anti-spam (oculto) */}
-          <input
-            type="text"
-            value={form.website}
-            onChange={set("website")}
-            tabIndex={-1}
-            autoComplete="off"
-            aria-hidden="true"
-            style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
-          />
+          
+          <input type="text" value={form.website} onChange={set("website")} tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}/>
 
-          <button
-            type="submit"
-            disabled={state === "sending"}
-            style={{
-              marginTop: 4,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 12,
-              padding: "15px 30px",
-              borderRadius: 999,
-              border: "none",
-              background: RED_BTN,
-              color: PURE_WHITE,
-              fontFamily: FONT_BODY,
-              fontSize: "10px",
-              fontWeight: 700,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              cursor: state === "sending" ? "default" : "pointer",
-              opacity: state === "sending" ? 0.6 : 1,
-              transition: "opacity 0.2s",
-            }}
-          >
+          <button type="submit" disabled={state === "sending"} style={{
+            marginTop: 4,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 12,
+            padding: "15px 30px",
+            borderRadius: 999,
+            border: "none",
+            background: RED_BTN,
+            color: PURE_WHITE,
+            fontFamily: FONT_BODY,
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            cursor: state === "sending" ? "default" : "pointer",
+            opacity: state === "sending" ? 0.6 : 1,
+            transition: "opacity 0.2s",
+        }}>
             {state === "sending" ? "ENVIANDO…" : "ENVIAR MENSAGEM"} <span style={{ fontSize: 14 }}>→</span>
           </button>
 
-          {/* Aviso exigido pelo Google quando o badge do reCAPTCHA fica oculto. */}
-          {content.site.recaptchaSite && (
-            <p style={{ margin: "14px 0 0", fontSize: 11, lineHeight: 1.6, color: "rgba(239,239,239,0.35)" }}>
+          
+          {content.site.recaptchaSite && (<p style={{ margin: "14px 0 0", fontSize: 11, lineHeight: 1.6, color: "rgba(239,239,239,0.35)" }}>
               Protegido por reCAPTCHA — aplicam-se a{" "}
               <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: RED_INK }}>Política de Privacidade</a> e os{" "}
               <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" style={{ color: RED_INK }}>Termos de Serviço</a> do Google.
-            </p>
-          )}
+            </p>)}
 
-          {feedback && (
-            <p
-              role="status"
-              style={{
+          {feedback && (<p role="status" style={{
                 margin: 0,
                 fontSize: 13,
                 lineHeight: 1.6,
                 color: state === "ok" ? "#3DBF72" : "#FF6B6B",
-              }}
-            >
+            }}>
               {feedback}
-            </p>
-          )}
+            </p>)}
         </form>
       </main>
 
@@ -209,6 +166,5 @@ export default function Contact() {
         .contact-grid input:focus, .contact-grid textarea:focus { border-color: ${RED} !important; }
         .contact-grid ::placeholder { color: rgba(239,239,239,0.30); }
       `}</style>
-    </div>
-  )
+    </div>);
 }

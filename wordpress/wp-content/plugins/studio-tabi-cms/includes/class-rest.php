@@ -1,16 +1,4 @@
 <?php
-/**
- * REST API that exposes the whole site content as a single JSON document,
- * shaped exactly like the React front-end's SiteContent object, plus the
- * dynamic pages. This is the contract the headless front-end consumes.
- *
- * Namespace: studio-tabi/v1
- *   GET /content        Full site content.
- *   GET /pages          List of published pages (slug + title) for navigation.
- *   GET /page/{slug}    Single page (title + rendered HTML).
- *
- * @package StudioTabiCMS
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,7 +10,7 @@ class STCMS_Rest {
 
 	public static function init() {
 		add_action( 'rest_api_init', array( __CLASS__, 'register' ) );
-		// Allow cross-origin reads from the decoupled front-end.
+
 		add_action( 'rest_api_init', array( __CLASS__, 'cors' ), 15 );
 	}
 
@@ -66,7 +54,7 @@ class STCMS_Rest {
 				),
 			)
 		);
-		// Blog (posts nativos do WordPress).
+
 		register_rest_route(
 			self::NS,
 			'/posts',
@@ -108,12 +96,6 @@ class STCMS_Rest {
 		);
 	}
 
-	/**
-	 * Send permissive CORS headers so a front-end hosted on another domain
-	 * (or a Vite dev server) can read the API. The allowed origin is
-	 * configurable via the STCMS_CORS_ORIGIN constant or the
-	 * `stcms_cors_origin` option; defaults to "*".
-	 */
 	public static function cors() {
 		remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
 		add_filter(
@@ -129,8 +111,6 @@ class STCMS_Rest {
 		);
 	}
 
-	/* ------------------------------------------------------------- content    */
-
 	public static function get_content() {
 		$o = STCMS_Options::get();
 
@@ -142,7 +122,7 @@ class STCMS_Rest {
 				'logoUrl'      => self::img( $o['site']['logo_id'], 'full' ),
 				'faviconUrl'   => self::img( $o['site']['favicon_id'], 'full' ),
 				'heroImageUrl' => self::img( $o['hero']['image_id'], 'full' ),
-				// Integrações públicas (client-side). O secret do reCAPTCHA jamais é exposto.
+
 				'ga4Id'         => (string) ( $o['site']['ga4_id'] ?? '' ),
 				'gtmId'         => (string) ( $o['site']['gtm_id'] ?? '' ),
 				'recaptchaSite' => (string) ( $o['site']['recaptcha_site'] ?? '' ),
@@ -258,13 +238,6 @@ class STCMS_Rest {
 		return new WP_REST_Response( $data, 200 );
 	}
 
-	/* ------------------------------------------------------------- contact    */
-
-	/**
-	 * Receive a contact-form submission from the headless front-end and email
-	 * it to the site owner. Recipient = footer e-mail (editável no CMS),
-	 * caindo para o e-mail do admin do WordPress se estiver vazio.
-	 */
 	public static function submit_contact( WP_REST_Request $req ) {
 		$bloqueio = self::bloqueio_de_escrita( 'contact', 5 );
 		if ( $bloqueio ) {
@@ -276,12 +249,10 @@ class STCMS_Rest {
 			$p = $req->get_params();
 		}
 
-		// Honeypot anti-spam: bots preenchem o campo oculto "website".
 		if ( ! empty( $p['website'] ) ) {
 			return new WP_REST_Response( array( 'ok' => true ), 200 );
 		}
 
-		// reCAPTCHA v3 (só bloqueia se o secret estiver configurado no CMS).
 		if ( ! self::verify_recaptcha( $p['recaptchaToken'] ?? '', 'contact' ) ) {
 			return new WP_REST_Response(
 				array( 'ok' => false, 'message' => 'Falha na verificação anti-spam. Recarregue a página e tente novamente.' ),
@@ -329,9 +300,6 @@ class STCMS_Rest {
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Mensagem enviada! Em breve entraremos em contato.' ), 200 );
 	}
 
-	/* ------------------------------------------------------------- blog       */
-
-	/** Lista paginada de posts do blog (posts nativos do WordPress). */
 	public static function get_posts_list( WP_REST_Request $req ) {
 		$page     = max( 1, (int) $req->get_param( 'page' ) );
 		$per_page = min( 24, max( 1, (int) ( $req->get_param( 'per_page' ) ?: 9 ) ) );
@@ -372,7 +340,6 @@ class STCMS_Rest {
 		);
 	}
 
-	/** Resumo de um post para listagens (card). */
 	private static function post_card( $p ) {
 		$cats = array();
 		foreach ( (array) get_the_category( $p->ID ) as $c ) {
@@ -394,7 +361,6 @@ class STCMS_Rest {
 		);
 	}
 
-	/** Post único com conteúdo completo, autor e relacionados. */
 	public static function get_single_post( WP_REST_Request $req ) {
 		$slug = $req->get_param( 'slug' );
 		$post = get_page_by_path( $slug, OBJECT, 'post' );
@@ -404,7 +370,6 @@ class STCMS_Rest {
 
 		$card = self::post_card( $post );
 
-		// Relacionados: mesma categoria, exceto o próprio.
 		$cat_ids = wp_get_post_categories( $post->ID );
 		$related = array();
 		if ( $cat_ids ) {
@@ -443,7 +408,6 @@ class STCMS_Rest {
 		return new WP_REST_Response( $data, 200 );
 	}
 
-	/** Categorias do blog (com contagem). */
 	public static function get_categories_list() {
 		$cats = get_categories( array( 'hide_empty' => true ) );
 		$out  = array();
@@ -457,7 +421,6 @@ class STCMS_Rest {
 		return new WP_REST_Response( $out, 200 );
 	}
 
-	/** Inscrição na newsletter: guarda o e-mail e avisa o dono do site. */
 	public static function subscribe_newsletter( WP_REST_Request $req ) {
 		$bloqueio = self::bloqueio_de_escrita( 'subscribe', 8 );
 		if ( $bloqueio ) {
@@ -484,13 +447,6 @@ class STCMS_Rest {
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Inscrição confirmada! Obrigado.' ), 200 );
 	}
 
-	/**
-	 * Para onde vão os e-mails dos formulários (contato e newsletter).
-	 *
-	 * Ordem: "E-mail que recebe os formulários" (Integrações) → e-mail do
-	 * Rodapé → e-mail do administrador do WordPress. Assim o endereço de
-	 * exibição no site pode ser diferente do que recebe as mensagens.
-	 */
 	private static function client_ip() {
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : '';
 		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
@@ -571,19 +527,11 @@ class STCMS_Rest {
 		return get_option( 'admin_email' );
 	}
 
-	/**
-	 * Verifica um token do reCAPTCHA v3 contra o Google. Só valida quando o
-	 * secret está configurado no CMS — assim o site continua funcionando sem
-	 * reCAPTCHA. Retorna true se aprovado (ou se a proteção está desligada).
-	 *
-	 * @param string $token  Token gerado pelo grecaptcha.execute() no cliente.
-	 * @param string $action Ação esperada (ex.: "contact", "newsletter").
-	 */
 	private static function verify_recaptcha( $token, $action ) {
 		$o      = STCMS_Options::get();
 		$secret = trim( (string) ( $o['site']['recaptcha_secret'] ?? '' ) );
 		if ( '' === $secret ) {
-			return true; // Proteção desligada: não bloqueia envios.
+			return true;
 		}
 		$token = trim( (string) $token );
 		if ( '' === $token ) {
@@ -606,7 +554,7 @@ class STCMS_Rest {
 		if ( ! is_array( $body ) || empty( $body['success'] ) ) {
 			return false;
 		}
-		// v3 devolve um score (0..1); ações abaixo de 0.5 são tratadas como bot.
+
 		if ( isset( $body['score'] ) && (float) $body['score'] < 0.5 ) {
 			return false;
 		}
@@ -616,10 +564,6 @@ class STCMS_Rest {
 		return true;
 	}
 
-	/**
-	 * Cover/thumbnail URL for a project: the dedicated "Foto de capa"
-	 * (stcms_cover) if set, otherwise the WordPress featured image.
-	 */
 	private static function project_cover( $id, $post ) {
 		$cover = (int) get_post_meta( $id, 'stcms_cover', true );
 		if ( $cover ) {
@@ -644,11 +588,6 @@ class STCMS_Rest {
 		return $url ? $url : '';
 	}
 
-	/**
-	 * Resolve a comma-separated list of attachment IDs into full image URLs.
-	 * Uses the full size (always exists) + falls back to wp_get_attachment_url
-	 * so nenhuma imagem some por falta de um tamanho intermediário.
-	 */
 	private static function gallery_urls( $raw ) {
 		if ( ! $raw ) {
 			return array();
@@ -667,10 +606,6 @@ class STCMS_Rest {
 		return $out;
 	}
 
-	/**
-	 * Resolve a comma-separated list of attachment IDs into documents
-	 * (PDFs etc.), returning { url, title } for each.
-	 */
 	private static function document_list( $raw ) {
 		if ( ! $raw ) {
 			return array();
@@ -718,8 +653,7 @@ class STCMS_Rest {
 		);
 		$out = array();
 		foreach ( $posts as $p ) {
-			// Página interna: usa o editor dedicado; se vazio, cai na descrição
-			// curta, mantendo o comportamento de instalações antigas.
+
 			$page = (string) get_post_meta( $p->ID, 'stcms_page_content', true );
 			$rich = '' !== trim( $page ) ? $page : $p->post_content;
 			$out[] = array(
@@ -728,7 +662,7 @@ class STCMS_Rest {
 				'body'    => self::plain( $p->post_content ),
 				'slug'    => $p->post_name,
 				'content' => apply_filters( 'the_content', $rich ),
-				// Quando true, a página interna abre com a descrição curta.
+
 				'showExcerpt' => '1' === (string) get_post_meta( $p->ID, 'stcms_show_excerpt', true ),
 				'image'   => get_the_post_thumbnail_url( $p, 'large' ) ? get_the_post_thumbnail_url( $p, 'large' ) : '',
 			);
@@ -823,11 +757,6 @@ class STCMS_Rest {
 		return self::decode( trim( wp_strip_all_tags( $content ) ) );
 	}
 
-	/**
-	 * Title as plain UTF-8 text. get_the_title() runs the `the_title` filter,
-	 * which HTML-encodes characters like & into &#038;; a headless JSON API
-	 * must return the decoded text so the front-end renders it verbatim.
-	 */
 	private static function title( $post ) {
 		return self::decode( get_the_title( $post ) );
 	}
@@ -836,9 +765,6 @@ class STCMS_Rest {
 		return html_entity_decode( (string) $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 	}
 
-	/**
-	 * Normalize a repeater of {label, url} into clean link objects.
-	 */
 	private static function links( $rows ) {
 		$out = array();
 		foreach ( (array) $rows as $row ) {
@@ -855,8 +781,6 @@ class STCMS_Rest {
 		return $out;
 	}
 
-	/* --------------------------------------------------------------- pages    */
-
 	private static function pages_list() {
 		$pages = get_posts(
 			array(
@@ -867,7 +791,7 @@ class STCMS_Rest {
 				'post_status' => 'publish',
 			)
 		);
-		// Não listar as páginas de etapa do processo (têm rota própria /processo/{slug}).
+
 		$o       = STCMS_Options::get();
 		$exclude = array();
 		foreach ( (array) ( $o['process'] ?? array() ) as $s ) {

@@ -1,15 +1,3 @@
-/**
- * Estilo do conteúdo vindo do WordPress (.wp-page-content).
- *
- * Num site headless o HTML dos blocos chega pronto, mas o CSS do core do
- * WordPress não vai junto — e o preflight do Tailwind ainda zera títulos,
- * marcadores de lista e margens. Sem estas regras, um post do Gutenberg
- * renderiza como texto corrido indiferenciado.
- *
- * Tudo aqui segue o visual do site: fundo escuro, títulos condensados,
- * vermelho como acento.
- */
-
 .wp-page-content {
   --wp-text: rgba(239, 239, 239, 0.85);
   --wp-muted: rgba(239, 239, 239, 0.55);
@@ -18,8 +6,6 @@
   --wp-red-ink: #ff3547;
   color: var(--wp-text);
 }
-
-/* ── Blocos de texto ─────────────────────────────────────────────────── */
 
 .wp-page-content > * + * { margin-top: 1.15em; }
 
@@ -47,7 +33,6 @@
 .wp-page-content h5,
 .wp-page-content h6 { font-size: 15px; letter-spacing: 0.04em; }
 
-/* Âncora vermelha discreta antes dos h2, reforçando a marca. */
 .wp-page-content h2::before {
   content: "";
   display: inline-block;
@@ -74,8 +59,6 @@
 }
 .wp-page-content a:hover { text-decoration-thickness: 2px; }
 
-/* ── Listas (o preflight do Tailwind remove os marcadores) ───────────── */
-
 .wp-page-content ul,
 .wp-page-content ol {
   margin: 0 0 1.15em;
@@ -89,8 +72,6 @@
 .wp-page-content ol ol,
 .wp-page-content ul ol,
 .wp-page-content ol ul { margin: 0.4em 0 0; }
-
-/* ── Citações ────────────────────────────────────────────────────────── */
 
 .wp-page-content blockquote,
 .wp-page-content .wp-block-quote {
@@ -130,8 +111,6 @@
   color: #efefef;
 }
 
-/* ── Imagens, figuras e legendas ─────────────────────────────────────── */
-
 .wp-page-content img,
 .wp-page-content video,
 .wp-page-content iframe { max-width: 100%; height: auto; display: block; }
@@ -151,7 +130,6 @@
 
 .wp-page-content .wp-block-image.is-style-rounded img { border-radius: 999px; }
 
-/* Galeria */
 .wp-page-content .wp-block-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -160,8 +138,6 @@
 }
 .wp-page-content .wp-block-gallery figure { margin: 0; }
 .wp-page-content .wp-block-gallery img { border-radius: 8px; width: 100%; object-fit: cover; }
-
-/* ── Blocos estruturais ──────────────────────────────────────────────── */
 
 .wp-page-content .wp-block-columns {
   display: flex;
@@ -199,7 +175,6 @@
 
 .wp-page-content .wp-block-spacer { margin: 0 !important; }
 
-/* Botão do Gutenberg no estilo dos CTAs do site */
 .wp-page-content .wp-block-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -225,8 +200,6 @@
   color: var(--wp-red-ink);
 }
 
-/* ── Tabelas ─────────────────────────────────────────────────────────── */
-
 .wp-page-content .wp-block-table { margin: 1.8em 0; overflow-x: auto; }
 .wp-page-content table {
   width: 100%;
@@ -244,8 +217,6 @@
   font-weight: 700;
   color: #efefef;
 }
-
-/* ── Código ──────────────────────────────────────────────────────────── */
 
 .wp-page-content code,
 .wp-page-content kbd {
@@ -268,8 +239,6 @@
 }
 .wp-page-content pre code { background: none; padding: 0; }
 
-/* ── Embeds (vídeo responsivo) ───────────────────────────────────────── */
-
 .wp-page-content .wp-block-embed { margin: 1.8em 0; }
 .wp-page-content .wp-block-embed__wrapper { position: relative; }
 .wp-page-content .wp-block-embed.wp-has-aspect-ratio .wp-block-embed__wrapper {
@@ -283,8 +252,6 @@
   border: 0;
   border-radius: 10px;
 }
-
-/* ── Alinhamentos e utilitários do WordPress ─────────────────────────── */
 
 .wp-page-content .aligncenter { margin-left: auto; margin-right: auto; text-align: center; }
 .wp-page-content .alignleft { float: left; margin: 0.4em 1.4em 1em 0; max-width: 50%; }
@@ -302,7 +269,6 @@
 .wp-page-content .has-text-align-right { text-align: right; }
 .wp-page-content .has-text-align-left { text-align: left; }
 
-/* Capitular */
 .wp-page-content .has-drop-cap:first-letter {
   float: left;
   font-family: "Roboto Condensed", sans-serif;
@@ -313,6 +279,4 @@
   color: var(--wp-red);
 }
 
-/* O tema não define paleta de cores do editor: neutraliza fundos claros
-   que tornariam o texto ilegível sobre o fundo escuro do site. */
 .wp-page-content .has-background { padding: 18px 20px; border-radius: 10px; }
