@@ -662,7 +662,8 @@ function AboutSection() {
   const stepsRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress: stepsRaw } = useScroll({ target: stepsRef, offset: ["start 80%", "end 60%"] })
   const stepsProgress = useSpring(stepsRaw, { stiffness: 90, damping: 26, restDelta: 0.001 })
-  const strokeOpacity = useTransform(stepsRaw, [0, 0.08, 0.9, 1], [0, 0.30, 0.30, 0.16])
+  // Aparece cedo e ganha presença ao fim, quando o traço se fecha.
+  const strokeOpacity = useTransform(stepsRaw, [0, 0.1, 0.75, 1], [0, 0.22, 0.4, 0.5])
 
 
   const pad = "clamp(20px, 4vw, 82px)"
@@ -756,13 +757,14 @@ function AboutSection() {
           </div>
         </Reveal>
 
-        {/* Jornada (tabi): o trilho se preenche conforme o visitante percorre
-            as etapas. A marca 旅 fica por conta do hover de cada pilar, para
-            não competirem pela mesma área. */}
-        <div aria-hidden="true" className="hidden md:block"
-          style={{ position: "absolute", left: `calc(${pad} - 14px)`, top: "22%", bottom: "clamp(64px, 10vw, 140px)", width: 2, background: "rgba(239,239,239,0.07)", borderRadius: 2, overflow: "hidden", zIndex: 1 }}>
-          <m.div style={{ width: "100%", height: "100%", background: `linear-gradient(180deg, ${RED} 0%, ${RED_INK} 100%)`, transformOrigin: "top", scaleY: stepsProgress }} />
-        </div>
+        {/* Jornada (tabi): o 旅 se desenha conforme o visitante percorre as
+            etapas. Fica atrás das linhas, sangrando pela esquerda, para não
+            disputar espaço com a marca que aparece no hover de cada pilar.
+            A única linha vertical da seção é a barra do pilar ativo. */}
+        <m.div aria-hidden="true" className="hidden md:block pointer-events-none"
+          style={{ position: "absolute", right: `calc(${pad} + 8px)`, bottom: "clamp(18px, 2.6vw, 36px)", width: "clamp(120px, 12vw, 175px)", opacity: strokeOpacity, zIndex: 0 }}>
+          <TabiStroke width="100%" color={RED} strokeWidth={1.1} progress={stepsProgress} />
+        </m.div>
 
         {STEPS.map((p, i) => (
           <Pillar key={p.slug || p.title} index={`0${i + 1}`} title={p.title} body={p.summary} delay={i * 0.06}
