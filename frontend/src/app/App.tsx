@@ -38,6 +38,14 @@ const BLACK = "#111111"
 
 const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
+/**
+ * Verdadeiro quando o HTML chegou pré-renderizado. Nesse caso o texto já está
+ * pintado na tela, então as animações de entrada partem do estado final em
+ * vez de reanimar por cima (o que apareceria como piscada).
+ */
+const PRERENDERED = typeof window !== "undefined" && !!(window as unknown as { __PRERENDERED__?: number }).__PRERENDERED__
+const entrada = (inicial: Record<string, unknown>) => (PRERENDERED ? false : inicial)
+
 // Slug estável e legível para a URL de cada projeto (ex.: "Nuvem Finance" → "nuvem-finance").
 function projectSlug(p: { id: string; name: string }): string {
   const base = (p.name || p.id || "")
@@ -402,7 +410,7 @@ export function HomeSite() {
             <m.div
               className="flex items-center gap-3 mb-7"
               style={{ color: eyebrowColor, fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", lineHeight: 1 }}
-              initial={{ y: 14, opacity: 0 }}
+              initial={entrada({ y: 14, opacity: 0 })}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.75, delay: 0.55, ease: "easeOut" }}
             >
@@ -419,7 +427,7 @@ export function HomeSite() {
                   key={line}
                   className="hero-title-line block"
                   style={{ color: titleColor }}
-                  initial={{ y: "108%", opacity: 0 }}
+                  initial={entrada({ y: "108%", opacity: 0 })}
                   animate={{ y: "0%", opacity: 1 }}
                   transition={{ duration: 1, delay: 0.25 + i * 0.07, ease: EASE_OUT_EXPO }}
                 >
@@ -430,7 +438,7 @@ export function HomeSite() {
                 <m.span
                   className="hero-title-line block"
                   style={{ color: titleColor, whiteSpace: "nowrap" }}
-                  initial={{ y: "108%", opacity: 0 }}
+                  initial={entrada({ y: "108%", opacity: 0 })}
                   animate={{ y: "0%", opacity: 1 }}
                   transition={{ duration: 1, delay: 0.46, ease: EASE_OUT_EXPO }}
                 >
@@ -451,7 +459,7 @@ export function HomeSite() {
 
             <m.div
               className="flex flex-wrap items-center gap-4 mt-9 pointer-events-auto"
-              initial={{ y: 14, opacity: 0 }}
+              initial={entrada({ y: 14, opacity: 0 })}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.85, delay: 0.80, ease: "easeOut" }}
             >
