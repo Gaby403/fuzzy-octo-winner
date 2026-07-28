@@ -1035,6 +1035,9 @@ function ProjectDetail({ proj, onClose, onPrev, onNext }: {
   return (
     <m.div
       ref={scrollRef}
+      // O Lenis captura a roda do mouse na janela inteira; sem este atributo
+      // o scroll do modal não funcionaria (a página por trás está travada).
+      data-lenis-prevent
       style={{ position: "fixed", inset: 0, zIndex: 200, overflowY: "auto", backgroundColor: "#080808", fontFamily: '"Be Vietnam Pro", sans-serif' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -1912,8 +1915,11 @@ function FaqSection() {
       <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad}`, maxWidth: 1400, margin: "0 auto" }}>
         <div className="grid grid-cols-1 md:grid-cols-12" style={{ gap: "clamp(32px, 5vw, 80px)", alignItems: "start" }}>
 
-          {/* Left: eyebrow + headline + CTA */}
-          <div className="md:col-span-4 md:sticky" style={{ top: "clamp(80px, 10vh, 120px)" }}>
+          {/* Left: eyebrow + headline + CTA.
+              O "sticky" só entra em telas altas o bastante (ver .faq-aside no
+              CSS): em viewports baixas a coluna é mais alta que a tela e o
+              final dela — incluindo o botão — ficava inalcançável. */}
+          <div className="md:col-span-4 faq-aside">
             <Reveal delay={0}>
               <div className="flex items-center gap-3 mb-8" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.40)" }}>
                 <m.span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} />

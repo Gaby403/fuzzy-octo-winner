@@ -63,6 +63,16 @@ html.lenis body { height: auto; }
 .has-custom-cursor select,
 .has-custom-cursor [contenteditable="true"] { cursor: auto; }
 
+/* FAQ: a coluna da esquerda só fica fixa (sticky) quando a tela tem altura
+   suficiente para exibi-la inteira. Em notebooks de tela baixa ela rola
+   normalmente, em vez de ter o rodapé da coluna cortado. */
+@media (min-width: 768px) and (min-height: 860px) {
+  .faq-aside {
+    position: sticky;
+    top: clamp(80px, 10vh, 120px);
+  }
+}
+
 /* Badge do reCAPTCHA escondido — permitido pelo Google desde que o aviso
    legal apareça no formulário (ver texto abaixo do botão em Contato). */
 .grecaptcha-badge { visibility: hidden; }

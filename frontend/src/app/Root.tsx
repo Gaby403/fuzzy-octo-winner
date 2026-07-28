@@ -6,6 +6,7 @@ import { Header, HEADER_HEIGHT } from "./components/layout/Header"
 import { Footer } from "./components/layout/Footer"
 import { SmoothScroll } from "./components/system/SmoothScroll"
 import { CustomCursor } from "./components/system/CustomCursor"
+import { PageTransition } from "./components/system/PageTransition"
 import { initAnalytics, trackEvent } from "./utils/analytics"
 
 /** Cria/atualiza uma <meta> no <head> pelo atributo-chave (name ou property). */
@@ -197,6 +198,7 @@ export default function Root() {
       <UIProvider>
         <SmoothScroll />
         <CustomCursor />
+        <PageTransition />
         <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
         <Header />
         {/* Espaçador nas páginas internas para o conteúdo não ficar sob o header fixo.
