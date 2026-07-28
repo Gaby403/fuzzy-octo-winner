@@ -37,9 +37,11 @@ export default function Article() {
   const { slug = "" } = useParams()
   const [post, setPost] = useState<PostFull | null>(null)
   const [status, setStatus] = useState<"loading" | "ready" | "missing">("loading")
-  const articleRef = useRef<HTMLElement>(null)
 
-  const { scrollYProgress } = useScroll({ target: articleRef, offset: ["start start", "end end"] })
+  // Progresso do documento, não do <main>: durante o carregamento a página
+  // renderiza outra árvore e o ref do artigo ainda não existe — medindo por
+  // ele, a barra ficava travada em zero depois que o conteúdo chegava.
+  const { scrollYProgress } = useScroll()
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 })
 
   useEffect(() => {
@@ -98,7 +100,7 @@ export default function Article() {
       {/* Barra de progresso de leitura */}
       <m.div aria-hidden="true" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, background: RED, transformOrigin: "left", scaleX: progress, zIndex: 60 }} />
 
-      <main id="conteudo" ref={articleRef} className={hasToc ? "article-page has-toc-page" : "article-page"} style={{ ["--pad" as string]: pad } as React.CSSProperties}>
+      <main id="conteudo" className={hasToc ? "article-page has-toc-page" : "article-page"} style={{ ["--pad" as string]: pad } as React.CSSProperties}>
         <div className="article-side" style={{ paddingTop: "clamp(32px,5vw,56px)" }}>
           <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Blog", to: "/blog" }, { label: post.title }]} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", margin: "22px 0 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
