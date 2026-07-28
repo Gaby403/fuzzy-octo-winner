@@ -24,6 +24,11 @@ function stcms_default_options() {
 			'tagline'          => 'Design e tecnologia que levam marcas até onde precisam chegar.',
 			'logo_id'          => 0,
 			'favicon_id'       => 0,
+			// Integrações (Analytics / anti-spam). O secret do reCAPTCHA NUNCA é exposto na API.
+			'ga4_id'           => '',
+			'gtm_id'           => '',
+			'recaptcha_site'   => '',
+			'recaptcha_secret' => '',
 		),
 		'nav'    => array(
 			'brand'     => 'STUDIO TABI',
@@ -60,6 +65,13 @@ function stcms_default_options() {
 			'title'       => 'VAMOS',
 			'highlight'   => 'CONVERSAR.',
 			'description' => 'Conte um pouco sobre o seu projeto. Respondemos em até 1 dia útil.',
+		),
+		// Processo "Como Trabalhamos" — cada etapa vira uma página /processo/{slug}.
+		'process' => array(
+			array( 'title' => 'Diagnóstico',     'slug' => 'diagnostico',    'icon' => 'diagnostico', 'summary' => 'Mergulhamos no negócio, no mercado e nos objetivos para entender onde você está e onde precisa chegar.' ),
+			array( 'title' => 'Narrativa',       'slug' => 'narrativa',      'icon' => 'narrativa',   'summary' => 'Definimos a história e o posicionamento da marca — a mensagem que guia cada decisão.' ),
+			array( 'title' => 'Design',          'slug' => 'design',         'icon' => 'design',      'summary' => 'Traduzimos a estratégia em identidade e interface, com intenção, hierarquia e propósito.' ),
+			array( 'title' => 'Desenvolvimento', 'slug' => 'desenvolvimento','icon' => 'desenvolvimento', 'summary' => 'Construímos com código limpo, rápido e escalável — da ideia ao ar, pronto para crescer.' ),
 		),
 		// Rótulos e botões das seções da home (eyebrows, notas e CTAs editáveis).
 		'sections' => array(

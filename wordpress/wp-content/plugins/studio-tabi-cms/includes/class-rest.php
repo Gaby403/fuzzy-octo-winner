@@ -142,6 +142,10 @@ class STCMS_Rest {
 				'logoUrl'      => self::img( $o['site']['logo_id'], 'full' ),
 				'faviconUrl'   => self::img( $o['site']['favicon_id'], 'full' ),
 				'heroImageUrl' => self::img( $o['hero']['image_id'], 'full' ),
+				// Integrações públicas (client-side). O secret do reCAPTCHA jamais é exposto.
+				'ga4Id'         => (string) ( $o['site']['ga4_id'] ?? '' ),
+				'gtmId'         => (string) ( $o['site']['gtm_id'] ?? '' ),
+				'recaptchaSite' => (string) ( $o['site']['recaptcha_site'] ?? '' ),
 			),
 			'nav'      => array(
 				'brand'    => self::decode( $o['nav']['brand'] ),
@@ -175,6 +179,17 @@ class STCMS_Rest {
 				'title'       => self::decode( $o['contact']['title'] ),
 				'highlight'   => self::decode( $o['contact']['highlight'] ),
 				'description' => self::decode( $o['contact']['description'] ),
+			),
+			'process' => array_map(
+				function ( $s ) {
+					return array(
+						'title'   => self::decode( $s['title'] ?? '' ),
+						'slug'    => (string) ( $s['slug'] ?? '' ),
+						'icon'    => (string) ( $s['icon'] ?? '' ),
+						'summary' => self::decode( $s['summary'] ?? '' ),
+					);
+				},
+				array_values( (array) ( $o['process'] ?? array() ) )
 			),
 			'sections' => array(
 				'about' => array(
@@ -250,6 +265,14 @@ class STCMS_Rest {
 		// Honeypot anti-spam: bots preenchem o campo oculto "website".
 		if ( ! empty( $p['website'] ) ) {
 			return new WP_REST_Response( array( 'ok' => true ), 200 );
+		}
+
+		// reCAPTCHA v3 (só bloqueia se o secret estiver configurado no CMS).
+		if ( ! self::verify_recaptcha( $p['recaptchaToken'] ?? '', 'contact' ) ) {
+			return new WP_REST_Response(
+				array( 'ok' => false, 'message' => 'Falha na verificação anti-spam. Recarregue a página e tente novamente.' ),
+				422
+			);
 		}
 
 		$name    = sanitize_text_field( $p['name'] ?? '' );
@@ -430,6 +453,9 @@ class STCMS_Rest {
 		if ( ! is_email( $email ) ) {
 			return new WP_REST_Response( array( 'ok' => false, 'message' => 'Informe um e-mail válido.' ), 422 );
 		}
+		if ( ! self::verify_recaptcha( is_array( $p ) ? ( $p['recaptchaToken'] ?? '' ) : '', 'newsletter' ) ) {
+			return new WP_REST_Response( array( 'ok' => false, 'message' => 'Falha na verificação anti-spam. Tente novamente.' ), 422 );
+		}
 		$list = get_option( 'stcms_newsletter', array() );
 		if ( ! is_array( $list ) ) {
 			$list = array();
@@ -442,6 +468,51 @@ class STCMS_Rest {
 			wp_mail( $recipient, '[' . get_bloginfo( 'name' ) . '] Nova inscrição na newsletter', "Novo e-mail inscrito: {$email}" );
 		}
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Inscrição confirmada! Obrigado.' ), 200 );
+	}
+
+	/**
+	 * Verifica um token do reCAPTCHA v3 contra o Google. Só valida quando o
+	 * secret está configurado no CMS — assim o site continua funcionando sem
+	 * reCAPTCHA. Retorna true se aprovado (ou se a proteção está desligada).
+	 *
+	 * @param string $token  Token gerado pelo grecaptcha.execute() no cliente.
+	 * @param string $action Ação esperada (ex.: "contact", "newsletter").
+	 */
+	private static function verify_recaptcha( $token, $action ) {
+		$o      = STCMS_Options::get();
+		$secret = trim( (string) ( $o['site']['recaptcha_secret'] ?? '' ) );
+		if ( '' === $secret ) {
+			return true; // Proteção desligada: não bloqueia envios.
+		}
+		$token = trim( (string) $token );
+		if ( '' === $token ) {
+			return false;
+		}
+		$resp = wp_remote_post(
+			'https://www.google.com/recaptcha/api/siteverify',
+			array(
+				'timeout' => 8,
+				'body'    => array(
+					'secret'   => $secret,
+					'response' => $token,
+				),
+			)
+		);
+		if ( is_wp_error( $resp ) ) {
+			return false;
+		}
+		$body = json_decode( wp_remote_retrieve_body( $resp ), true );
+		if ( ! is_array( $body ) || empty( $body['success'] ) ) {
+			return false;
+		}
+		// v3 devolve um score (0..1); ações abaixo de 0.5 são tratadas como bot.
+		if ( isset( $body['score'] ) && (float) $body['score'] < 0.5 ) {
+			return false;
+		}
+		if ( ! empty( $body['action'] ) && $action && $body['action'] !== $action ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -689,9 +760,19 @@ class STCMS_Rest {
 				'post_status' => 'publish',
 			)
 		);
+		// Não listar as páginas de etapa do processo (têm rota própria /processo/{slug}).
+		$o       = STCMS_Options::get();
+		$exclude = array();
+		foreach ( (array) ( $o['process'] ?? array() ) as $s ) {
+			if ( ! empty( $s['slug'] ) ) {
+				$exclude[] = $s['slug'];
+			}
+		}
 		$out = array();
 		foreach ( $pages as $p ) {
-			// Skip the WP front page / privacy stub if present.
+			if ( in_array( $p->post_name, $exclude, true ) ) {
+				continue;
+			}
 			$out[] = array(
 				'slug'  => $p->post_name,
 				'title' => self::title( $p ),

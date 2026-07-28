@@ -106,6 +106,17 @@ class STCMS_Options {
 					</table>
 				<?php self::card_close(); ?>
 
+				<?php self::card_open( 'integrations', 'dashicons-chart-area', 'Integrações & Analytics', 'Google Analytics 4, Tag Manager e reCAPTCHA v3 (anti-spam)' ); ?>
+					<table class="form-table stcms-fields" role="presentation">
+						<?php
+						self::row_text( 'ID do Google Analytics 4', 'site][ga4_id', $o['site']['ga4_id'], 'Ex.: G-XXXXXXX. Deixe vazio para não carregar.' );
+						self::row_text( 'ID do Google Tag Manager', 'site][gtm_id', $o['site']['gtm_id'], 'Ex.: GTM-XXXXXX. Se preenchido, o GA4 pode ser gerido pelo GTM.' );
+						self::row_text( 'reCAPTCHA v3 — Site Key', 'site][recaptcha_site', $o['site']['recaptcha_site'], 'Chave pública (client). Ativa a proteção anti-spam nos formulários.' );
+						self::row_text( 'reCAPTCHA v3 — Secret Key', 'site][recaptcha_secret', $o['site']['recaptcha_secret'], 'Chave secreta (server). Nunca é exposta na API pública.' );
+						?>
+					</table>
+				<?php self::card_close(); ?>
+
 				<?php self::card_open( 'nav', 'dashicons-menu-alt3', 'Menu (cabeçalho)', 'A marca e os links do topo do site' ); ?>
 					<table class="form-table stcms-fields" role="presentation">
 						<?php
@@ -162,6 +173,18 @@ class STCMS_Options {
 						self::row_text( 'Texto do botão', 'projects_cta][label', $o['projects_cta']['label'] );
 						self::row_text( 'Link do botão', 'projects_cta][url', $o['projects_cta']['url'], 'Padrão: /projetos (a página com todos os projetos). Pode ser um link externo.' );
 						?>
+					</table>
+				<?php self::card_close(); ?>
+
+				<?php self::card_open( 'process', 'dashicons-networking', 'Como Trabalhamos (Processo)', 'Etapas do processo. Cada etapa vira uma página /processo/{slug}.' ); ?>
+					<table class="form-table stcms-fields" role="presentation">
+						<tr>
+							<th scope="row">Etapas</th>
+							<td>
+								<?php self::repeater( 'process', $o['process'], array( 'title' => 'Título', 'slug' => 'slug (url)', 'icon' => 'ícone', 'summary' => 'Resumo curto' ) ); ?>
+								<p class="description">Ícones disponíveis: <code>diagnostico</code>, <code>narrativa</code>, <code>design</code>, <code>desenvolvimento</code>. Para o texto completo da página, crie uma <strong>Página</strong> no WordPress com o mesmo <em>slug</em>.</p>
+							</td>
+						</tr>
 					</table>
 				<?php self::card_close(); ?>
 
@@ -406,6 +429,11 @@ class STCMS_Options {
 			$out['site']['tagline']    = sanitize_text_field( $input['site']['tagline'] ?? '' );
 			$out['site']['logo_id']    = (int) ( $input['site']['logo_id'] ?? 0 );
 			$out['site']['favicon_id'] = (int) ( $input['site']['favicon_id'] ?? 0 );
+			// Integrações (Analytics / anti-spam). O secret NUNCA é exposto na API.
+			$out['site']['ga4_id']          = sanitize_text_field( $input['site']['ga4_id'] ?? '' );
+			$out['site']['gtm_id']          = sanitize_text_field( $input['site']['gtm_id'] ?? '' );
+			$out['site']['recaptcha_site']  = sanitize_text_field( $input['site']['recaptcha_site'] ?? '' );
+			$out['site']['recaptcha_secret'] = sanitize_text_field( $input['site']['recaptcha_secret'] ?? '' );
 		}
 
 		if ( isset( $input['hero'] ) ) {
@@ -436,6 +464,27 @@ class STCMS_Options {
 			$out['contact']['title']       = sanitize_text_field( $input['contact']['title'] ?? '' );
 			$out['contact']['highlight']   = sanitize_text_field( $input['contact']['highlight'] ?? '' );
 			$out['contact']['description'] = sanitize_textarea_field( $input['contact']['description'] ?? '' );
+		}
+
+		if ( isset( $input['process'] ) ) {
+			$steps = array();
+			foreach ( (array) $input['process'] as $row ) {
+				if ( ! is_array( $row ) ) {
+					continue;
+				}
+				$title = sanitize_text_field( $row['title'] ?? '' );
+				if ( '' === $title ) {
+					continue;
+				}
+				$slug = sanitize_title( $row['slug'] ?? '' );
+				$steps[] = array(
+					'title'   => $title,
+					'slug'    => $slug ? $slug : sanitize_title( $title ),
+					'icon'    => sanitize_key( $row['icon'] ?? '' ),
+					'summary' => sanitize_textarea_field( $row['summary'] ?? '' ),
+				);
+			}
+			$out['process'] = $steps;
 		}
 
 		if ( isset( $input['sections'] ) ) {

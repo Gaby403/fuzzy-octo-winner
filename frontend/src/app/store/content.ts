@@ -21,6 +21,10 @@ export interface SiteContent {
     logoUrl: string
     faviconUrl: string
     heroImageUrl: string
+    /** Integrações (client-side). O secret do reCAPTCHA nunca chega aqui. */
+    ga4Id: string
+    gtmId: string
+    recaptchaSite: string
   }
   /** Header navigation (brand, menu links, CTA). */
   nav: {
@@ -45,6 +49,8 @@ export interface SiteContent {
   thankYou: { title: string; message: string }
   /** Página /contato (textos; e-mail/telefone vêm do rodapé). */
   contact: { title: string; highlight: string; description: string }
+  /** Etapas do processo ("Como Trabalhamos") — cada uma vira /processo/:slug. */
+  process: { title: string; slug: string; icon: string; summary: string }[]
   /** Rótulos, notas e links dos botões das seções da home. */
   sections: {
     about: { eyebrow: string; pillarsLabel: string; ctaLabel: string; ctaUrl: string }
@@ -115,6 +121,9 @@ export const DEFAULT_CONTENT: SiteContent = {
     logoUrl: "",
     faviconUrl: "",
     heroImageUrl: "",
+    ga4Id: "",
+    gtmId: "",
+    recaptchaSite: "",
   },
   nav: {
     brand: "STUDIO TABI",
@@ -146,6 +155,12 @@ export const DEFAULT_CONTENT: SiteContent = {
     highlight: "CONVERSAR.",
     description: "Conte um pouco sobre o seu projeto. Respondemos em até 1 dia útil.",
   },
+  process: [
+    { title: "Diagnóstico",     slug: "diagnostico",     icon: "diagnostico",     summary: "Mergulhamos no negócio, no mercado e nos objetivos para entender onde você está e onde precisa chegar." },
+    { title: "Narrativa",       slug: "narrativa",       icon: "narrativa",       summary: "Definimos a história e o posicionamento da marca — a mensagem que guia cada decisão." },
+    { title: "Design",          slug: "design",          icon: "design",          summary: "Traduzimos a estratégia em identidade e interface, com intenção, hierarquia e propósito." },
+    { title: "Desenvolvimento", slug: "desenvolvimento", icon: "desenvolvimento", summary: "Construímos com código limpo, rápido e escalável — da ideia ao ar, pronto para crescer." },
+  ],
   sections: {
     about: { eyebrow: "STUDIO TABI — SOBRE NÓS", pillarsLabel: "COMO TRABALHAMOS", ctaLabel: "CONHEÇA NOSSA HISTÓRIA", ctaUrl: "/sobre" },
     services: { eyebrow: "STUDIO TABI — SERVIÇOS", ctaLabel: "VER TODOS OS SERVIÇOS", ctaUrl: "/servicos" },
@@ -342,6 +357,7 @@ function mergeContent(remote: Partial<SiteContent> | null | undefined): SiteCont
     projectsCta: { ...DEFAULT_CONTENT.projectsCta, ...(remote.projectsCta || {}) },
     thankYou: { ...DEFAULT_CONTENT.thankYou, ...(remote.thankYou || {}) },
     contact: { ...DEFAULT_CONTENT.contact, ...(remote.contact || {}) },
+    process: remote.process?.length ? remote.process : DEFAULT_CONTENT.process,
     sections: remote.sections ? {
       about: { ...DEFAULT_CONTENT.sections.about, ...(remote.sections.about || {}) },
       services: { ...DEFAULT_CONTENT.sections.services, ...(remote.sections.services || {}) },
@@ -401,6 +417,8 @@ export interface ContactPayload {
   message: string
   /** Honeypot: deve ficar sempre vazio (preenchido só por bots). */
   website?: string
+  /** Token do reCAPTCHA v3 (opcional; verificado no servidor quando ativo). */
+  recaptchaToken?: string
 }
 
 export interface ContactResult {

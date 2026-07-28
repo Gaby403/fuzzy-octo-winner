@@ -3,6 +3,7 @@ import { Link } from "react-router"
 import { m } from "motion/react"
 import { useContent } from "../store/content"
 import { TabiMark } from "../components/TabiMark"
+import { ProcessIcon } from "../components/ui/ProcessIcon"
 
 const RED = "#F20C25"
 const RED_BTN = "#DA0A20"
@@ -72,16 +73,19 @@ export default function About() {
         <section style={{ padding: `clamp(40px,6vw,80px) ${pad} clamp(56px,9vw,120px)`, position: "relative", zIndex: 1 }}>
           <div className="flex items-center justify-between" style={{ marginBottom: "clamp(16px,2vw,28px)" }}>
             <span style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)" }}>{sec.pillarsLabel}</span>
-            <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.20)" }}>{`0${a.pillars.length}`} ETAPAS</span>
+            <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.20)" }}>{`0${content.process.length}`} ETAPAS</span>
           </div>
-          {a.pillars.map((p, i) => (
-            <div key={p.title} style={{ borderTop: "1px solid rgba(239,239,239,0.10)", display: "flex", alignItems: "flex-start", gap: "clamp(14px,3vw,40px)", padding: "clamp(22px,3vw,34px) 0" }}>
-              <span style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(24px,3vw,48px)", lineHeight: 1, letterSpacing: "-0.05em", color: RED, flexShrink: 0, width: "clamp(44px,5vw,84px)" }}>{`0${i + 1}`}</span>
-              <div>
+          {content.process.map((p, i) => (
+            <Link key={p.slug || p.title} to={p.slug ? `/processo/${p.slug}` : "#"}
+              style={{ textDecoration: "none", color: "inherit", borderTop: "1px solid rgba(239,239,239,0.10)", display: "flex", alignItems: "center", gap: "clamp(14px,3vw,32px)", padding: "clamp(22px,3vw,34px) 0" }}>
+              <span aria-hidden="true" className="hidden sm:flex" style={{ color: RED, flexShrink: 0 }}><ProcessIcon name={p.icon} size={30} /></span>
+              <span style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(24px,3vw,44px)", lineHeight: 1, letterSpacing: "-0.05em", color: RED, flexShrink: 0, width: "clamp(40px,4vw,72px)" }}>{`0${i + 1}`}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <h2 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(18px,2vw,32px)", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.05, margin: "0 0 8px" }}>{p.title}</h2>
-                <p style={{ fontSize: "clamp(12px,0.9vw,15px)", lineHeight: 1.65, color: "rgba(239,239,239,0.5)", margin: 0, maxWidth: 620 }}>{p.body}</p>
+                <p style={{ fontSize: "clamp(12px,0.9vw,15px)", lineHeight: 1.65, color: "rgba(239,239,239,0.5)", margin: 0, maxWidth: 620 }}>{p.summary}</p>
               </div>
-            </div>
+              <span aria-hidden="true" style={{ color: RED_INK, flexShrink: 0, fontSize: 18 }}>→</span>
+            </Link>
           ))}
 
           <div style={{ marginTop: "clamp(40px,6vw,64px)" }}>

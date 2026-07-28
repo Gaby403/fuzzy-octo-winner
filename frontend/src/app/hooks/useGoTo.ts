@@ -1,0 +1,26 @@
+import { useNavigate } from "react-router"
+import { trackEvent } from "../utils/analytics"
+
+/**
+ * Resolve um link vindo do CMS (âncora "#sec", rota interna "/rota" ou URL
+ * externa) na ação de navegação correta. Usado por botões/CTAs editáveis.
+ */
+export function useGoTo() {
+  const navigate = useNavigate()
+  return (url: string, e?: { preventDefault?: () => void }) => {
+    if (!url) return
+    trackEvent("cta_click", { link_url: url })
+    if (/^https?:\/\//i.test(url) || url.startsWith("mailto:") || url.startsWith("tel:")) {
+      window.open(url, "_blank", "noopener")
+      return
+    }
+    if (e?.preventDefault) e.preventDefault()
+    if (url.startsWith("#")) {
+      const el = document.querySelector(url)
+      if (el) el.scrollIntoView({ behavior: "smooth" })
+      else navigate("/" + url)
+    } else {
+      navigate(url)
+    }
+  }
+}

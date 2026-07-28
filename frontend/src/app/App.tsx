@@ -11,10 +11,12 @@ import {
   useMotionTemplate,
   useInView,
 } from "motion/react"
-import { RouterProvider, createBrowserRouter, Link, useSearchParams, useNavigate } from "react-router"
+import { RouterProvider, createBrowserRouter, Link, useSearchParams } from "react-router"
+import { useGoTo } from "./hooks/useGoTo"
 import { useContent, type SiteContent } from "./store/content"
 import Root from "./Root"
 import { TabiMark } from "./components/TabiMark"
+import { ProcessIcon } from "./components/ui/ProcessIcon"
 
 // Rotas secundárias carregadas sob demanda (code-splitting) para reduzir o
 // JavaScript inicial da home e melhorar a performance (PageSpeed / TBT).
@@ -41,29 +43,6 @@ function projectSlug(p: { id: string; name: string }): string {
   return base || p.id
 }
 
-/**
- * Hook que resolve um link vindo do CMS (âncora "#sec", rota interna "/projetos"
- * ou URL externa "https://…") na ação de navegação correta. Usado pelos botões
- * editáveis (hero, seção de projetos, rodapé, menu).
- */
-function useGoTo() {
-  const navigate = useNavigate()
-  return (url: string, e?: { preventDefault?: () => void }) => {
-    if (!url) return
-    if (/^https?:\/\//i.test(url) || url.startsWith("mailto:") || url.startsWith("tel:")) {
-      window.open(url, "_blank", "noopener")
-      return
-    }
-    if (e?.preventDefault) e.preventDefault()
-    if (url.startsWith("#")) {
-      const el = document.querySelector(url)
-      if (el) el.scrollIntoView({ behavior: "smooth" })
-      else navigate("/" + url)
-    } else {
-      navigate(url)
-    }
-  }
-}
 
 const TITLE_LINES = ["TRANSFORMAMOS", "A SUA MARCA", "EM EXPERIÊNCIA"]
 
@@ -502,7 +481,6 @@ export function HomeSite() {
         <ProjectsSection />
         <FaqSection />
       </main>
-      <SiteFooter />
     </>
   )
 }
@@ -593,19 +571,22 @@ function Stat({ numeric, suffix, label, delay }: { numeric: number; suffix: stri
 // Hover "estilo tabi": barra vermelha, wash em degradê e a marca 旅 surgindo.
 // Ativa no hover (desktop) OU quando o pilar entra no centro da tela (mobile),
 // para prender o usuário nas duas plataformas.
-function Pillar({ index, title, body, delay }: { index: string; title: string; body: string; delay: number }) {
-  const ref = useRef<HTMLDivElement>(null)
+function Pillar({ index, title, body, delay, icon, to, onNavigate }: { index: string; title: string; body: string; delay: number; icon?: string; to?: string; onNavigate?: (url: string, e?: { preventDefault?: () => void }) => void }) {
+  const ref = useRef<HTMLAnchorElement>(null)
   const inView = useInView(ref, { once: true, margin: "-50px" })
   const centered = useInView(ref, { margin: "-45% 0px -45% 0px" })
   const [hovered, setHovered] = useState(false)
   const active = hovered || centered
   const EASE = [0.16, 1, 0.3, 1] as const
   return (
-    <m.div
+    <m.a
       ref={ref}
+      href={to || undefined}
+      onClick={to && onNavigate ? (e) => onNavigate(to, e) : undefined}
+      aria-label={to ? `Etapa: ${title}` : undefined}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      style={{ position: "relative", overflow: "hidden", borderTop: "1px solid rgba(239,239,239,0.10)", cursor: "pointer" }}
+      style={{ display: "block", textDecoration: "none", color: "inherit", position: "relative", overflow: "hidden", borderTop: "1px solid rgba(239,239,239,0.10)", cursor: to ? "pointer" : "default" }}
       initial={{ opacity: 0 }}
       animate={inView ? { opacity: 1 } : {}}
       transition={{ duration: 0.5, delay: delay + 0.1 }}
@@ -626,10 +607,16 @@ function Pillar({ index, title, body, delay }: { index: string; title: string; b
         <TabiMark width="100%" color={RED} />
       </m.div>
 
-      <m.div className="flex items-center gap-4 md:gap-8" style={{ position: "relative", zIndex: 1 }}
+      <m.div className="flex items-center gap-4 md:gap-6" style={{ position: "relative", zIndex: 1 }}
         animate={{ paddingTop: active ? 32 : 26, paddingBottom: active ? 32 : 26, paddingLeft: active ? 20 : 10 }}
         transition={{ duration: 0.4, ease: EASE }}>
-        <m.span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(28px, 3.4vw, 54px)", lineHeight: 1, letterSpacing: "-0.05em", flexShrink: 0, width: "clamp(46px, 5vw, 88px)" }}
+        {icon && (
+          <m.span aria-hidden="true" className="hidden sm:flex" style={{ flexShrink: 0, alignItems: "center", justifyContent: "center" }}
+            animate={{ color: active ? RED : "rgba(239,239,239,0.4)" }} transition={{ duration: 0.35 }}>
+            <ProcessIcon name={icon} size={30} />
+          </m.span>
+        )}
+        <m.span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(26px, 3vw, 46px)", lineHeight: 1, letterSpacing: "-0.05em", flexShrink: 0, width: "clamp(40px, 4vw, 70px)" }}
           animate={{ color: active ? RED : "rgba(239,239,239,0.18)", scale: active ? 1.06 : 1 }} transition={{ duration: 0.35 }}>
           {index}
         </m.span>
@@ -648,7 +635,7 @@ function Pillar({ index, title, body, delay }: { index: string; title: string; b
           →
         </m.span>
       </m.div>
-    </m.div>
+    </m.a>
   )
 }
 
@@ -664,7 +651,7 @@ function AboutSection() {
   const kanjiRotate  = useTransform(sectionScroll, [0, 1], [-2, 2])
 
   const STATS = content.about.stats
-  const PILLARS = content.about.pillars
+  const STEPS = content.process
 
 
   const pad = "clamp(20px, 4vw, 82px)"
@@ -753,13 +740,14 @@ function AboutSection() {
               {sec.pillarsLabel}
             </span>
             <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.20)" }}>
-              {`0${PILLARS.length}`} ETAPAS
+              {`0${STEPS.length}`} ETAPAS
             </span>
           </div>
         </Reveal>
 
-        {PILLARS.map((p, i) => (
-          <Pillar key={p.title} index={`0${i + 1}`} title={p.title} body={p.body} delay={i * 0.06} />
+        {STEPS.map((p, i) => (
+          <Pillar key={p.slug || p.title} index={`0${i + 1}`} title={p.title} body={p.summary} delay={i * 0.06}
+            icon={p.icon} to={p.slug ? `/processo/${p.slug}` : undefined} onNavigate={goTo} />
         ))}
       </div>
 
@@ -1679,8 +1667,6 @@ function AllProjects() {
           ))}
         </div>
       </main>
-
-      <SiteFooter />
     </div>
   )
 }
@@ -1827,194 +1813,6 @@ const FOOTER_NAV = [
   { label: "Contato",   links: ["oi@studiotabi.com.br", "+55 11 99999-9999", "São Paulo, Brasil"] },
 ]
 
-function SiteFooter() {
-  const { content } = useContent()
-  const goTo = useGoTo()
-  const pad = "clamp(20px, 4vw, 82px)"
-  const ref = useRef<HTMLElement>(null)
-  const inView = useInView(ref, { once: true, margin: "-60px" })
-  const f = content.footer
-  const linkColStyle = { display: "block", fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)", marginBottom: 20, textTransform: "uppercase" } as const
-
-  return (
-    <footer id="contato" ref={ref} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
-      <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.10)" }} />
-
-      {/* Brand mark background */}
-      <div aria-hidden="true" style={{ position: "absolute", left: "-4%", bottom: "-10%", width: "clamp(240px, 34vw, 580px)", opacity: 0.04, pointerEvents: "none" }}>
-        <TabiMark width="100%" color={WHITE} />
-      </div>
-
-      {/* Upper: logo + tagline + nav columns */}
-      <div style={{ padding: `clamp(56px, 9vw, 100px) ${pad} clamp(40px, 6vw, 64px)`, position: "relative", zIndex: 1 }}>
-        <div className="grid grid-cols-1 md:grid-cols-12" style={{ gap: "clamp(40px, 5vw, 60px)" }}>
-
-          {/* Brand */}
-          <m.div
-            className="md:col-span-4"
-            initial={{ opacity: 0, y: 24 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div style={{ marginBottom: 20 }}>
-              {content.site.logoUrl ? (
-                <img src={content.site.logoUrl} alt={f.brand || content.site.title} style={{ height: "clamp(32px, 3.4vw, 48px)", width: "auto", display: "block" }} />
-              ) : (
-                <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 1.6vw, 26px)", letterSpacing: "-0.05em", textTransform: "uppercase", color: WHITE }}>{f.brand}</span>
-              )}
-              <span style={{ display: "block", width: 32, height: 2, backgroundColor: RED, marginTop: 10 }} />
-            </div>
-            <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.42)", maxWidth: 280, marginBottom: 28 }}>
-              {f.tagline}
-            </p>
-            <m.button
-              style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 24px", borderRadius: 999, border: `1px solid ${RED_INK}`, color: RED_INK, backgroundColor: "rgba(0,0,0,0)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", cursor: "pointer" }}
-              whileHover={{ backgroundColor: RED_BTN, borderColor: RED_BTN, color: PURE_WHITE }}
-              transition={{ duration: 0.22 }}
-              onClick={(e) => goTo(f.ctaUrl, e)}
-            >
-              {f.ctaLabel} <span style={{ fontSize: 13 }}>→</span>
-            </m.button>
-          </m.div>
-
-          {/* Link columns (editáveis no CMS) */}
-          {f.columns.map((col, ci) => (
-            <m.div
-              key={col.title + ci}
-              className="md:col-span-2"
-              style={{ minWidth: 0 }}
-              initial={{ opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.1 + ci * 0.08, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <span style={linkColStyle}>{col.title}</span>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-                {col.links.map((link, li) => (
-                  <li key={link.label + li}>
-                    <m.a
-                      href={link.url || "#"}
-                      style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "block", transition: "color 0.2s" }}
-                      whileHover={{ color: WHITE }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      {link.label}
-                    </m.a>
-                  </li>
-                ))}
-              </ul>
-            </m.div>
-          ))}
-
-          {/* Coluna de contato */}
-          <m.div
-            className="md:col-span-2"
-            style={{ minWidth: 0 }}
-            initial={{ opacity: 0, y: 24 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <span style={linkColStyle}>{f.contactTitle}</span>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              <li><a href={`mailto:${f.email}`} style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "block" }}>{f.email}</a></li>
-              <li><a href={`tel:${f.phone.replace(/[^+\d]/g, "")}`} style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "block" }}>{f.phone}</a></li>
-              <li><span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", display: "block" }}>{f.city}</span></li>
-            </ul>
-          </m.div>
-
-          {/* Dynamic pages created in WordPress */}
-          {content.pages.length > 0 && (
-            <m.div
-              className="md:col-span-2"
-              style={{ minWidth: 0 }}
-              initial={{ opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <span style={{ display: "block", fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)", marginBottom: 20, textTransform: "uppercase" }}>
-                Páginas
-              </span>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-                {content.pages.map(pg => (
-                  <li key={pg.slug}>
-                    <Link
-                      to={`/p/${pg.slug}`}
-                      style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "block" }}
-                    >
-                      {pg.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </m.div>
-          )}
-
-          {/* Social */}
-          <m.div
-            className="md:col-span-2"
-            initial={{ opacity: 0, y: 24 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.34, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <span style={linkColStyle}>{f.socialTitle}</span>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              {f.social.map((s, si) => (
-                <li key={s.label + si}>
-                  <m.a
-                    href={s.url || "#"}
-                    target={s.url && s.url.startsWith("http") ? "_blank" : undefined}
-                    rel={s.url && s.url.startsWith("http") ? "noopener noreferrer" : undefined}
-                    style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, color: "rgba(239,239,239,0.50)", textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}
-                    whileHover={{ color: WHITE }}
-                    transition={{ duration: 0.15, delay: 0.4 + si * 0.05 }}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={inView ? { opacity: 1, x: 0 } : {}}
-                  >
-                    {s.label}
-                    <span style={{ fontSize: 10, opacity: 0.4 }}>↗</span>
-                  </m.a>
-                </li>
-              ))}
-            </ul>
-          </m.div>
-
-        </div>
-      </div>
-
-      {/* Bottom bar */}
-      <div style={{ borderTop: "1px solid rgba(239,239,239,0.08)", padding: `20px ${pad}`, position: "relative", zIndex: 1 }}>
-        <m.div
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>
-            {f.copyright}
-          </span>
-          <div className="flex items-center gap-6">
-            {f.legal.map((item, i) => (
-              <m.a
-                key={item.label + i}
-                href={item.url || "#"}
-                style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)", textDecoration: "none" }}
-                whileHover={{ color: "rgba(239,239,239,0.60)" }}
-                transition={{ duration: 0.15 }}
-              >
-                {item.label}
-              </m.a>
-            ))}
-            {f.madeIn && (
-              <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.08em", color: "rgba(239,239,239,0.18)" }}>
-                {f.madeIn}
-              </span>
-            )}
-          </div>
-        </m.div>
-      </div>
-
-    </footer>
-  )
-}
 
 const router = createBrowserRouter([
   {
@@ -2026,6 +1824,7 @@ const router = createBrowserRouter([
       { path: "sobre", lazy: lazyPage(() => import("./pages/About")) },
       { path: "servicos", lazy: lazyPage(() => import("./pages/Services")) },
       { path: "servicos/:slug", lazy: lazyPage(() => import("./pages/ServiceDetail")) },
+      { path: "processo/:slug", lazy: lazyPage(() => import("./pages/ProcessStep")) },
       { path: "blog", lazy: lazyPage(() => import("./pages/Blog")) },
       { path: "blog/:slug", lazy: lazyPage(() => import("./pages/Article")) },
       { path: "contato", lazy: lazyPage(() => import("./pages/Contact")) },

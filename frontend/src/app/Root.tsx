@@ -3,6 +3,8 @@ import { Outlet, useLocation } from "react-router"
 import { ContentContext, fetchContent, DEFAULT_CONTENT, SiteContent } from "./store/content"
 import { UIProvider } from "./contexts/UIContext"
 import { Header, HEADER_HEIGHT } from "./components/layout/Header"
+import { Footer } from "./components/layout/Footer"
+import { initAnalytics, trackEvent } from "./utils/analytics"
 
 /** Cria/atualiza uma <meta> no <head> pelo atributo-chave (name ou property). */
 function upsertMeta(attr: "name" | "property", key: string, value: string) {
@@ -61,6 +63,23 @@ export default function Root() {
       alive = false
     }
   }, [])
+
+  // Analytics (GA4 / GTM) e reCAPTCHA — injetados quando o CMS tiver os IDs.
+  useEffect(() => {
+    initAnalytics({
+      ga4Id: content.site.ga4Id,
+      gtmId: content.site.gtmId,
+      recaptchaSite: content.site.recaptchaSite,
+    })
+  }, [content.site.ga4Id, content.site.gtmId, content.site.recaptchaSite])
+
+  // Page view a cada mudança de rota (SPA) para GA4/GTM.
+  useEffect(() => {
+    trackEvent("page_view", {
+      page_path: location.pathname + location.search,
+      page_title: document.title,
+    })
+  }, [location.pathname, location.search])
 
   // Document title from the CMS.
   useEffect(() => {
@@ -169,6 +188,7 @@ export default function Root() {
             Na home, o header sobrepõe a Hero (fundo claro no topo). */}
         {!isHome && <div aria-hidden="true" style={{ height: HEADER_HEIGHT }} />}
         <Outlet />
+        <Footer />
       </UIProvider>
     </ContentContext.Provider>
   )

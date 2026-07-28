@@ -28,6 +28,7 @@ class STCMS_Seed {
 		self::seed_projects();
 		self::seed_sample_page();
 		self::seed_posts();
+		self::seed_process_pages();
 
 		update_option( 'stcms_seeded', 1 );
 		update_option( 'stcms_cors_origin', get_option( 'stcms_cors_origin', '*' ) );
@@ -90,6 +91,45 @@ class STCMS_Seed {
 				wp_set_post_categories( $id, array( $p['cat'] ) );
 			}
 			$order += 3;
+		}
+	}
+
+	/**
+	 * Cria as páginas de conteúdo das etapas do processo (slugs fixos),
+	 * consumidas em /processo/{slug} pelo front-end.
+	 */
+	private static function seed_process_pages() {
+		$pages = array(
+			'diagnostico' => array(
+				'title' => 'Diagnóstico',
+				'html'  => "<p>Nenhuma solução boa nasce de um palpite. A etapa de diagnóstico é onde ouvimos, medimos e entendemos o terreno antes de propor qualquer caminho.</p><h2>O que fazemos</h2><p>Imersão no negócio, análise de concorrência, entrevistas com stakeholders e usuários, auditoria da presença digital atual e leitura de dados. Saímos com clareza sobre onde a marca está — e onde precisa chegar.</p><h2>Por que importa</h2><p>Um diagnóstico honesto evita retrabalho, alinha expectativas e transforma achismos em decisões. É a fundação de tudo que vem depois.</p><h2>Entregáveis</h2><ul><li>Relatório de diagnóstico e oportunidades</li><li>Mapa de público e jornada</li><li>Benchmark de concorrência</li><li>Definição de objetivos e métricas</li></ul>",
+			),
+			'narrativa' => array(
+				'title' => 'Narrativa',
+				'html'  => "<p>Antes do design existir, existe a história. A narrativa define o que a marca diz, para quem e por quê — a mensagem que guia cada decisão criativa e técnica.</p><h2>O que fazemos</h2><p>Posicionamento, proposta de valor, tom de voz e mensagens-chave. Traduzimos estratégia em uma linguagem que diferencia e conecta.</p><h2>Por que importa</h2><p>Marcas que sabem o que dizem convertem mais e competem por valor, não por preço. A narrativa dá consistência a todos os pontos de contato.</p><h2>Entregáveis</h2><ul><li>Posicionamento e proposta de valor</li><li>Tom de voz e mensagens-chave</li><li>Arquitetura de conteúdo</li><li>Roteiro das páginas principais</li></ul>",
+			),
+			'design' => array(
+				'title' => 'Design',
+				'html'  => "<p>Design é a estratégia tornada visível e utilizável. Cada tela, cor e movimento tem intenção, hierarquia e propósito.</p><h2>O que fazemos</h2><p>Identidade visual, design de interface (UI/UX), design system e protótipos navegáveis. Unimos estética e função para criar experiências memoráveis e que convertem.</p><h2>Por que importa</h2><p>Interface boa é invisível: conduz o usuário até a ação sem atrito. Um bom design reduz custo de suporte, aumenta conversão e valoriza a marca.</p><h2>Entregáveis</h2><ul><li>Identidade visual e design system</li><li>UI/UX das telas e fluxos</li><li>Protótipo navegável</li><li>Especificações para desenvolvimento</li></ul>",
+			),
+			'desenvolvimento' => array(
+				'title' => 'Desenvolvimento',
+				'html'  => "<p>É onde a ideia vira produto no ar. Construímos com código limpo, rápido e escalável — sem dívida técnica e pronto para crescer.</p><h2>O que fazemos</h2><p>Desenvolvimento front-end e integrações, performance (Core Web Vitals), acessibilidade, SEO técnico e publicação. Tudo testado em desktop, tablet e mobile.</p><h2>Por que importa</h2><p>Velocidade é receita e ranking. Um site rápido, acessível e bem estruturado trabalha pelo seu negócio 24 horas por dia.</p><h2>Entregáveis</h2><ul><li>Site/aplicação responsivo e otimizado</li><li>Integração com o CMS</li><li>SEO técnico e performance</li><li>Publicação e acompanhamento</li></ul>",
+			),
+		);
+		foreach ( $pages as $slug => $p ) {
+			if ( get_page_by_path( $slug, OBJECT, 'page' ) ) {
+				continue;
+			}
+			wp_insert_post(
+				array(
+					'post_type'    => 'page',
+					'post_status'  => 'publish',
+					'post_name'    => $slug,
+					'post_title'   => $p['title'],
+					'post_content' => $p['html'],
+				)
+			);
 		}
 	}
 

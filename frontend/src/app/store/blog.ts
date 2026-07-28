@@ -80,13 +80,13 @@ export async function fetchCategories(): Promise<BlogCategory[]> {
 }
 
 /** Inscrição na newsletter. */
-export async function subscribeNewsletter(email: string): Promise<{ ok: boolean; message: string }> {
+export async function subscribeNewsletter(email: string, recaptchaToken = ""): Promise<{ ok: boolean; message: string }> {
   if (!WP_API) return { ok: false, message: "Newsletter indisponível: configure o WordPress em config.js." }
   try {
     const res = await fetch(`${WP_API}${NS}/subscribe`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, recaptchaToken }),
     })
     const data = (await res.json().catch(() => ({}))) as { ok?: boolean; message?: string }
     if (!res.ok || !data.ok) return { ok: false, message: data.message || "Não foi possível inscrever agora." }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import { useContent, submitContact } from "../store/content"
+import { getRecaptchaToken, trackEvent } from "../utils/analytics"
 
 const RED = "#F20C25"
 const RED_BTN = "#DA0A20"
@@ -39,10 +40,12 @@ export default function Contact() {
     if (state === "sending") return
     setState("sending")
     setFeedback("")
-    const res = await submitContact(form)
+    const recaptchaToken = await getRecaptchaToken(content.site.recaptchaSite, "contact")
+    const res = await submitContact({ ...form, recaptchaToken })
     if (res.ok) {
       setState("ok")
       setForm({ name: "", email: "", subject: "", message: "", website: "" })
+      trackEvent("contact_submit")
       // Redireciona para a página de agradecimento com a animação do kanji.
       navigate("/obrigado")
     } else {
