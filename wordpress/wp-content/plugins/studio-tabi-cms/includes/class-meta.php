@@ -124,6 +124,7 @@ class STCMS_Meta {
 
 		echo '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px">';
 		echo '<div>';
+		self::text_row( 'Número exibido (ex.: 01)', 'stcms_num', self::field( $post->ID, 'stcms_num' ), 'Número grande no card e na página do projeto. Se ficar vazio, o site usa o ID interno do WordPress.' );
 		self::text_row( 'Nome', 'stcms_name', self::field( $post->ID, 'stcms_name', $post->post_title ) );
 		self::text_row( 'Categoria', 'stcms_category', self::field( $post->ID, 'stcms_category' ) );
 		self::text_row( 'Ano', 'stcms_year', self::field( $post->ID, 'stcms_year' ) );
@@ -320,7 +321,7 @@ class STCMS_Meta {
 		}
 
 		if ( 'st_project' === $post->post_type ) {
-			foreach ( array( 'stcms_name', 'stcms_category', 'stcms_year', 'stcms_client', 'stcms_duration', 'stcms_accent', 'stcms_bg' ) as $key ) {
+			foreach ( array( 'stcms_num', 'stcms_name', 'stcms_category', 'stcms_year', 'stcms_client', 'stcms_duration', 'stcms_accent', 'stcms_bg' ) as $key ) {
 				self::save_text( $post_id, $key );
 			}
 			self::save_textarea( $post_id, 'stcms_challenge' );

@@ -3,7 +3,7 @@
  * Plugin Name:       Studio Tabi CMS (Headless)
  * Plugin URI:        https://studiotabi.com.br
  * Description:        CMS nativo headless para o site Studio Tabi. Adiciona Serviços, Projetos, FAQ, páginas e blocos de conteúdo (Hero, Sobre, Rodapé, favicon) editáveis no WordPress e expostos via API REST para o front-end React.
- * Version:           1.14.0
+ * Version:           1.15.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Studio Tabi
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'STCMS_VERSION', '1.14.0' );
+define( 'STCMS_VERSION', '1.15.0' );
 define( 'STCMS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'STCMS_URL', plugin_dir_url( __FILE__ ) );
 

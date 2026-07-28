@@ -4,6 +4,7 @@ import { m } from "motion/react"
 import { useContent } from "../store/content"
 import { TabiMark } from "../components/TabiMark"
 import { ProcessIcon } from "../components/ui/ProcessIcon"
+import { TabiDetail } from "../components/TabiDetail"
 
 const RED = "#F20C25"
 const RED_BTN = "#DA0A20"
@@ -34,6 +35,7 @@ export default function About() {
     <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
 
       <main id="conteudo" style={{ position: "relative", overflow: "hidden" }}>
+      <TabiDetail corner="bottom-left" />
         {/* Marca Tabi de fundo */}
         <div aria-hidden="true" style={{ position: "absolute", right: "-6%", top: "2%", width: "clamp(240px, 34vw, 560px)", opacity: 0.05, pointerEvents: "none" }}>
           <TabiMark width="100%" color={WHITE} />

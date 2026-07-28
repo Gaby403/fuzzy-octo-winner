@@ -17,7 +17,6 @@ import { useContent, type SiteContent } from "./store/content"
 import { fetchPosts, type PostCard } from "./store/blog"
 import Root from "./Root"
 import { TabiMark } from "./components/TabiMark"
-import { TabiStroke } from "./components/TabiStroke"
 import { ProcessIcon } from "./components/ui/ProcessIcon"
 import { TextReveal } from "./components/ui/TextReveal"
 
@@ -657,16 +656,6 @@ function AboutSection() {
   const STATS = content.about.stats
   const STEPS = content.process
 
-  // Progresso do scroll ao longo das etapas: alimenta o traço do 旅 e o
-  // trilho lateral, dando a sensação de percorrer uma jornada.
-  const stepsRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress: stepsRaw } = useScroll({ target: stepsRef, offset: ["start 80%", "end 60%"] })
-  // Mola macia (rigidez baixa + massa): o traço desliza atrás do scroll em
-  // vez de acompanhar cada movimento do dedo, que é o que dava a sensação
-  // de animação "dura".
-  const stepsProgress = useSpring(stepsRaw, { stiffness: 38, damping: 26, mass: 0.9, restDelta: 0.0005 })
-  // Entrada e saída graduais, sem degrau de opacidade.
-  const strokeOpacity = useTransform(stepsRaw, [0, 0.12, 0.35, 0.8, 1], [0, 0.12, 0.28, 0.42, 0.5])
 
 
   const pad = "clamp(20px, 4vw, 82px)"
@@ -750,7 +739,7 @@ function AboutSection() {
       {/* ── Pillars ── */}
       {/* O respiro extra embaixo abre uma faixa só para o 旅, longe da marca
           que aparece no hover da etapa ativa. */}
-      <div ref={stepsRef} className="steps-block" style={{ padding: `0 ${pad} clamp(64px, 10vw, 140px)`, position: "relative", zIndex: 1 }}>
+      <div className="steps-block" style={{ padding: `0 ${pad} clamp(64px, 10vw, 140px)`, position: "relative", zIndex: 1 }}>
         <Reveal delay={0}>
           <div className="flex items-center justify-between pt-10 md:pt-12 pb-2">
             <span style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.30)" }}>
@@ -762,14 +751,6 @@ function AboutSection() {
           </div>
         </Reveal>
 
-        {/* Jornada (tabi): o 旅 se desenha conforme o visitante percorre as
-            etapas. Fica atrás das linhas, sangrando pela esquerda, para não
-            disputar espaço com a marca que aparece no hover de cada pilar.
-            A única linha vertical da seção é a barra do pilar ativo. */}
-        <m.div aria-hidden="true" className="hidden md:block pointer-events-none"
-          style={{ position: "absolute", right: `calc(${pad} + 8px)`, bottom: "clamp(36px, 4.5vw, 64px)", width: "clamp(120px, 12vw, 170px)", opacity: strokeOpacity, zIndex: 0 }}>
-          <TabiStroke width="100%" color={RED} strokeWidth={1.1} progress={stepsProgress} />
-        </m.div>
 
         {STEPS.map((p, i) => (
           <Pillar key={p.slug || p.title} index={`0${i + 1}`} title={p.title} body={p.summary} delay={i * 0.06}

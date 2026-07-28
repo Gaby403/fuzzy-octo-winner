@@ -4,6 +4,7 @@ import { m } from "motion/react"
 import { useContent } from "../store/content"
 import { fetchPosts, fetchCategories, PostCard, BlogCategory } from "../store/blog"
 import { Breadcrumbs } from "../components/Breadcrumbs"
+import { TabiDetail } from "../components/TabiDetail"
 
 const RED = "#F20C25"
 const RED_INK = "#FF3547"
@@ -56,7 +57,8 @@ export default function Blog() {
   const onSearch = (e: React.FormEvent) => { e.preventDefault(); update({ q: searchInput || null }) }
 
   return (
-    <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
+    <div style={{ minHeight: "100svh", position: "relative", overflow: "hidden", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
+      <TabiDetail corner="bottom-right" />
       <main id="conteudo">
         <div style={{ padding: `clamp(40px, 6vw, 72px) ${pad} clamp(24px, 3vw, 40px)` }}>
           <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Blog" }]} />

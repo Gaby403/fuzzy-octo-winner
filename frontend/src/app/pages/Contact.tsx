@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import { useContent, submitContact } from "../store/content"
 import { getRecaptchaToken, trackEvent } from "../utils/analytics"
+import { TabiDetail } from "../components/TabiDetail"
 
 const RED = "#F20C25"
 const RED_BTN = "#DA0A20"
@@ -77,7 +78,8 @@ export default function Contact() {
   }
 
   return (
-    <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
+    <div style={{ minHeight: "100svh", position: "relative", overflow: "hidden", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
+      <TabiDetail corner="top-right" opacity={0.07} />
 
       <main id="conteudo"
         className="contact-grid"
