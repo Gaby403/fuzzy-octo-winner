@@ -54,6 +54,8 @@ export default function Article() {
   }, [slug])
 
   const processed = useMemo(() => processContent(post?.content || ""), [post?.content])
+  // Só vale abrir a coluna de índice quando há subtítulos suficientes.
+  const hasToc = processed.headings.length > 1
 
   // Título + JSON-LD BlogPosting.
   useEffect(() => {
@@ -96,8 +98,8 @@ export default function Article() {
       {/* Barra de progresso de leitura */}
       <m.div aria-hidden="true" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, background: RED, transformOrigin: "left", scaleX: progress, zIndex: 60 }} />
 
-      <main id="conteudo" ref={articleRef}>
-        <div style={{ maxWidth: 820, margin: "0 auto", padding: `clamp(32px,5vw,56px) ${pad} 0` }}>
+      <main id="conteudo" ref={articleRef} className={hasToc ? "article-page has-toc-page" : "article-page"} style={{ ["--pad" as string]: pad } as React.CSSProperties}>
+        <div className="article-side" style={{ paddingTop: "clamp(32px,5vw,56px)" }}>
           <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Blog", to: "/blog" }, { label: post.title }]} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", margin: "22px 0 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
             {post.categories[0]?.name && <span style={{ color: RED_INK }}>{post.categories[0].name}</span>}
@@ -116,9 +118,15 @@ export default function Article() {
           </div>
         )}
 
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: `clamp(32px,5vw,56px) ${pad} 0`, display: "grid", gap: "clamp(24px,4vw,56px)" }} className="article-grid">
+        {/* Com índice, a grade abre em duas colunas (1100). Sem índice, o texto
+            usa a mesma largura do cabeçalho (820) para tudo ficar alinhado —
+            antes ele caía na coluna de 220px e ficava espremido. */}
+        <div
+          style={{ maxWidth: hasToc ? 1100 : 820, margin: "0 auto", padding: `clamp(32px,5vw,56px) ${pad} 0`, display: "grid", gap: "clamp(24px,4vw,56px)" }}
+          className={hasToc ? "article-grid has-toc" : "article-grid"}
+        >
           {/* TOC */}
-          {processed.headings.length > 1 && (
+          {hasToc && (
             <aside aria-label="Índice do artigo" className="article-toc" style={{ alignSelf: "start" }}>
               <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(239,239,239,0.4)", margin: "0 0 12px" }}>Neste artigo</p>
               <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
@@ -135,12 +143,12 @@ export default function Article() {
         </div>
 
         {/* Compartilhar */}
-        <div style={{ maxWidth: 820, margin: "0 auto", padding: `clamp(32px,4vw,48px) ${pad} 0` }}>
+        <div className="article-side" style={{ paddingTop: "clamp(32px,4vw,48px)" }}>
           <ShareBar url={shareUrl} title={post.title} />
         </div>
 
         {/* Newsletter */}
-        <div style={{ maxWidth: 820, margin: "0 auto", padding: `clamp(32px,4vw,48px) ${pad} 0` }}>
+        <div className="article-side" style={{ paddingTop: "clamp(32px,4vw,48px)" }}>
           <NewsletterBox />
         </div>
 
@@ -166,10 +174,23 @@ export default function Article() {
 
       <style>{`
         @media (min-width: 940px) {
-          .article-grid { grid-template-columns: 220px 1fr; }
+          .article-grid.has-toc { grid-template-columns: 220px 1fr; }
+          /* Com o índice aberto, os blocos laterais ganham o mesmo recuo da
+             coluna de texto, para o título nascer na mesma vertical dela. */
+          .has-toc-page .article-side {
+            max-width: 1100px;
+            padding-left: calc(var(--pad) + 220px + clamp(24px, 4vw, 56px));
+          }
           .article-toc { position: sticky; top: 90px; }
         }
         @media (max-width: 939px) { .article-toc { order: -1; } }
+        /* Base dos blocos laterais: mesma caixa do texto sem índice. */
+        .article-side {
+          max-width: 820px;
+          margin: 0 auto;
+          padding-left: var(--pad);
+          padding-right: var(--pad);
+        }
       `}</style>
     </div>
   )
