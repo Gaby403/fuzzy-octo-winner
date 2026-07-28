@@ -1,6 +1,8 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+/* Depois do Tailwind: o preflight zera títulos e listas do conteúdo do WP. */
+@import './wp-content.css';
 
 /* ── Acessibilidade ─────────────────────────────────────────────────────── */
 
