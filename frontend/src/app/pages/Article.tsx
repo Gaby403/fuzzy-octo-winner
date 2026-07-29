@@ -99,7 +99,7 @@ export default function Article() {
       <m.div aria-hidden="true" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, background: RED, transformOrigin: "left", scaleX: progress, zIndex: 60 }}/>
 
       <main id="conteudo" className={hasToc ? "article-page has-toc-page" : "article-page"} style={{ ["--pad" as string]: pad } as React.CSSProperties}>
-        <div className="article-side" style={{ paddingTop: "clamp(32px,5vw,56px)" }}>
+        <div className="article-hero" style={{ paddingTop: "clamp(32px,5vw,56px)" }}>
           <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Blog", to: "/blog" }, { label: post.title }]}/>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", margin: "22px 0 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
             {post.categories[0]?.name && <span style={{ color: RED_INK }}>{post.categories[0].name}</span>}
@@ -169,6 +169,12 @@ export default function Article() {
         }
         @media (max-width: 939px) { .article-toc { order: -1; } }
         
+        .article-hero {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding-left: var(--pad);
+          padding-right: var(--pad);
+        }
         .article-side {
           max-width: 820px;
           margin: 0 auto;
