@@ -9,6 +9,10 @@ DirectoryIndex index.html
   RewriteEngine On
   RewriteBase /
 
+  # O sitemap é montado pelo sitemap.php, que busca as URLs no WordPress e
+  # guarda em cache. Fica antes de tudo para valer mesmo existindo um .xml.
+  RewriteRule ^sitemap\.xml$ /sitemap.php [L]
+
   # Não reescrever arquivos e pastas que existem de verdade.
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
@@ -55,6 +59,9 @@ DirectoryIndex index.html
 
 <IfModule mod_headers.c>
   <FilesMatch "\.(env|log|ini|sh|sql|bak|json)$">
+    Require all denied
+  </FilesMatch>
+  <FilesMatch "^sitemap-(cache|fallback)\.xml$">
     Require all denied
   </FilesMatch>
 </IfModule>

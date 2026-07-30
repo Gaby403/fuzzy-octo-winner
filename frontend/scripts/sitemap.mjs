@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const DIST = join(AQUI, "..", "dist");
 const PUBLIC = join(AQUI, "..", "public");
-const DESTINO = join(DIST, "sitemap.xml");
+const DESTINO = join(DIST, "sitemap-fallback.xml");
 
 async function apiBase() {
     if (process.env.STCMS_API)
@@ -25,7 +25,7 @@ async function apiBase() {
 
 const base = await apiBase();
 if (!base) {
-    console.log("  sitemap: sem URL do WordPress; mantendo o sitemap.xml existente");
+    console.log("  sitemap: sem URL do WordPress; mantendo a reserva existente");
     process.exit(0);
 }
 
@@ -38,16 +38,14 @@ try {
     dados = await res.json();
 }
 catch (err) {
-    console.log(`  sitemap: ${url} indisponível (${err.message}); mantendo o sitemap.xml existente`);
-    if (!existsSync(DESTINO))
-        console.log("  sitemap: ATENÇÃO — dist/sitemap.xml não existe");
+    console.log(`  sitemap: ${url} indisponível (${err.message}); a reserva estática segue valendo — em produção quem monta é o sitemap.php`);
     process.exit(0);
 }
 
 if (!dados || typeof dados.xml !== "string" || !dados.xml.includes("<urlset")) {
-    console.log("  sitemap: resposta inesperada do CMS; mantendo o sitemap.xml existente");
+    console.log("  sitemap: resposta inesperada do CMS; mantendo a reserva existente");
     process.exit(0);
 }
 
 await writeFile(DESTINO, dados.xml, "utf8");
-console.log(`  ✓ sitemap.xml — ${dados.total} URLs (PT + EN) a partir de ${dados.base}`);
+console.log(`  ✓ sitemap-fallback.xml — ${dados.total} URLs (PT + EN) a partir de ${dados.base}`);

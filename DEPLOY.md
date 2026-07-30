@@ -170,3 +170,26 @@ cd frontend
 echo "VITE_WP_API=http://localhost:8080" > .env
 npm install && npm run dev        # http://localhost:5173
 ```
+
+## Sitemap (sem build)
+
+O `sitemap.xml` é montado no próprio servidor pelo `sitemap.php`, que já vem no
+ZIP do site. Ele busca as URLs no WordPress, guarda em cache por 6 horas e serve
+o resultado — não é preciso rodar Node nem refazer o build quando você publica
+um artigo, um serviço ou uma tradução.
+
+Requisitos: subir o `sitemap.php`, o `sitemap-fallback.xml` e o `.htaccess` junto
+com o resto do site (já estão no ZIP) e manter o endereço do WordPress correto no
+`config.js`.
+
+Para conferir qual origem respondeu:
+
+    curl -sI https://studiotabi.com.br/sitemap.xml | grep -i x-sitemap-origem
+
+- `cms` — recém-buscado no WordPress
+- `cache` — cache de até 6 horas
+- `cache-vencido` — WordPress fora do ar, servindo a última cópia boa
+- `reserva` — sem cache e sem WordPress, servindo o arquivo estático do ZIP
+
+Para forçar a atualização antes das 6 horas, apague o `sitemap-cache.xml` pelo
+Gerenciador de Arquivos.
