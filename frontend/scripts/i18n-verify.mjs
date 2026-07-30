@@ -86,10 +86,48 @@ for (const [rota, esperado] of [["/en/about","WE DON'T BUILD"],["/en/services","
   await q.close();
 }
 
+console.log("== Conteúdo das seções da home em inglês ==");
+p = await abrir("/en");
+const home = await p.evaluate(()=>{
+  const txt = document.body.innerText;
+  return {
+    servicos: /WHAT WE\s+DELIVER/i.test(txt),
+    faqTitulo: /FREQUENTLY\s+ASKED/i.test(txt),
+    faqPergunta: /How does the process work\?/i.test(txt),
+    projetos: /SELECTED\s+WORK/i.test(txt),
+    sobre: /WE DON'T\s+BUILD WEBSITES/i.test(txt),
+    servicoCard: /Branding & Visual Identity/i.test(txt),
+    rodapeServicos: /Web Development/i.test(txt),
+    rodapeNav: /Navigation/i.test(txt),
+    resto: /ENTREGAMOS|PERGUNTAS|FREQUENTES|SELECIONADOS|Identidade Visual|Desenvolvimento Web|Quanto tempo/i.test(txt),
+    faqLd: (JSON.parse(document.getElementById("ld-faq")?.textContent||"{}").mainEntity||[])[0]?.name || "",
+  };
+});
+check("seção de serviços", home.servicos);
+check("título do FAQ", home.faqTitulo);
+check("perguntas do FAQ", home.faqPergunta);
+check("seção de projetos", home.projetos);
+check("seção sobre", home.sobre);
+check("cards de serviço", home.servicoCard);
+check("rodapé — coluna de serviços", home.rodapeServicos);
+check("rodapé — coluna de navegação", home.rodapeNav);
+check("JSON-LD do FAQ em inglês", /How does the process work/.test(home.faqLd), home.faqLd.slice(0,40));
+check("nenhum resíduo em português", home.resto === false);
+await p.close();
+
 console.log("== PT continua intacto ==");
 p = await abrir("/sobre");
 const pt = await p.evaluate(()=>({h1:document.querySelector("h1")?.innerText.replace(/\s+/g," ").trim(), lang:document.documentElement.lang}));
 check("PT /sobre", pt.lang==="pt-BR" && /NÃO FAZEMOS SITES/.test(pt.h1||""), `${pt.lang} — ${(pt.h1||"").slice(0,30)}`);
+await p.close();
+p = await abrir("/");
+const ptHome = await p.evaluate(()=>{const t=document.body.innerText;return {
+  servicos:/O QUE\s+ENTREGAMOS/i.test(t), faq:/PERGUNTAS\s+FREQUENTES/i.test(t),
+  projetos:/TRABALHOS\s+SELECIONADOS/i.test(t), pergunta:/Como funciona o processo/i.test(t),
+  rodape:/Desenvolvimento Web/i.test(t)};});
+check("PT home — seções e FAQ intactos",
+  ptHome.servicos && ptHome.faq && ptHome.projetos && ptHome.pergunta && ptHome.rodape,
+  JSON.stringify(ptHome));
 await p.close();
 
 console.log("== sitemap.xml servido ==");

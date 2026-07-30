@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { m, AnimatePresence } from "motion/react";
 import { type SiteContent } from "../store/content";
 import { TabiMark } from "./TabiMark";
+import { useLocale } from "../i18n/useLocale";
 const RED = "#F20C25";
 const RED_INK = "#FF3547";
 const WHITE = "#EFEFEF";
@@ -20,6 +21,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
     onNext: () => void;
 }) {
     const detail = proj.detail;
+    const { t } = useLocale();
     const pad = "clamp(20px, 5vw, 90px)";
     const scrollRef = useRef<HTMLDivElement>(null);
     const gallery = proj.gallery || [];
@@ -113,9 +115,9 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
         
         <m.div {...stagger(2)} className="grid grid-cols-2 md:grid-cols-4" style={{ gap: "1px", backgroundColor: "rgba(239,239,239,0.08)", border: "1px solid rgba(239,239,239,0.08)", borderRadius: 6, overflow: "hidden", marginBottom: "clamp(48px, 7vw, 88px)" }}>
           {[
-            { label: "Cliente", value: detail.client },
-            { label: "Duração", value: detail.duration },
-            { label: "Serviços", value: detail.scope.length + " áreas" },
+            { label: t("projeto.cliente"), value: detail.client },
+            { label: t("projeto.duracao"), value: detail.duration },
+            { label: t("projeto.servicos"), value: `${detail.scope.length} ${t("projeto.areas")}` },
             { label: "Ano", value: proj.year },
         ].map((item) => (<div key={item.label} style={{ padding: "clamp(18px,2.5vw,28px)", backgroundColor: "#0D0D0D" }}>
               <p style={{ margin: "0 0 6px", fontSize: 8, fontWeight: 600, letterSpacing: "0.16em", color: "rgba(239,239,239,0.30)" }}>{item.label.toUpperCase()}</p>
@@ -138,14 +140,14 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
         
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(32px, 5vw, 72px)", marginBottom: "clamp(56px, 8vw, 100px)" }}>
           <m.div {...stagger(4)}>
-            <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>O DESAFIO</p>
+            <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{t("projeto.desafio")}</p>
             <div style={{ width: 32, height: 2, backgroundColor: proj.accent, marginBottom: 24 }}/>
             <p style={{ fontSize: "clamp(14px, 1.1vw, 17px)", fontWeight: 400, lineHeight: 1.78, color: "rgba(239,239,239,0.65)", margin: 0 }}>
               {detail.challenge}
             </p>
           </m.div>
           <m.div {...stagger(5)}>
-            <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>A SOLUÇÃO</p>
+            <p style={{ margin: "0 0 20px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{t("projeto.solucao")}</p>
             <div style={{ width: 32, height: 2, backgroundColor: "rgba(239,239,239,0.25)", marginBottom: 24 }}/>
             <p style={{ fontSize: "clamp(14px, 1.1vw, 17px)", fontWeight: 400, lineHeight: 1.78, color: "rgba(239,239,239,0.65)", margin: 0 }}>
               {detail.solution}
@@ -155,7 +157,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
 
         
         <m.div {...stagger(6)} style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}>
-          <p style={{ margin: "0 0 32px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>RESULTADOS</p>
+          <p style={{ margin: "0 0 32px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{t("projeto.resultados")}</p>
           <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: "clamp(16px, 2vw, 24px)" }}>
             {detail.results.map((r, i) => (<m.div key={r.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.65, delay: i * 0.08, ease: EASE_OUT_EXPO }} style={{ padding: "clamp(20px,2.5vw,32px)", backgroundColor: "#0D0D0D", border: "1px solid rgba(239,239,239,0.07)", borderRadius: 6 }}>
                 <p style={{ margin: "0 0 8px", fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(28px, 3.5vw, 48px)", letterSpacing: "-0.06em", color: proj.accent, lineHeight: 1 }}>
@@ -170,7 +172,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
 
         
         {proj.gallery && proj.gallery.length > 0 ? (<m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE_OUT_EXPO }} style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}>
-            <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>GALERIA</p>
+            <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{t("projeto.galeria")}</p>
             <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(12px, 1.5vw, 20px)" }}>
               {proj.gallery.map((src, i) => (<m.button key={i} type="button" onClick={() => setLightbox(i)} aria-label={`Abrir imagem ${i + 1}`} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.06, ease: EASE_OUT_EXPO }} style={{ display: "block", padding: 0, cursor: "pointer", borderRadius: 8, overflow: "hidden", position: "relative", aspectRatio: "16 / 10", background: "#0D0D0D", border: "1px solid rgba(239,239,239,0.07)" }} whileHover={{ scale: 1.01 } as any}>
                   <img src={src} alt={`${proj.name} — imagem ${i + 1}`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}/>
@@ -189,7 +191,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
 
         
         {documents.length > 0 && (<m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: EASE_OUT_EXPO }} style={{ marginBottom: "clamp(56px, 8vw, 100px)" }}>
-            <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>DOCUMENTOS</p>
+            <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{t("projeto.documentos")}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "clamp(12px, 1.5vw, 16px)" }}>
               {documents.map((doc, i) => (<m.button key={i} type="button" onClick={() => setDocPreview(doc.url)} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.05, ease: EASE_OUT_EXPO }} style={{ display: "flex", alignItems: "center", gap: 14, textAlign: "left", cursor: "pointer", padding: "16px 18px", background: "#0D0D0D", border: "1px solid rgba(239,239,239,0.08)", borderRadius: 10 }} whileHover={{ borderColor: `${proj.accent}66` } as any}>
                   <span style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 8, background: `${proj.accent}1A`, color: proj.accent, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: 12, letterSpacing: "0.04em" }}>PDF</span>
@@ -221,14 +223,14 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
             <span style={{ position: "absolute", top: "clamp(18px,3vw,30px)", left: "clamp(16px,3vw,28px)", fontSize: 11, letterSpacing: "0.14em", color: "rgba(239,239,239,0.6)", fontWeight: 600 }}>
               {String(lightbox + 1).padStart(2, "0")} / {String(gallery.length).padStart(2, "0")}
             </span>
-            <button onClick={e => { e.stopPropagation(); setLightbox(null); }} aria-label="Fechar" style={{ position: "absolute", top: "clamp(14px,3vw,26px)", right: "clamp(14px,3vw,26px)", width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 22, cursor: "pointer", lineHeight: 1 }}>
+            <button onClick={e => { e.stopPropagation(); setLightbox(null); }} aria-label={t("geral.fechar")} style={{ position: "absolute", top: "clamp(14px,3vw,26px)", right: "clamp(14px,3vw,26px)", width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 22, cursor: "pointer", lineHeight: 1 }}>
               ×
             </button>
-            {gallery.length > 1 && (<button onClick={e => { e.stopPropagation(); lbPrev(); }} aria-label="Anterior" className="hero-cta-secondary" style={{ position: "absolute", left: "clamp(8px,2vw,28px)", top: "50%", transform: "translateY(-50%)", width: 50, height: 50, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 24, cursor: "pointer", lineHeight: 1 }}>
+            {gallery.length > 1 && (<button onClick={e => { e.stopPropagation(); lbPrev(); }} aria-label={t("blog.anterior")} className="hero-cta-secondary" style={{ position: "absolute", left: "clamp(8px,2vw,28px)", top: "50%", transform: "translateY(-50%)", width: 50, height: 50, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 24, cursor: "pointer", lineHeight: 1 }}>
                 ‹
               </button>)}
             <m.img key={lightbox} src={gallery[lightbox]} alt={`${proj.name} — imagem ${lightbox + 1}`} onClick={e => e.stopPropagation()} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.25, ease: EASE_OUT_EXPO }} style={{ maxWidth: "92vw", maxHeight: "86vh", objectFit: "contain", borderRadius: 6, boxShadow: "0 20px 80px rgba(0,0,0,0.6)" }}/>
-            {gallery.length > 1 && (<button onClick={e => { e.stopPropagation(); lbNext(); }} aria-label="Próxima" style={{ position: "absolute", right: "clamp(8px,2vw,28px)", top: "50%", transform: "translateY(-50%)", width: 50, height: 50, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 24, cursor: "pointer", lineHeight: 1 }}>
+            {gallery.length > 1 && (<button onClick={e => { e.stopPropagation(); lbNext(); }} aria-label={t("blog.proxima")} style={{ position: "absolute", right: "clamp(8px,2vw,28px)", top: "50%", transform: "translateY(-50%)", width: 50, height: 50, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 24, cursor: "pointer", lineHeight: 1 }}>
                 ›
               </button>)}
           </m.div>)}
@@ -241,11 +243,11 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
               <a href={docPreview} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, textDecoration: "none", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", padding: "10px 16px", borderRadius: 999 }}>
                 ABRIR EM NOVA ABA ↗
               </a>
-              <button onClick={() => setDocPreview(null)} aria-label="Fechar" style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 22, cursor: "pointer", lineHeight: 1 }}>
+              <button onClick={() => setDocPreview(null)} aria-label={t("geral.fechar")} style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", color: WHITE, fontSize: 22, cursor: "pointer", lineHeight: 1 }}>
                 ×
               </button>
             </div>
-            <m.iframe key={docPreview} src={docPreview} title="Documento" onClick={e => e.stopPropagation()} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} style={{ flex: 1, width: "100%", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 8, background: "#fff" }}/>
+            <m.iframe key={docPreview} src={docPreview} title={t("projeto.documento")} onClick={e => e.stopPropagation()} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} style={{ flex: 1, width: "100%", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 8, background: "#fff" }}/>
           </m.div>)}
       </AnimatePresence>
     </m.div>);

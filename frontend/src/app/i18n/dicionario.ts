@@ -14,6 +14,7 @@ export const DICT = {
     "geral.trilha": { pt: "Trilha de navegação", en: "Breadcrumb" },
     "geral.ver": { pt: "Ver", en: "View" },
     "geral.ler": { pt: "Ler", en: "Read" },
+    "geral.fechar": { pt: "Fechar", en: "Close" },
 
     "menu.home": { pt: "Home", en: "Home" },
     "menu.servicos": { pt: "Serviços", en: "Services" },
@@ -88,8 +89,29 @@ export const DICT = {
     "servicos.titulo": { pt: "O QUE", en: "WHAT WE" },
     "servicos.destaque": { pt: "ENTREGAMOS.", en: "DELIVER." },
 
+    "home.sobre1": { pt: "NÃO FAZEMOS", en: "WE DON'T" },
+    "home.sobre2": { pt: "SITES.", en: "BUILD WEBSITES." },
+    "home.sobre3": { pt: "CONSTRUÍMOS", en: "WE BUILD" },
+    "home.sobre4": { pt: "PRESENÇA.", en: "PRESENCE." },
+    "home.projetos1": { pt: "TRABALHOS", en: "SELECTED" },
+    "home.projetos2": { pt: "SELECIONADOS.", en: "WORK." },
+
+    "faq.titulo": { pt: "PERGUNTAS", en: "FREQUENTLY" },
+    "faq.destaque": { pt: "FREQUENTES", en: "ASKED" },
+
     "projetos.titulo": { pt: "TODOS OS", en: "ALL OF OUR" },
     "projetos.destaque": { pt: "PROJETOS.", en: "WORK." },
+
+    "projeto.cliente": { pt: "Cliente", en: "Client" },
+    "projeto.duracao": { pt: "Duração", en: "Duration" },
+    "projeto.servicos": { pt: "Serviços", en: "Services" },
+    "projeto.areas": { pt: "áreas", en: "areas" },
+    "projeto.desafio": { pt: "O DESAFIO", en: "THE CHALLENGE" },
+    "projeto.solucao": { pt: "A SOLUÇÃO", en: "THE SOLUTION" },
+    "projeto.resultados": { pt: "RESULTADOS", en: "RESULTS" },
+    "projeto.galeria": { pt: "GALERIA", en: "GALLERY" },
+    "projeto.documentos": { pt: "DOCUMENTOS", en: "DOCUMENTS" },
+    "projeto.documento": { pt: "Documento", en: "Document" },
 
     "sobre.titulo": { pt: "NÃO FAZEMOS SITES.", en: "WE DON'T BUILD WEBSITES." },
     "sobre.destaque": { pt: "CONSTRUÍMOS PRESENÇA.", en: "WE BUILD PRESENCE." },

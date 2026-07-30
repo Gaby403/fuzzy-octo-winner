@@ -507,10 +507,10 @@ function AboutSection() {
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(32px, 6vw, 100px)", alignItems: "start" }}>
 
           <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(42px, 5.4vw, 92px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, display: "flex", flexDirection: "column", gap: "0.06em" }}>
-            <HeadlineLine delay={0.05}>NÃO FAZEMOS</HeadlineLine>
-            <HeadlineLine delay={0.12}>SITES.</HeadlineLine>
-            <HeadlineLine delay={0.19} color={RED}>CONSTRUÍMOS</HeadlineLine>
-            <HeadlineLine delay={0.26}>PRESENÇA.</HeadlineLine>
+            <HeadlineLine delay={0.05}>{t("home.sobre1")}</HeadlineLine>
+            <HeadlineLine delay={0.12}>{t("home.sobre2")}</HeadlineLine>
+            <HeadlineLine delay={0.19} color={RED}>{t("home.sobre3")}</HeadlineLine>
+            <HeadlineLine delay={0.26}>{t("home.sobre4")}</HeadlineLine>
           </h2>
 
           <div className="flex flex-col" style={{ gap: "clamp(24px, 4vw, 56px)" }}>
@@ -593,7 +593,7 @@ function ServiceCard({ num, title, body, delay, to, onNavigate }: {
 function ServicesSection() {
     const { content } = useContent();
     const goTo = useGoTo();
-    const { rota } = useLocale();
+    const { t, rota } = useLocale();
     const sec = content.sections.services;
     const pad = "clamp(20px, 4vw, 82px)";
     return (<section id="servicos" style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
@@ -614,8 +614,8 @@ function ServicesSection() {
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-0" style={{ marginBottom: "clamp(40px, 6vw, 80px)" }}>
           <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
-            <HeadlineLine delay={0.05}>O QUE</HeadlineLine>
-            <HeadlineLine delay={0.12}>ENTREGAMOS.</HeadlineLine>
+            <HeadlineLine delay={0.05}>{t("servicos.titulo")}</HeadlineLine>
+            <HeadlineLine delay={0.12}>{t("servicos.destaque")}</HeadlineLine>
           </h2>
           <Reveal delay={0.18}>
             <m.button style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", paddingBottom: 8 }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(sec.ctaUrl, e)}>
@@ -761,6 +761,7 @@ function ProjectCard({ proj, index, onClick }: {
 function ProjectsSection() {
     const { content } = useContent();
     const goTo = useGoTo();
+    const { t } = useLocale();
     const sec = content.sections.projects;
     const projects = content.projects;
     const pad = "clamp(20px, 4vw, 82px)";
@@ -814,8 +815,8 @@ function ProjectsSection() {
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-0" style={{ marginBottom: "clamp(32px, 5vw, 60px)" }}>
           <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
-            <HeadlineLine delay={0.05}>TRABALHOS</HeadlineLine>
-            <HeadlineLine delay={0.12} color={RED}>SELECIONADOS.</HeadlineLine>
+            <HeadlineLine delay={0.05}>{t("home.projetos1")}</HeadlineLine>
+            <HeadlineLine delay={0.12} color={RED}>{t("home.projetos2")}</HeadlineLine>
           </h2>
           <Reveal delay={0.18}>
             <div className="flex items-center gap-6 pb-2">
@@ -1047,6 +1048,7 @@ function FaqItem({ question, answer, index, isOpen, onToggle }: {
 function FaqSection() {
     const { content } = useContent();
     const goTo = useGoTo();
+    const { t } = useLocale();
     const sec = content.sections.faq;
     const [openIndex, setOpenIndex] = useState<number | null>(null);
     const pad = "clamp(20px, 4vw, 82px)";
@@ -1067,9 +1069,9 @@ function FaqSection() {
 
             
             <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(38px, 4.5vw, 64px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 24px", lineHeight: 0.85 }}>
-              <HeadlineLine delay={0.05}>PERGUNTAS</HeadlineLine>
+              <HeadlineLine delay={0.05}>{t("faq.titulo")}</HeadlineLine>
               
-              <HeadlineLine delay={0.12}>FREQUENTES<span style={{ color: RED }}>.</span></HeadlineLine>
+              <HeadlineLine delay={0.12}>{t("faq.destaque")}<span style={{ color: RED }}>.</span></HeadlineLine>
             </h2>
 
             <Reveal delay={0.25}>

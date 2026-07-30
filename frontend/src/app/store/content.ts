@@ -362,6 +362,79 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
     pages: [],
 };
+type DetalheProjeto = SiteContent["projects"][number]["detail"];
+const PROJECT_DETAIL_EN: Partial<DetalheProjeto>[] = [
+    {
+        scope: ["Visual Identity", "UI/UX Design", "Design System"], duration: "14 weeks",
+        challenge: "Nuvem Finance came to us as yet another generic fintech in a saturated market — corporate blue palette, cold language, zero differentiation. The challenge was to create an identity that conveyed solidity without losing human warmth, and an interface that made complex financial concepts accessible to the end user.",
+        solution: "We developed a visual identity built on contrast: condensed, assertive typography balanced by generous spacing and earthy tones that suggest trust without the banking-blue cliché. The design system was built to scale with the product, with 240+ documented components and an integrated voice and tone guide.",
+        results: [{ label: "Increase in conversion", value: "+38%" }, { label: "Reduction in churn", value: "−22%" }, { label: "NPS after redesign", value: "72" }, { label: "Components in the DS", value: "240+" }],
+        mockupLines: ["DASHBOARD", "PORTFOLIO", "ANALYSIS", "REPORTS"],
+    },
+    {
+        scope: ["SaaS Product", "UX Research", "Prototyping", "Front-end Dev"], duration: "22 weeks",
+        challenge: "FlowDesk had a solid product idea but the initial MVP had a very steep learning curve. First-week drop-off was 67%. We needed to rebuild the experience from scratch without losing the existing users.",
+        solution: "We ran 18 in-depth interviews with real users and mapped the main friction points. We redesigned onboarding with a progressive disclosure approach. The new information architecture cut the critical paths from 7 clicks to 3.",
+        results: [{ label: "Drop-off reduction", value: "−51%" }, { label: "Average time in app", value: "+2.4×" }, { label: "Monthly active users", value: "12k+" }, { label: "App Store rating", value: "4.8★" }],
+        mockupLines: ["PROJECTS", "TASKS", "TEAM", "REPORT"],
+    },
+    {
+        scope: ["E-commerce", "UI Design", "Motion Design"], duration: "10 weeks",
+        challenge: "A Brazilian luxury fashion brand with its own atelier, but a digital presence completely at odds with its premium positioning. The previous site looked like a department store, not a maison.",
+        solution: "We created an editorial experience inspired by the great European maisons: fullscreen photography, serif typography with generous white space, and micro-interactions that reinforce the sense of exclusivity. Checkout was simplified to 2 steps.",
+        results: [{ label: "Increase in average order", value: "+29%" }, { label: "Conversion rate", value: "+44%" }, { label: "Time on product page", value: "+3.1min" }, { label: "Returning customers", value: "+61%" }],
+        mockupLines: ["COLLECTION", "ATELIER", "PIECES", "CONTACT"],
+    },
+    {
+        scope: ["Mobile UI", "iOS & Android", "Illustration"], duration: "8 weeks",
+        challenge: "The Vitalize health and wellbeing app faced a paradox: users loved the concept but found the app 'heavy' and 'intimidating'. The previous design used clinical green and medical iconography that pushed away the very audience it targeted.",
+        solution: "We redesigned it around 'health as a lifestyle': an organic palette, hand-drawn illustrations that humanise the data, and a gamified progress system that celebrates small wins.",
+        results: [{ label: "Downloads in the first month", value: "48k" }, { label: "30-day retention", value: "71%" }, { label: "Store rating", value: "4.9★" }, { label: "Organic mentions", value: "+180%" }],
+        mockupLines: ["HOME", "WORKOUTS", "NUTRITION", "PROGRESS"],
+    },
+];
+const SERVICES_EN: SiteContent["services"] = [
+
+        {
+            num: "01", slug: "branding-identidade-visual", title: "Branding & Visual Identity",
+            body: "Brand systems that communicate with precision — from the logo to the tone of voice. Identities that grow with the business and stand the test of time.",
+            content: "<p>A brand is not a logo — it is the sum of every perception people hold of your business. We build complete identity systems: logo, palette, typography, graphic elements, applications and a usage guide that keeps everything coherent wherever the brand shows up.</p><p>We start by understanding the brand's positioning and personality, so every visual decision has a reason to exist. The result is an identity that conveys intent, sets you apart from the competition and still makes sense five years from now.</p><ul><li>Naming and verbal branding (tone of voice)</li><li>Logo, symbol and variations</li><li>Visual system: colour, typography and graphic elements</li><li>Brand manual and application kit</li></ul>",
+        },
+        {
+            num: "02", slug: "design-de-interface-ui-ux", title: "Interface Design (UI/UX)",
+            body: "Interfaces built from real user behaviour. Every pixel has a function. Every flow has intent.",
+            content: "<p>A good interface is invisible: users get where they want without noticing the effort behind it. We design products and websites starting from research — who uses it, what they need and where they get stuck — and translate that into clear flows, visual hierarchy and micro-interactions that guide the decision.</p><p>We deliver everything from wireframes to a documented design system, ready for the development team. Every screen is built to reduce friction and increase conversion, without giving up on aesthetics.</p><ul><li>UX research and information architecture</li><li>Wireframes and clickable prototypes</li><li>UI design and design system</li><li>Usability testing</li></ul>",
+        },
+        {
+            num: "03", slug: "websites-imersivos", title: "Immersive Websites",
+            body: "Company websites with strong art direction, fluid navigation, responsiveness and animation.",
+            content: "<p>A company website is the brand's most important calling card. We create immersive experiences, with strong art direction, scroll animations and transitions that turn browsing into something memorable — without sacrificing performance or accessibility.</p><p>Every project is genuinely responsive, fast on mobile and built to be found on Google. You get a site that impresses and that also works for your business.</p><ul><li>Art direction and visual storytelling</li><li>Scroll animations and micro-interactions</li><li>Responsiveness and performance (Core Web Vitals)</li><li>Technical SEO and CMS integration</li></ul>",
+        },
+        {
+            num: "04", slug: "landing-pages-conversivas", title: "High-Converting Landing Pages",
+            body: "Persuasive copy, offer structure and an interface designed for campaigns, paid traffic and lead generation.",
+            content: "<p>A landing page has a single goal: to convert. We structure every section — headline, social proof, offer, objections and CTA — to carry the visitor through to the action, be it a lead, a sale or a booking.</p><p>We combine persuasive copy, conversion-driven design and A/B testing to get the most out of your paid traffic investment. Pages that load fast and convert more.</p><ul><li>Copywriting and offer structure</li><li>Conversion-focused design</li><li>Integration with forms, pixel and analytics</li><li>A/B testing and continuous optimisation</li></ul>",
+        },
+        {
+            num: "05", slug: "motion-para-sites", title: "Motion for Websites",
+            body: "Movement that tells stories. Interface animation and motion graphics that turn content into experience.",
+            content: "<p>Movement is a language. A well-placed animation guides the eye, explains an idea and gives the brand personality. We produce motion for interfaces — transitions, hover, scroll, loaders — and motion graphics for communication, always with purpose and performance in mind.</p><p>No animation for decoration's sake: every movement has a function, respects people who prefer reduced motion and runs smoothly on any device.</p><ul><li>Interface animation and transitions</li><li>Motion graphics and short videos</li><li>Scroll animation and storytelling</li><li>Performance and accessibility optimisation</li></ul>",
+        },
+        {
+            num: "06", slug: "conteudo-copywriting", title: "Content & Copywriting",
+            body: "Words that convert. Narratives that build authority, earn trust and move the user to act.",
+            content: "<p>Design gets attention; the right words close the deal. We develop your brand's voice and produce content that builds authority, earns trust and moves the user to act — from the text on a button to the article that positions you as a reference.</p><p>We work on website, campaign, email and social copy, always aligned with the brand's strategy and tone of voice.</p><ul><li>Tone of voice and key messaging</li><li>Copy for websites, landing pages and campaigns</li><li>Blog and social media content</li><li>Editing and editorial consistency</li></ul>",
+        },
+    ];
+const FAQ_EN: SiteContent["faq"] = [
+
+        { q: "How does the process work?", a: "We start with an in-depth diagnosis of the business, the market and the goals. Then we build a clear roadmap with deliverables, deadlines and approval milestones. We work in short sprints with weekly checkpoints to keep everyone aligned — no surprises at the end." },
+        { q: "How long does a project take?", a: "It depends on scope. A visual identity project takes 3 to 6 weeks. A full website with design and development, 6 to 12 weeks. More complex applications can take 3 to 6 months. We always present a detailed schedule before starting." },
+        { q: "What size of company do you work with?", a: "We work with everyone from growth-stage startups to established companies looking to renew their digital presence. What matters is not size, but the commitment to quality and the willingness to build something that lasts." },
+        { q: "How is pricing structured?", a: "We work with fixed-scope projects (scope and price agreed upfront) or a monthly retainer for companies that need an ongoing partner. We don't charge by the hour — we charge for the outcome. The quote is presented transparently, with no hidden fees." },
+        { q: "Do you offer support after launch?", a: "Yes. Every project includes a 30-day warranty period after launch. For clients who want ongoing support, we offer monthly maintenance plans covering updates, monitoring and product evolution." },
+        { q: "How do I start working with you?", a: "Fill in the contact form or send us an email with a brief outline of your project. We'll schedule a free 30-minute diagnosis call to understand your needs and check whether we're the right partner for you." },
+    ];
 const DEFAULT_CONTENT_EN: SiteContent = {
     ...DEFAULT_CONTENT,
     site: {
@@ -423,6 +496,13 @@ const DEFAULT_CONTENT_EN: SiteContent = {
             { numeric: 3, suffix: "×", label: "AVERAGE 12-MONTH RETURN" },
         ],
     },
+    services: SERVICES_EN,
+    faq: FAQ_EN,
+    projects: DEFAULT_CONTENT.projects.map((p, i) => ({
+        ...p,
+        category: ["Branding & UI", "SaaS Product", "E-commerce", "Mobile UI"][i] ?? p.category,
+        detail: { ...p.detail, ...(PROJECT_DETAIL_EN[i] ?? {}) },
+    })),
     footer: {
         ...DEFAULT_CONTENT.footer,
         tagline: "Design and technology that take brands where they need to go.",
@@ -440,7 +520,16 @@ const DEFAULT_CONTENT_EN: SiteContent = {
                     { label: "Contact", url: "/en/contact" },
                 ],
             },
-            { ...DEFAULT_CONTENT.footer.columns[1], title: "Services" },
+            {
+                title: "Services",
+                links: [
+                    { label: "Branding", url: "/en/services/branding-identidade-visual" },
+                    { label: "UI / UX Design", url: "/en/services/design-de-interface-ui-ux" },
+                    { label: "Web Development", url: "/en/services/websites-imersivos" },
+                    { label: "Digital Strategy", url: "/en/services/landing-pages-conversivas" },
+                    { label: "Motion & Animation", url: "/en/services/motion-para-sites" },
+                ],
+            },
         ],
         contactTitle: "Contact",
         city: "São Paulo, Brazil",
