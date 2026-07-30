@@ -483,9 +483,10 @@ class STCMS_Options {
 
 		if ( 'en' === $lang ) {
 			echo '<p class="description" style="margin:0 0 12px">'
-				. 'Para publicar uma dessas páginas em inglês, duplique-a no WordPress, marque <strong>Idioma: English</strong> '
-				. 'na caixa lateral e use o slug com o sufixo <code>-en</code> (ex.: <code>diagnostico-en</code>). '
-				. 'Enquanto não existir a versão em inglês, o endereço <code>/en/…</code> mostra o texto em português — '
+				. 'A versão em inglês de cada etapa é uma Página do WordPress com o slug terminado em <code>-en</code> '
+				. '(ex.: <code>diagnostico-en</code>) e o campo <strong>Idioma: English</strong> marcado. '
+				. 'Use o botão abaixo para criar as que faltam já com o texto em inglês — depois é só editar. '
+				. 'Enquanto uma delas não existir, o endereço <code>/en/…</code> mostra o texto em português '
 				. 'e o sitemap não anuncia essa URL como conteúdo em inglês.'
 				. '</p>';
 		}
@@ -500,11 +501,11 @@ class STCMS_Options {
 			if ( '' === $slug ) {
 				continue;
 			}
-			$page = get_page_by_path( 'en' === $lang ? $slug . '-en' : $slug );
-			if ( ! $page && 'en' === $lang ) {
-				$page = get_page_by_path( $slug );
-			}
-			$url = ( 'en' === $lang ? '/en/process/' : '/processo/' ) . $slug;
+			// No inglês só conta a página do próprio idioma; a portuguesa serve de reserva na exibição.
+			$page     = get_page_by_path( 'en' === $lang ? $slug . '-en' : $slug );
+			$reserva  = ( ! $page && 'en' === $lang ) ? get_page_by_path( $slug ) : null;
+			$url      = ( 'en' === $lang ? '/en/process/' : '/processo/' ) . $slug;
+
 			if ( $page ) {
 				printf(
 					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:#1a7f37">Publicada</td><td><a class="button" href="%s">Editar texto</a></td></tr>',
@@ -515,9 +516,14 @@ class STCMS_Options {
 			} else {
 				$missing[] = $step;
 				printf(
-					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:#b32d2e">Página ausente</td><td>—</td></tr>',
+					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:%s">%s</td><td>%s</td></tr>',
 					esc_html( $step['title'] ),
-					esc_html( $url )
+					esc_html( $url ),
+					$reserva ? '#8a6d00' : '#b32d2e',
+					esc_html( $reserva ? 'Sem versão em inglês (mostrando o texto em português)' : 'Página ausente' ),
+					$reserva
+						? '<a class="button" href="' . esc_url( get_edit_post_link( $reserva->ID ) ) . '">Ver a portuguesa</a>'
+						: '—'
 				);
 			}
 		}
@@ -563,11 +569,18 @@ class STCMS_Options {
 		echo '</tbody></table>';
 
 		if ( $missing ) {
-			$url = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_create_pages=1' ), 'stcms_create_pages' );
+			$url = wp_nonce_url(
+				admin_url( 'admin.php?page=studio-tabi&stcms_create_pages=1&stcms_lang=' . $lang ),
+				'stcms_create_pages'
+			);
 			printf(
-				'<p><a href="%s" class="button button-secondary">Criar as %d página(s) de processo que faltam</a></p>',
+				'<p><a href="%s" class="button button-secondary">%s</a></p>',
 				esc_url( $url ),
-				count( $missing )
+				esc_html(
+					'en' === $lang
+						? sprintf( 'Criar as %d página(s) de processo em inglês que faltam', count( $missing ) )
+						: sprintf( 'Criar as %d página(s) de processo que faltam', count( $missing ) )
+				)
 			);
 		}
 
@@ -580,11 +593,17 @@ class STCMS_Options {
 		}
 		check_admin_referer( 'stcms_create_pages' );
 
-		$o       = self::get();
+		$lang    = isset( $_GET['stcms_lang'] ) && 'en' === sanitize_key( wp_unslash( $_GET['stcms_lang'] ) ) ? 'en' : 'pt';
+		$o       = self::get( $lang );
 		$created = 0;
 		foreach ( (array) $o['process'] as $step ) {
 			$slug = isset( $step['slug'] ) ? $step['slug'] : '';
-			if ( '' === $slug || get_page_by_path( $slug ) ) {
+			if ( '' === $slug ) {
+				continue;
+			}
+			// A versão em inglês vive num slug próprio para não colidir com a portuguesa.
+			$destino = 'en' === $lang ? $slug . '-en' : $slug;
+			if ( get_page_by_path( $destino ) ) {
 				continue;
 			}
 			$id = wp_insert_post(
@@ -592,15 +611,16 @@ class STCMS_Options {
 					'post_type'    => 'page',
 					'post_status'  => 'publish',
 					'post_title'   => $step['title'],
-					'post_name'    => $slug,
+					'post_name'    => $destino,
 					'post_content' => isset( $step['summary'] ) ? wpautop( $step['summary'] ) : '',
 				)
 			);
 			if ( $id && ! is_wp_error( $id ) ) {
+				update_post_meta( $id, 'stcms_lang', $lang );
 				$created++;
 			}
 		}
-		wp_safe_redirect( admin_url( 'admin.php?page=studio-tabi&stcms_created=' . $created ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=studio-tabi&stcms_lang=' . $lang . '&stcms_created=' . $created ) );
 		exit;
 	}
 
