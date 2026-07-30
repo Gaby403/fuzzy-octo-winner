@@ -234,6 +234,12 @@ class STCMS_Options {
 					</table>
 				<?php self::card_close(); ?>
 
+				<?php if ( 'en' === self::$lang ) : ?>
+					<?php self::card_open( 'traducao', 'dashicons-translation', 'Conteúdo em inglês', 'Cria as versões em inglês dos serviços, FAQs, projetos e artigos' ); ?>
+						<?php self::render_traducao(); ?>
+					<?php self::card_close(); ?>
+				<?php endif; ?>
+
 				<?php self::card_open( 'inner_pages', 'dashicons-media-document', 'Páginas internas', 'Atalhos para editar o texto completo de cada página de processo e de serviço' ); ?>
 					<?php self::render_inner_pages(); ?>
 				<?php self::card_close(); ?>
@@ -475,6 +481,45 @@ class STCMS_Options {
 		echo '</div>';
 		echo '<button type="button" class="button stcms-add">+ Adicionar</button>';
 		echo '</div>';
+	}
+
+	private static function render_traducao() {
+		if ( ! class_exists( 'STCMS_Traducao' ) ) {
+			return;
+		}
+		$pendentes = STCMS_Traducao::pendentes();
+		$tipos     = STCMS_Traducao::tipos();
+		$total     = array_sum( $pendentes );
+
+		echo '<table class="widefat striped" style="margin-bottom:14px"><thead><tr>'
+			. '<th>Conteúdo</th><th style="width:220px">Situação</th></tr></thead><tbody>';
+		foreach ( $tipos as $tipo => $rotulo ) {
+			$faltam = isset( $pendentes[ $tipo ] ) ? (int) $pendentes[ $tipo ] : 0;
+			printf(
+				'<tr><td><strong>%s</strong></td><td style="color:%s">%s</td></tr>',
+				esc_html( $rotulo ),
+				$faltam ? '#8a6d00' : '#1a7f37',
+				esc_html( $faltam ? sprintf( '%d sem versão em inglês', $faltam ) : 'Tudo traduzido' )
+			);
+		}
+		echo '</tbody></table>';
+
+		if ( $total ) {
+			$url = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_traduzir=1' ), 'stcms_traduzir' );
+			printf(
+				'<p><a href="%s" class="button button-primary">Criar os %d itens em inglês</a></p>',
+				esc_url( $url ),
+				(int) $total
+			);
+		}
+
+		echo '<p class="description">'
+			. 'Cada item em português ganha uma cópia marcada como <strong>English</strong>, ligada ao original — '
+			. 'é esse vínculo que faz o sitemap declarar o <code>hreflang</code> recíproco entre as duas URLs. '
+			. 'O conteúdo que veio instalado com o plugin já entra traduzido; o que você escreveu é copiado como está, '
+			. 'preservando imagem, ordem, categorias e configurações, para você traduzir o texto. '
+			. 'Rodar de novo só cria o que ainda falta — nada é sobrescrito.'
+			. '</p>';
 	}
 
 	private static function render_inner_pages() {

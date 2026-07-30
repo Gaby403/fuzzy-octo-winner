@@ -330,3 +330,149 @@ function stcms_default_options_en() {
 		),
 	);
 }
+
+/**
+ * Traduções prontas do conteúdo que o plugin instala por padrão.
+ * A chave é o texto em português; quem não estiver aqui é duplicado como está,
+ * para o autor traduzir à mão sem perder imagem, ordem e configurações.
+ */
+function stcms_traducoes_en() {
+	return array(
+		'servicos' => array(
+			'Branding & Identidade Visual' => array(
+				'title'   => 'Branding & Visual Identity',
+				'body'    => 'Brand systems that communicate with precision — from the logo to the tone of voice. Identities that grow with the business and stand the test of time.',
+				'content' => '<p>A brand is not a logo — it is the sum of every perception people hold of your business. We build complete identity systems: logo, palette, typography, graphic elements, applications and a usage guide that keeps everything coherent wherever the brand shows up.</p><p>We start by understanding the brand\'s positioning and personality, so every visual decision has a reason to exist. The result is an identity that conveys intent, sets you apart from the competition and still makes sense five years from now.</p><ul><li>Naming and verbal branding (tone of voice)</li><li>Logo, symbol and variations</li><li>Visual system: colour, typography and graphic elements</li><li>Brand manual and application kit</li></ul>',
+			),
+			'Design de Interface (UI/UX)' => array(
+				'title'   => 'Interface Design (UI/UX)',
+				'body'    => 'Interfaces built from real user behaviour. Every pixel has a function. Every flow has intent.',
+				'content' => '<p>A good interface is invisible: users get where they want without noticing the effort behind it. We design products and websites starting from research — who uses it, what they need and where they get stuck — and translate that into clear flows, visual hierarchy and micro-interactions that guide the decision.</p><p>We deliver everything from wireframes to a documented design system, ready for the development team. Every screen is built to reduce friction and increase conversion, without giving up on aesthetics.</p><ul><li>UX research and information architecture</li><li>Wireframes and clickable prototypes</li><li>UI design and design system</li><li>Usability testing</li></ul>',
+			),
+			'Websites Imersivos' => array(
+				'title'   => 'Immersive Websites',
+				'body'    => 'Company websites with strong art direction, fluid navigation, responsiveness and animation.',
+				'content' => '<p>A company website is the brand\'s most important calling card. We create immersive experiences, with strong art direction, scroll animations and transitions that turn browsing into something memorable — without sacrificing performance or accessibility.</p><p>Every project is genuinely responsive, fast on mobile and built to be found on Google. You get a site that impresses and that also works for your business.</p><ul><li>Art direction and visual storytelling</li><li>Scroll animations and micro-interactions</li><li>Responsiveness and performance (Core Web Vitals)</li><li>Technical SEO and CMS integration</li></ul>',
+			),
+			'Landing Pages Conversivas' => array(
+				'title'   => 'High-Converting Landing Pages',
+				'body'    => 'Persuasive copy, offer structure and an interface designed for campaigns, paid traffic and lead generation.',
+				'content' => '<p>A landing page has a single goal: to convert. We structure every section — headline, social proof, offer, objections and CTA — to carry the visitor through to the action, be it a lead, a sale or a booking.</p><p>We combine persuasive copy, conversion-driven design and A/B testing to get the most out of your paid traffic investment. Pages that load fast and convert more.</p><ul><li>Copywriting and offer structure</li><li>Conversion-focused design</li><li>Integration with forms, pixel and analytics</li><li>A/B testing and continuous optimisation</li></ul>',
+			),
+			'Motion para Sites' => array(
+				'title'   => 'Motion for Websites',
+				'body'    => 'Movement that tells stories. Interface animation and motion graphics that turn content into experience.',
+				'content' => '<p>Movement is a language. A well-placed animation guides the eye, explains an idea and gives the brand personality. We produce motion for interfaces — transitions, hover, scroll, loaders — and motion graphics for communication, always with purpose and performance in mind.</p><p>No animation for decoration\'s sake: every movement has a function, respects people who prefer reduced motion and runs smoothly on any device.</p><ul><li>Interface animation and transitions</li><li>Motion graphics and short videos</li><li>Scroll animation and storytelling</li><li>Performance and accessibility optimisation</li></ul>',
+			),
+			'Conteúdo & Copywriting' => array(
+				'title'   => 'Content & Copywriting',
+				'body'    => 'Words that convert. Narratives that build authority, earn trust and move the user to act.',
+				'content' => '<p>Design gets attention; the right words close the deal. We develop your brand\'s voice and produce content that builds authority, earns trust and moves the user to act — from the text on a button to the article that positions you as a reference.</p><p>We work on website, campaign, email and social copy, always aligned with the brand\'s strategy and tone of voice.</p><ul><li>Tone of voice and key messaging</li><li>Copy for websites, landing pages and campaigns</li><li>Blog and social media content</li><li>Editing and editorial consistency</li></ul>',
+			),
+		),
+
+		'faq' => array(
+			'Como funciona o processo de trabalho?' => array(
+				'title'   => 'How does the process work?',
+				'content' => 'We start with an in-depth diagnosis of the business, the market and the goals. Then we build a clear roadmap with deliverables, deadlines and approval milestones. We work in short sprints with weekly checkpoints to keep everyone aligned — no surprises at the end.',
+			),
+			'Quanto tempo leva um projeto?' => array(
+				'title'   => 'How long does a project take?',
+				'content' => 'It depends on scope. A visual identity project takes 3 to 6 weeks. A full website with design and development, 6 to 12 weeks. More complex applications can take 3 to 6 months. We always present a detailed schedule before starting.',
+			),
+			'Vocês trabalham com empresas de qual tamanho?' => array(
+				'title'   => 'What size of company do you work with?',
+				'content' => 'We work with everyone from growth-stage startups to established companies looking to renew their digital presence. What matters is not size, but the commitment to quality and the willingness to build something that lasts.',
+			),
+			'Como é estruturada a precificação?' => array(
+				'title'   => 'How is pricing structured?',
+				'content' => 'We work with fixed-scope projects (scope and price agreed upfront) or a monthly retainer for companies that need an ongoing partner. We don\'t charge by the hour — we charge for the outcome. The quote is presented transparently, with no hidden fees.',
+			),
+			'Vocês oferecem suporte após a entrega?' => array(
+				'title'   => 'Do you offer support after launch?',
+				'content' => 'Yes. Every project includes a 30-day warranty period after launch. For clients who want ongoing support, we offer monthly maintenance plans covering updates, monitoring and product evolution.',
+			),
+			'Como posso começar a trabalhar com vocês?' => array(
+				'title'   => 'How do I start working with you?',
+				'content' => 'Fill in the contact form or send us an email with a brief outline of your project. We\'ll schedule a free 30-minute diagnosis call to understand your needs and check whether we\'re the right partner for you.',
+			),
+		),
+
+		'projetos' => array(
+			'Nuvem Finance' => array(
+				'stcms_category'  => 'Branding & UI',
+				'stcms_duration'  => '14 weeks',
+				'stcms_challenge' => 'Nuvem Finance came to us as yet another generic fintech in a saturated market — corporate blue palette, cold language, zero differentiation. The challenge was to create an identity that conveyed solidity without losing human warmth, and an interface that made complex financial concepts accessible to the end user.',
+				'stcms_solution'  => 'We developed a visual identity built on contrast: condensed, assertive typography balanced by generous spacing and earthy tones that suggest trust without the banking-blue cliché. The design system was built to scale with the product, with 240+ documented components and an integrated voice and tone guide.',
+				'stcms_scope'     => array( 'Visual Identity', 'UI/UX Design', 'Design System' ),
+				'stcms_mockup'    => array( 'DASHBOARD', 'PORTFOLIO', 'ANALYSIS', 'REPORTS' ),
+				'stcms_results'   => array(
+					array( 'label' => 'Increase in conversion', 'value' => '+38%' ),
+					array( 'label' => 'Reduction in churn', 'value' => '−22%' ),
+					array( 'label' => 'NPS after redesign', 'value' => '72' ),
+					array( 'label' => 'Components in the DS', 'value' => '240+' ),
+				),
+			),
+			'FlowDesk' => array(
+				'stcms_category'  => 'SaaS Product',
+				'stcms_duration'  => '22 weeks',
+				'stcms_challenge' => 'FlowDesk had a solid product idea but the initial MVP had a very steep learning curve. First-week drop-off was 67%. We needed to rebuild the experience from scratch without losing the existing users.',
+				'stcms_solution'  => 'We ran 18 in-depth interviews with real users and mapped the main friction points. We redesigned onboarding with a progressive disclosure approach. The new information architecture cut the critical paths from 7 clicks to 3.',
+				'stcms_scope'     => array( 'SaaS Product', 'UX Research', 'Prototyping', 'Front-end Dev' ),
+				'stcms_mockup'    => array( 'PROJECTS', 'TASKS', 'TEAM', 'REPORT' ),
+				'stcms_results'   => array(
+					array( 'label' => 'Drop-off reduction', 'value' => '−51%' ),
+					array( 'label' => 'Average time in app', 'value' => '+2.4×' ),
+					array( 'label' => 'Monthly active users', 'value' => '12k+' ),
+					array( 'label' => 'App Store rating', 'value' => '4.8★' ),
+				),
+			),
+			'Maison Lux' => array(
+				'stcms_category'  => 'E-commerce',
+				'stcms_duration'  => '10 weeks',
+				'stcms_challenge' => 'A Brazilian luxury fashion brand with its own atelier, but a digital presence completely at odds with its premium positioning. The previous site looked like a department store, not a maison.',
+				'stcms_solution'  => 'We created an editorial experience inspired by the great European maisons: fullscreen photography, serif typography with generous white space, and micro-interactions that reinforce the sense of exclusivity. Checkout was simplified to 2 steps.',
+				'stcms_scope'     => array( 'E-commerce', 'UI Design', 'Motion Design' ),
+				'stcms_mockup'    => array( 'COLLECTION', 'ATELIER', 'PIECES', 'CONTACT' ),
+				'stcms_results'   => array(
+					array( 'label' => 'Increase in average order', 'value' => '+29%' ),
+					array( 'label' => 'Conversion rate', 'value' => '+44%' ),
+					array( 'label' => 'Time on product page', 'value' => '+3.1min' ),
+					array( 'label' => 'Returning customers', 'value' => '+61%' ),
+				),
+			),
+			'Vitalize App' => array(
+				'stcms_category'  => 'Mobile UI',
+				'stcms_duration'  => '8 weeks',
+				'stcms_challenge' => 'The Vitalize health and wellbeing app faced a paradox: users loved the concept but found the app \'heavy\' and \'intimidating\'. The previous design used clinical green and medical iconography that pushed away the very audience it targeted.',
+				'stcms_solution'  => 'We redesigned it around \'health as a lifestyle\': an organic palette, hand-drawn illustrations that humanise the data, and a gamified progress system that celebrates small wins.',
+				'stcms_scope'     => array( 'Mobile UI', 'iOS & Android', 'Illustration' ),
+				'stcms_mockup'    => array( 'HOME', 'WORKOUTS', 'NUTRITION', 'PROGRESS' ),
+				'stcms_results'   => array(
+					array( 'label' => 'Downloads in the first month', 'value' => '48k' ),
+					array( 'label' => '30-day retention', 'value' => '71%' ),
+					array( 'label' => 'Store rating', 'value' => '4.9★' ),
+					array( 'label' => 'Organic mentions', 'value' => '+180%' ),
+				),
+			),
+		),
+
+		'posts' => array(
+			'Presença digital não é custo — é ativo estratégico' => array(
+				'title'   => 'Digital presence is not a cost — it is a strategic asset',
+				'excerpt' => 'Why treating your site and brand as an investment changes what your business gets back.',
+				'content' => "<p>Plenty of companies still see their website as a marketing expense. It is an expensive mistake. A well-built digital presence is an <strong>asset</strong>: it raises the brand's value, lowers acquisition cost and sustains the trust that closes deals.</p><h2>What changes when you treat it as an asset</h2><p>You stop asking \"what does it cost\" and start asking \"what does it return\". The decision stops being aesthetic and becomes strategic.</p><h3>Perceived value</h3><p>A coherent brand signals solidity before the first conversation. That shortens the sales cycle.</p><h2>Where to start</h2><p>Start with the diagnosis: where the brand is, where it needs to go and what is blocking the path. Everything else follows from there.</p>",
+			),
+			'Design que converte: interface é arquitetura de decisões' => array(
+				'title'   => 'Design that converts: an interface is decision architecture',
+				'excerpt' => 'Every screen moves the user forward — or stops them. How design steers the action.',
+				'content' => "<p>A beautiful interface that doesn't convert is expensive decoration. Good design is invisible: it carries the user to the action without them noticing the effort.</p><h2>Visual hierarchy</h2><p>The eye follows contrast, size and space. Use that to highlight what matters and quiet what distracts.</p><h2>Reducing friction</h2><p>Every field, click and decision you remove increases conversion. Less is almost always more.</p>",
+			),
+			'Performance web: por que velocidade é receita' => array(
+				'title'   => 'Web performance: why speed is revenue',
+				'excerpt' => 'LCP, CLS and INP are not acronyms — they are money. Here is the real impact.',
+				'content' => "<p>Every extra second of load time drags down conversion and ranking. Performance is not technical vanity: it is revenue and SEO.</p><h2>The metrics that matter</h2><p>LCP (largest visible element), CLS (visual stability) and INP (interaction response) define the user's real experience.</p><h2>The basics, done well</h2><p>Local fonts, optimised images, split code and caching. The basics, done rigorously, already put you ahead of most.</p>",
+			),
+		),
+	);
+}

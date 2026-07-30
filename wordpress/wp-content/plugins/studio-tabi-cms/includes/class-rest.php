@@ -939,6 +939,12 @@ class STCMS_Rest {
 			}
 		}
 
+		// Pares PT/EN criados pelo tradutor: permitem hreflang recíproco no conteúdo.
+		$pares = array(
+			'st_service' => self::pares_traduzidos( 'st_service' ),
+			'post'       => self::pares_traduzidos( 'post' ),
+		);
+
 		foreach ( array( 'pt', 'en' ) as $lang ) {
 			foreach ( self::services( $lang ) as $s ) {
 				if ( empty( $s['slug'] ) ) {
@@ -946,7 +952,7 @@ class STCMS_Rest {
 				}
 				$urls[] = array(
 					'loc'        => self::rota( $base, $lang, 'servico', $s['slug'] ),
-					'alternates' => array(),
+					'alternates' => self::alternates( $base, 'servico', $s['slug'], $lang, $pares['st_service'] ),
 					'priority'   => '0.7',
 					'changefreq' => 'monthly',
 				);
@@ -996,7 +1002,7 @@ class STCMS_Rest {
 			foreach ( $posts as $p ) {
 				$urls[] = array(
 					'loc'        => self::rota( $base, $lang, 'artigo', $p->post_name ),
-					'alternates' => array(),
+					'alternates' => self::alternates( $base, 'artigo', $p->post_name, $lang, $pares['post'] ),
 					'priority'   => '0.6',
 					'changefreq' => 'monthly',
 					'lastmod'    => mysql2date( 'Y-m-d', $p->post_modified_gmt ),
@@ -1013,6 +1019,47 @@ class STCMS_Rest {
 			),
 			200
 		);
+	}
+
+	/**
+	 * Mapa slug_pt => slug_en dos itens que têm tradução declarada.
+	 */
+	private static function pares_traduzidos( $tipo ) {
+		if ( ! class_exists( 'STCMS_Traducao' ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( STCMS_Traducao::pares( $tipo ) as $id_pt => $id_en ) {
+			$pt = get_post_field( 'post_name', $id_pt );
+			$en = get_post_field( 'post_name', $id_en );
+			if ( $pt && $en ) {
+				$out[ $pt ] = $en;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Só declara alternate quando existe o par nos dois idiomas — anunciar uma
+	 * tradução que não existe é pior que não anunciar nada.
+	 */
+	private static function alternates( $base, $chave, $slug, $lang, $pares ) {
+		if ( 'pt' === $lang ) {
+			if ( ! isset( $pares[ $slug ] ) ) {
+				return array();
+			}
+			$slug_pt = $slug;
+			$slug_en = $pares[ $slug ];
+		} else {
+			$slug_pt = array_search( $slug, $pares, true );
+			if ( false === $slug_pt ) {
+				return array();
+			}
+			$slug_en = $slug;
+		}
+		$url_pt = self::rota( $base, 'pt', $chave, $slug_pt );
+		$url_en = self::rota( $base, 'en', $chave, $slug_en );
+		return array( 'pt-BR' => $url_pt, 'en' => $url_en, 'x-default' => $url_pt );
 	}
 
 	private static function sitemap_xml( $urls ) {
