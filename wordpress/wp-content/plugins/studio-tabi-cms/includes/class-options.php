@@ -23,6 +23,7 @@ class STCMS_Options {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_create_process_pages' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_restaurar_en' ) );
 	}
 
 	public static function get( $lang = 'pt' ) {
@@ -44,13 +45,42 @@ class STCMS_Options {
 		return self::deep_merge( $base, self::sem_vazios( $en ) );
 	}
 
+	/**
+	 * Remove o que está em branco — é assim que um campo vazio na aba English
+	 * volta a herdar o português. Listas são tratadas inteiras: uma linha do
+	 * repetidor é mantida como está (mesmo com uma coluna em branco) e some
+	 * apenas quando fica totalmente vazia, para não abrir buraco na lista.
+	 */
 	private static function sem_vazios( $arr ) {
 		$out = array();
 		foreach ( $arr as $k => $v ) {
 			if ( is_array( $v ) ) {
-				$limpo = self::sem_vazios( $v );
-				if ( ! empty( $limpo ) ) {
-					$out[ $k ] = $limpo;
+				if ( self::is_assoc( $v ) ) {
+					$limpo = self::sem_vazios( $v );
+					if ( ! empty( $limpo ) ) {
+						$out[ $k ] = $limpo;
+					}
+					continue;
+				}
+				$lista = array();
+				foreach ( $v as $linha ) {
+					if ( is_array( $linha ) ) {
+						$tem = false;
+						foreach ( $linha as $celula ) {
+							if ( is_array( $celula ) ? ! empty( $celula ) : '' !== trim( (string) $celula ) ) {
+								$tem = true;
+								break;
+							}
+						}
+						if ( $tem ) {
+							$lista[] = $linha;
+						}
+					} elseif ( '' !== trim( (string) $linha ) ) {
+						$lista[] = $linha;
+					}
+				}
+				if ( $lista ) {
+					$out[ $k ] = $lista;
 				}
 			} elseif ( '' !== $v && null !== $v ) {
 				$out[ $k ] = $v;
@@ -500,6 +530,15 @@ class STCMS_Options {
 				. '</div>';
 		}
 
+		if ( get_option( self::OPTION_EN ) ) {
+			$url = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_restaurar_en=1' ), 'stcms_restaurar_en' );
+			echo '<p style="margin:0 0 16px">'
+				. '<a href="' . esc_url( $url ) . '" class="button">Restaurar os padrões em inglês desta tela</a><br>'
+				. '<span class="description">Apaga o que está salvo nesta aba e recarrega os textos em inglês que vêm com o plugin. '
+				. 'Use se algum campo apareceu vazio depois de salvar — o português não é tocado.</span>'
+				. '</p>';
+		}
+
 		$rotulos   = array(
 			'st_service' => 'Serviços',
 			'st_faq'     => 'Perguntas frequentes',
@@ -666,25 +705,28 @@ class STCMS_Options {
 		exit;
 	}
 
+	/**
+	 * Apaga o que está salvo na aba English e volta aos padrões em inglês do
+	 * plugin. Serve para quem salvou com a versão que descartava os valores
+	 * iguais ao português e ficou com campos vazios na tela.
+	 */
+	public static function maybe_restaurar_en() {
+		if ( empty( $_GET['stcms_restaurar_en'] ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		check_admin_referer( 'stcms_restaurar_en' );
+		delete_option( self::OPTION_EN );
+		wp_safe_redirect( admin_url( 'admin.php?page=studio-tabi&stcms_lang=en&stcms_restaurado=1' ) );
+		exit;
+	}
+
 	public static function sanitize_en( $input ) {
 		self::$lang = 'en';
 		$limpo = self::sanitize( $input );
-		return self::sem_vazios( self::diferenca( stcms_default_options(), $limpo ) );
-	}
-
-	private static function diferenca( $base, $novo ) {
-		$out = array();
-		foreach ( $novo as $k => $v ) {
-			if ( is_array( $v ) && isset( $base[ $k ] ) && is_array( $base[ $k ] ) ) {
-				$d = self::diferenca( $base[ $k ], $v );
-				if ( ! empty( $d ) ) {
-					$out[ $k ] = $d;
-				}
-			} elseif ( ! isset( $base[ $k ] ) || $base[ $k ] !== $v ) {
-				$out[ $k ] = $v;
-			}
-		}
-		return $out;
+		// Guarda o que foi digitado. Antes daqui saía só a diferença em relação
+		// ao português, e todo valor igual ao português era descartado — por
+		// isso ícones, slugs, números e URLs voltavam vazios para a tela.
+		return self::sem_vazios( $limpo );
 	}
 
 	public static function sanitize( $input ) {
@@ -708,7 +750,7 @@ class STCMS_Options {
 			$lines = preg_split( '/\r\n|\r|\n/', (string) ( $input['hero']['title_lines'] ?? '' ) );
 			$lines = array_values( array_filter( array_map( 'sanitize_text_field', $lines ), 'strlen' ) );
 			$out['hero']['eyebrow']      = sanitize_text_field( $input['hero']['eyebrow'] ?? '' );
-			$out['hero']['title_lines']  = $lines ? $lines : stcms_default_options()['hero']['title_lines'];
+			$out['hero']['title_lines']  = $lines ? $lines : ( 'en' === self::$lang ? array() : stcms_default_options()['hero']['title_lines'] );
 			$out['hero']['highlight']    = sanitize_text_field( $input['hero']['highlight'] ?? '' );
 			$out['hero']['description']  = sanitize_textarea_field( $input['hero']['description'] ?? '' );
 			$out['hero']['image_id']     = (int) ( $input['hero']['image_id'] ?? 0 );
