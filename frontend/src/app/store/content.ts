@@ -407,7 +407,7 @@ function mergeContent(remote: Partial<SiteContent> | null | undefined): SiteCont
         pages: remote.pages || [],
     };
 }
-export async function fetchContent(): Promise<SiteContent> {
+export async function fetchContent(lang: "pt" | "en" = "pt"): Promise<SiteContent> {
     if (!WP_API) {
         console.warn("[Studio Tabi] MODO OFFLINE: window.__STUDIO_TABI_API__ está vazio em config.js. " +
             "O site está mostrando o conteúdo padrão embutido e NÃO o conteúdo do CMS. " +
@@ -415,7 +415,7 @@ export async function fetchContent(): Promise<SiteContent> {
         return DEFAULT_CONTENT;
     }
     try {
-        const res = await fetch(`${WP_API}${CONTENT_ENDPOINT}`, { headers: { Accept: "application/json" } });
+        const res = await fetch(`${WP_API}${CONTENT_ENDPOINT}${lang === "en" ? "?lang=en" : ""}`, { headers: { Accept: "application/json" } });
         if (!res.ok)
             throw new Error(`HTTP ${res.status}`);
         const data = (await res.json()) as Partial<SiteContent>;

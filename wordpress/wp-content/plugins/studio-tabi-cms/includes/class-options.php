@@ -7,6 +7,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 class STCMS_Options {
 
 	const OPTION = 'stcms_options';
+	const OPTION_EN = 'stcms_options_en';
+
+	private static $lang = 'pt';
+
+	private static function option_name() {
+		return 'en' === self::$lang ? self::OPTION_EN : self::OPTION;
+	}
+
+	public static function idiomas() {
+		return array( 'pt' => 'Português', 'en' => 'English' );
+	}
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
@@ -14,12 +25,35 @@ class STCMS_Options {
 		add_action( 'admin_init', array( __CLASS__, 'maybe_create_process_pages' ) );
 	}
 
-	public static function get() {
+	public static function get( $lang = 'pt' ) {
 		$stored = get_option( self::OPTION, array() );
 		if ( ! is_array( $stored ) ) {
 			$stored = array();
 		}
-		return self::deep_merge( stcms_default_options(), $stored );
+		$pt = self::deep_merge( stcms_default_options(), $stored );
+		if ( 'en' !== $lang ) {
+			return $pt;
+		}
+		$en = get_option( self::OPTION_EN, array() );
+		if ( ! is_array( $en ) ) {
+			$en = array();
+		}
+		return self::deep_merge( $pt, self::sem_vazios( $en ) );
+	}
+
+	private static function sem_vazios( $arr ) {
+		$out = array();
+		foreach ( $arr as $k => $v ) {
+			if ( is_array( $v ) ) {
+				$limpo = self::sem_vazios( $v );
+				if ( ! empty( $limpo ) ) {
+					$out[ $k ] = $limpo;
+				}
+			} elseif ( '' !== $v && null !== $v ) {
+				$out[ $k ] = $v;
+			}
+		}
+		return $out;
 	}
 
 	private static function deep_merge( $defaults, $values ) {
@@ -56,10 +90,17 @@ class STCMS_Options {
 			self::OPTION,
 			array( 'sanitize_callback' => array( __CLASS__, 'sanitize' ) )
 		);
+		register_setting(
+			'stcms_group_en',
+			self::OPTION_EN,
+			array( 'sanitize_callback' => array( __CLASS__, 'sanitize_en' ) )
+		);
 	}
 
 	public static function render_page() {
-		$o = self::get();
+		$pedido     = isset( $_GET['stcms_lang'] ) ? sanitize_key( wp_unslash( $_GET['stcms_lang'] ) ) : 'pt';
+		self::$lang = array_key_exists( $pedido, self::idiomas() ) ? $pedido : 'pt';
+		$o = 'en' === self::$lang ? self::get( 'en' ) : self::get();
 		?>
 		<div class="wrap stcms-admin">
 
@@ -78,8 +119,22 @@ class STCMS_Options {
 				</div>
 			</div>
 
+			<h2 class="nav-tab-wrapper" style="margin:18px 0 0">
+				<?php foreach ( self::idiomas() as $code => $nome ) : ?>
+					<a class="nav-tab <?php echo self::$lang === $code ? 'nav-tab-active' : ''; ?>"
+						href="<?php echo esc_url( admin_url( 'admin.php?page=studio-tabi&stcms_lang=' . $code ) ); ?>"><?php echo esc_html( $nome ); ?></a>
+				<?php endforeach; ?>
+			</h2>
+			<?php if ( 'en' === self::$lang ) : ?>
+				<div class="notice notice-info inline" style="margin:12px 0"><p>
+					Editando a versão em <strong>inglês</strong> (<code>/en</code>). Campos deixados em branco
+					usam automaticamente o texto em português — assim a página nunca fica vazia.
+				</p></div>
+			<?php endif; ?>
+
 			<form method="post" action="options.php" class="stcms-form">
-				<?php settings_fields( 'stcms_group' ); ?>
+				<?php settings_fields( 'en' === self::$lang ? 'stcms_group_en' : 'stcms_group' ); ?>
+				<input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr( admin_url( 'admin.php?page=studio-tabi&stcms_lang=' . self::$lang ) ); ?>" />
 
 				<?php self::card_open( 'site', 'dashicons-admin-site-alt3', 'Site', 'Título, descrição para o Google, logo e favicon' ); ?>
 					<table class="form-table stcms-fields" role="presentation">
@@ -125,7 +180,7 @@ class STCMS_Options {
 						<tr>
 							<th scope="row">Linhas do título</th>
 							<td>
-								<textarea name="<?php echo esc_attr( self::OPTION ); ?>[hero][title_lines]" rows="3" class="large-text" placeholder="Uma linha por linha"><?php echo esc_textarea( implode( "\n", (array) $o['hero']['title_lines'] ) ); ?></textarea>
+								<textarea name="<?php echo esc_attr( self::option_name() ); ?>[hero][title_lines]" rows="3" class="large-text" placeholder="Uma linha por linha"><?php echo esc_textarea( implode( "\n", (array) $o['hero']['title_lines'] ) ); ?></textarea>
 								<p class="description">Uma linha do título por linha de texto.</p>
 							</td>
 						</tr>
@@ -352,7 +407,7 @@ class STCMS_Options {
 	}
 
 	private static function name( $path ) {
-		return esc_attr( self::OPTION . '[' . $path );
+		return esc_attr( self::option_name() . '[' . $path );
 	}
 
 	private static function row_text( $label, $path, $value, $help = '' ) {
@@ -390,7 +445,7 @@ class STCMS_Options {
 	}
 
 	private static function repeater( $path, $rows, $cols ) {
-		$base = self::OPTION . '[' . $path . ']';
+		$base = self::option_name() . '[' . $path . ']';
 		$rows = array_values( array_filter( (array) $rows, 'is_array' ) );
 		if ( empty( $rows ) ) {
 			$rows = array( array() );
@@ -524,6 +579,27 @@ class STCMS_Options {
 		}
 		wp_safe_redirect( admin_url( 'admin.php?page=studio-tabi&stcms_created=' . $created ) );
 		exit;
+	}
+
+	public static function sanitize_en( $input ) {
+		self::$lang = 'en';
+		$limpo = self::sanitize( $input );
+		return self::sem_vazios( self::diferenca( stcms_default_options(), $limpo ) );
+	}
+
+	private static function diferenca( $base, $novo ) {
+		$out = array();
+		foreach ( $novo as $k => $v ) {
+			if ( is_array( $v ) && isset( $base[ $k ] ) && is_array( $base[ $k ] ) ) {
+				$d = self::diferenca( $base[ $k ], $v );
+				if ( ! empty( $d ) ) {
+					$out[ $k ] = $d;
+				}
+			} elseif ( ! isset( $base[ $k ] ) || $base[ $k ] !== $v ) {
+				$out[ $k ] = $v;
+			}
+		}
+		return $out;
 	}
 
 	public static function sanitize( $input ) {

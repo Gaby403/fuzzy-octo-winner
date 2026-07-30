@@ -7,6 +7,7 @@ import { fetchPosts, type PostCard } from "./store/blog";
 import Root from "./Root";
 import { TabiMark } from "./components/TabiMark";
 import { SLUGS } from "./i18n/locale";
+import { useLocale } from "./i18n/useLocale";
 const ProjectDetail = lazy(() => import("./components/ProjectDetail"));
 import { ProcessIcon } from "./components/ui/ProcessIcon";
 import { TextReveal } from "./components/ui/TextReveal";
@@ -890,15 +891,16 @@ function BlogCard({ post, index }: {
 }
 function BlogSection() {
     const { content } = useContent();
+    const { locale, rota } = useLocale();
     const sec = content.sections.blog;
     const pad = "clamp(20px, 4vw, 82px)";
     const [posts, setPosts] = useState<PostCard[]>([]);
     useEffect(() => {
         let alive = true;
-        fetchPosts({ perPage: 3 }).then(r => { if (alive)
+        fetchPosts({ perPage: 3, lang: locale }).then(r => { if (alive)
             setPosts(r.items); });
         return () => { alive = false; };
-    }, []);
+    }, [locale]);
     if (!posts.length)
         return null;
     return (<section id="blog" style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative" }}>
@@ -920,7 +922,7 @@ function BlogSection() {
           <Reveal delay={0.18}>
             <div className="flex items-center gap-6 pb-2">
               <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)", maxWidth: 300 }}>{sec.note}</span>
-              <Link to="/blog" style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, textDecoration: "none", display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap" }}>
+              <Link to={rota("blog")} style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, textDecoration: "none", display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap" }}>
                 {sec.ctaLabel} <span aria-hidden="true" style={{ fontSize: 13 }}>→</span>
               </Link>
             </div>

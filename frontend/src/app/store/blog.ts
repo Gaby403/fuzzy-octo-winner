@@ -47,6 +47,8 @@ export async function fetchPosts(opts: {
         qs.set("search", opts.search);
     if (opts.category)
         qs.set("category", opts.category);
+    if (opts.lang === "en")
+        qs.set("lang", "en");
     try {
         const res = await fetch(`${WP_API}${NS}/posts?${qs.toString()}`, { headers: { Accept: "application/json" } });
         if (!res.ok)

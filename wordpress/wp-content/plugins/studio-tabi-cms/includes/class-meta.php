@@ -38,6 +38,9 @@ class STCMS_Meta {
 		add_meta_box( 'stcms_service', 'Dados do serviço', array( __CLASS__, 'render_service' ), 'st_service', 'side', 'high' );
 		add_meta_box( 'stcms_service_page', 'Conteúdo da página interna (/servicos/…)', array( __CLASS__, 'render_service_page' ), 'st_service', 'normal', 'high' );
 		add_meta_box( 'stcms_project', 'Dados do projeto', array( __CLASS__, 'render_project' ), 'st_project', 'normal', 'high' );
+		foreach ( array( 'st_service', 'st_project', 'st_faq', 'post' ) as $tipo ) {
+			add_meta_box( 'stcms_idioma', 'Idioma', array( __CLASS__, 'render_idioma' ), $tipo, 'side', 'high' );
+		}
 	}
 
 	private static function field( $post_id, $key, $default = '' ) {
@@ -257,6 +260,11 @@ class STCMS_Meta {
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
+		}
+
+		if ( isset( $_POST['stcms_lang'] ) ) {
+			$l = sanitize_key( wp_unslash( $_POST['stcms_lang'] ) );
+			update_post_meta( $post_id, 'stcms_lang', 'en' === $l ? 'en' : 'pt' );
 		}
 
 		if ( 'st_service' === $post->post_type ) {

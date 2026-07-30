@@ -46,9 +46,10 @@ export default function Root() {
     const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
     const [loading, setLoading] = useState(true);
     const location = useLocation();
+    const locale = localeFromPath(location.pathname);
     useEffect(() => {
         let alive = true;
-        fetchContent().then(c => {
+        fetchContent(locale).then(c => {
             if (!alive)
                 return;
             setContent(c);
@@ -57,7 +58,7 @@ export default function Root() {
         return () => {
             alive = false;
         };
-    }, []);
+    }, [locale]);
     useEffect(() => {
         const opts = {
             ga4Id: content.site.ga4Id,
@@ -127,7 +128,6 @@ export default function Root() {
         upsertLink("canonical", url);
         upsertMeta("property", "og:url", url);
 
-        const locale = localeFromPath(location.pathname);
         document.documentElement.lang = HTML_LANG[locale];
         upsertMeta("property", "og:locale", locale === "pt" ? "pt_BR" : "en_US");
 

@@ -111,10 +111,23 @@ class STCMS_Rest {
 		);
 	}
 
-	public static function get_content() {
-		$o = STCMS_Options::get();
+	public static function req_lang( $req = null ) {
+		$l = '';
+		if ( $req instanceof WP_REST_Request ) {
+			$l = (string) $req->get_param( 'lang' );
+		}
+		if ( '' === $l && isset( $_GET['lang'] ) ) {
+			$l = sanitize_key( wp_unslash( $_GET['lang'] ) );
+		}
+		return 'en' === $l ? 'en' : 'pt';
+	}
+
+	public static function get_content( $req = null ) {
+		$lang = self::req_lang( $req );
+		$o = STCMS_Options::get( $lang );
 
 		$data = array(
+			'locale'   => $lang,
 			'site'     => array(
 				'title'           => $o['site']['title'],
 				'metaDescription' => self::decode( $o['site']['meta_description'] ),
@@ -208,9 +221,9 @@ class STCMS_Rest {
 				'stats'      => self::stats( $o['about']['stats'] ),
 				'pillars'    => array_values( (array) $o['about']['pillars'] ),
 			),
-			'services' => self::services(),
-			'projects' => self::projects(),
-			'faq'      => self::faq(),
+			'services' => self::services( $lang ),
+			'projects' => self::projects( $lang ),
+			'faq'      => self::faq( $lang ),
 			'footer'   => array(
 				'brand'        => self::decode( $o['footer']['brand'] ),
 				'tagline'      => $o['footer']['tagline'],
@@ -309,6 +322,7 @@ class STCMS_Rest {
 		$args = array(
 			'post_type'      => 'post',
 			'post_status'    => 'publish',
+			'meta_query'     => self::meta_lang( self::req_lang( $req ) ),
 			'posts_per_page' => $per_page,
 			'paged'          => $page,
 			'orderby'        => 'date',
@@ -445,6 +459,17 @@ class STCMS_Rest {
 			wp_mail( self::form_recipient(), '[' . get_bloginfo( 'name' ) . '] Nova inscrição na newsletter', "Novo e-mail inscrito: {$email}" );
 		}
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Inscrição confirmada! Obrigado.' ), 200 );
+	}
+
+	private static function meta_lang( $lang ) {
+		if ( 'en' !== $lang ) {
+			return array(
+				'relation' => 'OR',
+				array( 'key' => 'stcms_lang', 'value' => 'en', 'compare' => '!=' ),
+				array( 'key' => 'stcms_lang', 'compare' => 'NOT EXISTS' ),
+			);
+		}
+		return array( array( 'key' => 'stcms_lang', 'value' => 'en' ) );
 	}
 
 	private static function client_ip() {
@@ -642,10 +667,11 @@ class STCMS_Rest {
 		return $out;
 	}
 
-	private static function services() {
+	private static function services( $lang = 'pt' ) {
 		$posts = get_posts(
 			array(
 				'post_type'   => 'st_service',
+				'meta_query'  => self::meta_lang( $lang ),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
 				'order'       => 'ASC',
@@ -670,10 +696,11 @@ class STCMS_Rest {
 		return $out;
 	}
 
-	private static function faq() {
+	private static function faq( $lang = 'pt' ) {
 		$posts = get_posts(
 			array(
 				'post_type'   => 'st_faq',
+				'meta_query'  => self::meta_lang( $lang ),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
 				'order'       => 'ASC',
@@ -689,10 +716,11 @@ class STCMS_Rest {
 		return $out;
 	}
 
-	private static function projects() {
+	private static function projects( $lang = 'pt' ) {
 		$posts = get_posts(
 			array(
 				'post_type'   => 'st_project',
+				'meta_query'  => self::meta_lang( $lang ),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
 				'order'       => 'ASC',
