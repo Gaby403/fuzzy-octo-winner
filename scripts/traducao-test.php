@@ -4,12 +4,13 @@ define('ABSPATH', __DIR__.'/'); define('HOUR_IN_SECONDS',3600);
 $P = __DIR__.'/../wordpress/wp-content/plugins/studio-tabi-cms';
 
 $GLOBALS['__o']     = ['stcms_site_origin' => 'https://studiotabi.com.br'];
-$GLOBALS['__posts'] = [];   // id => objeto
-$GLOBALS['__meta']  = [];   // id => [chave => valor]
-$GLOBALS['__cats']  = [];   // id => [term_ids]
-$GLOBALS['__capa']  = [];   // id => attachment_id
+$GLOBALS['__posts'] = [];
+$GLOBALS['__meta']  = [];
+$GLOBALS['__cats']  = [];
+$GLOBALS['__capa']  = [];
 $GLOBALS['__id']    = 0;
 $GLOBALS['__saida'] = null;
+$GLOBALS['__lixo']  = [];
 
 function get_option($k,$d=false){return $GLOBALS['__o'][$k]??$d;}
 function update_option($k,$v){$GLOBALS['__o'][$k]=$v;return true;} function add_option($k,$v){return update_option($k,$v);}
@@ -22,13 +23,11 @@ function sanitize_text_field($s){return trim((string)$s);} function sanitize_tex
 function sanitize_email($s){return $s;} function is_email($s){return (bool)filter_var($s,FILTER_VALIDATE_EMAIL);}
 function wp_strip_all_tags($s){return strip_tags((string)$s);} function apply_filters($t,$v){return $v;}
 function esc_html($s){return $s;} function esc_attr($s){return $s;} function esc_textarea($s){return $s;}
+function wp_kses_post($s){return $s;}
 function wp_get_attachment_image_url($i,$s=null){return $i ? "https://cms/img/$i.jpg" : '';}
 function get_bloginfo($x=''){return 'Studio Tabi';} function wp_mail(...$a){return true;}
-// Espelha o sanitize_title do WordPress: translitera acentos antes de trocar por hífen.
 function sanitize_title($s){
-    $s = strtr((string)$s, ['á'=>'a','à'=>'a','â'=>'a','ã'=>'a','ä'=>'a','é'=>'e','ê'=>'e','è'=>'e','í'=>'i','î'=>'i',
-        'ó'=>'o','ô'=>'o','õ'=>'o','ö'=>'o','ú'=>'u','û'=>'u','ü'=>'u','ç'=>'c','ñ'=>'n',
-        'Á'=>'A','À'=>'A','Â'=>'A','Ã'=>'A','É'=>'E','Ê'=>'E','Í'=>'I','Ó'=>'O','Ô'=>'O','Õ'=>'O','Ú'=>'U','Ç'=>'C']);
+    $s = strtr((string)$s, ['á'=>'a','à'=>'a','â'=>'a','ã'=>'a','é'=>'e','ê'=>'e','í'=>'i','ó'=>'o','ô'=>'o','õ'=>'o','ú'=>'u','ç'=>'c']);
     return trim(preg_replace('/-+/','-', preg_replace('/[^a-z0-9]+/i','-', strtolower($s))), '-');
 }
 function checked($a,$b,$c=true){return '';} function mysql2date($f,$d,$t=true){return date($f, strtotime($d));}
@@ -36,81 +35,73 @@ function wpautop($s){return "<p>$s</p>";} function is_wp_error($x){return false;
 function current_user_can($c){return true;} function check_admin_referer($a){return true;}
 function admin_url($p=''){return 'https://cms/wp-admin/'.$p;} function wp_nonce_url($u,$a){return $u;}
 function get_edit_post_link($id){return "https://cms/wp-admin/post.php?post=$id";}
-function get_page_by_path($slug,$o=null,$t=null){
-    foreach ($GLOBALS['__posts'] as $p) { if ('page'===$p->post_type && $p->post_name===$slug) return $p; }
-    return null;
-}
 function maybe_unserialize($v){return $v;}
 class Redirecionou extends Exception {}
 function wp_safe_redirect($u){$GLOBALS['__saida']=$u;throw new Redirecionou($u);}
+function wp_trash_post($id){$GLOBALS['__lixo'][]=$id; unset($GLOBALS['__posts'][$id]); return true;}
 if(!defined('OBJECT')) define('OBJECT','OBJECT');
 
-function criar_post($tipo,$titulo,$conteudo='',$slug=null,$ordem=0,$metas=[],$lang=null){
+function criar_post($tipo,$titulo,$conteudo='',$slug=null,$ordem=0,$metas=[]){
     $p = new stdClass;
     $p->ID = ++$GLOBALS['__id'];
-    $p->post_type = $tipo; $p->post_title = $titulo; $p->post_content = $conteudo;
-    $p->post_excerpt = ''; $p->post_status = 'publish';
-    $p->post_name = $slug ?? sanitize_title($titulo);
-    $p->menu_order = $ordem;
-    $p->post_date = '2026-01-01 10:00:00'; $p->post_modified_gmt = '2026-01-01 10:00:00';
-    $GLOBALS['__posts'][$p->ID] = $p;
-    foreach ($metas as $k=>$v) { $GLOBALS['__meta'][$p->ID][$k] = $v; }
-    if ($lang) { $GLOBALS['__meta'][$p->ID]['stcms_lang'] = $lang; }
+    $p->post_type=$tipo; $p->post_title=$titulo; $p->post_content=$conteudo; $p->post_excerpt='';
+    $p->post_status='publish'; $p->post_name=$slug ?? sanitize_title($titulo); $p->menu_order=$ordem;
+    $p->post_date='2026-01-01 10:00:00'; $p->post_modified_gmt='2026-01-01 10:00:00'; $p->post_author=1;
+    $GLOBALS['__posts'][$p->ID]=$p;
+    foreach ($metas as $k=>$v) { $GLOBALS['__meta'][$p->ID][$k]=$v; }
     return $p->ID;
 }
 function wp_insert_post($a){
     $id = criar_post($a['post_type'],$a['post_title'],$a['post_content']??'',$a['post_name']??null,$a['menu_order']??0);
     $GLOBALS['__posts'][$id]->post_excerpt = $a['post_excerpt'] ?? '';
-    if (!empty($a['post_date'])) { $GLOBALS['__posts'][$id]->post_date = $a['post_date']; }
     return $id;
 }
+function get_post($id){return $GLOBALS['__posts'][$id] ?? null;}
+function get_page_by_path($slug,$o=null,$t=null){
+    foreach ($GLOBALS['__posts'] as $p) { if ($p->post_name===$slug && (null===$t || $p->post_type===$t || 'page'===$p->post_type)) return $p; }
+    return null;
+}
 function update_post_meta($id,$k,$v){$GLOBALS['__meta'][$id][$k]=$v;return true;}
+function delete_post_meta($id,$k){unset($GLOBALS['__meta'][$id][$k]);return true;}
 function get_post_meta($id,$k='',$s=true){
-    if ('' === $k) { // formato do get_post_meta($id) sem chave: [chave => [valor]]
-        $out=[]; foreach ($GLOBALS['__meta'][$id]??[] as $ck=>$cv) { $out[$ck]=[$cv]; } return $out;
-    }
+    if ('' === $k) { $out=[]; foreach ($GLOBALS['__meta'][$id]??[] as $ck=>$cv) { $out[$ck]=[$cv]; } return $out; }
     return $GLOBALS['__meta'][$id][$k] ?? '';
 }
 function get_post_field($campo,$id){return $GLOBALS['__posts'][$id]->$campo ?? '';}
 function get_post_thumbnail_id($id){return $GLOBALS['__capa'][$id] ?? 0;}
-function set_post_thumbnail($id,$att){$GLOBALS['__capa'][$id]=$att;return true;}
 function get_the_post_thumbnail_url($p,$s=null){$id=is_object($p)?$p->ID:$p;return ($GLOBALS['__capa'][$id]??0)?"https://cms/img/{$GLOBALS['__capa'][$id]}.jpg":'';}
 function get_the_title($p){return is_object($p)?$p->post_title:($GLOBALS['__posts'][$p]->post_title??'');}
-function wp_get_post_categories($id){return $GLOBALS['__cats'][$id] ?? [];}
-function wp_set_post_categories($id,$c){$GLOBALS['__cats'][$id]=$c;return true;}
-function wp_get_post_tags($id,$a=[]){return [];} function wp_set_post_tags($id,$t){return true;}
-function get_the_category($id){return [];}
+function get_the_category($id){return [];} function wp_get_post_categories($id){return $GLOBALS['__cats'][$id] ?? [];}
+function has_excerpt($p){return false;} function get_the_excerpt($p){return '';}
+function wp_trim_words($t,$n=55,$m='…'){$w=preg_split('/\s+/', strip_tags((string)$t)); return count($w)>$n ? implode(' ', array_slice($w,0,$n)).$m : implode(' ', $w);}
+function get_the_date($f,$p){return '01 Jan 2026';} function get_the_author_meta($c,$u){return 'Studio Tabi';}
+function get_avatar_url($u,$a=[]){return '';} function get_the_tags($id){return [];}
 
 function get_posts($a){
-    $tipo = $a['post_type'] ?? 'post';
-    $mq   = $a['meta_query'] ?? [];
-    $out  = [];
+    $tipos = (array) ($a['post_type'] ?? 'post');
+    $mq    = $a['meta_query'] ?? [];
+    $out   = [];
     foreach ($GLOBALS['__posts'] as $p) {
-        if ('any' !== $tipo && $p->post_type !== $tipo) { continue; }
+        if (!in_array($p->post_type, $tipos, true) && !in_array('any', $tipos, true)) { continue; }
         if ($mq && ! meta_bate($p->ID, $mq)) { continue; }
         $out[] = $p;
     }
     usort($out, fn($a,$b) => [$a->menu_order,$a->ID] <=> [$b->menu_order,$b->ID]);
-    if (!empty($a['numberposts']) && $a['numberposts'] > 0) { $out = array_slice($out, 0, $a['numberposts']); }
     if (($a['fields'] ?? '') === 'ids') { return array_map(fn($p)=>$p->ID, $out); }
     return $out;
 }
-function meta_bate($id, $mq){
-    $relacao = strtoupper($mq['relation'] ?? 'AND');
-    $clausulas = array_filter($mq, 'is_array');
-    $resultados = [];
-    foreach ($clausulas as $c) {
-        $valor   = $GLOBALS['__meta'][$id][$c['key']] ?? null;
-        $compare = $c['compare'] ?? '=';
-        if ('NOT EXISTS' === $compare)      { $resultados[] = (null === $valor); }
-        elseif ('!=' === $compare)          { $resultados[] = (null !== $valor && $valor !== $c['value']); }
-        else                                { $resultados[] = ((string) $valor === (string) $c['value']); }
+function meta_bate($id,$mq){
+    foreach (array_filter($mq,'is_array') as $c) {
+        $valor = $GLOBALS['__meta'][$id][$c['key']] ?? null;
+        if (($c['compare'] ?? '=') === 'EXISTS') { if (null === $valor) return false; }
+        elseif ((string)$valor !== (string)($c['value'] ?? '')) { return false; }
     }
-    if (!$resultados) { return true; }
-    return 'OR' === $relacao ? in_array(true, $resultados, true) : ! in_array(false, $resultados, true);
+    return true;
 }
 class WP_REST_Response{public $data;public $status;function __construct($d,$s=200){$this->data=$d;$this->status=$s;}}
 class WP_REST_Request{private $p;function __construct($p=[]){$this->p=$p;} function get_json_params(){return $this->p;} function get_params(){return $this->p;} function get_param($k){return $this->p[$k]??null;}}
+class WP_Query{public $posts=[];public $found_posts=0;public $max_num_pages=0;function __construct($a){$this->posts=get_posts($a+['numberposts'=>-1]);$this->found_posts=count($this->posts);$this->max_num_pages=1;}}
+function wp_reset_postdata(){}
 
 require_once "$P/includes/defaults.php"; require_once "$P/includes/class-options.php";
 require_once "$P/includes/class-traducao.php"; require_once "$P/includes/class-rest.php";
@@ -122,10 +113,10 @@ function achar($tipo,$titulo){foreach($GLOBALS['__posts'] as $p){if($p->post_typ
 // Conteúdo de partida: o que o plugin instala + um serviço escrito pelo autor.
 $ordem = 0;
 foreach (stcms_default_services() as $s) {
-    criar_post('st_service', $s['title'], $s['content'] ?? $s['body'], null, $ordem++, ['stcms_num'=>$s['num'], 'stcms_page_content'=>$s['content'] ?? '']);
+    criar_post('st_service', $s['title'], $s['body'], null, $ordem++, ['stcms_num'=>$s['num'], 'stcms_page_content'=>$s['content'] ?? '']);
 }
-$proprio = criar_post('st_service','Consultoria de SEO','<p>Auditoria técnica e plano de conteúdo.</p>',null,99,['stcms_num'=>'07','stcms_page_content'=>'<p>Auditoria técnica e plano de conteúdo.</p>']);
-$GLOBALS['__capa'][$proprio] = 555;
+$meu = criar_post('st_service','Consultoria de SEO','Auditoria técnica e plano de conteúdo.',null,99,['stcms_num'=>'07']);
+$GLOBALS['__capa'][$meu] = 555;
 
 $ordem = 0;
 foreach (stcms_default_faq() as $f) { criar_post('st_faq', $f['q'], $f['a'], null, $ordem++); }
@@ -142,97 +133,104 @@ foreach (stcms_default_projects() as $p) {
         'stcms_results'=>$p['results'],
     ]);
 }
-$artigo = criar_post('post','Presença digital não é custo — é ativo estratégico','<p>Texto original.</p>',null,0);
-$GLOBALS['__cats'][$artigo] = [7];
-$GLOBALS['__capa'][$artigo]  = 900;
+$artigo = criar_post('post','Presença digital não é custo — é ativo estratégico','<p>Texto original.</p>');
+criar_post('page','Diagnóstico','<p>Mergulhamos no negócio.</p>','diagnostico');
+$total_inicial = count($GLOBALS['__posts']);
 
-$antes = count($GLOBALS['__posts']);
-
-echo "== Antes de traduzir ==\n";
-$pend = STCMS_Traducao::pendentes();
-ok('7 serviços pendentes', 7 === $pend['st_service'], (string) $pend['st_service']);
-ok('6 FAQs pendentes', 6 === $pend['st_faq'], (string) $pend['st_faq']);
-ok('4 projetos pendentes', 4 === $pend['st_project'], (string) $pend['st_project']);
-ok('1 artigo pendente', 1 === $pend['post'], (string) $pend['post']);
-
-echo "== Executa a criação ==\n";
-$_GET = ['stcms_traduzir'=>'1'];
-try { STCMS_Traducao::maybe_criar(); } catch (Redirecionou $e) {}
+echo "== O conteúdo é um só: nada é duplicado ==\n";
+$_GET = ['stcms_preencher_en'=>'1'];
+try { STCMS_Traducao::maybe_preencher(); } catch (Redirecionou $e) {}
 $_GET = [];
-ok('18 itens criados', count($GLOBALS['__posts']) - $antes === 18, (string) (count($GLOBALS['__posts']) - $antes));
-ok('volta para a aba en', str_contains((string) $GLOBALS['__saida'], 'stcms_lang=en&stcms_traduzidos=18'), (string) $GLOBALS['__saida']);
+ok('nenhum post criado', count($GLOBALS['__posts']) === $total_inicial, count($GLOBALS['__posts']).' de '.$total_inicial);
+ok('volta para a aba en', str_contains((string) $GLOBALS['__saida'], 'stcms_lang=en&stcms_preenchidos='), (string) $GLOBALS['__saida']);
 
-echo "== Conteúdo padrão sai traduzido ==\n";
-$svc = achar('st_service','Branding & Visual Identity');
-ok('serviço traduzido existe', null !== $svc);
-ok('slug com -en', $svc && 'branding-identidade-visual-en' === $svc->post_name, $svc->post_name ?? '—');
-ok('marcado como en', $svc && 'en' === get_post_meta($svc->ID,'stcms_lang'));
-ok('texto da página interna traduzido', $svc && str_contains(get_post_meta($svc->ID,'stcms_page_content'), 'A brand is not a logo'));
-ok('número preservado', $svc && '01' === get_post_meta($svc->ID,'stcms_num'), get_post_meta($svc->ID ?? 0,'stcms_num'));
+echo "== A tradução fica em metas do próprio item ==\n";
+$svc = achar('st_service','Branding & Identidade Visual');
+ok('título em inglês guardado no próprio serviço', 'Branding & Visual Identity' === get_post_meta($svc->ID,'stcms_en_title'), get_post_meta($svc->ID,'stcms_en_title'));
+ok('página interna traduzida', str_contains((string) get_post_meta($svc->ID,'stcms_en_page_content'), 'A brand is not a logo'));
+ok('título em português intacto', 'Branding & Identidade Visual' === $svc->post_title, $svc->post_title);
+ok('slug intacto', 'branding-identidade-visual' === $svc->post_name, $svc->post_name);
 
-$faq = achar('st_faq','How does the process work?');
-ok('FAQ traduzido', null !== $faq && str_contains($faq->post_content, 'in-depth diagnosis'));
+$pag = achar('page','Diagnóstico');
+ok('página de processo traduzida no lugar', 'Diagnosis' === get_post_meta($pag->ID,'stcms_en_title'), get_post_meta($pag->ID,'stcms_en_title'));
 
-$proj = achar('st_project','Nuvem Finance');
-$projs_en = array_values(array_filter($GLOBALS['__posts'], fn($p)=>'st_project'===$p->post_type && 'en'===get_post_meta($p->ID,'stcms_lang')));
-$pen = $projs_en[0] ?? null;
-ok('projeto: categoria traduzida', $pen && 'Branding & UI' === get_post_meta($pen->ID,'stcms_category'), get_post_meta($pen->ID ?? 0,'stcms_category'));
-ok('projeto: duração traduzida', $pen && '14 weeks' === get_post_meta($pen->ID,'stcms_duration'), get_post_meta($pen->ID ?? 0,'stcms_duration'));
-ok('projeto: desafio traduzido', $pen && str_contains(get_post_meta($pen->ID,'stcms_challenge'), 'yet another generic fintech'));
-ok('projeto: escopo em formato de linhas', $pen && (get_post_meta($pen->ID,'stcms_scope')[0]['item'] ?? '') === 'Visual Identity', json_encode(get_post_meta($pen->ID ?? 0,'stcms_scope')[0] ?? null));
-ok('projeto: cor preservada', $pen && '#F20C25' === get_post_meta($pen->ID,'stcms_accent'), get_post_meta($pen->ID ?? 0,'stcms_accent'));
-
-$art = achar('post','Digital presence is not a cost — it is a strategic asset');
-ok('artigo traduzido', null !== $art && str_contains($art->post_content, 'expensive mistake'));
-ok('artigo mantém a categoria', $art && [7] === wp_get_post_categories($art->ID));
-ok('artigo mantém a imagem de capa', $art && 900 === get_post_thumbnail_id($art->ID));
-
-echo "== Conteúdo do autor é duplicado para tradução manual ==\n";
-$meu = achar('st_service','Consultoria de SEO');
-$meus = array_values(array_filter($GLOBALS['__posts'], fn($p)=>'st_service'===$p->post_type && 'Consultoria de SEO'===$p->post_title));
-ok('gerou a cópia', 2 === count($meus), (string) count($meus));
-$copia = $meus[1] ?? null;
-ok('cópia marcada como en', $copia && 'en' === get_post_meta($copia->ID,'stcms_lang'));
-ok('cópia mantém o texto original', $copia && str_contains($copia->post_content, 'Auditoria técnica'));
-ok('cópia mantém a imagem de capa', $copia && 555 === get_post_thumbnail_id($copia->ID));
-ok('cópia mantém o número', $copia && '07' === get_post_meta($copia->ID,'stcms_num'), get_post_meta($copia->ID ?? 0,'stcms_num'));
-
-echo "== Idempotência ==\n";
-$agora = count($GLOBALS['__posts']);
-$_GET = ['stcms_traduzir'=>'1'];
-try { STCMS_Traducao::maybe_criar(); } catch (Redirecionou $e) {}
-$_GET = [];
-ok('rodar de novo não cria nada', count($GLOBALS['__posts']) === $agora, (string) (count($GLOBALS['__posts']) - $agora));
-$pend = STCMS_Traducao::pendentes();
-ok('nada mais pendente', 0 === array_sum($pend), json_encode($pend));
-
-echo "== A API separa os idiomas ==\n";
+echo "== A API troca o texto e mantém a mesma quantidade de itens ==\n";
 $pt = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'pt']))->data;
 $en = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'en']))->data;
-ok('PT com 7 serviços', 7 === count($pt['services']), (string) count($pt['services']));
-ok('EN com 7 serviços', 7 === count($en['services']), (string) count($en['services']));
-ok('PT em português', 'Branding & Identidade Visual' === $pt['services'][0]['title'], $pt['services'][0]['title']);
-ok('EN em inglês', 'Branding & Visual Identity' === $en['services'][0]['title'], $en['services'][0]['title']);
-ok('FAQ PT em português', str_starts_with($pt['faq'][0]['q'], 'Como funciona'), $pt['faq'][0]['q']);
-ok('FAQ EN em inglês', str_starts_with($en['faq'][0]['q'], 'How does the process'), $en['faq'][0]['q']);
-ok('projetos separados', 4 === count($pt['projects']) && 4 === count($en['projects']), count($pt['projects']).'/'.count($en['projects']));
+ok('mesma contagem de serviços', count($pt['services']) === count($en['services']) && 7 === count($pt['services']), count($pt['services']).'/'.count($en['services']));
+ok('mesma contagem de FAQ', count($pt['faq']) === count($en['faq']) && 6 === count($pt['faq']), count($pt['faq']).'/'.count($en['faq']));
+ok('mesma contagem de projetos', count($pt['projects']) === count($en['projects']) && 4 === count($pt['projects']));
+ok('serviço PT', 'Branding & Identidade Visual' === $pt['services'][0]['title'], $pt['services'][0]['title']);
+ok('serviço EN', 'Branding & Visual Identity' === $en['services'][0]['title'], $en['services'][0]['title']);
+ok('mesmo slug nos dois idiomas', $pt['services'][0]['slug'] === $en['services'][0]['slug'], $en['services'][0]['slug']);
+ok('FAQ PT', str_starts_with($pt['faq'][0]['q'], 'Como funciona'), $pt['faq'][0]['q']);
+ok('FAQ EN', str_starts_with($en['faq'][0]['q'], 'How does the process'), $en['faq'][0]['q']);
+ok('projeto: categoria EN', 'Branding & UI' === $en['projects'][0]['category'], $en['projects'][0]['category']);
+ok('projeto: duração EN', '14 weeks' === $en['projects'][0]['detail']['duration'], $en['projects'][0]['detail']['duration']);
+ok('projeto: escopo EN', 'Visual Identity' === $en['projects'][0]['detail']['scope'][0], $en['projects'][0]['detail']['scope'][0]);
+ok('projeto: escopo mantém o tamanho', count($pt['projects'][0]['detail']['scope']) === count($en['projects'][0]['detail']['scope']));
+ok('projeto: rótulo do resultado EN', 'Increase in conversion' === $en['projects'][0]['detail']['results'][0]['label'], $en['projects'][0]['detail']['results'][0]['label']);
+ok('projeto: valor do resultado preservado', $pt['projects'][0]['detail']['results'][0]['value'] === $en['projects'][0]['detail']['results'][0]['value'], $en['projects'][0]['detail']['results'][0]['value']);
+ok('projeto: nome não traduzido', $pt['projects'][0]['name'] === $en['projects'][0]['name'], $en['projects'][0]['name']);
 
-echo "== Sitemap declara hreflang recíproco no conteúdo traduzido ==\n";
+echo "== Campo sem tradução cai no português ==\n";
+$meuPt = null; $meuEn = null;
+foreach ($pt['services'] as $s) { if ('consultoria-de-seo' === $s['slug']) $meuPt = $s; }
+foreach ($en['services'] as $s) { if ('consultoria-de-seo' === $s['slug']) $meuEn = $s; }
+ok('serviço do autor aparece nos dois', $meuPt && $meuEn);
+ok('mostra o texto em português', $meuEn && 'Consultoria de SEO' === $meuEn['title'], $meuEn['title'] ?? '—');
+
+echo "== Página e artigo servem os dois idiomas ==\n";
+$pgPt = STCMS_Rest::get_page(new WP_REST_Request(['slug'=>'diagnostico','lang'=>'pt']))->data;
+$pgEn = STCMS_Rest::get_page(new WP_REST_Request(['slug'=>'diagnostico','lang'=>'en']))->data;
+ok('mesma URL, títulos diferentes', 'Diagnóstico' === $pgPt['title'] && 'Diagnosis' === $pgEn['title'], $pgPt['title'].' / '.$pgEn['title']);
+ok('mesmo slug', $pgPt['slug'] === $pgEn['slug'], $pgEn['slug']);
+$artPt = STCMS_Rest::get_single_post(new WP_REST_Request(['slug'=>$GLOBALS['__posts'][$artigo]->post_name,'lang'=>'pt']))->data;
+$artEn = STCMS_Rest::get_single_post(new WP_REST_Request(['slug'=>$GLOBALS['__posts'][$artigo]->post_name,'lang'=>'en']))->data;
+ok('artigo PT', str_contains($artPt['title'], 'Presença digital'), $artPt['title']);
+ok('artigo EN', str_contains($artEn['title'], 'Digital presence'), $artEn['title']);
+
+echo "== Idempotência e respeito ao que o autor escreveu ==\n";
+update_post_meta($svc->ID, 'stcms_en_title', 'My own English title');
+$_GET = ['stcms_preencher_en'=>'1'];
+try { STCMS_Traducao::maybe_preencher(); } catch (Redirecionou $e) {}
+$_GET = [];
+ok('não sobrescreve tradução existente', 'My own English title' === get_post_meta($svc->ID,'stcms_en_title'), get_post_meta($svc->ID,'stcms_en_title'));
+ok('continua sem criar posts', count($GLOBALS['__posts']) === $total_inicial, (string) count($GLOBALS['__posts']));
+update_post_meta($svc->ID, 'stcms_en_title', 'Branding & Visual Identity');
+
+echo "== Sitemap: hreflang recíproco só onde há tradução ==\n";
 $xml = STCMS_Rest::get_sitemap()->data['xml'];
-ok('serviço PT listado', str_contains($xml, '<loc>https://studiotabi.com.br/servicos/branding-identidade-visual</loc>'));
-ok('serviço EN listado', str_contains($xml, '<loc>https://studiotabi.com.br/en/services/branding-identidade-visual-en</loc>'));
-ok('alternate PT->EN', str_contains($xml, '<xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/services/branding-identidade-visual-en"/>'));
-ok('alternate EN->PT', str_contains($xml, '<xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/servicos/branding-identidade-visual"/>'));
-ok('x-default aponta para o PT', substr_count($xml, 'hreflang="x-default" href="https://studiotabi.com.br/servicos/branding-identidade-visual"') >= 2);
-ok('artigo com alternate', str_contains($xml, 'hreflang="en" href="https://studiotabi.com.br/en/blog/presenca-digital-nao-e-custo-e-ativo-estrategico-en"'));
+ok('serviço traduzido: as duas URLs', str_contains($xml,'<loc>https://studiotabi.com.br/servicos/branding-identidade-visual</loc>') && str_contains($xml,'<loc>https://studiotabi.com.br/en/services/branding-identidade-visual</loc>'));
+ok('alternate recíproco', str_contains($xml,'hreflang="en" href="https://studiotabi.com.br/en/services/branding-identidade-visual"') && str_contains($xml,'hreflang="pt-BR" href="https://studiotabi.com.br/servicos/branding-identidade-visual"'));
+ok('serviço sem tradução: só a URL em português', str_contains($xml,'<loc>https://studiotabi.com.br/servicos/consultoria-de-seo</loc>') && ! str_contains($xml,'/en/services/consultoria-de-seo'));
+ok('etapa de processo traduzida entra no /en', str_contains($xml,'<loc>https://studiotabi.com.br/en/process/diagnostico</loc>'));
+ok('artigo traduzido entra no /en', str_contains($xml,'/en/blog/presenca-digital-nao-e-custo-e-ativo-estrategico'));
 ok('XML bem formado', (bool) @simplexml_load_string($xml));
 
-echo "== Item sem tradução não ganha alternate inventado ==\n";
-$novo = criar_post('st_service','Serviço novo sem tradução','<p>x</p>',null,120,['stcms_num'=>'08']);
-$xml = STCMS_Rest::get_sitemap()->data['xml'];
-ok('listado só em PT', str_contains($xml, '<loc>https://studiotabi.com.br/servicos/servico-novo-sem-traducao</loc>'));
-ok('sem alternate', ! str_contains($xml, 'href="https://studiotabi.com.br/en/services/servico-novo-sem-traducao'));
-ok('volta a aparecer como pendente', 1 === STCMS_Traducao::pendentes()['st_service']);
+echo "== Desfaz as duplicatas da versão anterior ==\n";
+$copia = criar_post('st_service','Branding & Visual Identity','Brand systems that communicate.',null,0,[
+    'stcms_traducao_de' => (string) $svc->ID, 'stcms_lang' => 'en', 'stcms_num' => '01',
+]);
+$copiaFaq = criar_post('st_faq','How does the process work?','We start with a diagnosis.',null,0,[
+    'stcms_traducao_de' => (string) achar('st_faq','Como funciona o processo de trabalho?')->ID, 'stcms_lang' => 'en',
+]);
+delete_post_meta($svc->ID, 'stcms_en_title');
+ok('2 duplicatas detectadas', 2 === count(STCMS_Traducao::duplicatas()), (string) count(STCMS_Traducao::duplicatas()));
+
+$_GET = ['stcms_limpar_duplicatas'=>'1'];
+try { STCMS_Traducao::maybe_limpar_duplicatas(); } catch (Redirecionou $e) {}
+$_GET = [];
+ok('duplicatas foram para a lixeira', 2 === count($GLOBALS['__lixo']), (string) count($GLOBALS['__lixo']));
+ok('nenhuma duplicata restante', 0 === count(STCMS_Traducao::duplicatas()));
+ok('texto da cópia foi aproveitado', 'Branding & Visual Identity' === get_post_meta($svc->ID,'stcms_en_title'), get_post_meta($svc->ID,'stcms_en_title'));
+ok('meta de idioma antiga removida', '' === (string) get_post_meta($svc->ID,'stcms_lang'));
+ok('total volta ao original', count($GLOBALS['__posts']) === $total_inicial, count($GLOBALS['__posts']).' de '.$total_inicial);
+
+$en = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'en']))->data;
+$pt = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'pt']))->data;
+ok('API sem duplicatas depois da limpeza', 7 === count($pt['services']) && 7 === count($en['services']), count($pt['services']).'/'.count($en['services']));
+ok('FAQ sem duplicatas', 6 === count($pt['faq']) && 6 === count($en['faq']), count($pt['faq']).'/'.count($en['faq']));
 
 echo "\n$ok passaram, $ko falharam\n";
 exit($ko ? 1 : 0);

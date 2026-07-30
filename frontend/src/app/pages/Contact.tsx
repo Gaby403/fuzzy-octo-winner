@@ -15,7 +15,7 @@ const FONT_BODY = '"Be Vietnam Pro", sans-serif';
 export default function Contact() {
     const { content } = useContent();
     const navigate = useNavigate();
-    const { t, rota } = useLocale();
+    const { t, rota, locale } = useLocale();
     const f = content.footer;
     const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
     const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle");
@@ -32,7 +32,7 @@ export default function Contact() {
         setState("sending");
         setFeedback("");
         const recaptchaToken = await getRecaptchaToken(content.site.recaptchaSite, "contact");
-        const res = await submitContact({ ...form, recaptchaToken });
+        const res = await submitContact({ ...form, recaptchaToken }, locale);
         if (res.ok) {
             setState("ok");
             setForm({ name: "", email: "", subject: "", message: "", website: "" });
@@ -106,7 +106,7 @@ export default function Contact() {
           </div>
           <div>
             <label style={label} htmlFor="c-email">{t("form.email")}</label>
-            <input id="c-email" style={field} type="email" value={form.email} onChange={set("email")} required placeholder="voce@email.com" autoComplete="email"/>
+            <input id="c-email" style={field} type="email" value={form.email} onChange={set("email")} required placeholder={t("form.exemploEmail")} autoComplete="email"/>
           </div>
           <div>
             <label style={label} htmlFor="c-subject">{t("form.assunto")}</label>

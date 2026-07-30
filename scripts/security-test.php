@@ -18,10 +18,12 @@ function esc_html($s){return $s;} function esc_attr($s){return $s;} function get
 function wp_get_attachment_image_url($i,$s=null){return '';} function get_posts($a){return [];}
 function get_bloginfo($x=''){return 'Studio Tabi';} function wp_mail($a,$b,$c,$d=[]){return true;}
 function get_the_post_thumbnail_url($p,$s=null){return '';} function get_the_title($p){return '';}
+function get_post($id){return $GLOBALS['__posts'][$id] ?? null;}
+function delete_post_meta($id,$k){return true;}
 if(!defined('OBJECT')) define('OBJECT','OBJECT');
 class WP_REST_Response{public $data;public $status;function __construct($d,$s=200){$this->data=$d;$this->status=$s;}}
 class WP_REST_Request{private $j;function __construct($j){$this->j=$j;} function get_json_params(){return $this->j;} function get_params(){return $this->j;} function get_param($k){return $this->j[$k]??null;}}
-require_once "$P/includes/defaults.php"; require_once "$P/includes/class-options.php"; require_once "$P/includes/class-rest.php";
+require_once "$P/includes/defaults.php"; require_once "$P/includes/class-options.php"; require_once "$P/includes/class-traducao.php"; require_once "$P/includes/class-rest.php";
 
 $payload=['name'=>'Ana','email'=>'ana@exemplo.com','subject'=>'Oi','message'=>'Teste de mensagem'];
 echo "== Origem não autorizada ==\n";

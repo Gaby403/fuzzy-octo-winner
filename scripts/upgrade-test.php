@@ -70,8 +70,11 @@ class WP_Query {
 
 /* ------------------------------------------------ carrega o código real do plugin */
 
+function get_post($id){return $GLOBALS['__posts'][$id] ?? null;}
+function delete_post_meta($id,$k){return true;}
 require_once "$PLUGIN/includes/defaults.php";
 require_once "$PLUGIN/includes/class-options.php";
+require_once "$PLUGIN/includes/class-traducao.php";
 require_once "$PLUGIN/includes/class-rest.php";
 
 /* ---------------------------------------------------------- semeia como a ativação */

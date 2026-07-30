@@ -1,4 +1,5 @@
 import { WP_API } from "./content";
+import { traduzir } from "../i18n/dicionario";
 export interface BlogCategory {
     name: string;
     slug: string;
@@ -88,12 +89,12 @@ export async function fetchCategories(lang: "pt" | "en" = "pt"): Promise<BlogCat
         return [];
     }
 }
-export async function subscribeNewsletter(email: string, recaptchaToken = ""): Promise<{
+export async function subscribeNewsletter(email: string, recaptchaToken = "", lang: "pt" | "en" = "pt"): Promise<{
     ok: boolean;
     message: string;
 }> {
     if (!WP_API)
-        return { ok: false, message: "Newsletter indisponível: configure o WordPress em config.js." };
+        return { ok: false, message: traduzir(lang, "news.indisponivel") };
     try {
         const res = await fetch(`${WP_API}${NS}/subscribe`, {
             method: "POST",
@@ -105,10 +106,10 @@ export async function subscribeNewsletter(email: string, recaptchaToken = ""): P
             message?: string;
         };
         if (!res.ok || !data.ok)
-            return { ok: false, message: data.message || "Não foi possível inscrever agora." };
-        return { ok: true, message: data.message || "Inscrição confirmada!" };
+            return { ok: false, message: data.message || traduzir(lang, "news.naoInscreveu") };
+        return { ok: true, message: data.message || traduzir(lang, "news.confirmado") };
     }
     catch {
-        return { ok: false, message: "Falha de conexão. Tente novamente." };
+        return { ok: false, message: traduzir(lang, "news.semConexao") };
     }
 }

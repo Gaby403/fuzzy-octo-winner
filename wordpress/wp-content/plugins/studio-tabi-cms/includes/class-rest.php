@@ -346,8 +346,9 @@ class STCMS_Rest {
 
 		$q     = new WP_Query( $args );
 		$items = array();
+		$lang = self::req_lang( $req );
 		foreach ( $q->posts as $p ) {
-			$items[] = self::post_card( $p );
+			$items[] = self::post_card( $p, $lang );
 		}
 		wp_reset_postdata();
 
@@ -363,18 +364,23 @@ class STCMS_Rest {
 		);
 	}
 
-	private static function post_card( $p ) {
+	private static function post_card( $p, $lang = 'pt' ) {
 		$cats = array();
 		foreach ( (array) get_the_category( $p->ID ) as $c ) {
 			$cats[] = array( 'name' => self::decode( $c->name ), 'slug' => $c->slug );
 		}
-		$plain = wp_strip_all_tags( $p->post_content );
+		$corpo = (string) STCMS_Traducao::texto( $p, 'body', $lang );
+		$plain = wp_strip_all_tags( $corpo );
 		$words = str_word_count( $plain );
+		$resumo = (string) STCMS_Traducao::texto( $p, 'excerpt', $lang );
+		if ( '' === trim( $resumo ) ) {
+			$resumo = has_excerpt( $p ) ? get_the_excerpt( $p ) : $plain;
+		}
 		return array(
 			'id'          => $p->ID,
 			'slug'        => $p->post_name,
-			'title'       => self::title( $p ),
-			'excerpt'     => self::decode( wp_trim_words( has_excerpt( $p ) ? get_the_excerpt( $p ) : $plain, 26, '…' ) ),
+			'title'       => self::decode( STCMS_Traducao::texto( $p, 'title', $lang ) ),
+			'excerpt'     => self::decode( wp_trim_words( $resumo, 26, '…' ) ),
 			'date'        => get_the_date( 'j M Y', $p ),
 			'dateISO'     => get_the_date( 'c', $p ),
 			'author'      => self::decode( get_the_author_meta( 'display_name', $p->post_author ) ),
@@ -386,12 +392,13 @@ class STCMS_Rest {
 
 	public static function get_single_post( WP_REST_Request $req ) {
 		$slug = $req->get_param( 'slug' );
+		$lang = self::req_lang( $req );
 		$post = get_page_by_path( $slug, OBJECT, 'post' );
 		if ( ! $post || 'publish' !== $post->post_status ) {
 			return new WP_REST_Response( array( 'message' => 'Artigo não encontrado.' ), 404 );
 		}
 
-		$card = self::post_card( $post );
+		$card = self::post_card( $post, $lang );
 
 		$cat_ids = wp_get_post_categories( $post->ID );
 		$related = array();
@@ -408,7 +415,7 @@ class STCMS_Rest {
 				)
 			);
 			foreach ( $rq->posts as $rp ) {
-				$related[] = self::post_card( $rp );
+				$related[] = self::post_card( $rp, $lang );
 			}
 			wp_reset_postdata();
 		}
@@ -421,7 +428,7 @@ class STCMS_Rest {
 		$data = array_merge(
 			$card,
 			array(
-				'content'      => apply_filters( 'the_content', $post->post_content ),
+				'content'      => apply_filters( 'the_content', STCMS_Traducao::texto( $post, 'body', $lang ) ),
 				'tags'         => $tags,
 				'authorBio'    => self::decode( get_the_author_meta( 'description', $post->post_author ) ),
 				'authorAvatar' => get_avatar_url( $post->post_author, array( 'size' => 96 ) ),
@@ -468,17 +475,6 @@ class STCMS_Rest {
 			wp_mail( self::form_recipient(), '[' . get_bloginfo( 'name' ) . '] Nova inscrição na newsletter', "Novo e-mail inscrito: {$email}" );
 		}
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Inscrição confirmada! Obrigado.' ), 200 );
-	}
-
-	private static function meta_lang( $lang ) {
-		if ( 'en' !== $lang ) {
-			return array(
-				'relation' => 'OR',
-				array( 'key' => 'stcms_lang', 'value' => 'en', 'compare' => '!=' ),
-				array( 'key' => 'stcms_lang', 'compare' => 'NOT EXISTS' ),
-			);
-		}
-		return array( array( 'key' => 'stcms_lang', 'value' => 'en' ) );
 	}
 
 	private static function client_ip() {
@@ -680,7 +676,6 @@ class STCMS_Rest {
 		$posts = get_posts(
 			array(
 				'post_type'   => 'st_service',
-				'meta_query'  => self::meta_lang( $lang ),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
 				'order'       => 'ASC',
@@ -689,12 +684,13 @@ class STCMS_Rest {
 		$out = array();
 		foreach ( $posts as $p ) {
 
-			$page = (string) get_post_meta( $p->ID, 'stcms_page_content', true );
-			$rich = '' !== trim( $page ) ? $page : $p->post_content;
+			$page = (string) STCMS_Traducao::texto( $p, 'page_content', $lang );
+			$body = (string) STCMS_Traducao::texto( $p, 'body', $lang );
+			$rich = '' !== trim( $page ) ? $page : $body;
 			$out[] = array(
 				'num'     => (string) get_post_meta( $p->ID, 'stcms_num', true ),
-				'title'   => self::title( $p ),
-				'body'    => self::plain( $p->post_content ),
+				'title'   => self::decode( STCMS_Traducao::texto( $p, 'title', $lang ) ),
+				'body'    => self::plain( $body ),
 				'slug'    => $p->post_name,
 				'content' => apply_filters( 'the_content', $rich ),
 
@@ -709,7 +705,6 @@ class STCMS_Rest {
 		$posts = get_posts(
 			array(
 				'post_type'   => 'st_faq',
-				'meta_query'  => self::meta_lang( $lang ),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
 				'order'       => 'ASC',
@@ -718,8 +713,8 @@ class STCMS_Rest {
 		$out = array();
 		foreach ( $posts as $p ) {
 			$out[] = array(
-				'q' => self::title( $p ),
-				'a' => self::plain( $p->post_content ),
+				'q' => self::decode( STCMS_Traducao::texto( $p, 'title', $lang ) ),
+				'a' => self::plain( STCMS_Traducao::texto( $p, 'body', $lang ) ),
 			);
 		}
 		return $out;
@@ -729,7 +724,6 @@ class STCMS_Rest {
 		$posts = get_posts(
 			array(
 				'post_type'   => 'st_project',
-				'meta_query'  => self::meta_lang( $lang ),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
 				'order'       => 'ASC',
@@ -738,25 +732,35 @@ class STCMS_Rest {
 		$out = array();
 		foreach ( $posts as $p ) {
 			$id      = $p->ID;
-			$scope   = self::flatten_rows( get_post_meta( $id, 'stcms_scope', true ), 'item' );
-			$mockup  = self::flatten_rows( get_post_meta( $id, 'stcms_mockup', true ), 'item' );
+			$scope   = STCMS_Traducao::lista( $p, 'scope', $lang, self::flatten_rows( get_post_meta( $id, 'stcms_scope', true ), 'item' ) );
+			$mockup  = STCMS_Traducao::lista( $p, 'mockup', $lang, self::flatten_rows( get_post_meta( $id, 'stcms_mockup', true ), 'item' ) );
 			$results = array();
+			$rotulos = array();
+			foreach ( (array) get_post_meta( $id, 'stcms_results', true ) as $r ) {
+				if ( ! is_array( $r ) ) {
+					continue;
+				}
+				$rotulos[] = isset( $r['label'] ) ? $r['label'] : '';
+			}
+			$rotulos = STCMS_Traducao::lista( $p, 'results', $lang, $rotulos );
+			$i = 0;
 			foreach ( (array) get_post_meta( $id, 'stcms_results', true ) as $r ) {
 				if ( ! is_array( $r ) ) {
 					continue;
 				}
 				$results[] = array(
-					'label' => isset( $r['label'] ) ? $r['label'] : '',
+					'label' => isset( $rotulos[ $i ] ) ? $rotulos[ $i ] : ( isset( $r['label'] ) ? $r['label'] : '' ),
 					'value' => isset( $r['value'] ) ? $r['value'] : '',
 				);
+				$i++;
 			}
 
 			$num = get_post_meta( $id, 'stcms_num', true );
 
 			$out[] = array(
 				'id'       => $num ? (string) $num : (string) $id,
-				'name'     => get_post_meta( $id, 'stcms_name', true ) ? get_post_meta( $id, 'stcms_name', true ) : self::title( $p ),
-				'category' => (string) get_post_meta( $id, 'stcms_category', true ),
+				'name'     => self::decode( STCMS_Traducao::texto( $p, 'title', $lang, get_post_meta( $id, 'stcms_name', true ) ? get_post_meta( $id, 'stcms_name', true ) : $p->post_title ) ),
+				'category' => (string) STCMS_Traducao::texto( $p, 'category', $lang ),
 				'year'     => (string) get_post_meta( $id, 'stcms_year', true ),
 				'bg'       => (string) get_post_meta( $id, 'stcms_bg', true ),
 				'accent'   => (string) get_post_meta( $id, 'stcms_accent', true ),
@@ -769,9 +773,9 @@ class STCMS_Rest {
 				'detail'   => array(
 					'client'      => (string) get_post_meta( $id, 'stcms_client', true ),
 					'scope'       => $scope,
-					'duration'    => (string) get_post_meta( $id, 'stcms_duration', true ),
-					'challenge'   => (string) get_post_meta( $id, 'stcms_challenge', true ),
-					'solution'    => (string) get_post_meta( $id, 'stcms_solution', true ),
+					'duration'    => (string) STCMS_Traducao::texto( $p, 'duration', $lang ),
+					'challenge'   => (string) STCMS_Traducao::texto( $p, 'challenge', $lang ),
+					'solution'    => (string) STCMS_Traducao::texto( $p, 'solution', $lang ),
 					'results'     => $results,
 					'mockupLines' => $mockup,
 				),
@@ -822,7 +826,6 @@ class STCMS_Rest {
 		$pages = get_posts(
 			array(
 				'post_type'   => 'page',
-				'meta_query'  => self::meta_lang( $lang ),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'title' => 'ASC' ),
 				'order'       => 'ASC',
@@ -844,7 +847,7 @@ class STCMS_Rest {
 			}
 			$out[] = array(
 				'slug'  => $p->post_name,
-				'title' => self::title( $p ),
+				'title' => self::decode( STCMS_Traducao::texto( $p, 'title', $lang ) ),
 			);
 		}
 		return $out;
@@ -857,29 +860,18 @@ class STCMS_Rest {
 	public static function get_page( WP_REST_Request $req ) {
 		$slug = $req->get_param( 'slug' );
 		$lang = self::req_lang( $req );
-		$page = self::pagina_do_idioma( $slug, $lang );
-		if ( ! $page ) {
+		$page = get_page_by_path( $slug, OBJECT, 'page' );
+		if ( ! $page || 'publish' !== $page->post_status ) {
 			return new WP_REST_Response( array( 'message' => 'Página não encontrada.' ), 404 );
 		}
 		return new WP_REST_Response(
 			array(
 				'slug'    => $page->post_name,
-				'title'   => self::title( $page ),
-				'content' => apply_filters( 'the_content', $page->post_content ),
+				'title'   => self::decode( STCMS_Traducao::texto( $page, 'title', $lang ) ),
+				'content' => apply_filters( 'the_content', STCMS_Traducao::texto( $page, 'body', $lang ) ),
 			),
 			200
 		);
-	}
-
-	private static function pagina_do_idioma( $slug, $lang = 'pt' ) {
-		if ( 'en' === $lang ) {
-			$en = get_page_by_path( $slug . '-en', OBJECT, 'page' );
-			if ( $en && 'publish' === $en->post_status ) {
-				return $en;
-			}
-		}
-		$page = get_page_by_path( $slug, OBJECT, 'page' );
-		return ( $page && 'publish' === $page->post_status ) ? $page : null;
 	}
 
 	private static function rotas_i18n() {
@@ -939,70 +931,100 @@ class STCMS_Rest {
 			}
 		}
 
-		// Pares PT/EN criados pelo tradutor: permitem hreflang recíproco no conteúdo.
-		$pares = array(
-			'st_service' => self::pares_traduzidos( 'st_service' ),
-			'post'       => self::pares_traduzidos( 'post' ),
-		);
+		$servicos_en = array();
+		foreach ( get_posts( array( 'post_type' => 'st_service', 'numberposts' => -1, 'post_status' => 'publish' ) ) as $sp ) {
+			$servicos_en[ $sp->post_name ] = STCMS_Traducao::tem_traducao( $sp );
+		}
 
-		foreach ( array( 'pt', 'en' ) as $lang ) {
-			foreach ( self::services( $lang ) as $s ) {
-				if ( empty( $s['slug'] ) ) {
-					continue;
-				}
+		// Um conteúdo serve os dois idiomas com o mesmo slug: quando existe
+		// tradução, as duas URLs se apontam; quando não existe, só a portuguesa entra.
+		$par = function ( $chave, $slug ) use ( $base ) {
+			$pt = self::rota( $base, 'pt', $chave, $slug );
+			$en = self::rota( $base, 'en', $chave, $slug );
+			return array( 'pt-BR' => $pt, 'en' => $en, 'x-default' => $pt );
+		};
+
+		foreach ( self::services( 'pt' ) as $i => $s ) {
+			if ( empty( $s['slug'] ) ) {
+				continue;
+			}
+			$traduzido = isset( $servicos_en[ $s['slug'] ] ) ? $servicos_en[ $s['slug'] ] : false;
+			$alts      = $traduzido ? $par( 'servico', $s['slug'] ) : array();
+			$urls[] = array(
+				'loc'        => self::rota( $base, 'pt', 'servico', $s['slug'] ),
+				'alternates' => $alts,
+				'priority'   => '0.7',
+				'changefreq' => 'monthly',
+			);
+			if ( $traduzido ) {
 				$urls[] = array(
-					'loc'        => self::rota( $base, $lang, 'servico', $s['slug'] ),
-					'alternates' => self::alternates( $base, 'servico', $s['slug'], $lang, $pares['st_service'] ),
+					'loc'        => self::rota( $base, 'en', 'servico', $s['slug'] ),
+					'alternates' => $alts,
 					'priority'   => '0.7',
 					'changefreq' => 'monthly',
 				);
 			}
+		}
 
-			foreach ( self::pages_list( $lang ) as $pg ) {
-				$urls[] = array(
-					'loc'        => self::rota( $base, $lang, 'pagina', $pg['slug'] ),
-					'alternates' => array(),
-					'priority'   => '0.3',
-					'changefreq' => 'yearly',
-				);
+		foreach ( self::pages_list( 'pt' ) as $pg ) {
+			$urls[] = array(
+				'loc'        => self::rota( $base, 'pt', 'pagina', $pg['slug'] ),
+				'alternates' => array(),
+				'priority'   => '0.3',
+				'changefreq' => 'yearly',
+			);
+		}
+
+		$o = STCMS_Options::get();
+		foreach ( (array) ( isset( $o['process'] ) ? $o['process'] : array() ) as $etapa ) {
+			if ( empty( $etapa['slug'] ) ) {
+				continue;
 			}
-
-			$o = STCMS_Options::get( $lang );
-			foreach ( (array) ( isset( $o['process'] ) ? $o['process'] : array() ) as $etapa ) {
-				if ( empty( $etapa['slug'] ) ) {
-					continue;
-				}
-				$pagina = self::pagina_do_idioma( $etapa['slug'], $lang );
-				if ( ! $pagina ) {
-					continue;
-				}
-				if ( 'en' === $lang && 'en' !== (string) get_post_meta( $pagina->ID, 'stcms_lang', true )
-					&& $pagina->post_name !== $etapa['slug'] . '-en' ) {
-					continue;
-				}
+			$pagina = get_page_by_path( $etapa['slug'], OBJECT, 'page' );
+			if ( ! $pagina || 'publish' !== $pagina->post_status ) {
+				continue;
+			}
+			$alts = STCMS_Traducao::tem_traducao( $pagina ) ? $par( 'processo', $etapa['slug'] ) : array();
+			$urls[] = array(
+				'loc'        => self::rota( $base, 'pt', 'processo', $etapa['slug'] ),
+				'alternates' => $alts,
+				'priority'   => '0.6',
+				'changefreq' => 'monthly',
+				'lastmod'    => mysql2date( 'Y-m-d', $pagina->post_modified_gmt ),
+			);
+			if ( $alts ) {
 				$urls[] = array(
-					'loc'        => self::rota( $base, $lang, 'processo', $etapa['slug'] ),
-					'alternates' => array(),
+					'loc'        => self::rota( $base, 'en', 'processo', $etapa['slug'] ),
+					'alternates' => $alts,
 					'priority'   => '0.6',
 					'changefreq' => 'monthly',
 					'lastmod'    => mysql2date( 'Y-m-d', $pagina->post_modified_gmt ),
 				);
 			}
+		}
 
-			$posts = get_posts(
-				array(
-					'post_type'   => 'post',
-					'post_status' => 'publish',
-					'meta_query'  => self::meta_lang( $lang ),
-					'numberposts' => 500,
-					'orderby'     => 'date',
-					'order'       => 'DESC',
-				)
+		$posts = get_posts(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'numberposts' => 500,
+				'orderby'     => 'date',
+				'order'       => 'DESC',
+			)
+		);
+		foreach ( $posts as $p ) {
+			$alts = STCMS_Traducao::tem_traducao( $p ) ? $par( 'artigo', $p->post_name ) : array();
+			$urls[] = array(
+				'loc'        => self::rota( $base, 'pt', 'artigo', $p->post_name ),
+				'alternates' => $alts,
+				'priority'   => '0.6',
+				'changefreq' => 'monthly',
+				'lastmod'    => mysql2date( 'Y-m-d', $p->post_modified_gmt ),
 			);
-			foreach ( $posts as $p ) {
+			if ( $alts ) {
 				$urls[] = array(
-					'loc'        => self::rota( $base, $lang, 'artigo', $p->post_name ),
-					'alternates' => self::alternates( $base, 'artigo', $p->post_name, $lang, $pares['post'] ),
+					'loc'        => self::rota( $base, 'en', 'artigo', $p->post_name ),
+					'alternates' => $alts,
 					'priority'   => '0.6',
 					'changefreq' => 'monthly',
 					'lastmod'    => mysql2date( 'Y-m-d', $p->post_modified_gmt ),
@@ -1019,47 +1041,6 @@ class STCMS_Rest {
 			),
 			200
 		);
-	}
-
-	/**
-	 * Mapa slug_pt => slug_en dos itens que têm tradução declarada.
-	 */
-	private static function pares_traduzidos( $tipo ) {
-		if ( ! class_exists( 'STCMS_Traducao' ) ) {
-			return array();
-		}
-		$out = array();
-		foreach ( STCMS_Traducao::pares( $tipo ) as $id_pt => $id_en ) {
-			$pt = get_post_field( 'post_name', $id_pt );
-			$en = get_post_field( 'post_name', $id_en );
-			if ( $pt && $en ) {
-				$out[ $pt ] = $en;
-			}
-		}
-		return $out;
-	}
-
-	/**
-	 * Só declara alternate quando existe o par nos dois idiomas — anunciar uma
-	 * tradução que não existe é pior que não anunciar nada.
-	 */
-	private static function alternates( $base, $chave, $slug, $lang, $pares ) {
-		if ( 'pt' === $lang ) {
-			if ( ! isset( $pares[ $slug ] ) ) {
-				return array();
-			}
-			$slug_pt = $slug;
-			$slug_en = $pares[ $slug ];
-		} else {
-			$slug_pt = array_search( $slug, $pares, true );
-			if ( false === $slug_pt ) {
-				return array();
-			}
-			$slug_en = $slug;
-		}
-		$url_pt = self::rota( $base, 'pt', $chave, $slug_pt );
-		$url_en = self::rota( $base, 'en', $chave, $slug_en );
-		return array( 'pt-BR' => $url_pt, 'en' => $url_en, 'x-default' => $url_pt );
 	}
 
 	private static function sitemap_xml( $urls ) {

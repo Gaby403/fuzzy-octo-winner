@@ -82,7 +82,7 @@ export function Header() {
       {content.site.logoUrl ? (<img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} fetchPriority="high" decoding="async" style={{ height: "clamp(24px, 3vw, 40px)", width: "auto", display: "block" }}/>) : (<span style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(14px, 1.3vw, 20px)", letterSpacing: "-0.04em", textTransform: "uppercase" }}>{content.nav.brand}</span>)}
     </Link>);
     return (<>
-      <m.header aria-label="Cabeçalho principal" style={{
+      <m.header aria-label={t("nav.cabecalho")} style={{
             position: "fixed", top: 0, left: 0, width: "100%", zIndex: 50,
             display: "flex", alignItems: "center", justifyContent: "space-between",
             padding: "clamp(12px, 1.6vw, 18px) clamp(20px, 4vw, 82px)", minHeight: HEADER_HEIGHT,
@@ -111,10 +111,10 @@ export function Header() {
       <AnimatePresence>
         {menuOpen && (<m.div className="fixed inset-0" style={{ zIndex: 55 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <div aria-hidden="true" onClick={closeMenu} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}/>
-            <m.div id="menu-drawer" ref={panelRef} role="dialog" aria-modal="true" aria-label="Menu de navegação" className="absolute top-0 right-0 h-full flex flex-col" style={{ width: "min(400px, 88vw)", background: BLACK, paddingTop: "clamp(72px, 12svh, 104px)", paddingBottom: 40, paddingLeft: 32, paddingRight: 32 }} initial={{ x: "100%" }} animate={{ x: "0%" }} exit={{ x: "100%" }} transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}>
-              <button type="button" onClick={closeMenu} aria-label="Fechar menu" style={{ position: "absolute", top: 24, right: 28, background: "transparent", border: "none", color: WHITE, fontSize: 26, lineHeight: 1, cursor: "pointer" }}>×</button>
+            <m.div id="menu-drawer" ref={panelRef} role="dialog" aria-modal="true" aria-label={t("nav.menuNav")} className="absolute top-0 right-0 h-full flex flex-col" style={{ width: "min(400px, 88vw)", background: BLACK, paddingTop: "clamp(72px, 12svh, 104px)", paddingBottom: 40, paddingLeft: 32, paddingRight: 32 }} initial={{ x: "100%" }} animate={{ x: "0%" }} exit={{ x: "100%" }} transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}>
+              <button type="button" onClick={closeMenu} aria-label={t("nav.fechar")} style={{ position: "absolute", top: 24, right: 28, background: "transparent", border: "none", color: WHITE, fontSize: 26, lineHeight: 1, cursor: "pointer" }}>×</button>
 
-              <nav aria-label="Menu principal" className="flex flex-col flex-1">
+              <nav aria-label={t("nav.menu")} className="flex flex-col flex-1">
                 {content.nav.links.map((item, i) => {
                 const active = isActive(item.url, location.pathname);
                 return (<m.a key={item.label + i} href={item.url || "#"} onClick={(e) => go(item.url, e)} aria-current={active ? "page" : undefined} className="group flex items-center gap-3 py-4 border-b" style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(22px, 6vw, 32px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: active ? RED_INK : WHITE, textDecoration: "none", borderColor: "rgba(239,239,239,0.08)" }} initial={{ x: 24, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.4, delay: 0.1 + i * 0.05, ease: [0.16, 1, 0.3, 1] }} whileHover={{ x: 6 } as any}>

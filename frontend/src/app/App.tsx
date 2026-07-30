@@ -572,8 +572,9 @@ function ServiceCard({ num, title, body, delay, to, onNavigate }: {
     }) => void;
 }) {
     const ref = useRef<HTMLAnchorElement>(null);
+    const { t } = useLocale();
     const inView = useInView(ref, { once: true, margin: "-60px" });
-    return (<m.a ref={ref} href={to || undefined} onClick={to && onNavigate ? (e) => onNavigate(to, e) : undefined} aria-label={to ? `Ver serviço: ${title}` : undefined} style={{ display: "block", textDecoration: "none", borderTop: "1px solid rgba(239,239,239,0.10)", paddingTop: "clamp(24px,3vw,36px)", paddingBottom: "clamp(24px,3vw,36px)", position: "relative", overflow: "hidden", cursor: to ? "pointer" : "default" }} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}>
+    return (<m.a ref={ref} href={to || undefined} onClick={to && onNavigate ? (e) => onNavigate(to, e) : undefined} aria-label={to ? `${t("servico.ver")}: ${title}` : undefined} style={{ display: "block", textDecoration: "none", borderTop: "1px solid rgba(239,239,239,0.10)", paddingTop: "clamp(24px,3vw,36px)", paddingBottom: "clamp(24px,3vw,36px)", position: "relative", overflow: "hidden", cursor: to ? "pointer" : "default" }} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}>
       
       <m.div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", backgroundColor: RED, transformOrigin: "left" }} initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}/>
       <span style={{ display: "block", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED_INK, marginBottom: 16 }}>{num}</span>

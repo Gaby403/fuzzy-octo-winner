@@ -141,7 +141,7 @@ export default function Article() {
 
         
         <div className="article-side" style={{ paddingTop: "clamp(32px,4vw,48px)" }}>
-          <NewsletterBox t={t}/>
+          <NewsletterBox t={t} locale={locale}/>
         </div>
 
         
@@ -208,8 +208,9 @@ function ShareBar({ url, title, t }: {
     </div>);
 }
 const shareBtn: React.CSSProperties = { fontFamily: FONT_BODY, fontSize: 12, fontWeight: 600, padding: "8px 14px", borderRadius: 999, border: "1px solid rgba(239,239,239,0.2)", color: "rgba(239,239,239,0.8)", background: "transparent", textDecoration: "none", cursor: "pointer" };
-function NewsletterBox({ t }: {
+function NewsletterBox({ t, locale }: {
     t: (chave: ChaveTexto) => string;
+    locale: "pt" | "en";
 }) {
     const [email, setEmail] = useState("");
     const [msg, setMsg] = useState("");
@@ -221,7 +222,7 @@ function NewsletterBox({ t }: {
             return;
         setSending(true);
         setMsg("");
-        const r = await subscribeNewsletter(email);
+        const r = await subscribeNewsletter(email, "", locale);
         setOk(r.ok);
         setMsg(r.message);
         setSending(false);
@@ -233,7 +234,7 @@ function NewsletterBox({ t }: {
       <p style={{ fontSize: 14, color: "rgba(239,239,239,0.6)", margin: "0 0 18px" }}>{t("news.texto")}</p>
       <form onSubmit={submit} style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
         <label htmlFor="nl-email" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}>{t("form.email")}</label>
-        <input id="nl-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" style={{ flex: "1 1 220px", background: "rgba(239,239,239,0.06)", border: "1px solid rgba(239,239,239,0.16)", borderRadius: 999, color: WHITE, fontFamily: FONT_BODY, fontSize: 14, padding: "12px 18px", outline: "none" }}/>
+        <input id="nl-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder={t("form.exemploEmail")} style={{ flex: "1 1 220px", background: "rgba(239,239,239,0.06)", border: "1px solid rgba(239,239,239,0.16)", borderRadius: 999, color: WHITE, fontFamily: FONT_BODY, fontSize: 14, padding: "12px 18px", outline: "none" }}/>
         <button type="submit" disabled={sending} style={{ padding: "12px 24px", borderRadius: 999, border: "none", background: RED_BTN, color: PURE_WHITE, fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", cursor: "pointer", opacity: sending ? 0.6 : 1 }}>
           {sending ? t("news.enviando") : t("news.inscrever")}
         </button>

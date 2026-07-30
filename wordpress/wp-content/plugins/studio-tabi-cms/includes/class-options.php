@@ -487,38 +487,54 @@ class STCMS_Options {
 		if ( ! class_exists( 'STCMS_Traducao' ) ) {
 			return;
 		}
+
+		$duplicatas = STCMS_Traducao::duplicatas();
+		if ( $duplicatas ) {
+			$url = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_limpar_duplicatas=1' ), 'stcms_limpar_duplicatas' );
+			echo '<div class="notice notice-warning inline" style="margin:0 0 16px;padding:10px 12px">'
+				. '<p style="margin:0 0 8px"><strong>' . (int) count( $duplicatas ) . ' item(ns) duplicado(s) de uma versão anterior do plugin.</strong><br>'
+				. 'A versão antiga criava um post separado para o inglês. Agora a tradução fica dentro do próprio item. '
+				. 'O botão abaixo aproveita o texto das cópias, guarda nos campos em inglês do original e manda as cópias para a lixeira '
+				. '(dá para recuperar).</p>'
+				. '<p style="margin:0"><a href="' . esc_url( $url ) . '" class="button button-primary">Desfazer a duplicação e aproveitar o texto</a></p>'
+				. '</div>';
+		}
+
+		$rotulos   = array(
+			'st_service' => 'Serviços',
+			'st_faq'     => 'Perguntas frequentes',
+			'st_project' => 'Projetos',
+			'post'       => 'Artigos do blog',
+			'page'       => 'Páginas',
+		);
 		$pendentes = STCMS_Traducao::pendentes();
-		$tipos     = STCMS_Traducao::tipos();
 		$total     = array_sum( $pendentes );
 
 		echo '<table class="widefat striped" style="margin-bottom:14px"><thead><tr>'
-			. '<th>Conteúdo</th><th style="width:220px">Situação</th></tr></thead><tbody>';
-		foreach ( $tipos as $tipo => $rotulo ) {
+			. '<th>Conteúdo</th><th style="width:230px">Situação</th></tr></thead><tbody>';
+		foreach ( $rotulos as $tipo => $rotulo ) {
 			$faltam = isset( $pendentes[ $tipo ] ) ? (int) $pendentes[ $tipo ] : 0;
 			printf(
 				'<tr><td><strong>%s</strong></td><td style="color:%s">%s</td></tr>',
 				esc_html( $rotulo ),
 				$faltam ? '#8a6d00' : '#1a7f37',
-				esc_html( $faltam ? sprintf( '%d sem versão em inglês', $faltam ) : 'Tudo traduzido' )
+				esc_html( $faltam ? sprintf( '%d sem tradução', $faltam ) : 'Tudo traduzido' )
 			);
 		}
 		echo '</tbody></table>';
 
 		if ( $total ) {
-			$url = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_traduzir=1' ), 'stcms_traduzir' );
-			printf(
-				'<p><a href="%s" class="button button-primary">Criar os %d itens em inglês</a></p>',
-				esc_url( $url ),
-				(int) $total
-			);
+			$url = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_preencher_en=1' ), 'stcms_preencher_en' );
+			echo '<p><a href="' . esc_url( $url ) . '" class="button button-secondary">Preencher em inglês o conteúdo que veio com o plugin</a></p>';
 		}
 
 		echo '<p class="description">'
-			. 'Cada item em português ganha uma cópia marcada como <strong>English</strong>, ligada ao original — '
-			. 'é esse vínculo que faz o sitemap declarar o <code>hreflang</code> recíproco entre as duas URLs. '
-			. 'O conteúdo que veio instalado com o plugin já entra traduzido; o que você escreveu é copiado como está, '
-			. 'preservando imagem, ordem, categorias e configurações, para você traduzir o texto. '
-			. 'Rodar de novo só cria o que ainda falta — nada é sobrescrito.'
+			. 'Cada conteúdo é <strong>um único item</strong> no WordPress e serve os dois idiomas. '
+			. 'Para traduzir, abra o serviço, a pergunta, o projeto, o artigo ou a página e preencha a caixa '
+			. '<strong>“Versão em inglês (/en)”</strong> que fica logo abaixo do editor. '
+			. 'Campo em branco mostra o texto em português no <code>/en</code> — e o sitemap só anuncia a URL '
+			. '<code>/en</code> de um item depois que ele tem tradução. '
+			. 'O botão acima só preenche o que veio instalado com o plugin e nunca sobrescreve o que você já escreveu.'
 			. '</p>';
 	}
 
@@ -528,11 +544,9 @@ class STCMS_Options {
 
 		if ( 'en' === $lang ) {
 			echo '<p class="description" style="margin:0 0 12px">'
-				. 'A versão em inglês de cada etapa é uma Página do WordPress com o slug terminado em <code>-en</code> '
-				. '(ex.: <code>diagnostico-en</code>) e o campo <strong>Idioma: English</strong> marcado. '
-				. 'Use o botão abaixo para criar as que faltam já com o texto em inglês — depois é só editar. '
-				. 'Enquanto uma delas não existir, o endereço <code>/en/…</code> mostra o texto em português '
-				. 'e o sitemap não anuncia essa URL como conteúdo em inglês.'
+				. 'Cada etapa e cada serviço é <strong>um único item</strong> no WordPress, que serve os dois idiomas. '
+				. 'Para traduzir, abra o item e preencha a caixa <strong>“Versão em inglês (/en)”</strong> — '
+				. 'nada é duplicado. Campo em branco mostra o texto em português no <code>/en</code>.'
 				. '</p>';
 		}
 
@@ -546,29 +560,26 @@ class STCMS_Options {
 			if ( '' === $slug ) {
 				continue;
 			}
-			// No inglês só conta a página do próprio idioma; a portuguesa serve de reserva na exibição.
-			$page     = get_page_by_path( 'en' === $lang ? $slug . '-en' : $slug );
-			$reserva  = ( ! $page && 'en' === $lang ) ? get_page_by_path( $slug ) : null;
-			$url      = ( 'en' === $lang ? '/en/process/' : '/processo/' ) . $slug;
+			$page = get_page_by_path( $slug );
+			$url  = ( 'en' === $lang ? '/en/process/' : '/processo/' ) . $slug;
 
 			if ( $page ) {
+				$traduzida = class_exists( 'STCMS_Traducao' ) && STCMS_Traducao::tem_traducao( $page );
 				printf(
-					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:#1a7f37">Publicada</td><td><a class="button" href="%s">Editar texto</a></td></tr>',
+					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:%s">%s</td><td><a class="button" href="%s">%s</a></td></tr>',
 					esc_html( $step['title'] ),
 					esc_html( $url ),
-					esc_url( get_edit_post_link( $page->ID ) )
+					( 'en' === $lang && ! $traduzida ) ? '#8a6d00' : '#1a7f37',
+					esc_html( 'en' === $lang ? ( $traduzida ? 'Traduzida' : 'Sem tradução (mostra o português)' ) : 'Publicada' ),
+					esc_url( get_edit_post_link( $page->ID ) ),
+					esc_html( 'en' === $lang ? 'Traduzir' : 'Editar texto' )
 				);
 			} else {
 				$missing[] = $step;
 				printf(
-					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:%s">%s</td><td>%s</td></tr>',
+					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:#b32d2e">Página ausente</td><td>—</td></tr>',
 					esc_html( $step['title'] ),
-					esc_html( $url ),
-					$reserva ? '#8a6d00' : '#b32d2e',
-					esc_html( $reserva ? 'Sem versão em inglês (mostrando o texto em português)' : 'Página ausente' ),
-					$reserva
-						? '<a class="button" href="' . esc_url( get_edit_post_link( $reserva->ID ) ) . '">Ver a portuguesa</a>'
-						: '—'
+					esc_html( $url )
 				);
 			}
 		}
@@ -576,13 +587,6 @@ class STCMS_Options {
 		$services = get_posts(
 			array(
 				'post_type'   => 'st_service',
-				'meta_query'  => 'en' === $lang
-					? array( array( 'key' => 'stcms_lang', 'value' => 'en' ) )
-					: array(
-						'relation' => 'OR',
-						array( 'key' => 'stcms_lang', 'value' => 'en', 'compare' => '!=' ),
-						array( 'key' => 'stcms_lang', 'compare' => 'NOT EXISTS' ),
-					),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
 				'order'       => 'ASC',
@@ -621,11 +625,7 @@ class STCMS_Options {
 			printf(
 				'<p><a href="%s" class="button button-secondary">%s</a></p>',
 				esc_url( $url ),
-				esc_html(
-					'en' === $lang
-						? sprintf( 'Criar as %d página(s) de processo em inglês que faltam', count( $missing ) )
-						: sprintf( 'Criar as %d página(s) de processo que faltam', count( $missing ) )
-				)
+				esc_html( sprintf( 'Criar as %d página(s) de processo que faltam', count( $missing ) ) )
 			);
 		}
 
@@ -646,9 +646,7 @@ class STCMS_Options {
 			if ( '' === $slug ) {
 				continue;
 			}
-			// A versão em inglês vive num slug próprio para não colidir com a portuguesa.
-			$destino = 'en' === $lang ? $slug . '-en' : $slug;
-			if ( get_page_by_path( $destino ) ) {
+			if ( get_page_by_path( $slug ) ) {
 				continue;
 			}
 			$id = wp_insert_post(
@@ -656,12 +654,11 @@ class STCMS_Options {
 					'post_type'    => 'page',
 					'post_status'  => 'publish',
 					'post_title'   => $step['title'],
-					'post_name'    => $destino,
+					'post_name'    => $slug,
 					'post_content' => isset( $step['summary'] ) ? wpautop( $step['summary'] ) : '',
 				)
 			);
 			if ( $id && ! is_wp_error( $id ) ) {
-				update_post_meta( $id, 'stcms_lang', $lang );
 				$created++;
 			}
 		}

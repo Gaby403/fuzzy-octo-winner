@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import { traduzir } from "../i18n/dicionario";
 export interface MenuLink {
     label: string;
     url: string;
@@ -645,9 +646,9 @@ export interface ContactResult {
     ok: boolean;
     message: string;
 }
-export async function submitContact(payload: ContactPayload): Promise<ContactResult> {
+export async function submitContact(payload: ContactPayload, lang: "pt" | "en" = "pt"): Promise<ContactResult> {
     if (!WP_API) {
-        return { ok: false, message: "Formulário indisponível: configure o endereço do WordPress em config.js." };
+        return { ok: false, message: traduzir(lang, "form.indisponivel") };
     }
     try {
         const res = await fetch(`${WP_API}/wp-json/studio-tabi/v1/contact`, {
@@ -657,12 +658,12 @@ export async function submitContact(payload: ContactPayload): Promise<ContactRes
         });
         const data = (await res.json().catch(() => ({}))) as Partial<ContactResult>;
         if (!res.ok || !data.ok) {
-            return { ok: false, message: data.message || "Não foi possível enviar. Tente novamente em instantes." };
+            return { ok: false, message: data.message || traduzir(lang, "form.naoEnviou") };
         }
         return { ok: true, message: data.message || "Mensagem enviada! Em breve entraremos em contato." };
     }
     catch {
-        return { ok: false, message: "Falha de conexão. Verifique sua internet e tente novamente." };
+        return { ok: false, message: traduzir(lang, "form.semConexao") };
     }
 }
 export interface ContentContextValue {

@@ -134,7 +134,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
 
         
         {proj.url && (<m.a {...stagger(3)} href={proj.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 12, background: proj.accent, color: WHITE, textDecoration: "none", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", padding: "15px 30px", borderRadius: 999, marginBottom: "clamp(56px, 8vw, 100px)" }} whileHover={{ scale: 1.03 } as any} transition={{ duration: 0.2 }}>
-            VER PROJETO COMPLETO <span style={{ fontSize: 14 }}>↗</span>
+            {t("projeto.completo")} <span style={{ fontSize: 14 }}>↗</span>
           </m.a>)}
 
         
@@ -206,13 +206,13 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
         
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "clamp(24px,3vw,40px)", borderTop: "1px solid rgba(239,239,239,0.08)" }}>
           <button onClick={onPrev} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10, padding: 0, transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = WHITE)} onMouseLeave={e => (e.currentTarget.style.color = "rgba(239,239,239,0.40)")}>
-            ← PROJETO ANTERIOR
+            {t("projeto.anterior")}
           </button>
           <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.25)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", padding: 0 }}>
-            TODOS OS PROJETOS
+            {t("projeto.todos")}
           </button>
           <button onClick={onNext} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10, padding: 0, transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = WHITE)} onMouseLeave={e => (e.currentTarget.style.color = "rgba(239,239,239,0.40)")}>
-            PRÓXIMO PROJETO →
+            {t("projeto.proximo")}
           </button>
         </div>
       </div>

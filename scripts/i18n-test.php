@@ -14,17 +14,17 @@ function sanitize_email($s){return $s;} function is_email($s){return (bool)filte
 function get_post_meta($i,$k,$s=true){return '';}
 function mysql2date($f,$d,$t=true){return date($f, strtotime($d));} function wp_strip_all_tags($s){return $s;} function apply_filters($t,$v){return $v;}
 function esc_html($s){return $s;} function esc_attr($s){return $s;} function get_page_by_path($s,$o=null,$t=null){return null;}
-function wp_get_attachment_image_url($i,$s=null){return '';} $GLOBALS['__servicos'] = ['pt'=>['branding','ui-ux'], 'en'=>['branding-en']];
+function wp_get_attachment_image_url($i,$s=null){return '';}
+// Um único conjunto de serviços serve os dois idiomas: o texto é que muda.
+$GLOBALS['__servicos'] = ['branding','ui-ux'];
 function get_posts($a){
-  $tipo = $a['post_type'] ?? '';
-  $mq   = $a['meta_query'] ?? [];
-  // O filtro EN é uma cláusula única de igualdade; o PT usa relation=OR com != e NOT EXISTS.
-  $lang = (1 === count($mq) && isset($mq[0]['value']) && 'en' === $mq[0]['value'] && ! isset($mq[0]['compare'])) ? 'en' : 'pt';
-  if ('st_service' === $tipo) {
+  $tipos = (array) ($a['post_type'] ?? '');
+  if (in_array('st_service', $tipos, true)) {
     $out=[]; $i=1;
-    foreach ($GLOBALS['__servicos'][$lang] as $slug) {
-      $p=new stdClass; $p->ID=$i++; $p->post_name=$slug; $p->post_title=$slug;
-      $p->post_content=''; $p->post_modified_gmt=gmdate('Y-m-d H:i:s'); $out[]=$p;
+    foreach ($GLOBALS['__servicos'] as $slug) {
+      $p=new stdClass; $p->ID=$i++; $p->post_type='st_service'; $p->post_name=$slug; $p->post_title=$slug;
+      $p->post_content=''; $p->post_excerpt=''; $p->post_status='publish';
+      $p->post_modified_gmt=gmdate('Y-m-d H:i:s'); $out[]=$p;
     }
     return $out;
   }
@@ -33,10 +33,12 @@ function get_posts($a){
 function get_bloginfo($x=''){return 'Studio Tabi';} function wp_mail(...$a){return true;}
 function get_the_post_thumbnail_url($p,$s=null){return '';} function get_the_title($p){return '';}
 function sanitize_title($s){return $s;} function esc_textarea($s){return $s;} function checked($a,$b,$c=true){return '';}
+function get_post($id){return $GLOBALS['__posts'][$id] ?? null;}
+function delete_post_meta($id,$k){return true;}
 if(!defined('OBJECT')) define('OBJECT','OBJECT');
 class WP_REST_Response{public $data;public $status;function __construct($d,$s=200){$this->data=$d;$this->status=$s;}}
 class WP_REST_Request{private $p;function __construct($p=[]){$this->p=$p;} function get_json_params(){return $this->p;} function get_params(){return $this->p;} function get_param($k){return $this->p[$k]??null;}}
-require_once "$P/includes/defaults.php"; require_once "$P/includes/class-options.php"; require_once "$P/includes/class-rest.php";
+require_once "$P/includes/defaults.php"; require_once "$P/includes/class-options.php"; require_once "$P/includes/class-traducao.php"; require_once "$P/includes/class-rest.php";
 
 $ok = 0; $ko = 0;
 function ok($rotulo, $cond, $valor = '') { global $ok, $ko; $cond ? $ok++ : $ko++; echo '  '.($cond?'✓':'✗')."  $rotulo".($valor!==''?": $valor":'')."\n"; }
@@ -80,10 +82,9 @@ foreach (['https://studiotabi.com.br/', 'https://studiotabi.com.br/en', 'https:/
 ok('hreflang recíproco na home',
     str_contains($xml, '<xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en"/>')
     && str_contains($xml, '<xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/"/>'));
-ok('serviço PT no idioma certo', str_contains($xml, '<loc>https://studiotabi.com.br/servicos/branding</loc>'));
-ok('serviço EN no idioma certo', str_contains($xml, '<loc>https://studiotabi.com.br/en/services/branding-en</loc>'));
-ok('não inventa alternate para conteúdo sem tradução',
-    ! str_contains($xml, 'href="https://studiotabi.com.br/en/services/branding"'));
+ok('serviço listado em português', str_contains($xml, '<loc>https://studiotabi.com.br/servicos/branding</loc>'));
+ok('serviço sem tradução não entra no /en', ! str_contains($xml, '/en/services/branding'));
+ok('serviço não é duplicado', 1 === substr_count($xml, '<loc>https://studiotabi.com.br/servicos/branding</loc>'));
 ok('não indexa a página de obrigado', ! str_contains($xml, '/obrigado') && ! str_contains($xml, '/thank-you'));
 
 echo "\n$ok passaram, $ko falharam\n";

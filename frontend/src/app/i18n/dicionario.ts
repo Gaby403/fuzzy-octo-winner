@@ -7,6 +7,7 @@ export const DICT = {
     "nav.menu": { pt: "Menu principal", en: "Main menu" },
     "nav.pular": { pt: "Pular para o conteúdo", en: "Skip to content" },
     "nav.idioma": { pt: "Mudar idioma", en: "Change language" },
+    "nav.menuNav": { pt: "Menu de navegação", en: "Navigation menu" },
 
     "geral.home": { pt: "Home", en: "Home" },
     "geral.carregando": { pt: "Carregando…", en: "Loading…" },
@@ -60,6 +61,10 @@ export const DICT = {
     "news.inscrever": { pt: "Inscrever", en: "Subscribe" },
     "news.enviando": { pt: "Enviando…", en: "Sending…" },
     "news.rotulo": { pt: "Newsletter", en: "Newsletter" },
+    "news.indisponivel": { pt: "Newsletter indisponível: configure o WordPress em config.js.", en: "Newsletter unavailable: set WordPress in config.js." },
+    "news.naoInscreveu": { pt: "Não foi possível inscrever agora.", en: "We couldn't subscribe you right now." },
+    "news.confirmado": { pt: "Inscrição confirmada!", en: "You're subscribed!" },
+    "news.semConexao": { pt: "Falha de conexão. Tente novamente.", en: "Connection failed. Please try again." },
 
     "form.nome": { pt: "Nome", en: "Name" },
     "form.email": { pt: "E-mail", en: "Email" },
@@ -76,6 +81,10 @@ export const DICT = {
     "form.privacidade": { pt: "Política de Privacidade", en: "Privacy Policy" },
     "form.termos": { pt: "Termos de Serviço", en: "Terms of Service" },
     "form.doGoogle": { pt: "do Google.", en: "apply." },
+    "form.exemploEmail": { pt: "voce@email.com", en: "you@email.com" },
+    "form.semConexao": { pt: "Falha de conexão. Verifique sua internet e tente novamente.", en: "Connection failed. Check your internet and try again." },
+    "form.naoEnviou": { pt: "Não foi possível enviar. Tente novamente em instantes.", en: "We couldn't send it. Please try again in a moment." },
+    "form.indisponivel": { pt: "Formulário indisponível: configure o endereço do WordPress em config.js.", en: "Form unavailable: set the WordPress address in config.js." },
 
     "servico.rotulo": { pt: "SERVIÇO", en: "SERVICE" },
     "servico.naoEncontrado": { pt: "Serviço não", en: "Service not" },
@@ -112,6 +121,10 @@ export const DICT = {
     "projeto.galeria": { pt: "GALERIA", en: "GALLERY" },
     "projeto.documentos": { pt: "DOCUMENTOS", en: "DOCUMENTS" },
     "projeto.documento": { pt: "Documento", en: "Document" },
+    "projeto.completo": { pt: "VER PROJETO COMPLETO", en: "VIEW FULL PROJECT" },
+    "projeto.anterior": { pt: "← PROJETO ANTERIOR", en: "← PREVIOUS PROJECT" },
+    "projeto.todos": { pt: "TODOS OS PROJETOS", en: "ALL PROJECTS" },
+    "projeto.proximo": { pt: "PRÓXIMO PROJETO →", en: "NEXT PROJECT →" },
 
     "sobre.titulo": { pt: "NÃO FAZEMOS SITES.", en: "WE DON'T BUILD WEBSITES." },
     "sobre.destaque": { pt: "CONSTRUÍMOS PRESENÇA.", en: "WE BUILD PRESENCE." },
