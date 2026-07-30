@@ -226,3 +226,107 @@ function stcms_default_projects() {
 		),
 	);
 }
+
+function stcms_default_options_en() {
+	return array(
+		'site'   => array(
+			'title'            => 'Studio Tabi',
+			'meta_description' => 'Studio Tabi — design, strategy and engineering that turn digital presence into value, trust and decision.',
+			'tagline'          => 'Design and technology that take brands where they need to go.',
+		),
+		'nav'    => array(
+			'brand'     => 'STUDIO TABI',
+			'cta_label' => 'START A PROJECT',
+			'cta_url'   => '/en/contact',
+			'links'     => array(
+				array( 'label' => 'WORK', 'url' => '/en/work' ),
+				array( 'label' => 'SERVICES', 'url' => '/en/services' ),
+				array( 'label' => 'ABOUT', 'url' => '/en/about' ),
+				array( 'label' => 'BLOG', 'url' => '/en/blog' ),
+				array( 'label' => 'CONTACT', 'url' => '/en/contact' ),
+			),
+		),
+		'hero'   => array(
+			'eyebrow'              => 'STUDIO TABI — DIGITAL STUDIO',
+			'title_lines'          => array( 'WE TURN', 'YOUR BRAND', 'INTO EXPERIENCE' ),
+			'highlight'            => 'DIGITAL.',
+			'description'          => 'Design, strategy and engineering that turn digital presence into perceived value, trust and decision.',
+			'cta_primary_label'    => 'VIEW PORTFOLIO',
+			'cta_primary_url'      => '/en/work',
+			'cta_secondary_label'  => 'TALK TO THE TEAM',
+			'cta_secondary_url'    => '/en/contact',
+		),
+		'projects_cta' => array( 'label' => 'VIEW PORTFOLIO', 'url' => '/en/work' ),
+		'thankyou' => array(
+			'title'   => 'THANK YOU',
+			'message' => 'We received your message. Our team will be in touch within one business day. Every great journey — tabi — begins with a first step.',
+		),
+		'contact' => array(
+			'title'       => "LET'S",
+			'highlight'   => 'TALK.',
+			'description' => 'Tell us a bit about your project. We reply within one business day.',
+		),
+		'process' => array(
+			array( 'title' => 'Diagnosis',   'slug' => 'diagnostico',    'icon' => 'diagnostico',     'summary' => 'We dive into the business, the market and the goals to understand where you are and where you need to go.' ),
+			array( 'title' => 'Narrative',   'slug' => 'narrativa',      'icon' => 'narrativa',       'summary' => 'We define the brand story and positioning — the message that guides every decision.' ),
+			array( 'title' => 'Design',      'slug' => 'design',         'icon' => 'design',          'summary' => 'We translate strategy into identity and interface, with intent, hierarchy and purpose.' ),
+			array( 'title' => 'Engineering', 'slug' => 'desenvolvimento','icon' => 'desenvolvimento', 'summary' => 'We build with clean, fast, scalable code — from idea to launch, ready to grow.' ),
+		),
+		'sections' => array(
+			'about_eyebrow'      => 'STUDIO TABI — ABOUT US',
+			'about_cta_label'    => 'READ OUR STORY',
+			'about_cta_url'      => '/en/about',
+			'about_pillars_label'=> 'HOW WE WORK',
+			'services_eyebrow'   => 'STUDIO TABI — SERVICES',
+			'services_cta_label' => 'VIEW ALL SERVICES',
+			'services_cta_url'   => '/en/services',
+			'projects_eyebrow'   => 'STUDIO TABI — WORK',
+			'projects_note'      => '120+ projects delivered',
+			'projects_card_text' => 'Want to see the full portfolio with all of our work?',
+			'blog_eyebrow'       => 'STUDIO TABI — INSIGHTS',
+			'blog_title'         => 'FROM OUR',
+			'blog_highlight'     => 'JOURNAL.',
+			'blog_note'          => 'Ideas on design, strategy and technology — straight from the people building it.',
+			'blog_cta_label'     => 'VIEW ALL ARTICLES',
+			'faq_eyebrow'        => 'STUDIO TABI — FAQ',
+			'faq_note'           => "Didn't find what you were looking for? Talk to the team directly.",
+			'faq_cta_label'      => 'TALK TO THE TEAM',
+			'faq_cta_url'        => '/en/contact',
+		),
+		'about'  => array(
+			'paragraph1' => 'Studio Tabi was born from the conviction that digital presence is a strategic asset — not a communications expense. We bring together designers, strategists and engineers who refuse the mediocrity of "good enough".',
+			'paragraph2' => 'Every project starts with a simple question: how does this business want to be perceived five years from now? The answer guides every creative, technical and strategic decision we make.',
+			'stats'      => array(
+				array( 'numeric' => 7,   'suffix' => '+', 'label' => 'YEARS IN THE MARKET' ),
+				array( 'numeric' => 120, 'suffix' => '+', 'label' => 'PROJECTS DELIVERED' ),
+				array( 'numeric' => 98,  'suffix' => '%', 'label' => 'RETENTION RATE' ),
+				array( 'numeric' => 3,   'suffix' => '×', 'label' => 'AVERAGE 12-MONTH RETURN' ),
+			),
+		),
+		'footer' => array(
+			'brand'         => 'STUDIO TABI',
+			'tagline'       => 'Design and technology that take brands where they need to go.',
+			'cta_title'     => "Let's build your",
+			'cta_highlight' => 'digital presence.',
+			'cta_label'     => 'START A PROJECT',
+			'cta_url'       => '/en/contact',
+			'col1_title'    => 'Navigation',
+			'col1_links'    => array(
+				array( 'label' => 'Work', 'url' => '/en/work' ),
+				array( 'label' => 'Services', 'url' => '/en/services' ),
+				array( 'label' => 'About', 'url' => '/en/about' ),
+				array( 'label' => 'Contact', 'url' => '/en/contact' ),
+			),
+			'col2_title'    => 'Services',
+			'contact_title' => 'Contact',
+			'city'          => 'São Paulo, Brazil',
+			'social_title'  => 'Social',
+			'copyright'     => '© 2026 Studio Tabi. All rights reserved.',
+			'made_in'       => 'Crafted with precision in São Paulo',
+			'legal'         => array(
+				array( 'label' => 'Privacy Policy', 'url' => '#' ),
+				array( 'label' => 'Terms of Use', 'url' => '#' ),
+			),
+		),
+	);
+}

@@ -5,6 +5,8 @@ import { useContent } from "../store/content";
 import { fetchPosts, fetchCategories, PostCard, BlogCategory } from "../store/blog";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { TabiDetail } from "../components/TabiDetail";
+import { useLocale } from "../i18n/useLocale";
+import type { ChaveTexto } from "../i18n/dicionario";
 const RED = "#F20C25";
 const RED_INK = "#FF3547";
 const WHITE = "#EFEFEF";
@@ -20,6 +22,7 @@ const EASE: [
 const pad = "clamp(20px, 4vw, 82px)";
 export default function Blog() {
     const { content } = useContent();
+    const { t, rota, locale } = useLocale();
     const [params, setParams] = useSearchParams();
     const page = Math.max(1, parseInt(params.get("page") || "1", 10));
     const category = params.get("categoria") || "";
@@ -33,21 +36,21 @@ export default function Blog() {
     const [state, setState] = useState<"loading" | "ready" | "error">("loading");
     const [searchInput, setSearchInput] = useState(search);
     useEffect(() => {
-        document.title = `Blog — ${content.site.title}`;
+        document.title = `${t("blog.titulo")} — ${content.site.title}`;
         window.scrollTo(0, 0);
-    }, [content.site.title, page, category, search]);
-    useEffect(() => { fetchCategories().then(setCats); }, []);
+    }, [content.site.title, page, category, search, t]);
+    useEffect(() => { fetchCategories(locale).then(setCats); }, [locale]);
     useEffect(() => {
         let alive = true;
         setState("loading");
-        fetchPosts({ page, category, search, perPage: 9 }).then(res => {
+        fetchPosts({ page, category, search, perPage: 9, lang: locale }).then(res => {
             if (!alive)
                 return;
             setData({ items: res.items, totalPages: res.totalPages, total: res.total });
             setState("ready");
         }).catch(() => alive && setState("error"));
         return () => { alive = false; };
-    }, [page, category, search]);
+    }, [page, category, search, locale]);
     const update = useCallback((next: Record<string, string | null>) => {
         setParams(prev => {
             const p = new URLSearchParams(prev);
@@ -64,58 +67,60 @@ export default function Blog() {
       <TabiDetail corner="bottom-right"/>
       <main id="conteudo">
         <div style={{ padding: `clamp(40px, 6vw, 72px) ${pad} clamp(24px, 3vw, 40px)` }}>
-          <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Blog" }]}/>
+          <Breadcrumbs items={[{ label: t("geral.home"), to: rota("home") }, { label: t("blog.titulo") }]}/>
           <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(44px, 7vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "20px 0 0", lineHeight: 0.92 }}>
-            BLOG <span style={{ color: RED }}>&amp; IDEIAS.</span>
+            {t("blog.tituloPagina")} <span style={{ color: RED }}>{t("blog.destaquePagina")}</span>
           </h1>
           <p style={{ fontSize: "clamp(13px,1vw,16px)", lineHeight: 1.7, color: "rgba(239,239,239,0.6)", maxWidth: 560, margin: "18px 0 0" }}>
-            Estratégia, design e tecnologia — o que aprendemos construindo presença digital.
+            {t("blog.subtitulo")}
           </p>
         </div>
 
         
         <div style={{ padding: `0 ${pad}`, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", justifyContent: "space-between", marginBottom: "clamp(24px,3vw,40px)" }}>
           <div className="flex flex-wrap" style={{ gap: 8 }}>
-            <button onClick={() => update({ categoria: null })} aria-pressed={!category} style={chip(!category)}>Todos</button>
+            <button onClick={() => update({ categoria: null })} aria-pressed={!category} style={chip(!category)}>{t("blog.todas")}</button>
             {cats.map(c => (<button key={c.slug} onClick={() => update({ categoria: c.slug })} aria-pressed={category === c.slug} style={chip(category === c.slug)}>{c.name}</button>))}
           </div>
           <form onSubmit={onSearch} role="search" style={{ display: "flex", gap: 8 }}>
-            <label htmlFor="blog-search" className="sr-only" style={srOnly}>Buscar no blog</label>
-            <input id="blog-search" type="search" value={searchInput} onChange={e => setSearchInput(e.target.value)} placeholder="Buscar…" style={{ background: "rgba(239,239,239,0.05)", border: "1px solid rgba(239,239,239,0.16)", borderRadius: 999, color: WHITE, fontFamily: FONT_BODY, fontSize: 13, padding: "10px 16px", outline: "none", minWidth: 180 }}/>
-            <button type="submit" style={{ ...chip(false), borderColor: RED_INK, color: RED_INK }}>Buscar</button>
+            <label htmlFor="blog-search" className="sr-only" style={srOnly}>{t("blog.buscarNo")}</label>
+            <input id="blog-search" type="search" value={searchInput} onChange={e => setSearchInput(e.target.value)} placeholder={t("blog.buscar")} style={{ background: "rgba(239,239,239,0.05)", border: "1px solid rgba(239,239,239,0.16)", borderRadius: 999, color: WHITE, fontFamily: FONT_BODY, fontSize: 13, padding: "10px 16px", outline: "none", minWidth: 180 }}/>
+            <button type="submit" style={{ ...chip(false), borderColor: RED_INK, color: RED_INK }}>{t("blog.botaoBuscar")}</button>
           </form>
         </div>
 
         
         <div style={{ padding: `0 ${pad} clamp(64px, 10vw, 120px)` }}>
           {state === "loading" && <Skeletons />}
-          {state === "error" && <Msg text="Não foi possível carregar o blog agora. Tente novamente em instantes."/>}
-          {state === "ready" && data && data.items.length === 0 && (<Msg text={search ? `Nenhum artigo encontrado para “${search}”.` : "Ainda não há artigos publicados."}/>)}
+          {state === "error" && <Msg text={t("blog.erro")}/>}
+          {state === "ready" && data && data.items.length === 0 && (<Msg text={search ? `${t("blog.semResultado")} “${search}”.` : t("blog.vazio")}/>)}
           {state === "ready" && data && data.items.length > 0 && (<>
               <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ listStyle: "none", margin: 0, padding: 0, gap: "clamp(20px,2.5vw,32px)" }}>
-                {data.items.map((p, i) => <li key={p.id}><ArticleCard p={p} index={i}/></li>)}
+                {data.items.map((p, i) => <li key={p.id}><ArticleCard p={p} index={i} to={rota("artigo", p.slug)} t={t}/></li>)}
               </ul>
-              {data.totalPages > 1 && (<nav aria-label="Paginação" style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: "clamp(40px,5vw,64px)" }}>
-                  <PageBtn disabled={page <= 1} onClick={() => setParams(p => { const n = new URLSearchParams(p); n.set("page", String(page - 1)); return n; })}>Anterior</PageBtn>
-                  <span style={{ alignSelf: "center", fontSize: 12, color: "rgba(239,239,239,0.6)" }}>Página {page} de {data.totalPages}</span>
-                  <PageBtn disabled={page >= data.totalPages} onClick={() => setParams(p => { const n = new URLSearchParams(p); n.set("page", String(page + 1)); return n; })}>Próxima</PageBtn>
+              {data.totalPages > 1 && (<nav aria-label={t("blog.paginacao")} style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: "clamp(40px,5vw,64px)" }}>
+                  <PageBtn disabled={page <= 1} onClick={() => setParams(p => { const n = new URLSearchParams(p); n.set("page", String(page - 1)); return n; })}>{t("blog.anterior")}</PageBtn>
+                  <span style={{ alignSelf: "center", fontSize: 12, color: "rgba(239,239,239,0.6)" }}>{t("blog.pagina")} {page} / {data.totalPages}</span>
+                  <PageBtn disabled={page >= data.totalPages} onClick={() => setParams(p => { const n = new URLSearchParams(p); n.set("page", String(page + 1)); return n; })}>{t("blog.proxima")}</PageBtn>
                 </nav>)}
             </>)}
         </div>
       </main>
     </div>);
 }
-function ArticleCard({ p, index }: {
+function ArticleCard({ p, index, to, t }: {
     p: PostCard;
     index: number;
+    to: string;
+    t: (chave: ChaveTexto) => string;
 }) {
     return (<m.article initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: 0.6, delay: (index % 3) * 0.06, ease: EASE }} style={{ height: "100%" }}>
-      <Link to={`/blog/${p.slug}`} style={{ textDecoration: "none", color: WHITE, display: "flex", flexDirection: "column", height: "100%", border: "1px solid rgba(239,239,239,0.1)", borderRadius: 12, overflow: "hidden", background: "rgba(239,239,239,0.02)" }}>
+      <Link to={to} style={{ textDecoration: "none", color: WHITE, display: "flex", flexDirection: "column", height: "100%", border: "1px solid rgba(239,239,239,0.1)", borderRadius: 12, overflow: "hidden", background: "rgba(239,239,239,0.02)" }}>
         <div style={{ aspectRatio: "16/9", background: p.image ? `center/cover no-repeat url(${p.image})` : "linear-gradient(135deg,#1A0505,#2D0A0A)" }} aria-hidden={!p.image}/>
         <div style={{ padding: "clamp(18px,2vw,26px)", display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
           <div style={{ display: "flex", gap: 10, alignItems: "center", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", color: RED_INK, textTransform: "uppercase" }}>
             {p.categories[0]?.name && <span>{p.categories[0].name}</span>}
-            <span style={{ color: "rgba(239,239,239,0.4)" }}>{p.readingTime} min de leitura</span>
+            <span style={{ color: "rgba(239,239,239,0.4)" }}>{p.readingTime} {t("blog.leitura")}</span>
           </div>
           <h2 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(18px,1.6vw,24px)", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.08, margin: 0 }}>{p.title}</h2>
           <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "rgba(239,239,239,0.55)", margin: 0, flex: 1 }}>{p.excerpt}</p>

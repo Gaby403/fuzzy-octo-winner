@@ -38,7 +38,10 @@ class STCMS_Options {
 		if ( ! is_array( $en ) ) {
 			$en = array();
 		}
-		return self::deep_merge( $pt, self::sem_vazios( $en ) );
+		$base = function_exists( 'stcms_default_options_en' )
+			? self::deep_merge( $pt, self::sem_vazios( stcms_default_options_en() ) )
+			: $pt;
+		return self::deep_merge( $base, self::sem_vazios( $en ) );
 	}
 
 	private static function sem_vazios( $arr ) {
@@ -475,7 +478,17 @@ class STCMS_Options {
 	}
 
 	private static function render_inner_pages() {
-		$o = self::get();
+		$lang = self::$lang;
+		$o    = self::get( $lang );
+
+		if ( 'en' === $lang ) {
+			echo '<p class="description" style="margin:0 0 12px">'
+				. 'Para publicar uma dessas páginas em inglês, duplique-a no WordPress, marque <strong>Idioma: English</strong> '
+				. 'na caixa lateral e use o slug com o sufixo <code>-en</code> (ex.: <code>diagnostico-en</code>). '
+				. 'Enquanto não existir a versão em inglês, o endereço <code>/en/…</code> mostra o texto em português — '
+				. 'e o sitemap não anuncia essa URL como conteúdo em inglês.'
+				. '</p>';
+		}
 
 		echo '<table class="widefat striped" style="margin-bottom:18px"><thead><tr>'
 			. '<th>Página</th><th>Endereço</th><th>Situação</th><th style="width:130px">Ação</th>'
@@ -487,8 +500,11 @@ class STCMS_Options {
 			if ( '' === $slug ) {
 				continue;
 			}
-			$page = get_page_by_path( $slug );
-			$url  = '/processo/' . $slug;
+			$page = get_page_by_path( 'en' === $lang ? $slug . '-en' : $slug );
+			if ( ! $page && 'en' === $lang ) {
+				$page = get_page_by_path( $slug );
+			}
+			$url = ( 'en' === $lang ? '/en/process/' : '/processo/' ) . $slug;
 			if ( $page ) {
 				printf(
 					'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:#1a7f37">Publicada</td><td><a class="button" href="%s">Editar texto</a></td></tr>',
@@ -509,6 +525,13 @@ class STCMS_Options {
 		$services = get_posts(
 			array(
 				'post_type'   => 'st_service',
+				'meta_query'  => 'en' === $lang
+					? array( array( 'key' => 'stcms_lang', 'value' => 'en' ) )
+					: array(
+						'relation' => 'OR',
+						array( 'key' => 'stcms_lang', 'value' => 'en', 'compare' => '!=' ),
+						array( 'key' => 'stcms_lang', 'compare' => 'NOT EXISTS' ),
+					),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
 				'order'       => 'ASC',
@@ -530,7 +553,7 @@ class STCMS_Options {
 			printf(
 				'<tr><td><strong>%s</strong></td><td><code>%s</code></td><td style="color:%s">%s</td><td><a class="button" href="%s">Editar texto</a></td></tr>',
 				esc_html( get_the_title( $s ) ),
-				esc_html( '/servicos/' . $s->post_name ),
+				esc_html( ( 'en' === $lang ? '/en/services/' : '/servicos/' ) . $s->post_name ),
 				esc_attr( $cor ),
 				esc_html( $txt ),
 				esc_url( get_edit_post_link( $s->ID ) )

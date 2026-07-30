@@ -94,6 +94,15 @@ class STCMS_Rest {
 				'permission_callback' => '__return_true',
 			)
 		);
+		register_rest_route(
+			self::NS,
+			'/sitemap',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'get_sitemap' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 	}
 
 	public static function cors() {
@@ -245,7 +254,7 @@ class STCMS_Rest {
 				'madeIn'       => self::decode( $o['footer']['made_in'] ),
 				'legal'        => self::links( $o['footer']['legal'] ),
 			),
-			'pages'    => self::pages_list(),
+			'pages'    => self::pages_list( $lang ),
 		);
 
 		return new WP_REST_Response( $data, 200 );
@@ -809,10 +818,11 @@ class STCMS_Rest {
 		return $out;
 	}
 
-	private static function pages_list() {
+	private static function pages_list( $lang = 'pt' ) {
 		$pages = get_posts(
 			array(
 				'post_type'   => 'page',
+				'meta_query'  => self::meta_lang( $lang ),
 				'numberposts' => -1,
 				'orderby'     => array( 'menu_order' => 'ASC', 'title' => 'ASC' ),
 				'order'       => 'ASC',
@@ -820,7 +830,7 @@ class STCMS_Rest {
 			)
 		);
 
-		$o       = STCMS_Options::get();
+		$o       = STCMS_Options::get( $lang );
 		$exclude = array();
 		foreach ( (array) ( $o['process'] ?? array() ) as $s ) {
 			if ( ! empty( $s['slug'] ) ) {
@@ -840,14 +850,15 @@ class STCMS_Rest {
 		return $out;
 	}
 
-	public static function get_pages() {
-		return new WP_REST_Response( self::pages_list(), 200 );
+	public static function get_pages( $req = null ) {
+		return new WP_REST_Response( self::pages_list( self::req_lang( $req ) ), 200 );
 	}
 
 	public static function get_page( WP_REST_Request $req ) {
 		$slug = $req->get_param( 'slug' );
-		$page = get_page_by_path( $slug, OBJECT, 'page' );
-		if ( ! $page || 'publish' !== $page->post_status ) {
+		$lang = self::req_lang( $req );
+		$page = self::pagina_do_idioma( $slug, $lang );
+		if ( ! $page ) {
 			return new WP_REST_Response( array( 'message' => 'Página não encontrada.' ), 404 );
 		}
 		return new WP_REST_Response(
@@ -858,5 +869,178 @@ class STCMS_Rest {
 			),
 			200
 		);
+	}
+
+	private static function pagina_do_idioma( $slug, $lang = 'pt' ) {
+		if ( 'en' === $lang ) {
+			$en = get_page_by_path( $slug . '-en', OBJECT, 'page' );
+			if ( $en && 'publish' === $en->post_status ) {
+				return $en;
+			}
+		}
+		$page = get_page_by_path( $slug, OBJECT, 'page' );
+		return ( $page && 'publish' === $page->post_status ) ? $page : null;
+	}
+
+	private static function rotas_i18n() {
+		return array(
+			'home'     => array( 'pt' => '', 'en' => '' ),
+			'projetos' => array( 'pt' => 'projetos', 'en' => 'work' ),
+			'sobre'    => array( 'pt' => 'sobre', 'en' => 'about' ),
+			'servicos' => array( 'pt' => 'servicos', 'en' => 'services' ),
+			'servico'  => array( 'pt' => 'servicos', 'en' => 'services' ),
+			'processo' => array( 'pt' => 'processo', 'en' => 'process' ),
+			'blog'     => array( 'pt' => 'blog', 'en' => 'blog' ),
+			'artigo'   => array( 'pt' => 'blog', 'en' => 'blog' ),
+			'contato'  => array( 'pt' => 'contato', 'en' => 'contact' ),
+			'pagina'   => array( 'pt' => 'p', 'en' => 'p' ),
+		);
+	}
+
+	private static function site_base() {
+		$origens = self::site_origins();
+		return $origens ? reset( $origens ) : untrailingslashit( (string) get_home_url() );
+	}
+
+	private static function rota( $base, $lang, $chave, $param = '' ) {
+		$rotas  = self::rotas_i18n();
+		$slug   = isset( $rotas[ $chave ][ $lang ] ) ? $rotas[ $chave ][ $lang ] : '';
+		$prefixo = 'en' === $lang ? '/en' : '';
+		$partes  = array_filter( array( $slug, $param ), 'strlen' );
+		if ( ! $partes ) {
+			return $base . ( $prefixo ? $prefixo : '/' );
+		}
+		return $base . $prefixo . '/' . implode( '/', $partes );
+	}
+
+	public static function get_sitemap() {
+		$base = self::site_base();
+		$urls = array();
+
+		$estaticas = array(
+			'home'     => array( '1.0', 'weekly' ),
+			'projetos' => array( '0.9', 'weekly' ),
+			'servicos' => array( '0.9', 'monthly' ),
+			'blog'     => array( '0.9', 'weekly' ),
+			'sobre'    => array( '0.8', 'monthly' ),
+			'contato'  => array( '0.8', 'yearly' ),
+		);
+		foreach ( $estaticas as $chave => $cfg ) {
+			$pt   = self::rota( $base, 'pt', $chave );
+			$en   = self::rota( $base, 'en', $chave );
+			$alts = array( 'pt-BR' => $pt, 'en' => $en, 'x-default' => $pt );
+			foreach ( array( $pt, $en ) as $loc ) {
+				$urls[] = array(
+					'loc'        => $loc,
+					'alternates' => $alts,
+					'priority'   => $cfg[0],
+					'changefreq' => $cfg[1],
+				);
+			}
+		}
+
+		foreach ( array( 'pt', 'en' ) as $lang ) {
+			foreach ( self::services( $lang ) as $s ) {
+				if ( empty( $s['slug'] ) ) {
+					continue;
+				}
+				$urls[] = array(
+					'loc'        => self::rota( $base, $lang, 'servico', $s['slug'] ),
+					'alternates' => array(),
+					'priority'   => '0.7',
+					'changefreq' => 'monthly',
+				);
+			}
+
+			foreach ( self::pages_list( $lang ) as $pg ) {
+				$urls[] = array(
+					'loc'        => self::rota( $base, $lang, 'pagina', $pg['slug'] ),
+					'alternates' => array(),
+					'priority'   => '0.3',
+					'changefreq' => 'yearly',
+				);
+			}
+
+			$o = STCMS_Options::get( $lang );
+			foreach ( (array) ( isset( $o['process'] ) ? $o['process'] : array() ) as $etapa ) {
+				if ( empty( $etapa['slug'] ) ) {
+					continue;
+				}
+				$pagina = self::pagina_do_idioma( $etapa['slug'], $lang );
+				if ( ! $pagina ) {
+					continue;
+				}
+				if ( 'en' === $lang && 'en' !== (string) get_post_meta( $pagina->ID, 'stcms_lang', true )
+					&& $pagina->post_name !== $etapa['slug'] . '-en' ) {
+					continue;
+				}
+				$urls[] = array(
+					'loc'        => self::rota( $base, $lang, 'processo', $etapa['slug'] ),
+					'alternates' => array(),
+					'priority'   => '0.6',
+					'changefreq' => 'monthly',
+					'lastmod'    => mysql2date( 'Y-m-d', $pagina->post_modified_gmt ),
+				);
+			}
+
+			$posts = get_posts(
+				array(
+					'post_type'   => 'post',
+					'post_status' => 'publish',
+					'meta_query'  => self::meta_lang( $lang ),
+					'numberposts' => 500,
+					'orderby'     => 'date',
+					'order'       => 'DESC',
+				)
+			);
+			foreach ( $posts as $p ) {
+				$urls[] = array(
+					'loc'        => self::rota( $base, $lang, 'artigo', $p->post_name ),
+					'alternates' => array(),
+					'priority'   => '0.6',
+					'changefreq' => 'monthly',
+					'lastmod'    => mysql2date( 'Y-m-d', $p->post_modified_gmt ),
+				);
+			}
+		}
+
+		return new WP_REST_Response(
+			array(
+				'base'      => $base,
+				'total'     => count( $urls ),
+				'generated' => gmdate( 'c' ),
+				'xml'       => self::sitemap_xml( $urls ),
+			),
+			200
+		);
+	}
+
+	private static function sitemap_xml( $urls ) {
+		$linhas   = array();
+		$linhas[] = '<?xml version="1.0" encoding="UTF-8"?>';
+		$linhas[] = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">';
+		foreach ( $urls as $u ) {
+			$linhas[] = '  <url>';
+			$linhas[] = '    <loc>' . self::xml( $u['loc'] ) . '</loc>';
+			if ( ! empty( $u['lastmod'] ) ) {
+				$linhas[] = '    <lastmod>' . $u['lastmod'] . '</lastmod>';
+			}
+			if ( ! empty( $u['changefreq'] ) ) {
+				$linhas[] = '    <changefreq>' . $u['changefreq'] . '</changefreq>';
+			}
+			if ( ! empty( $u['priority'] ) ) {
+				$linhas[] = '    <priority>' . $u['priority'] . '</priority>';
+			}
+			foreach ( (array) $u['alternates'] as $hreflang => $href ) {
+				$linhas[] = '    <xhtml:link rel="alternate" hreflang="' . $hreflang . '" href="' . self::xml( $href ) . '"/>';
+			}
+			$linhas[] = '  </url>';
+		}
+		$linhas[] = '</urlset>';
+		return implode( "\n", $linhas ) . "\n";
+	}
+
+	private static function xml( $texto ) {
+		return htmlspecialchars( (string) $texto, ENT_QUOTES | ENT_XML1, 'UTF-8' );
 	}
 }

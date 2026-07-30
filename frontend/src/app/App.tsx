@@ -471,6 +471,7 @@ function Pillar({ index, title, body, delay, icon, to, onNavigate }: {
 function AboutSection() {
     const { content } = useContent();
     const goTo = useGoTo();
+    const { t, rota } = useLocale();
     const sec = content.sections.about;
     const sectionRef = useRef<HTMLElement>(null);
     const { scrollYProgress: sectionScroll } = useScroll({ target: sectionRef, offset: ["start end", "end start"] });
@@ -541,13 +542,13 @@ function AboutSection() {
               {sec.pillarsLabel}
             </span>
             <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.20)" }}>
-              {`0${STEPS.length}`} ETAPAS
+              {`0${STEPS.length}`} {t("sobre.etapas")}
             </span>
           </div>
         </Reveal>
 
 
-        {STEPS.map((p, i) => (<Pillar key={p.slug || p.title} index={`0${i + 1}`} title={p.title} body={p.summary} delay={i * 0.06} icon={p.icon} to={p.slug ? `/processo/${p.slug}` : undefined} onNavigate={goTo}/>))}
+        {STEPS.map((p, i) => (<Pillar key={p.slug || p.title} index={`0${i + 1}`} title={p.title} body={p.summary} delay={i * 0.06} icon={p.icon} to={p.slug ? rota("processo", p.slug) : undefined} onNavigate={goTo}/>))}
       </div>
 
     </section>);
@@ -592,6 +593,7 @@ function ServiceCard({ num, title, body, delay, to, onNavigate }: {
 function ServicesSection() {
     const { content } = useContent();
     const goTo = useGoTo();
+    const { rota } = useLocale();
     const sec = content.sections.services;
     const pad = "clamp(20px, 4vw, 82px)";
     return (<section id="servicos" style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
@@ -624,7 +626,7 @@ function ServicesSection() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ padding: `0 ${pad} clamp(64px, 10vw, 120px)`, gap: "0 clamp(24px, 3vw, 48px)", position: "relative", zIndex: 1 }}>
-        {content.services.map((s, i) => (<ServiceCard key={s.num} num={s.num} title={s.title} body={s.body} delay={i * 0.08} to={s.slug ? `/servicos/${s.slug}` : undefined} onNavigate={goTo}/>))}
+        {content.services.map((s, i) => (<ServiceCard key={s.num} num={s.num} title={s.title} body={s.body} delay={i * 0.08} to={s.slug ? rota("servico", s.slug) : undefined} onNavigate={goTo}/>))}
       </div>
     </section>);
 }
@@ -709,10 +711,11 @@ function ProjectCard({ proj, index, onClick }: {
     index: number;
     onClick: () => void;
 }) {
+    const { t } = useLocale();
     const ref = useRef<HTMLDivElement>(null);
     const inView = useInView(ref, { once: true, margin: "-80px" });
     const [hovered, setHovered] = useState(false);
-    return (<m.div ref={ref} data-cursor data-cursor-label="Ver" style={{ position: "relative", overflow: "hidden", borderRadius: 4, cursor: "pointer", aspectRatio: proj.featured ? "4/3" : "1/1" }} initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.9, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }} onHoverStart={() => setHovered(true)} onHoverEnd={() => setHovered(false)} onClick={onClick}>
+    return (<m.div ref={ref} data-cursor data-cursor-label={t("geral.ver")} style={{ position: "relative", overflow: "hidden", borderRadius: 4, cursor: "pointer", aspectRatio: proj.featured ? "4/3" : "1/1" }} initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.9, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }} onHoverStart={() => setHovered(true)} onHoverEnd={() => setHovered(false)} onClick={onClick}>
       
       <div style={{ position: "absolute", inset: 0, background: proj.bg }}/>
 
@@ -856,11 +859,12 @@ function BlogCard({ post, index }: {
     post: PostCard;
     index: number;
 }) {
+    const { t, rota } = useLocale();
     const ref = useRef<HTMLDivElement>(null);
     const inView = useInView(ref, { once: true, margin: "-80px" });
     const [hovered, setHovered] = useState(false);
     return (<m.div ref={ref} initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.9, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }} onHoverStart={() => setHovered(true)} onHoverEnd={() => setHovered(false)}>
-      <Link to={`/blog/${post.slug}`} data-cursor data-cursor-label="Ler" style={{ display: "flex", flexDirection: "column", height: "100%", textDecoration: "none", color: "inherit" }}>
+      <Link to={rota("artigo", post.slug)} data-cursor data-cursor-label={t("geral.ler")} style={{ display: "flex", flexDirection: "column", height: "100%", textDecoration: "none", color: "inherit" }}>
         
         <div style={{ position: "relative", overflow: "hidden", borderRadius: 4, aspectRatio: "16/10", background: "rgba(239,239,239,0.05)" }}>
           {post.image ? (<m.img src={post.image} alt="" loading="lazy" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} initial={false} animate={{ scale: hovered ? 1.06 : 1 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}/>) : (<div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.10 }}>
@@ -937,16 +941,17 @@ function BlogSection() {
 }
 function AllProjects() {
     const { content } = useContent();
+    const { t } = useLocale();
     const projects = content.projects;
     const pad = "clamp(20px, 4vw, 82px)";
     const [searchParams, setSearchParams] = useSearchParams();
     const selectedKey = searchParams.get("projeto");
     const selectedProj = projects.find(p => projectSlug(p) === selectedKey || p.id === selectedKey) ?? null;
     useEffect(() => {
-        document.title = `Projetos — ${content.site.title}`;
+        document.title = `${t("menu.projetos")} — ${content.site.title}`;
         if (!selectedKey)
             window.scrollTo(0, 0);
-    }, [content.site.title, selectedKey]);
+    }, [content.site.title, selectedKey, t]);
     const openProject = useCallback((p: SiteContent["projects"][number], replace = false) => {
         setSearchParams(prev => {
             const next = new URLSearchParams(prev);
@@ -986,7 +991,7 @@ function AllProjects() {
             <span>{content.sections.projects.eyebrow}</span>
           </div>
           <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 7vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.92 }}>
-            TODOS OS <span style={{ color: RED }}>PROJETOS.</span>
+            {t("projetos.titulo")} <span style={{ color: RED }}>{t("projetos.destaque")}</span>
           </h1>
         </div>
 

@@ -6,9 +6,11 @@ import { useGoTo } from "../../hooks/useGoTo";
 import { TabiMark } from "../TabiMark";
 import { NewsletterForm } from "../ui/NewsletterForm";
 import { colors, fonts, ease, PAGE_PAD } from "../../constants/theme";
+import { useLocale } from "../../i18n/useLocale";
 export function Footer() {
     const { content } = useContent();
     const goTo = useGoTo();
+    const { t, rota } = useLocale();
     const ref = useRef<HTMLElement>(null);
     const inView = useInView(ref, { once: true, margin: "-60px" });
     const f = content.footer;
@@ -25,7 +27,7 @@ export function Footer() {
           <h2 style={{ fontFamily: fonts.head, fontWeight: 900, fontSize: "clamp(28px,4vw,56px)", letterSpacing: "-0.04em", textTransform: "uppercase", lineHeight: 0.95, margin: 0, maxWidth: 720 }}>
             {f.ctaTitle} <span style={{ color: colors.red }}>{f.ctaHighlight}</span>
           </h2>
-          <button onClick={(e) => goTo(f.ctaUrl || "/contato", e)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 12, padding: "16px 32px", borderRadius: 999, border: "none", background: colors.redBtn, color: colors.pureWhite, fontFamily: fonts.body, fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer" }}>
+          <button onClick={(e) => goTo(f.ctaUrl || rota("contato"), e)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 12, padding: "16px 32px", borderRadius: 999, border: "none", background: colors.redBtn, color: colors.pureWhite, fontFamily: fonts.body, fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer" }}>
             {f.ctaLabel} <span style={{ fontSize: 14 }}>→</span>
           </button>
         </m.div>
@@ -41,7 +43,7 @@ export function Footer() {
               <span style={{ display: "block", width: 32, height: 2, backgroundColor: colors.red, marginTop: 10 }}/>
             </div>
             <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", lineHeight: 1.72, color: colors.textFaint, maxWidth: 300, marginBottom: 22 }}>{f.tagline}</p>
-            <span style={colTitle}>Newsletter</span>
+            <span style={colTitle}>{t("news.rotulo")}</span>
             <NewsletterForm compact/>
           </div>
 
@@ -85,7 +87,7 @@ export function Footer() {
           <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.3)" }}>{f.copyright}</span>
           <div className="flex flex-wrap items-center gap-6">
             {f.legal.map((item, i) => (<a key={item.label + i} href={item.url || "#"} onClick={(e) => goTo(item.url, e)} style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.3)", textDecoration: "none" }}>{item.label}</a>))}
-            {content.pages.map(pg => (<Link key={pg.slug} to={`/p/${pg.slug}`} style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.3)", textDecoration: "none" }}>{pg.title}</Link>))}
+            {content.pages.map(pg => (<Link key={pg.slug} to={rota("pagina", pg.slug)} style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.3)", textDecoration: "none" }}>{pg.title}</Link>))}
             {f.madeIn && <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.08em", color: "rgba(239,239,239,0.18)" }}>{f.madeIn}</span>}
           </div>
         </div>

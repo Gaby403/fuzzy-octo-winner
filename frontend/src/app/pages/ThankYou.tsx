@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { m } from "motion/react";
 import { useContent } from "../store/content";
 import { TabiMark } from "../components/TabiMark";
+import { useLocale } from "../i18n/useLocale";
 const RED = "#F20C25";
 const RED_BTN = "#DA0A20";
 const RED_INK = "#FF3547";
@@ -19,13 +20,14 @@ const EASE: [
 ] = [0.16, 1, 0.3, 1];
 export default function ThankYou() {
     const { content } = useContent();
-    const t = content.thankYou;
-    const title = (t.title || "OBRIGADO").trim();
+    const { t, rota } = useLocale();
+    const obrigado = content.thankYou;
+    const title = (obrigado.title || "OBRIGADO").trim();
     const needsDot = !/[.!?…]$/.test(title);
     useEffect(() => {
-        document.title = `Obrigado — ${content.site.title}`;
+        document.title = `${title} — ${content.site.title}`;
         window.scrollTo(0, 0);
-    }, [content.site.title]);
+    }, [content.site.title, title]);
     return (<div id="conteudo" style={{
             minHeight: "100svh",
             background: BLACK,
@@ -60,15 +62,15 @@ export default function ThankYou() {
       </m.h1>
 
       <m.p style={{ fontSize: "clamp(13px, 1.1vw, 17px)", lineHeight: 1.7, color: "rgba(239,239,239,0.62)", maxWidth: 460, margin: "22px 0 0" }} initial={{ y: 18, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.9, ease: EASE, delay: 0.62 }}>
-        {t.message}
+        {obrigado.message}
       </m.p>
 
       <m.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.9, ease: EASE, delay: 0.74 }} style={{ marginTop: "clamp(30px, 4vw, 44px)", display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center" }}>
-        <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "14px 28px", borderRadius: 999, background: RED_BTN, color: PURE_WHITE, textDecoration: "none", fontFamily: FONT_BODY, fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
-          VOLTAR AO INÍCIO <span style={{ fontSize: 14 }}>→</span>
+        <Link to={rota("home")} style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "14px 28px", borderRadius: 999, background: RED_BTN, color: PURE_WHITE, textDecoration: "none", fontFamily: FONT_BODY, fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
+          {t("obrigado.inicio")} <span style={{ fontSize: 14 }}>→</span>
         </Link>
-        <Link to="/projetos" style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 28px", borderRadius: 999, border: "1px solid rgba(239,239,239,0.22)", color: WHITE, textDecoration: "none", fontFamily: FONT_BODY, fontSize: "10px", fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase" }}>
-          VER PROJETOS
+        <Link to={rota("projetos")} style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 28px", borderRadius: 999, border: "1px solid rgba(239,239,239,0.22)", color: WHITE, textDecoration: "none", fontFamily: FONT_BODY, fontSize: "10px", fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase" }}>
+          {t("obrigado.projetos")}
         </Link>
       </m.div>
     </div>);

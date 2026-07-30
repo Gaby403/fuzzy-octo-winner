@@ -1,15 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://studiotabi.com.br/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://studiotabi.com.br/sobre</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://studiotabi.com.br/blog</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://studiotabi.com.br/servicos</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://studiotabi.com.br/servicos/branding-identidade-visual</loc><priority>0.7</priority></url>
-  <url><loc>https://studiotabi.com.br/servicos/design-de-interface-ui-ux</loc><priority>0.7</priority></url>
-  <url><loc>https://studiotabi.com.br/servicos/websites-imersivos</loc><priority>0.7</priority></url>
-  <url><loc>https://studiotabi.com.br/servicos/landing-pages-conversivas</loc><priority>0.7</priority></url>
-  <url><loc>https://studiotabi.com.br/servicos/motion-para-sites</loc><priority>0.7</priority></url>
-  <url><loc>https://studiotabi.com.br/servicos/conteudo-copywriting</loc><priority>0.7</priority></url>
-  <url><loc>https://studiotabi.com.br/projetos</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://studiotabi.com.br/contato</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+<!-- Gerado a cada build por scripts/sitemap.mjs a partir de studio-tabi/v1/sitemap.
+     Esta versão estática é a reserva usada quando o WordPress não responde. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://studiotabi.com.br/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/projetos</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/projetos"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/work"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/projetos"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/en/work</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/projetos"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/work"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/projetos"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/servicos</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/servicos"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/services"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/servicos"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/en/services</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/servicos"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/services"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/servicos"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/blog"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/blog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/blog"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/en/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/blog"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/blog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/blog"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/sobre</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/sobre"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/sobre"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/en/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/sobre"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/sobre"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/contato</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/contato"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/contato"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/en/contact</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://studiotabi.com.br/contato"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/contato"/>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/servicos/branding-identidade-visual</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/servicos/design-de-interface-ui-ux</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/servicos/websites-imersivos</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/servicos/landing-pages-conversivas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/servicos/motion-para-sites</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://studiotabi.com.br/servicos/conteudo-copywriting</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

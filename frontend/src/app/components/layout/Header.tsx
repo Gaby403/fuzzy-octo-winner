@@ -25,7 +25,7 @@ function isActive(url: string, pathname: string): boolean {
 export function Header() {
     const { content } = useContent();
     const { menuOpen, toggleMenu, closeMenu } = useUI();
-    const { locale, t, alternar } = useLocale();
+    const { locale, t, alternar, rota } = useLocale();
     const location = useLocation();
     const navigate = useNavigate();
     const isHome = stripLocale(location.pathname) === "/";
@@ -78,7 +78,7 @@ export function Header() {
             navigate(url.startsWith("/") ? `${prefixo}${url}` : url);
         }
     };
-    const brand = (<Link to="/" aria-label={`${content.site.title} — página inicial`} style={{ display: "inline-flex", alignItems: "center", color: iconColor, textDecoration: "none", pointerEvents: "auto" }}>
+    const brand = (<Link to={rota("home")} aria-label={`${content.site.title} — ${t("menu.home")}`} style={{ display: "inline-flex", alignItems: "center", color: iconColor, textDecoration: "none", pointerEvents: "auto" }}>
       {content.site.logoUrl ? (<img src={content.site.logoUrl} alt={content.nav.brand || content.site.title} fetchPriority="high" decoding="async" style={{ height: "clamp(24px, 3vw, 40px)", width: "auto", display: "block" }}/>) : (<span style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(14px, 1.3vw, 20px)", letterSpacing: "-0.04em", textTransform: "uppercase" }}>{content.nav.brand}</span>)}
     </Link>);
     return (<>

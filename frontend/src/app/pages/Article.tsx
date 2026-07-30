@@ -5,6 +5,8 @@ import { useContent } from "../store/content";
 import { fetchPost, PostFull } from "../store/blog";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { subscribeNewsletter } from "../store/blog";
+import { useLocale } from "../i18n/useLocale";
+import type { ChaveTexto } from "../i18n/dicionario";
 const RED = "#F20C25";
 const RED_INK = "#FF3547";
 const RED_BTN = "#DA0A20";
@@ -37,6 +39,7 @@ function processContent(html: string): {
 }
 export default function Article() {
     const { content } = useContent();
+    const { t, rota, locale } = useLocale();
     const { slug = "" } = useParams();
     const [post, setPost] = useState<PostFull | null>(null);
     const [status, setStatus] = useState<"loading" | "ready" | "missing">("loading");
@@ -45,7 +48,7 @@ export default function Article() {
     useEffect(() => {
         let alive = true;
         setStatus("loading");
-        fetchPost(slug).then(p => {
+        fetchPost(slug, locale).then(p => {
             if (!alive)
                 return;
             if (p) {
@@ -58,7 +61,7 @@ export default function Article() {
             window.scrollTo(0, 0);
         });
         return () => { alive = false; };
-    }, [slug]);
+    }, [slug, locale]);
     const processed = useMemo(() => processContent(post?.content || ""), [post?.content]);
     const hasToc = processed.headings.length > 1;
     useEffect(() => {
@@ -73,7 +76,7 @@ export default function Article() {
             headline: post.title, datePublished: post.dateISO, image: post.image || undefined,
             author: { "@type": "Person", name: post.author },
             publisher: { "@type": "Organization", name: content.site.title, ...(content.site.logoUrl ? { logo: { "@type": "ImageObject", url: content.site.logoUrl } } : {}) },
-            mainEntityOfPage: `${origin}/blog/${post.slug}`,
+            mainEntityOfPage: `${origin}${rota("artigo", post.slug)}`,
             articleSection: post.categories[0]?.name,
             wordCount: (post.content || "").split(/\s+/).length,
         });
@@ -81,16 +84,16 @@ export default function Article() {
             document.head.appendChild(s);
         return () => { const x = document.getElementById("ld-article"); if (x)
             x.remove(); };
-    }, [post, content.site.title, content.site.logoUrl]);
+    }, [post, content.site.title, content.site.logoUrl, rota]);
     const shareUrl = typeof window !== "undefined" ? window.location.href : "";
     if (status === "loading") {
-        return <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}><main id="conteudo" style={{ padding: `60px ${pad}` }}><p style={{ color: "rgba(239,239,239,0.5)" }}>Carregando…</p></main></div>;
+        return <div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}><main id="conteudo" style={{ padding: `60px ${pad}` }}><p style={{ color: "rgba(239,239,239,0.5)" }}>{t("geral.carregando")}</p></main></div>;
     }
     if (status === "missing" || !post) {
         return (<div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
         <main id="conteudo" style={{ maxWidth: 760, margin: "0 auto", padding: `clamp(48px,8vw,96px) ${pad} 120px` }}>
-          <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(36px,7vw,64px)", textTransform: "uppercase", margin: "0 0 16px" }}>Artigo não <span style={{ color: RED }}>encontrado</span></h1>
-          <Link to="/blog" style={{ color: RED_INK, textDecoration: "none", fontWeight: 600 }}>← Voltar ao blog</Link>
+          <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(36px,7vw,64px)", textTransform: "uppercase", margin: "0 0 16px" }}>{t("blog.naoEncontrado")}</h1>
+          <Link to={rota("blog")} style={{ color: RED_INK, textDecoration: "none", fontWeight: 600 }}>{t("blog.voltarBlog")}</Link>
         </main>
       </div>);
     }
@@ -100,15 +103,15 @@ export default function Article() {
 
       <main id="conteudo" className={hasToc ? "article-page has-toc-page" : "article-page"} style={{ ["--pad" as string]: pad } as React.CSSProperties}>
         <div className="article-hero" style={{ paddingTop: "clamp(32px,5vw,56px)" }}>
-          <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Blog", to: "/blog" }, { label: post.title }]}/>
+          <Breadcrumbs items={[{ label: t("geral.home"), to: rota("home") }, { label: t("blog.titulo"), to: rota("blog") }, { label: post.title }]}/>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", margin: "22px 0 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
             {post.categories[0]?.name && <span style={{ color: RED_INK }}>{post.categories[0].name}</span>}
-            <span style={{ color: "rgba(239,239,239,0.5)" }}><time dateTime={post.dateISO}>{post.date}</time> · {post.readingTime} min de leitura</span>
+            <span style={{ color: "rgba(239,239,239,0.5)" }}><time dateTime={post.dateISO}>{post.date}</time> · {post.readingTime} {t("blog.leitura")}</span>
           </div>
           <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(34px,5vw,64px)", letterSpacing: "-0.04em", textTransform: "uppercase", lineHeight: 0.98, margin: "0 0 20px" }}>{post.title}</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28 }}>
             {post.authorAvatar && <img src={post.authorAvatar} alt="" width={40} height={40} style={{ borderRadius: "50%" }} loading="lazy"/>}
-            <span style={{ fontSize: 14, color: "rgba(239,239,239,0.75)" }}>por <strong>{post.author}</strong></span>
+            <span style={{ fontSize: 14, color: "rgba(239,239,239,0.75)" }}>{t("blog.por")} <strong>{post.author}</strong></span>
           </div>
         </div>
 
@@ -119,8 +122,8 @@ export default function Article() {
         
         <div style={{ maxWidth: hasToc ? 1100 : 820, margin: "0 auto", padding: `clamp(32px,5vw,56px) ${pad} 0`, display: "grid", gap: "clamp(24px,4vw,56px)" }} className={hasToc ? "article-grid has-toc" : "article-grid"}>
           
-          {hasToc && (<aside aria-label="Índice do artigo" className="article-toc" style={{ alignSelf: "start" }}>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(239,239,239,0.4)", margin: "0 0 12px" }}>Neste artigo</p>
+          {hasToc && (<aside aria-label={t("blog.indice")} className="article-toc" style={{ alignSelf: "start" }}>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(239,239,239,0.4)", margin: "0 0 12px" }}>{t("blog.neste")}</p>
               <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
                 {processed.headings.map(h => (<li key={h.id} style={{ paddingLeft: h.level === 3 ? 14 : 0 }}>
                     <a href={`#${h.id}`} style={{ color: "rgba(239,239,239,0.6)", textDecoration: "none", fontSize: 13, lineHeight: 1.4 }}>{h.text}</a>
@@ -133,20 +136,20 @@ export default function Article() {
 
         
         <div className="article-side" style={{ paddingTop: "clamp(32px,4vw,48px)" }}>
-          <ShareBar url={shareUrl} title={post.title}/>
+          <ShareBar url={shareUrl} title={post.title} t={t}/>
         </div>
 
         
         <div className="article-side" style={{ paddingTop: "clamp(32px,4vw,48px)" }}>
-          <NewsletterBox />
+          <NewsletterBox t={t}/>
         </div>
 
         
-        {post.related.length > 0 && (<section style={{ padding: `clamp(48px,7vw,96px) ${pad} clamp(64px,10vw,120px)` }} aria-label="Artigos relacionados">
-            <h2 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(24px,3vw,44px)", textTransform: "uppercase", letterSpacing: "-0.03em", margin: "0 0 clamp(20px,3vw,36px)" }}>Leia também</h2>
+        {post.related.length > 0 && (<section style={{ padding: `clamp(48px,7vw,96px) ${pad} clamp(64px,10vw,120px)` }} aria-label={t("blog.relacionados")}>
+            <h2 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(24px,3vw,44px)", textTransform: "uppercase", letterSpacing: "-0.03em", margin: "0 0 clamp(20px,3vw,36px)" }}>{t("blog.leiaTambem")}</h2>
             <ul className="grid grid-cols-1 sm:grid-cols-3" style={{ listStyle: "none", margin: 0, padding: 0, gap: "clamp(16px,2vw,28px)" }}>
               {post.related.map(r => (<li key={r.id}>
-                  <Link to={`/blog/${r.slug}`} style={{ textDecoration: "none", color: WHITE, display: "block", border: "1px solid rgba(239,239,239,0.1)", borderRadius: 12, overflow: "hidden" }}>
+                  <Link to={rota("artigo", r.slug)} style={{ textDecoration: "none", color: WHITE, display: "block", border: "1px solid rgba(239,239,239,0.1)", borderRadius: 12, overflow: "hidden" }}>
                     <div style={{ aspectRatio: "16/9", background: r.image ? `center/cover no-repeat url(${r.image})` : "linear-gradient(135deg,#1A0505,#2D0A0A)" }}/>
                     <div style={{ padding: 18 }}>
                       <h3 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: 18, textTransform: "uppercase", letterSpacing: "-0.02em", lineHeight: 1.1, margin: 0 }}>{r.title}</h3>
@@ -184,9 +187,10 @@ export default function Article() {
       `}</style>
     </div>);
 }
-function ShareBar({ url, title }: {
+function ShareBar({ url, title, t }: {
     url: string;
     title: string;
+    t: (chave: ChaveTexto) => string;
 }) {
     const [copied, setCopied] = useState(false);
     const enc = encodeURIComponent;
@@ -196,15 +200,17 @@ function ShareBar({ url, title }: {
         { label: "WhatsApp", href: `https://wa.me/?text=${enc(title + " " + url)}` },
     ];
     return (<div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", borderTop: "1px solid rgba(239,239,239,0.1)", paddingTop: 24 }}>
-      <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(239,239,239,0.5)" }}>Compartilhar</span>
+      <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(239,239,239,0.5)" }}>{t("blog.compartilhar")}</span>
       {links.map(l => (<a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" style={shareBtn}>{l.label}</a>))}
       <button onClick={() => { navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); }} style={shareBtn}>
-        {copied ? "Link copiado!" : "Copiar link"}
+        {copied ? t("blog.copiado") : t("blog.copiar")}
       </button>
     </div>);
 }
 const shareBtn: React.CSSProperties = { fontFamily: FONT_BODY, fontSize: 12, fontWeight: 600, padding: "8px 14px", borderRadius: 999, border: "1px solid rgba(239,239,239,0.2)", color: "rgba(239,239,239,0.8)", background: "transparent", textDecoration: "none", cursor: "pointer" };
-function NewsletterBox() {
+function NewsletterBox({ t }: {
+    t: (chave: ChaveTexto) => string;
+}) {
     const [email, setEmail] = useState("");
     const [msg, setMsg] = useState("");
     const [ok, setOk] = useState(false);
@@ -223,13 +229,13 @@ function NewsletterBox() {
             setEmail("");
     };
     return (<div style={{ border: "1px solid rgba(239,239,239,0.12)", borderRadius: 14, padding: "clamp(24px,3vw,36px)", background: "rgba(242,12,37,0.04)" }}>
-      <h2 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(20px,2.4vw,32px)", textTransform: "uppercase", letterSpacing: "-0.03em", margin: "0 0 8px" }}>Receba no seu e-mail</h2>
-      <p style={{ fontSize: 14, color: "rgba(239,239,239,0.6)", margin: "0 0 18px" }}>Novos artigos sobre design, estratégia e tecnologia. Sem spam.</p>
+      <h2 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(20px,2.4vw,32px)", textTransform: "uppercase", letterSpacing: "-0.03em", margin: "0 0 8px" }}>{t("news.titulo")}</h2>
+      <p style={{ fontSize: 14, color: "rgba(239,239,239,0.6)", margin: "0 0 18px" }}>{t("news.texto")}</p>
       <form onSubmit={submit} style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-        <label htmlFor="nl-email" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}>E-mail</label>
+        <label htmlFor="nl-email" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}>{t("form.email")}</label>
         <input id="nl-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" style={{ flex: "1 1 220px", background: "rgba(239,239,239,0.06)", border: "1px solid rgba(239,239,239,0.16)", borderRadius: 999, color: WHITE, fontFamily: FONT_BODY, fontSize: 14, padding: "12px 18px", outline: "none" }}/>
         <button type="submit" disabled={sending} style={{ padding: "12px 24px", borderRadius: 999, border: "none", background: RED_BTN, color: PURE_WHITE, fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", cursor: "pointer", opacity: sending ? 0.6 : 1 }}>
-          {sending ? "Enviando…" : "Inscrever"}
+          {sending ? t("news.enviando") : t("news.inscrever")}
         </button>
       </form>
       {msg && <p role="status" style={{ margin: "12px 0 0", fontSize: 13, color: ok ? "#3DBF72" : "#FF6B6B" }}>{msg}</p>}

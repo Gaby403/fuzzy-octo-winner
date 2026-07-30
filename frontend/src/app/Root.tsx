@@ -8,8 +8,10 @@ import { SmoothScroll } from "./components/system/SmoothScroll";
 import { CustomCursor } from "./components/system/CustomCursor";
 import { PageTransition } from "./components/system/PageTransition";
 import { DeferUntilIdle } from "./components/system/DeferUntilIdle";
+import { LanguageNotice } from "./components/system/LanguageNotice";
 import { initAnalytics, trackEvent } from "./utils/analytics";
-import { localeFromPath, switchLocalePath, HTML_LANG } from "./i18n/locale";
+import { localeFromPath, switchLocalePath, path as rotaDe, HTML_LANG } from "./i18n/locale";
+import { traduzir } from "./i18n/dicionario";
 function upsertMeta(attr: "name" | "property", key: string, value: string) {
     if (!value)
         return;
@@ -47,6 +49,7 @@ export default function Root() {
     const [loading, setLoading] = useState(true);
     const location = useLocation();
     const locale = localeFromPath(location.pathname);
+    const isHome = location.pathname === "/" || location.pathname === "/en";
     useEffect(() => {
         let alive = true;
         fetchContent(locale).then(c => {
@@ -160,7 +163,7 @@ export default function Root() {
             sameAs: (footer.social || []).map(s => s.url).filter(u => u && u.startsWith("http")),
             makesOffer: (services || []).map(s => ({
                 "@type": "Offer",
-                itemOffered: { "@type": "Service", name: s.title, description: s.body, ...(s.slug ? { url: `${origin}/servicos/${s.slug}` } : {}) },
+                itemOffered: { "@type": "Service", name: s.title, description: s.body, ...(s.slug ? { url: origin + rotaDe(locale, "servico", s.slug) } : {}) },
             })),
         });
         upsertJsonLd("ld-website", {
@@ -168,17 +171,17 @@ export default function Root() {
             "@type": "WebSite",
             name: site.title,
             url: origin,
-            inLanguage: "pt-BR",
+            inLanguage: HTML_LANG[locale],
             potentialAction: {
                 "@type": "SearchAction",
-                target: `${origin}/blog?q={search_term_string}`,
+                target: `${origin}${rotaDe(locale, "blog")}?q={search_term_string}`,
                 "query-input": "required name=search_term_string",
             },
         });
-    }, [content]);
+    }, [content, locale]);
     useEffect(() => {
         const existing = document.getElementById("ld-faq");
-        if (location.pathname !== "/" || !content.faq?.length) {
+        if (!isHome || !content.faq?.length) {
             if (existing)
                 existing.remove();
             return;
@@ -192,9 +195,8 @@ export default function Root() {
                 acceptedAnswer: { "@type": "Answer", text: f.a },
             })),
         });
-    }, [content.faq, location.pathname]);
+    }, [content.faq, isHome]);
     const ctx = useMemo(() => ({ content, loading }), [content, loading]);
-    const isHome = location.pathname === "/";
     return (<ContentContext.Provider value={ctx}>
       <UIProvider>
         
@@ -202,8 +204,9 @@ export default function Root() {
           <SmoothScroll />
           <CustomCursor />
           <PageTransition />
+          <LanguageNotice />
         </DeferUntilIdle>
-        <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
+        <a href="#conteudo" className="skip-link">{traduzir(locale, "nav.pular")}</a>
         <Header />
         
         {!isHome && <div aria-hidden="true" style={{ height: HEADER_HEIGHT }}/>}

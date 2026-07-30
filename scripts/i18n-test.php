@@ -11,9 +11,25 @@ function esc_url_raw($u,$p=null){return $u;} function wp_unslash($v){return $v;}
 function wp_parse_url($u,$c=-1){return $c===PHP_URL_HOST?parse_url($u,PHP_URL_HOST):parse_url($u);}
 function sanitize_text_field($s){return trim((string)$s);} function sanitize_textarea_field($s){return trim((string)$s);}
 function sanitize_email($s){return $s;} function is_email($s){return (bool)filter_var($s,FILTER_VALIDATE_EMAIL);}
-function get_post_meta($i,$k,$s=true){return '';} function wp_strip_all_tags($s){return $s;} function apply_filters($t,$v){return $v;}
+function get_post_meta($i,$k,$s=true){return '';}
+function mysql2date($f,$d,$t=true){return date($f, strtotime($d));} function wp_strip_all_tags($s){return $s;} function apply_filters($t,$v){return $v;}
 function esc_html($s){return $s;} function esc_attr($s){return $s;} function get_page_by_path($s,$o=null,$t=null){return null;}
-function wp_get_attachment_image_url($i,$s=null){return '';} function get_posts($a){return [];}
+function wp_get_attachment_image_url($i,$s=null){return '';} $GLOBALS['__servicos'] = ['pt'=>['branding','ui-ux'], 'en'=>['branding-en']];
+function get_posts($a){
+  $tipo = $a['post_type'] ?? '';
+  $mq   = $a['meta_query'] ?? [];
+  // O filtro EN é uma cláusula única de igualdade; o PT usa relation=OR com != e NOT EXISTS.
+  $lang = (1 === count($mq) && isset($mq[0]['value']) && 'en' === $mq[0]['value'] && ! isset($mq[0]['compare'])) ? 'en' : 'pt';
+  if ('st_service' === $tipo) {
+    $out=[]; $i=1;
+    foreach ($GLOBALS['__servicos'][$lang] as $slug) {
+      $p=new stdClass; $p->ID=$i++; $p->post_name=$slug; $p->post_title=$slug;
+      $p->post_content=''; $p->post_modified_gmt=gmdate('Y-m-d H:i:s'); $out[]=$p;
+    }
+    return $out;
+  }
+  return [];
+}
 function get_bloginfo($x=''){return 'Studio Tabi';} function wp_mail(...$a){return true;}
 function get_the_post_thumbnail_url($p,$s=null){return '';} function get_the_title($p){return '';}
 function sanitize_title($s){return $s;} function esc_textarea($s){return $s;} function checked($a,$b,$c=true){return '';}
@@ -22,15 +38,53 @@ class WP_REST_Response{public $data;public $status;function __construct($d,$s=20
 class WP_REST_Request{private $p;function __construct($p=[]){$this->p=$p;} function get_json_params(){return $this->p;} function get_params(){return $this->p;} function get_param($k){return $this->p[$k]??null;}}
 require_once "$P/includes/defaults.php"; require_once "$P/includes/class-options.php"; require_once "$P/includes/class-rest.php";
 
-echo "== Sem tradução: /en cai no português ==\n";
-$en = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'en']))->data;
-echo "  locale={$en['locale']}  hero='{$en['hero']['titleLines'][0]}'  ".($en['hero']['titleLines'][0]==='TRANSFORMAMOS'?"fallback PT ✓":"✗")."\n";
+$ok = 0; $ko = 0;
+function ok($rotulo, $cond, $valor = '') { global $ok, $ko; $cond ? $ok++ : $ko++; echo '  '.($cond?'✓':'✗')."  $rotulo".($valor!==''?": $valor":'')."\n"; }
 
-echo "== Com tradução parcial ==\n";
-$GLOBALS['__o']['stcms_options_en'] = ['hero'=>['title_lines'=>['WE TURN','YOUR BRAND'],'highlight'=>'DIGITAL.'],'nav'=>['cta_label'=>'START A PROJECT']];
+echo "== Sem nada salvo: /en já vem em inglês pelos padrões ==\n";
 $en = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'en']))->data;
 $pt = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'pt']))->data;
-echo "  EN hero: '".implode(' ',$en['hero']['titleLines'])."'  cta='{$en['nav']['ctaLabel']}'\n";
-echo "  EN campo não traduzido (descrição): '".substr($en['hero']['description'],0,28)."…'  ".(str_starts_with($en['hero']['description'],'Design, estratégia')?"herdou do PT ✓":"✗")."\n";
-echo "  PT intacto: '".implode(' ',$pt['hero']['titleLines'])."'  ".($pt['hero']['titleLines'][0]==='TRANSFORMAMOS'?"✓":"✗")."\n";
-echo "  locale PT={$pt['locale']} EN={$en['locale']}\n";
+ok('locale', $en['locale'] === 'en', $en['locale']);
+ok('hero traduzido', $en['hero']['titleLines'] === ['WE TURN','YOUR BRAND','INTO EXPERIENCE'], implode(' ', $en['hero']['titleLines']));
+ok('nav aponta para /en', $en['nav']['ctaUrl'] === '/en/contact', $en['nav']['ctaUrl']);
+ok('links de nav em inglês', $en['nav']['links'][0]['label'] === 'WORK', $en['nav']['links'][0]['label']);
+ok('rodapé traduzido', $en['footer']['ctaHighlight'] === 'digital presence.', $en['footer']['ctaHighlight']);
+ok('PT intacto', $pt['hero']['titleLines'][0] === 'TRANSFORMAMOS', $pt['hero']['titleLines'][0]);
+
+echo "== Campo ausente do dicionário EN herda do PT ==\n";
+ok('site.formEmail herdado', ($en['site']['ga4Id'] ?? '') === ($pt['site']['ga4Id'] ?? ''));
+ok('process mantém slugs PT (URLs estáveis)', $en['process'][0]['slug'] === 'diagnostico', $en['process'][0]['slug']);
+ok('process traduzido', $en['process'][0]['title'] === 'Diagnosis', $en['process'][0]['title']);
+
+echo "== Edição no CMS sobrepõe o padrão EN ==\n";
+$GLOBALS['__o']['stcms_options_en'] = ['hero'=>['title_lines'=>['WE SHAPE','BRANDS'],'highlight'=>'ONLINE.'],'nav'=>['cta_label'=>'BOOK A CALL']];
+$en = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'en']))->data;
+$pt = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'pt']))->data;
+ok('hero sobrescrito', implode(' ', $en['hero']['titleLines']) === 'WE SHAPE BRANDS', implode(' ', $en['hero']['titleLines']));
+ok('cta sobrescrito', $en['nav']['ctaLabel'] === 'BOOK A CALL', $en['nav']['ctaLabel']);
+ok('campo não editado mantém o padrão EN', str_starts_with($en['hero']['description'], 'Design, strategy'), substr($en['hero']['description'], 0, 24).'…');
+ok('PT segue intacto', $pt['hero']['titleLines'][0] === 'TRANSFORMAMOS' && $pt['nav']['ctaLabel'] === 'INICIAR PROJETO');
+
+echo "== Sitemap por idioma ==\n";
+$GLOBALS['__o']['stcms_site_origin'] = 'https://studiotabi.com.br';
+$mapa = STCMS_Rest::get_sitemap()->data;
+$xml  = $mapa['xml'];
+ok('base do site', $mapa['base'] === 'https://studiotabi.com.br', $mapa['base']);
+ok('XML bem formado', (bool) @simplexml_load_string($xml));
+ok('declara o namespace xhtml', str_contains($xml, 'xmlns:xhtml="http://www.w3.org/1999/xhtml"'));
+foreach (['https://studiotabi.com.br/', 'https://studiotabi.com.br/en', 'https://studiotabi.com.br/projetos',
+          'https://studiotabi.com.br/en/work', 'https://studiotabi.com.br/en/services',
+          'https://studiotabi.com.br/en/about', 'https://studiotabi.com.br/en/contact'] as $u) {
+    ok("lista $u", str_contains($xml, "<loc>$u</loc>"));
+}
+ok('hreflang recíproco na home',
+    str_contains($xml, '<xhtml:link rel="alternate" hreflang="en" href="https://studiotabi.com.br/en"/>')
+    && str_contains($xml, '<xhtml:link rel="alternate" hreflang="x-default" href="https://studiotabi.com.br/"/>'));
+ok('serviço PT no idioma certo', str_contains($xml, '<loc>https://studiotabi.com.br/servicos/branding</loc>'));
+ok('serviço EN no idioma certo', str_contains($xml, '<loc>https://studiotabi.com.br/en/services/branding-en</loc>'));
+ok('não inventa alternate para conteúdo sem tradução',
+    ! str_contains($xml, 'href="https://studiotabi.com.br/en/services/branding"'));
+ok('não indexa a página de obrigado', ! str_contains($xml, '/obrigado') && ! str_contains($xml, '/thank-you'));
+
+echo "\n$ok passaram, $ko falharam\n";
+exit($ko ? 1 : 0);

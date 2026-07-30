@@ -36,6 +36,7 @@ export async function fetchPosts(opts: {
     perPage?: number;
     search?: string;
     category?: string;
+    lang?: "pt" | "en";
 } = {}): Promise<PostsPage> {
     const empty: PostsPage = { items: [], total: 0, totalPages: 0, page: 1, perPage: opts.perPage ?? 9 };
     if (!WP_API)
@@ -59,11 +60,12 @@ export async function fetchPosts(opts: {
         return empty;
     }
 }
-export async function fetchPost(slug: string): Promise<PostFull | null> {
+export async function fetchPost(slug: string, lang: "pt" | "en" = "pt"): Promise<PostFull | null> {
     if (!WP_API)
         return null;
+    const qs = lang === "en" ? "?lang=en" : "";
     try {
-        const res = await fetch(`${WP_API}${NS}/post/${encodeURIComponent(slug)}`, { headers: { Accept: "application/json" } });
+        const res = await fetch(`${WP_API}${NS}/post/${encodeURIComponent(slug)}${qs}`, { headers: { Accept: "application/json" } });
         if (!res.ok)
             return null;
         return (await res.json()) as PostFull;
@@ -72,11 +74,12 @@ export async function fetchPost(slug: string): Promise<PostFull | null> {
         return null;
     }
 }
-export async function fetchCategories(): Promise<BlogCategory[]> {
+export async function fetchCategories(lang: "pt" | "en" = "pt"): Promise<BlogCategory[]> {
     if (!WP_API)
         return [];
+    const qs = lang === "en" ? "?lang=en" : "";
     try {
-        const res = await fetch(`${WP_API}${NS}/categories`, { headers: { Accept: "application/json" } });
+        const res = await fetch(`${WP_API}${NS}/categories${qs}`, { headers: { Accept: "application/json" } });
         if (!res.ok)
             return [];
         return (await res.json()) as BlogCategory[];

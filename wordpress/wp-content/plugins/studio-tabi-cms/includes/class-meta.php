@@ -38,7 +38,7 @@ class STCMS_Meta {
 		add_meta_box( 'stcms_service', 'Dados do serviço', array( __CLASS__, 'render_service' ), 'st_service', 'side', 'high' );
 		add_meta_box( 'stcms_service_page', 'Conteúdo da página interna (/servicos/…)', array( __CLASS__, 'render_service_page' ), 'st_service', 'normal', 'high' );
 		add_meta_box( 'stcms_project', 'Dados do projeto', array( __CLASS__, 'render_project' ), 'st_project', 'normal', 'high' );
-		foreach ( array( 'st_service', 'st_project', 'st_faq', 'post' ) as $tipo ) {
+		foreach ( array( 'st_service', 'st_project', 'st_faq', 'post', 'page' ) as $tipo ) {
 			add_meta_box( 'stcms_idioma', 'Idioma', array( __CLASS__, 'render_idioma' ), $tipo, 'side', 'high' );
 		}
 	}

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useContent, submitContact } from "../store/content";
 import { getRecaptchaToken, trackEvent } from "../utils/analytics";
 import { TabiDetail } from "../components/TabiDetail";
+import { useLocale } from "../i18n/useLocale";
 const RED = "#F20C25";
 const RED_BTN = "#DA0A20";
 const RED_INK = "#FF3547";
@@ -14,14 +15,15 @@ const FONT_BODY = '"Be Vietnam Pro", sans-serif';
 export default function Contact() {
     const { content } = useContent();
     const navigate = useNavigate();
+    const { t, rota } = useLocale();
     const f = content.footer;
     const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
     const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle");
     const [feedback, setFeedback] = useState("");
     useEffect(() => {
-        document.title = `Contato — ${content.site.title}`;
+        document.title = `${t("menu.contato")} — ${content.site.title}`;
         window.scrollTo(0, 0);
-    }, [content.site.title]);
+    }, [content.site.title, t]);
     const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm(prev => ({ ...prev, [k]: e.target.value }));
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,7 +37,7 @@ export default function Contact() {
             setState("ok");
             setForm({ name: "", email: "", subject: "", message: "", website: "" });
             trackEvent("contact_submit");
-            navigate("/obrigado");
+            navigate(rota("obrigado"));
         }
         else {
             setState("error");
@@ -71,7 +73,7 @@ export default function Contact() {
         <div>
           <div className="flex items-center gap-3" style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.17em", color: "rgba(239,239,239,0.45)", marginBottom: 22 }}>
             <span className="block rounded-full" style={{ width: 7, height: 7, backgroundColor: RED }}/>
-            <span>{content.site.title.toUpperCase()} — CONTATO</span>
+            <span>{content.site.title.toUpperCase()} — {t("menu.contato").toUpperCase()}</span>
           </div>
           <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(40px,6vw,76px)", letterSpacing: "-0.05em", textTransform: "uppercase", lineHeight: 0.9, margin: "0 0 24px" }}>
             {content.contact.title} <span style={{ color: RED }}>{content.contact.highlight}</span>
@@ -82,15 +84,15 @@ export default function Contact() {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {f.email && (<a href={`mailto:${f.email}`} style={{ textDecoration: "none", color: WHITE }}>
-                <span style={label}>E-mail</span>
+                <span style={label}>{t("form.email")}</span>
                 <span style={{ fontSize: 16, color: "rgba(239,239,239,0.85)" }}>{f.email}</span>
               </a>)}
             {f.phone && (<a href={`tel:${f.phone.replace(/[^+\d]/g, "")}`} style={{ textDecoration: "none", color: WHITE }}>
-                <span style={label}>Telefone</span>
+                <span style={label}>{t("form.telefone")}</span>
                 <span style={{ fontSize: 16, color: "rgba(239,239,239,0.85)" }}>{f.phone}</span>
               </a>)}
             {f.city && (<div>
-                <span style={label}>Localização</span>
+                <span style={label}>{t("form.local")}</span>
                 <span style={{ fontSize: 16, color: "rgba(239,239,239,0.85)" }}>{f.city}</span>
               </div>)}
           </div>
@@ -99,20 +101,20 @@ export default function Contact() {
         
         <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div>
-            <label style={label} htmlFor="c-name">Nome</label>
-            <input id="c-name" style={field} type="text" value={form.name} onChange={set("name")} required placeholder="Seu nome" autoComplete="name"/>
+            <label style={label} htmlFor="c-name">{t("form.nome")}</label>
+            <input id="c-name" style={field} type="text" value={form.name} onChange={set("name")} required placeholder={t("form.seuNome")} autoComplete="name"/>
           </div>
           <div>
-            <label style={label} htmlFor="c-email">E-mail</label>
+            <label style={label} htmlFor="c-email">{t("form.email")}</label>
             <input id="c-email" style={field} type="email" value={form.email} onChange={set("email")} required placeholder="voce@email.com" autoComplete="email"/>
           </div>
           <div>
-            <label style={label} htmlFor="c-subject">Assunto</label>
-            <input id="c-subject" style={field} type="text" value={form.subject} onChange={set("subject")} placeholder="Sobre o que quer falar?"/>
+            <label style={label} htmlFor="c-subject">{t("form.assunto")}</label>
+            <input id="c-subject" style={field} type="text" value={form.subject} onChange={set("subject")} placeholder={t("form.sobreOQue")}/>
           </div>
           <div>
-            <label style={label} htmlFor="c-message">Mensagem</label>
-            <textarea id="c-message" style={{ ...field, minHeight: 140, resize: "vertical" }} value={form.message} onChange={set("message")} required placeholder="Conte sobre o seu projeto…"/>
+            <label style={label} htmlFor="c-message">{t("form.mensagem")}</label>
+            <textarea id="c-message" style={{ ...field, minHeight: 140, resize: "vertical" }} value={form.message} onChange={set("message")} required placeholder={t("form.conte")}/>
           </div>
 
           
@@ -138,14 +140,14 @@ export default function Contact() {
             opacity: state === "sending" ? 0.6 : 1,
             transition: "opacity 0.2s",
         }}>
-            {state === "sending" ? "ENVIANDO…" : "ENVIAR MENSAGEM"} <span style={{ fontSize: 14 }}>→</span>
+            {state === "sending" ? t("form.enviando") : t("form.enviar")} <span style={{ fontSize: 14 }}>→</span>
           </button>
 
           
           {content.site.recaptchaSite && (<p style={{ margin: "14px 0 0", fontSize: 11, lineHeight: 1.6, color: "rgba(239,239,239,0.35)" }}>
-              Protegido por reCAPTCHA — aplicam-se a{" "}
-              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: RED_INK }}>Política de Privacidade</a> e os{" "}
-              <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" style={{ color: RED_INK }}>Termos de Serviço</a> do Google.
+              {t("form.recaptcha")}{" "}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: RED_INK }}>{t("form.privacidade")}</a>{" "}&{" "}
+              <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" style={{ color: RED_INK }}>{t("form.termos")}</a> {t("form.doGoogle")}
             </p>)}
 
           {feedback && (<p role="status" style={{

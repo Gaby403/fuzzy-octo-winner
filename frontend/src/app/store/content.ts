@@ -362,6 +362,100 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
     pages: [],
 };
+const DEFAULT_CONTENT_EN: SiteContent = {
+    ...DEFAULT_CONTENT,
+    site: {
+        ...DEFAULT_CONTENT.site,
+        metaDescription: "Studio Tabi — design, strategy and engineering that turn digital presence into value, trust and decision.",
+        tagline: "Design and technology that take brands where they need to go.",
+    },
+    nav: {
+        brand: "STUDIO TABI",
+        links: [
+            { label: "WORK", url: "/en/work" },
+            { label: "SERVICES", url: "/en/services" },
+            { label: "ABOUT", url: "/en/about" },
+            { label: "BLOG", url: "/en/blog" },
+            { label: "CONTACT", url: "/en/contact" },
+        ],
+        ctaLabel: "START A PROJECT",
+        ctaUrl: "/en/contact",
+    },
+    hero: {
+        eyebrow: "STUDIO TABI — DIGITAL STUDIO",
+        titleLines: ["WE TURN", "YOUR BRAND", "INTO EXPERIENCE"],
+        highlight: "DIGITAL.",
+        description: "Design, strategy and engineering that turn digital presence into perceived value, trust and decision.",
+        ctaPrimary: { label: "VIEW PORTFOLIO", url: "/en/work" },
+        ctaSecondary: { label: "TALK TO THE TEAM", url: "/en/contact" },
+    },
+    projectsCta: { label: "VIEW PORTFOLIO", url: "/en/work" },
+    thankYou: {
+        title: "THANK YOU",
+        message: "We received your message. Our team will be in touch within one business day. Every great journey — tabi — begins with a first step.",
+    },
+    contact: {
+        title: "LET'S",
+        highlight: "TALK.",
+        description: "Tell us a bit about your project. We reply within one business day.",
+    },
+    process: [
+        { title: "Diagnosis", slug: "diagnostico", icon: "diagnostico", summary: "We dive into the business, the market and the goals to understand where you are and where you need to go." },
+        { title: "Narrative", slug: "narrativa", icon: "narrativa", summary: "We define the brand story and positioning — the message that guides every decision." },
+        { title: "Design", slug: "design", icon: "design", summary: "We translate strategy into identity and interface, with intent, hierarchy and purpose." },
+        { title: "Engineering", slug: "desenvolvimento", icon: "desenvolvimento", summary: "We build with clean, fast, scalable code — from idea to launch, ready to grow." },
+    ],
+    sections: {
+        about: { eyebrow: "STUDIO TABI — ABOUT US", pillarsLabel: "HOW WE WORK", ctaLabel: "READ OUR STORY", ctaUrl: "/en/about" },
+        services: { eyebrow: "STUDIO TABI — SERVICES", ctaLabel: "VIEW ALL SERVICES", ctaUrl: "/en/services" },
+        projects: { eyebrow: "STUDIO TABI — WORK", note: "120+ projects delivered", cardText: "Want to see the full portfolio with all of our work?" },
+        blog: { eyebrow: "STUDIO TABI — INSIGHTS", title: "FROM OUR", highlight: "JOURNAL.", note: "Ideas on design, strategy and technology — straight from the people building it.", ctaLabel: "VIEW ALL ARTICLES" },
+        faq: { eyebrow: "STUDIO TABI — FAQ", note: "Didn't find what you were looking for? Talk to the team directly.", ctaLabel: "TALK TO THE TEAM", ctaUrl: "/en/contact" },
+    },
+    about: {
+        ...DEFAULT_CONTENT.about,
+        paragraph1: 'Studio Tabi was born from the conviction that digital presence is a strategic asset — not a communications expense. We bring together designers, strategists and engineers who refuse the mediocrity of "good enough".',
+        paragraph2: "Every project starts with a simple question: how does this business want to be perceived five years from now? The answer guides every creative, technical and strategic decision we make.",
+        stats: [
+            { numeric: 7, suffix: "+", label: "YEARS IN THE MARKET" },
+            { numeric: 120, suffix: "+", label: "PROJECTS DELIVERED" },
+            { numeric: 98, suffix: "%", label: "RETENTION RATE" },
+            { numeric: 3, suffix: "×", label: "AVERAGE 12-MONTH RETURN" },
+        ],
+    },
+    footer: {
+        ...DEFAULT_CONTENT.footer,
+        tagline: "Design and technology that take brands where they need to go.",
+        ctaTitle: "Let's build your",
+        ctaHighlight: "digital presence.",
+        ctaLabel: "START A PROJECT",
+        ctaUrl: "/en/contact",
+        columns: [
+            {
+                title: "Navigation",
+                links: [
+                    { label: "Work", url: "/en/work" },
+                    { label: "Services", url: "/en/services" },
+                    { label: "About", url: "/en/about" },
+                    { label: "Contact", url: "/en/contact" },
+                ],
+            },
+            { ...DEFAULT_CONTENT.footer.columns[1], title: "Services" },
+        ],
+        contactTitle: "Contact",
+        city: "São Paulo, Brazil",
+        socialTitle: "Social",
+        copyright: "© 2026 Studio Tabi. All rights reserved.",
+        madeIn: "Crafted with precision in São Paulo",
+        legal: [
+            { label: "Privacy Policy", url: "#" },
+            { label: "Terms of Use", url: "#" },
+        ],
+    },
+};
+export function defaultContent(lang: "pt" | "en" = "pt"): SiteContent {
+    return lang === "en" ? DEFAULT_CONTENT_EN : DEFAULT_CONTENT;
+}
 const FALLBACK_WP_API = "https://cms.studiotabi.com.br";
 declare global {
     interface Window {
@@ -381,29 +475,30 @@ function resolveApiBase(): string {
 export const WP_API: string = resolveApiBase();
 const CONTENT_ENDPOINT = "/wp-json/studio-tabi/v1/content";
 export const WP_ADMIN_URL: string = WP_API ? `${WP_API}/wp-admin/` : "/wp-admin/";
-function mergeContent(remote: Partial<SiteContent> | null | undefined): SiteContent {
+function mergeContent(remote: Partial<SiteContent> | null | undefined, lang: "pt" | "en" = "pt"): SiteContent {
+    const base = defaultContent(lang);
     if (!remote)
-        return DEFAULT_CONTENT;
+        return base;
     return {
-        site: { ...DEFAULT_CONTENT.site, ...(remote.site || {}) },
-        nav: { ...DEFAULT_CONTENT.nav, ...(remote.nav || {}) },
-        hero: { ...DEFAULT_CONTENT.hero, ...(remote.hero || {}) },
-        projectsCta: { ...DEFAULT_CONTENT.projectsCta, ...(remote.projectsCta || {}) },
-        thankYou: { ...DEFAULT_CONTENT.thankYou, ...(remote.thankYou || {}) },
-        contact: { ...DEFAULT_CONTENT.contact, ...(remote.contact || {}) },
-        process: remote.process?.length ? remote.process : DEFAULT_CONTENT.process,
+        site: { ...base.site, ...(remote.site || {}) },
+        nav: { ...base.nav, ...(remote.nav || {}) },
+        hero: { ...base.hero, ...(remote.hero || {}) },
+        projectsCta: { ...base.projectsCta, ...(remote.projectsCta || {}) },
+        thankYou: { ...base.thankYou, ...(remote.thankYou || {}) },
+        contact: { ...base.contact, ...(remote.contact || {}) },
+        process: remote.process?.length ? remote.process : base.process,
         sections: remote.sections ? {
-            about: { ...DEFAULT_CONTENT.sections.about, ...(remote.sections.about || {}) },
-            services: { ...DEFAULT_CONTENT.sections.services, ...(remote.sections.services || {}) },
-            projects: { ...DEFAULT_CONTENT.sections.projects, ...(remote.sections.projects || {}) },
-            blog: { ...DEFAULT_CONTENT.sections.blog, ...(remote.sections.blog || {}) },
-            faq: { ...DEFAULT_CONTENT.sections.faq, ...(remote.sections.faq || {}) },
-        } : DEFAULT_CONTENT.sections,
-        about: { ...DEFAULT_CONTENT.about, ...(remote.about || {}) },
-        services: remote.services?.length ? remote.services : DEFAULT_CONTENT.services,
-        projects: remote.projects?.length ? remote.projects : DEFAULT_CONTENT.projects,
-        faq: remote.faq?.length ? remote.faq : DEFAULT_CONTENT.faq,
-        footer: { ...DEFAULT_CONTENT.footer, ...(remote.footer || {}) },
+            about: { ...base.sections.about, ...(remote.sections.about || {}) },
+            services: { ...base.sections.services, ...(remote.sections.services || {}) },
+            projects: { ...base.sections.projects, ...(remote.sections.projects || {}) },
+            blog: { ...base.sections.blog, ...(remote.sections.blog || {}) },
+            faq: { ...base.sections.faq, ...(remote.sections.faq || {}) },
+        } : base.sections,
+        about: { ...base.about, ...(remote.about || {}) },
+        services: remote.services?.length ? remote.services : base.services,
+        projects: remote.projects?.length ? remote.projects : base.projects,
+        faq: remote.faq?.length ? remote.faq : base.faq,
+        footer: { ...base.footer, ...(remote.footer || {}) },
         pages: remote.pages || [],
     };
 }
@@ -412,20 +507,20 @@ export async function fetchContent(lang: "pt" | "en" = "pt"): Promise<SiteConten
         console.warn("[Studio Tabi] MODO OFFLINE: window.__STUDIO_TABI_API__ está vazio em config.js. " +
             "O site está mostrando o conteúdo padrão embutido e NÃO o conteúdo do CMS. " +
             'Defina a URL do WordPress em config.js, ex.: window.__STUDIO_TABI_API__ = "https://cms.studiotabi.com.br";');
-        return DEFAULT_CONTENT;
+        return defaultContent(lang);
     }
     try {
         const res = await fetch(`${WP_API}${CONTENT_ENDPOINT}${lang === "en" ? "?lang=en" : ""}`, { headers: { Accept: "application/json" } });
         if (!res.ok)
             throw new Error(`HTTP ${res.status}`);
         const data = (await res.json()) as Partial<SiteContent>;
-        return mergeContent(data);
+        return mergeContent(data, lang);
     }
     catch (err) {
         console.warn(`[Studio Tabi] Falha ao carregar o conteúdo do WordPress em ${WP_API}${CONTENT_ENDPOINT} — ` +
             "usando o conteúdo padrão. Verifique: (1) o endpoint abre no navegador e devolve JSON; " +
             "(2) o CORS permite a origem do site; (3) os permalinks do WP não estão em 'Simples'.", err);
-        return DEFAULT_CONTENT;
+        return defaultContent(lang);
     }
 }
 export interface WpPage {
@@ -433,11 +528,12 @@ export interface WpPage {
     title: string;
     content: string;
 }
-export async function fetchPage(slug: string): Promise<WpPage | null> {
+export async function fetchPage(slug: string, lang: "pt" | "en" = "pt"): Promise<WpPage | null> {
     if (!WP_API)
         return null;
+    const qs = lang === "en" ? "?lang=en" : "";
     try {
-        const res = await fetch(`${WP_API}/wp-json/studio-tabi/v1/page/${encodeURIComponent(slug)}`, {
+        const res = await fetch(`${WP_API}/wp-json/studio-tabi/v1/page/${encodeURIComponent(slug)}${qs}`, {
             headers: { Accept: "application/json" },
         });
         if (!res.ok)
