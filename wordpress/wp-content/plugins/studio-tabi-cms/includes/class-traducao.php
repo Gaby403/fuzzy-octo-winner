@@ -29,6 +29,14 @@ class STCMS_Traducao {
 	 * origem: de onde vem o texto em português (post_title, post_content,
 	 * post_excerpt ou o nome de uma meta).
 	 */
+	/**
+	 * ID aceito pelo TinyMCE: só minúsculas, dígitos e hífen. Com underscore o
+	 * editor visual não devolve o conteúdo para o textarea e o campo salva vazio.
+	 */
+	public static function id_editor( $chave ) {
+		return 'stcms-en-' . str_replace( '_', '-', $chave );
+	}
+
 	public static function campos( $tipo ) {
 		$mapa = array(
 			'st_service' => array(
@@ -120,13 +128,56 @@ class STCMS_Traducao {
 		foreach ( self::tipos() as $tipo ) {
 			add_meta_box(
 				'stcms_en',
-				'Versão em inglês (/en)',
+				'Idioma do conteúdo — Português / English',
 				array( __CLASS__, 'render' ),
 				$tipo,
 				'normal',
-				'default'
+				'high'
 			);
 		}
+	}
+
+	/**
+	 * Texto em português de um campo, para exibir lado a lado com a tradução.
+	 */
+	private static function valor_pt( $post, $chave, $cfg ) {
+		switch ( $cfg['origem'] ) {
+			case 'post_title':
+				return (string) $post->post_title;
+			case 'post_content':
+				return (string) $post->post_content;
+			case 'post_excerpt':
+				return (string) $post->post_excerpt;
+		}
+		$valor = get_post_meta( $post->ID, $cfg['origem'], true );
+		if ( 'linhas' === $cfg['formato'] && is_array( $valor ) ) {
+			$itens = array();
+			foreach ( $valor as $linha ) {
+				if ( is_array( $linha ) ) {
+					$itens[] = isset( $linha['item'] ) ? $linha['item'] : ( isset( $linha['label'] ) ? $linha['label'] : '' );
+				} else {
+					$itens[] = (string) $linha;
+				}
+			}
+			return implode( "\n", array_filter( $itens, 'strlen' ) );
+		}
+		return is_scalar( $valor ) ? (string) $valor : '';
+	}
+
+	/**
+	 * Onde se edita o texto em português de cada campo — o painel PT é só
+	 * referência, para não existirem dois lugares editando a mesma coisa.
+	 */
+	private static function onde_editar( $cfg ) {
+		switch ( $cfg['origem'] ) {
+			case 'post_title':
+				return 'no campo de título, no topo desta tela';
+			case 'post_content':
+				return 'no editor principal, acima';
+			case 'post_excerpt':
+				return 'no box “Resumo”';
+		}
+		return 'no box “Dados do projeto”, abaixo';
 	}
 
 	public static function render( $post ) {
@@ -136,23 +187,61 @@ class STCMS_Traducao {
 		}
 		wp_nonce_field( 'stcms_en', 'stcms_en_nonce' );
 
+		echo '<div class="stcms-idiomas">';
+
+		echo '<h2 class="nav-tab-wrapper stcms-abas" style="margin:0 0 16px">'
+			. '<a href="#" class="nav-tab nav-tab-active" data-aba="pt">Português</a>'
+			. '<a href="#" class="nav-tab" data-aba="en">English <span class="stcms-aba-status"></span></a>'
+			. '</h2>';
+
+		// ---------- Aba Português ----------
+		echo '<div class="stcms-painel" data-painel="pt">';
+		echo '<p class="description" style="margin:0 0 14px">'
+			. 'O texto em português deste item, para você comparar enquanto traduz. '
+			. 'Para alterá-lo, use o campo original — cada texto tem um lugar só de edição.'
+			. '</p>';
+		foreach ( $campos as $chave => $cfg ) {
+			$pt = self::valor_pt( $post, $chave, $cfg );
+			printf(
+				'<p style="margin:0 0 4px"><strong>%s</strong> <span style="color:#787c82;font-weight:400">— edite %s</span></p>',
+				esc_html( $cfg['rotulo'] ),
+				esc_html( self::onde_editar( $cfg ) )
+			);
+			if ( '' === trim( $pt ) ) {
+				echo '<p style="margin:0 0 16px;color:#8a6d00">(vazio)</p>';
+			} else {
+				printf(
+					'<div style="margin:0 0 16px;padding:10px 12px;background:#f6f7f7;border-left:3px solid #dcdcde;white-space:pre-wrap;max-height:180px;overflow:auto">%s</div>',
+					esc_html( $pt )
+				);
+			}
+		}
+		echo '</div>';
+
+		// ---------- Aba English ----------
+		echo '<div class="stcms-painel" data-painel="en" style="display:none">';
 		echo '<p class="description" style="margin:0 0 14px">'
 			. 'Preencha só o que quiser traduzir. Campo em branco mostra o texto em português no <code>/en</code>. '
-			. 'Isto fica dentro deste mesmo item — nenhuma página ou conteúdo é duplicado.'
+			. 'Tudo fica dentro deste mesmo item — nada é duplicado.'
 			. '</p>';
 
 		foreach ( $campos as $chave => $cfg ) {
 			$valor = get_post_meta( $post->ID, self::PREFIXO . $chave, true );
-			$id    = 'stcms_en_' . $chave;
+			$nome  = 'stcms_en_' . $chave;
+			$id    = self::id_editor( $chave );
 
-			printf( '<p style="margin-bottom:4px"><label for="%s" style="font-weight:600">%s</label></p>', esc_attr( $id ), esc_html( $cfg['rotulo'] ) );
+			printf(
+				'<p style="margin-bottom:4px"><label for="%s" style="font-weight:600">%s</label></p>',
+				esc_attr( $id ),
+				esc_html( $cfg['rotulo'] )
+			);
 
 			if ( 'rico' === $cfg['formato'] ) {
 				wp_editor(
 					$valor,
 					$id,
 					array(
-						'textarea_name' => $id,
+						'textarea_name' => $nome,
 						'textarea_rows' => 10,
 						'media_buttons' => true,
 						'teeny'         => false,
@@ -163,7 +252,7 @@ class STCMS_Traducao {
 				printf(
 					'<textarea id="%s" name="%s" rows="%d" style="width:100%%;margin-bottom:16px">%s</textarea>',
 					esc_attr( $id ),
-					esc_attr( $id ),
+					esc_attr( $nome ),
 					'linhas' === $cfg['formato'] ? 4 : 5,
 					esc_textarea( $valor )
 				);
@@ -171,11 +260,14 @@ class STCMS_Traducao {
 				printf(
 					'<input type="text" id="%s" name="%s" value="%s" style="width:100%%;margin-bottom:16px" />',
 					esc_attr( $id ),
-					esc_attr( $id ),
+					esc_attr( $nome ),
 					esc_attr( $valor )
 				);
 			}
 		}
+		echo '</div>';
+
+		echo '</div>';
 	}
 
 	public static function save( $post_id, $post ) {
@@ -183,6 +275,9 @@ class STCMS_Traducao {
 			return;
 		}
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+		if ( wp_is_post_revision( $post_id ) ) {
 			return;
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
@@ -195,12 +290,15 @@ class STCMS_Traducao {
 				continue;
 			}
 			$bruto = wp_unslash( $_POST[ $campo ] );
-			if ( 'rico' === $cfg['formato'] ) {
-				$limpo = wp_kses_post( $bruto );
-			} elseif ( 'texto' === $cfg['formato'] ) {
+			if ( 'texto' === $cfg['formato'] ) {
 				$limpo = sanitize_text_field( $bruto );
-			} else {
+			} elseif ( 'linhas' === $cfg['formato'] ) {
+				// Listas são texto puro — aqui remover marcação é o certo.
 				$limpo = sanitize_textarea_field( $bruto );
+			} else {
+				// 'rico' e 'area' vão para conteúdo, onde HTML é legítimo.
+				// sanitize_textarea_field apagaria <strong>, <em>, links…
+				$limpo = wp_kses_post( $bruto );
 			}
 			if ( '' === trim( (string) $limpo ) ) {
 				delete_post_meta( $post_id, self::PREFIXO . $chave );

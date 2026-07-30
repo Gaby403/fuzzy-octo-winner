@@ -85,7 +85,7 @@ class STCMS_Meta {
 			. '<span style="color:#787c82;font-size:12px">Desmarcado, a página mostra apenas o texto abaixo — útil quando a descrição curta serve só para o card da home.</span></p>';
 		wp_editor(
 			$value,
-			'stcms_page_content',
+			'stcms-page-content',
 			array(
 				'textarea_name' => 'stcms_page_content',
 				'textarea_rows' => 12,

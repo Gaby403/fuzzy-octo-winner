@@ -188,3 +188,55 @@
 		}
 	});
 })();
+
+/* Abas Português / English da caixa de idioma. */
+(function () {
+	document.addEventListener('click', function (e) {
+		var aba = e.target.closest ? e.target.closest('.stcms-abas .nav-tab') : null;
+		if (!aba) { return; }
+		e.preventDefault();
+		var caixa = aba.closest('.stcms-idiomas');
+		if (!caixa) { return; }
+		var alvo = aba.getAttribute('data-aba');
+		caixa.querySelectorAll('.stcms-abas .nav-tab').forEach(function (t) {
+			t.classList.toggle('nav-tab-active', t === aba);
+		});
+		caixa.querySelectorAll('.stcms-painel').forEach(function (p) {
+			p.style.display = p.getAttribute('data-painel') === alvo ? '' : 'none';
+		});
+		/* O TinyMCE criado dentro de um painel oculto nasce com altura zero;
+		   ao exibir o painel ele precisa recalcular o layout. */
+		if (window.tinymce) {
+			window.tinymce.editors.forEach(function (ed) {
+				if (ed.getContainer() && caixa.contains(ed.getContainer())) {
+					try { ed.execCommand('mceRepaint'); } catch (err) {}
+				}
+			});
+			window.dispatchEvent(new Event('resize'));
+		}
+	});
+
+	/* Rede de segurança: leva o conteúdo do editor visual para o textarea antes
+	   de enviar o formulário, inclusive quando a aba está oculta. */
+	document.addEventListener('submit', function (e) {
+		if (e.target && e.target.id === 'post' && window.tinymce) {
+			try { window.tinymce.triggerSave(); } catch (err) {}
+		}
+	}, true);
+
+	/* Marca a aba English quando já existe alguma tradução preenchida. */
+	document.addEventListener('DOMContentLoaded', function () {
+		document.querySelectorAll('.stcms-idiomas').forEach(function (caixa) {
+			var painel = caixa.querySelector('.stcms-painel[data-painel="en"]');
+			var marca = caixa.querySelector('.stcms-aba-status');
+			if (!painel || !marca) { return; }
+			var campos = painel.querySelectorAll('input[type="text"], textarea');
+			var preenchido = Array.prototype.some.call(campos, function (c) {
+				return c.value && c.value.trim() !== '';
+			});
+			marca.textContent = preenchido ? ' ●' : '';
+			marca.style.color = '#1a7f37';
+			marca.title = preenchido ? 'Este item já tem tradução' : '';
+		});
+	});
+})();

@@ -199,3 +199,9 @@
 
 /* Esconde o wrap default do submit_button */
 .stcms-savebar p.submit { margin: 0 !important; padding: 0 !important; }
+
+/* Abas Português / English */
+.stcms-idiomas .stcms-abas { border-bottom: 1px solid #c3c4c7; padding-bottom: 0; }
+.stcms-idiomas .stcms-abas .nav-tab { cursor: pointer; }
+.stcms-idiomas .stcms-painel { padding-top: 4px; }
+.stcms-idiomas .stcms-aba-status { font-size: 16px; line-height: 1; }
