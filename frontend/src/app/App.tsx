@@ -6,6 +6,7 @@ import { useContent, type SiteContent } from "./store/content";
 import { fetchPosts, type PostCard } from "./store/blog";
 import Root from "./Root";
 import { TabiMark } from "./components/TabiMark";
+import { SLUGS } from "./i18n/locale";
 const ProjectDetail = lazy(() => import("./components/ProjectDetail"));
 import { ProcessIcon } from "./components/ui/ProcessIcon";
 import { TextReveal } from "./components/ui/TextReveal";
@@ -1090,26 +1091,27 @@ const FOOTER_NAV = [
     { label: "Serviços", links: ["Branding", "UI / UX Design", "Desenvolvimento Web", "Estratégia Digital", "Motion & Animação"] },
     { label: "Contato", links: ["oi@studiotabi.com.br", "+55 11 99999-9999", "São Paulo, Brasil"] },
 ];
+const paginas = (l: "pt" | "en") => {
+    const S = (k: keyof typeof SLUGS) => SLUGS[k][l];
+    return [
+        { index: true, Component: HomeSite },
+        { path: S("projetos"), lazy: async () => ({ Component: AllProjects }) },
+        { path: S("sobre"), lazy: lazyPage(() => import("./pages/About")) },
+        { path: S("servicos"), lazy: lazyPage(() => import("./pages/Services")) },
+        { path: `${S("servico")}/:slug`, lazy: lazyPage(() => import("./pages/ServiceDetail")) },
+        { path: `${S("processo")}/:slug`, lazy: lazyPage(() => import("./pages/ProcessStep")) },
+        { path: S("blog"), lazy: lazyPage(() => import("./pages/Blog")) },
+        { path: `${S("artigo")}/:slug`, lazy: lazyPage(() => import("./pages/Article")) },
+        { path: S("contato"), lazy: lazyPage(() => import("./pages/Contact")) },
+        { path: S("obrigado"), lazy: lazyPage(() => import("./pages/ThankYou")) },
+        { path: "admin", lazy: lazyPage(() => import("./pages/Admin")) },
+        { path: `${S("pagina")}/:slug`, lazy: lazyPage(() => import("./pages/Page")) },
+        { path: "*", lazy: lazyPage(() => import("./pages/NotFound")) },
+    ];
+};
 const router = createBrowserRouter([
-    {
-        path: "/",
-        Component: Root,
-        children: [
-            { index: true, Component: HomeSite },
-            { path: "projetos", lazy: async () => ({ Component: AllProjects }) },
-            { path: "sobre", lazy: lazyPage(() => import("./pages/About")) },
-            { path: "servicos", lazy: lazyPage(() => import("./pages/Services")) },
-            { path: "servicos/:slug", lazy: lazyPage(() => import("./pages/ServiceDetail")) },
-            { path: "processo/:slug", lazy: lazyPage(() => import("./pages/ProcessStep")) },
-            { path: "blog", lazy: lazyPage(() => import("./pages/Blog")) },
-            { path: "blog/:slug", lazy: lazyPage(() => import("./pages/Article")) },
-            { path: "contato", lazy: lazyPage(() => import("./pages/Contact")) },
-            { path: "obrigado", lazy: lazyPage(() => import("./pages/ThankYou")) },
-            { path: "admin", lazy: lazyPage(() => import("./pages/Admin")) },
-            { path: "p/:slug", lazy: lazyPage(() => import("./pages/Page")) },
-            { path: "*", lazy: lazyPage(() => import("./pages/NotFound")) },
-        ],
-    },
+    { path: "/en", Component: Root, children: paginas("en") },
+    { path: "/", Component: Root, children: paginas("pt") },
 ]);
 export default function App() {
     return (<LazyMotion features={domAnimation}>

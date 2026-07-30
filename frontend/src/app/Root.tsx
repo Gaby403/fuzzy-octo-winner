@@ -9,6 +9,7 @@ import { CustomCursor } from "./components/system/CustomCursor";
 import { PageTransition } from "./components/system/PageTransition";
 import { DeferUntilIdle } from "./components/system/DeferUntilIdle";
 import { initAnalytics, trackEvent } from "./utils/analytics";
+import { localeFromPath, switchLocalePath, HTML_LANG } from "./i18n/locale";
 function upsertMeta(attr: "name" | "property", key: string, value: string) {
     if (!value)
         return;
@@ -121,9 +122,25 @@ export default function Root() {
     useEffect(() => {
         if (typeof window === "undefined")
             return;
-        const url = window.location.origin + location.pathname;
+        const origin = window.location.origin;
+        const url = origin + location.pathname;
         upsertLink("canonical", url);
         upsertMeta("property", "og:url", url);
+
+        const locale = localeFromPath(location.pathname);
+        document.documentElement.lang = HTML_LANG[locale];
+        upsertMeta("property", "og:locale", locale === "pt" ? "pt_BR" : "en_US");
+
+        document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
+        const pt = origin + switchLocalePath(location.pathname, "pt");
+        const en = origin + switchLocalePath(location.pathname, "en");
+        for (const [lang, href] of [["pt-BR", pt], ["en", en], ["x-default", pt]] as const) {
+            const el = document.createElement("link");
+            el.rel = "alternate";
+            el.hreflang = lang;
+            el.href = href;
+            document.head.appendChild(el);
+        }
     }, [location.pathname]);
     useEffect(() => {
         if (typeof window === "undefined")

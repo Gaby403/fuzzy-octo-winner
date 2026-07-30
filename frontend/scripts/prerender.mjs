@@ -8,7 +8,9 @@ const AQUI = dirname(fileURLToPath(import.meta.url));
 const DIST = join(AQUI, "..", "dist");
 const CHROME = process.env.CHROME_PATH || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 const PORTA = 4599;
-const ROTAS = ["/", "/sobre", "/servicos", "/projetos", "/blog", "/contato", "/obrigado"];
+const PT = ["/", "/sobre", "/servicos", "/projetos", "/blog", "/contato", "/obrigado"];
+const EN = ["/en", "/en/about", "/en/services", "/en/work", "/en/blog", "/en/contact", "/en/thank-you"];
+const ROTAS = [...PT, ...EN];
 const MIME = {
     ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css",
     ".json": "application/json", ".svg": "image/svg+xml", ".woff2": "font/woff2",

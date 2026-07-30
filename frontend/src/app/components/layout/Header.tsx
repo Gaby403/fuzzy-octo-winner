@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { m, AnimatePresence } from "motion/react";
 import { useContent } from "../../store/content";
 import { useUI } from "../../contexts/UIContext";
+import { useLocale } from "../../i18n/useLocale";
+import { LOCALES, stripLocale } from "../../i18n/locale";
 const RED = "#F20C25";
 const RED_BTN = "#DA0A20";
 const RED_INK = "#FF3547";
@@ -23,9 +25,10 @@ function isActive(url: string, pathname: string): boolean {
 export function Header() {
     const { content } = useContent();
     const { menuOpen, toggleMenu, closeMenu } = useUI();
+    const { locale, t, alternar } = useLocale();
     const location = useLocation();
     const navigate = useNavigate();
-    const isHome = location.pathname === "/";
+    const isHome = stripLocale(location.pathname) === "/";
     const [scrolled, setScrolled] = useState(false);
     const solid = !isHome || scrolled;
     const iconColor = solid ? WHITE : BLACK;
@@ -61,9 +64,10 @@ export function Header() {
             return;
         e.preventDefault();
         closeMenu();
+        const prefixo = locale === "en" ? "/en" : "";
         if (url.startsWith("#")) {
-            if (location.pathname !== "/") {
-                navigate("/" + url);
+            if (stripLocale(location.pathname) !== "/") {
+                navigate(`${prefixo}/${url}`);
                 return;
             }
             const el = document.querySelector(url);
@@ -71,7 +75,7 @@ export function Header() {
                 el.scrollIntoView({ behavior: "smooth" });
         }
         else {
-            navigate(url);
+            navigate(url.startsWith("/") ? `${prefixo}${url}` : url);
         }
     };
     const brand = (<Link to="/" aria-label={`${content.site.title} — página inicial`} style={{ display: "inline-flex", alignItems: "center", color: iconColor, textDecoration: "none", pointerEvents: "auto" }}>
@@ -89,10 +93,18 @@ export function Header() {
             borderBottomColor: solid ? "rgba(239,239,239,0.08)" : "rgba(239,239,239,0)",
         }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
         {brand}
-        <button ref={hamburgerRef} type="button" onClick={toggleMenu} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={menuOpen} aria-controls="menu-drawer" className="flex flex-col justify-center items-end gap-[5px] cursor-pointer bg-transparent border-none p-2 -mr-2" style={{ color: iconColor }}>
+        <div className="flex items-center" style={{ gap: 14 }}>
+        <nav aria-label={t("nav.idioma")} className="flex items-center" style={{ gap: 6, fontFamily: FONT_BODY, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em" }}>
+          {LOCALES.map((l, i) => (<span key={l} className="flex items-center" style={{ gap: 6 }}>
+              {i > 0 && <span aria-hidden="true" style={{ opacity: 0.3 }}>/</span>}
+              <a href={alternar(l)} hrefLang={l} aria-current={locale === l ? "true" : undefined} style={{ color: locale === l ? RED_INK : iconColor, opacity: locale === l ? 1 : 0.55, textDecoration: "none", textTransform: "uppercase" }}>{l}</a>
+            </span>))}
+        </nav>
+        <button ref={hamburgerRef} type="button" onClick={toggleMenu} aria-label={menuOpen ? t("nav.fechar") : t("nav.abrir")} aria-expanded={menuOpen} aria-controls="menu-drawer" className="flex flex-col justify-center items-end gap-[5px] cursor-pointer bg-transparent border-none p-2 -mr-2" style={{ color: iconColor }}>
           <m.span className="block h-px bg-current" animate={{ width: 22, rotate: menuOpen ? 45 : 0, y: menuOpen ? 6 : 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}/>
           <m.span className="block h-px bg-current" animate={{ width: menuOpen ? 22 : 14, rotate: menuOpen ? -45 : 0, y: menuOpen ? -1 : 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}/>
         </button>
+        </div>
       </m.header>
 
       
