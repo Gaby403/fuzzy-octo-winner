@@ -29,7 +29,10 @@ function get_post_meta($i,$k='',$s=true){return '';} function get_page_by_path($
 function get_posts($a){return [];} function add_action($h,$c,$p=10,$n=1){return true;}
 function add_filter($h,$c,$p=10,$n=1){return true;} function current_user_can($c,$i=null){return true;}
 function admin_url($p=''){return '/wp-admin/'.$p;} function wp_nonce_url($u,$a){return $u;}
-function get_edit_post_link($i){return '#';} function mysql2date($f,$d,$t=true){return $d;}
+function get_edit_post_link($i,$c=null){return '/wp-admin/post.php?post='.$i.'&action=edit';}
+function selected($a,$b,$e=true){return (string)$a===(string)$b?' selected':'';}
+function wp_json_encode($v){return json_encode($v);}
+function get_the_title($p){return is_object($p)?$p->post_title:'';} function mysql2date($f,$d,$t=true){return $d;}
 class Redirecionou extends Exception {}
 function wp_safe_redirect($u){throw new Redirecionou($u);} function check_admin_referer($a){return true;}
 function get_post($i){return null;} function wp_is_post_revision($i){return false;}
@@ -112,6 +115,39 @@ ok('opção removida', ! isset($GLOBALS['__o']['stcms_options_en']));
 $depois = STCMS_Options::get('en');
 ok('volta ao padrão em inglês', 'DIGITAL.' === $depois['hero']['highlight'], $depois['hero']['highlight']);
 ok('etapas de volta', 4 === count($depois['process']) && 'Design' === $depois['process'][2]['title']);
+
+echo "\n== Coluna de serviços do rodapé ==\n";
+$GLOBALS['__o'] = [];
+$en = STCMS_Options::get('en');
+ok('EN traz os links de serviço', 5 === count($en['footer']['col2_links'] ?? []), (string) count($en['footer']['col2_links'] ?? []));
+ok('EN com rótulo em inglês', 'Web Development' === ($en['footer']['col2_links'][2]['label'] ?? ''), $en['footer']['col2_links'][2]['label'] ?? '(vazio)');
+ok('EN apontando para /en/services', 0 === strpos((string)($en['footer']['col2_links'][0]['url'] ?? ''), '/en/services'), $en['footer']['col2_links'][0]['url'] ?? '(vazio)');
+
+$form = formulario_en();
+$form['footer']['col2_links'][0] = array('label'=>'Brand Systems','url'=>'/en/services/branding-identidade-visual');
+$GLOBALS['__o']['stcms_options_en'] = STCMS_Options::sanitize_en( $form );
+$depois = STCMS_Options::get('en');
+ok('rótulo editado é salvo', 'Brand Systems' === $depois['footer']['col2_links'][0]['label'], $depois['footer']['col2_links'][0]['label']);
+ok('a coluna mantém 5 links', 5 === count($depois['footer']['col2_links']), (string) count($depois['footer']['col2_links']));
+ok('os demais links seguem intactos', 'UI / UX Design' === $depois['footer']['col2_links'][1]['label'], $depois['footer']['col2_links'][1]['label']);
+
+$GLOBALS['__o'] = [];
+$pt = STCMS_Options::get('pt');
+$formPt = $pt; $formPt['hero']['title_lines'] = implode("\n", $pt['hero']['title_lines']);
+$formPt['footer']['col2_links'][0] = array('label'=>'Branding','url'=>'/servicos/branding-identidade-visual');
+$GLOBALS['__o']['stcms_options'] = STCMS_Options::sanitize( $formPt );
+$depoisPt = STCMS_Options::get('pt');
+ok('PT: rótulo salvo', 'Branding' === $depoisPt['footer']['col2_links'][0]['label'], $depoisPt['footer']['col2_links'][0]['label']);
+ok('PT: URL salva', '/servicos/branding-identidade-visual' === $depoisPt['footer']['col2_links'][0]['url'], $depoisPt['footer']['col2_links'][0]['url']);
+ok('PT: coluna com 5 links', 5 === count($depoisPt['footer']['col2_links']), (string) count($depoisPt['footer']['col2_links']));
+
+echo "\n== Menu de destinos ==\n";
+$grupos = STCMS_Options::destinos();
+ok('lista as páginas do site', isset($grupos['Páginas do site']));
+ok('inclui a home', '/' === ($grupos['Páginas do site'][0]['url'] ?? ''), $grupos['Páginas do site'][0]['url'] ?? '');
+ok('inclui contato', '/contato' === ($grupos['Páginas do site'][5]['url'] ?? ''), $grupos['Páginas do site'][5]['url'] ?? '');
+ok('etapas do processo entram', isset($grupos['Processo']) && 4 === count($grupos['Processo']), isset($grupos['Processo']) ? (string) count($grupos['Processo']) : 'ausente');
+ok('etapa aponta para /processo/…', '/processo/diagnostico' === ($grupos['Processo'][0]['url'] ?? ''), $grupos['Processo'][0]['url'] ?? '');
 
 echo "\n== O português nunca é afetado ==\n";
 $pt = STCMS_Options::get('pt');

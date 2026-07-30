@@ -205,3 +205,8 @@
 .stcms-idiomas .stcms-abas .nav-tab { cursor: pointer; }
 .stcms-idiomas .stcms-painel { padding-top: 4px; }
 .stcms-idiomas .stcms-aba-status { font-size: 16px; line-height: 1; }
+
+/* Seletor de destino nos campos de link */
+.stcms-destino { display: inline-flex; align-items: center; gap: 6px; }
+.stcms-destino-select { max-width: 220px; }
+.stcms-destino-editar { font-size: 12px; white-space: nowrap; }

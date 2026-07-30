@@ -23,17 +23,28 @@
 		return max + 1;
 	}
 
-	function buildRow(base, index, cols) {
+	function buildRow(base, index, cols, rep) {
 		var row = document.createElement('div');
 		row.className = 'stcms-row';
-		row.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;align-items:center';
+		row.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:wrap';
+		/* Modelo do seletor de destino, copiado de uma linha existente. */
+		var modelo = rep ? rep.querySelector('.stcms-destino') : null;
 		Object.keys(cols).forEach(function (key) {
 			var input = document.createElement('input');
 			input.type = 'text';
+			input.className = 'stcms-campo-' + key;
 			input.placeholder = cols[key];
 			input.name = base + '[' + index + '][' + key + ']';
 			input.style.flex = '1';
 			row.appendChild(input);
+			if (modelo && key === 'url') {
+				var copia = modelo.cloneNode(true);
+				var sel = copia.querySelector('.stcms-destino-select');
+				if (sel) { sel.value = ''; }
+				var ed = copia.querySelector('.stcms-destino-editar');
+				if (ed) { ed.style.display = 'none'; ed.removeAttribute('href'); }
+				row.appendChild(copia);
+			}
 		});
 		var rm = document.createElement('button');
 		rm.type = 'button';
@@ -60,7 +71,7 @@
 			var rep = e.target.closest('.stcms-repeater');
 			var rowsEl = rep.querySelector('.stcms-rows');
 			var cols = JSON.parse(rep.querySelector('.stcms-cols').textContent);
-			rowsEl.appendChild(buildRow(rep.dataset.base, nextIndex(rowsEl), cols));
+			rowsEl.appendChild(buildRow(rep.dataset.base, nextIndex(rowsEl), cols, rep));
 		}
 		// Remove row
 		if (e.target.classList.contains('stcms-remove')) {
@@ -72,7 +83,7 @@
 				// keep at least one empty row so the section stays usable
 				var rep2 = container.closest('.stcms-repeater');
 				var cols2 = JSON.parse(rep2.querySelector('.stcms-cols').textContent);
-				container.appendChild(buildRow(rep2.dataset.base, 0, cols2));
+				container.appendChild(buildRow(rep2.dataset.base, 0, cols2, rep2));
 			}
 		}
 		// Media picker (used on the options page)
@@ -238,5 +249,53 @@
 			marca.style.color = '#1a7f37';
 			marca.title = preenchido ? 'Este item já tem tradução' : '';
 		});
+	});
+})();
+
+/* Seletor de destino ao lado dos campos de link. */
+(function () {
+	function campoDoSeletor(sel) {
+		var linha = sel.closest('.stcms-row');
+		return linha ? linha.querySelector('.stcms-campo-url') : null;
+	}
+
+	function atualizarEditar(sel) {
+		var link = sel.parentNode.querySelector('.stcms-destino-editar');
+		if (!link) { return; }
+		var opcao = sel.options[sel.selectedIndex];
+		var url = opcao ? opcao.getAttribute('data-editar') : '';
+		if (url) {
+			link.href = url;
+			link.style.display = '';
+		} else {
+			link.removeAttribute('href');
+			link.style.display = 'none';
+		}
+	}
+
+	/* Ao escolher no menu, preenche a URL e libera o atalho de edição. */
+	document.addEventListener('change', function (e) {
+		if (!e.target.classList || !e.target.classList.contains('stcms-destino-select')) { return; }
+		var campo = campoDoSeletor(e.target);
+		if (campo && e.target.value) {
+			campo.value = e.target.value;
+			campo.dispatchEvent(new Event('input', { bubbles: true }));
+		}
+		atualizarEditar(e.target);
+	});
+
+	/* Digitar a URL na mão mantém o menu em sincronia. */
+	document.addEventListener('input', function (e) {
+		if (!e.target.classList || !e.target.classList.contains('stcms-campo-url')) { return; }
+		var linha = e.target.closest('.stcms-row');
+		var sel = linha ? linha.querySelector('.stcms-destino-select') : null;
+		if (!sel) { return; }
+		sel.value = Array.prototype.some.call(sel.options, function (o) { return o.value === e.target.value; })
+			? e.target.value : '';
+		atualizarEditar(sel);
+	});
+
+	document.addEventListener('DOMContentLoaded', function () {
+		document.querySelectorAll('.stcms-destino-select').forEach(atualizarEditar);
 	});
 })();

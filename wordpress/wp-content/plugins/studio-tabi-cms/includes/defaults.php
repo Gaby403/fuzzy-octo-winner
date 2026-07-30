@@ -318,6 +318,13 @@ function stcms_default_options_en() {
 				array( 'label' => 'Contact', 'url' => '/en/contact' ),
 			),
 			'col2_title'    => 'Services',
+			'col2_links'    => array(
+				array( 'label' => 'Branding', 'url' => '/en/services/branding-identidade-visual' ),
+				array( 'label' => 'UI / UX Design', 'url' => '/en/services/design-de-interface-ui-ux' ),
+				array( 'label' => 'Web Development', 'url' => '/en/services/websites-imersivos' ),
+				array( 'label' => 'Landing Pages', 'url' => '/en/services/landing-pages-conversivas' ),
+				array( 'label' => 'Motion & Animation', 'url' => '/en/services/motion-para-sites' ),
+			),
 			'contact_title' => 'Contact',
 			'city'          => 'São Paulo, Brazil',
 			'social_title'  => 'Social',

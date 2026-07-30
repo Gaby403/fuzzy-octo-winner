@@ -202,7 +202,7 @@ class STCMS_Options {
 						?>
 						<tr>
 							<th scope="row">Links do menu</th>
-							<td><?php self::repeater( 'nav][links', $o['nav']['links'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ) ); ?></td>
+							<td><?php self::repeater( 'nav][links', $o['nav']['links'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ), true ); ?></td>
 						</tr>
 					</table>
 				<?php self::card_close(); ?>
@@ -376,14 +376,14 @@ class STCMS_Options {
 					<div class="stcms-subgroup"><span class="stcms-subtitle">Coluna 1 de links</span>
 						<table class="form-table stcms-fields" role="presentation">
 							<?php self::row_text( 'Título da coluna', 'footer][col1_title', $o['footer']['col1_title'] ); ?>
-							<tr><th scope="row">Links</th><td><?php self::repeater( 'footer][col1_links', $o['footer']['col1_links'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ) ); ?></td></tr>
+							<tr><th scope="row">Links</th><td><?php self::repeater( 'footer][col1_links', $o['footer']['col1_links'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ), true ); ?></td></tr>
 						</table>
 					</div>
 
 					<div class="stcms-subgroup"><span class="stcms-subtitle">Coluna 2 de links</span>
 						<table class="form-table stcms-fields" role="presentation">
 							<?php self::row_text( 'Título da coluna', 'footer][col2_title', $o['footer']['col2_title'] ); ?>
-							<tr><th scope="row">Links</th><td><?php self::repeater( 'footer][col2_links', $o['footer']['col2_links'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ) ); ?></td></tr>
+							<tr><th scope="row">Links</th><td><?php self::repeater( 'footer][col2_links', $o['footer']['col2_links'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ), true ); ?></td></tr>
 						</table>
 					</div>
 
@@ -411,7 +411,7 @@ class STCMS_Options {
 							self::row_text( 'Copyright', 'footer][copyright', $o['footer']['copyright'] );
 							self::row_text( 'Texto "feito em"', 'footer][made_in', $o['footer']['made_in'], 'Deixe vazio para ocultar.' );
 							?>
-							<tr><th scope="row">Links legais</th><td><?php self::repeater( 'footer][legal', $o['footer']['legal'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ) ); ?></td></tr>
+							<tr><th scope="row">Links legais</th><td><?php self::repeater( 'footer][legal', $o['footer']['legal'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ), true ); ?></td></tr>
 						</table>
 					</div>
 				<?php self::card_close(); ?>
@@ -483,27 +483,162 @@ class STCMS_Options {
 		echo '</div></td></tr>';
 	}
 
-	private static function repeater( $path, $rows, $cols ) {
+	/**
+	 * Destinos do site que podem virar link, com o atalho para editar cada um.
+	 * Alimenta o seletor ao lado dos campos de URL.
+	 */
+	public static function destinos() {
+		$prefixo = 'en' === self::$lang ? '/en' : '';
+		$rota    = function ( $chave ) use ( $prefixo ) {
+			$mapa = array(
+				'home' => array( '', '' ),
+				'projetos' => array( 'projetos', 'work' ),
+				'servicos' => array( 'servicos', 'services' ),
+				'sobre' => array( 'sobre', 'about' ),
+				'blog' => array( 'blog', 'blog' ),
+				'contato' => array( 'contato', 'contact' ),
+				'processo' => array( 'processo', 'process' ),
+			);
+			$slug = 'en' === self::$lang ? $mapa[ $chave ][1] : $mapa[ $chave ][0];
+			return $slug ? $prefixo . '/' . $slug : ( $prefixo ? $prefixo : '/' );
+		};
+
+		$grupos = array();
+
+		$grupos['Páginas do site'] = array(
+			array( 'url' => $rota( 'home' ),     'label' => 'Home' ),
+			array( 'url' => $rota( 'projetos' ), 'label' => 'Projetos' ),
+			array( 'url' => $rota( 'servicos' ), 'label' => 'Serviços' ),
+			array( 'url' => $rota( 'sobre' ),    'label' => 'Sobre' ),
+			array( 'url' => $rota( 'blog' ),     'label' => 'Blog' ),
+			array( 'url' => $rota( 'contato' ),  'label' => 'Contato' ),
+		);
+
+		$servicos = get_posts(
+			array(
+				'post_type'   => 'st_service',
+				'post_status' => 'publish',
+				'numberposts' => -1,
+				'orderby'     => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
+				'order'       => 'ASC',
+			)
+		);
+		$lista = array();
+		foreach ( $servicos as $sv ) {
+			$lista[] = array(
+				'url'    => $rota( 'servicos' ) . '/' . $sv->post_name,
+				'label'  => get_the_title( $sv ),
+				'editar' => get_edit_post_link( $sv->ID, 'raw' ),
+			);
+		}
+		if ( $lista ) {
+			$grupos['Serviços'] = $lista;
+		}
+
+		$o     = self::get( self::$lang );
+		$lista = array();
+		foreach ( (array) ( $o['process'] ?? array() ) as $etapa ) {
+			if ( empty( $etapa['slug'] ) ) {
+				continue;
+			}
+			$pagina  = get_page_by_path( $etapa['slug'], OBJECT, 'page' );
+			$lista[] = array(
+				'url'    => $rota( 'processo' ) . '/' . $etapa['slug'],
+				'label'  => isset( $etapa['title'] ) ? $etapa['title'] : $etapa['slug'],
+				'editar' => $pagina ? get_edit_post_link( $pagina->ID, 'raw' ) : '',
+			);
+		}
+		if ( $lista ) {
+			$grupos['Processo'] = $lista;
+		}
+
+		$paginas = get_posts(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'numberposts' => -1,
+				'orderby'     => array( 'menu_order' => 'ASC', 'title' => 'ASC' ),
+				'order'       => 'ASC',
+			)
+		);
+		$excluir = array();
+		foreach ( (array) ( $o['process'] ?? array() ) as $etapa ) {
+			if ( ! empty( $etapa['slug'] ) ) {
+				$excluir[] = $etapa['slug'];
+			}
+		}
+		$lista = array();
+		foreach ( $paginas as $pg ) {
+			if ( in_array( $pg->post_name, $excluir, true ) ) {
+				continue;
+			}
+			$lista[] = array(
+				'url'    => $prefixo . '/p/' . $pg->post_name,
+				'label'  => get_the_title( $pg ),
+				'editar' => get_edit_post_link( $pg->ID, 'raw' ),
+			);
+		}
+		if ( $lista ) {
+			$grupos['Páginas do WordPress'] = $lista;
+		}
+
+		return $grupos;
+	}
+
+	/**
+	 * Seletor de destino + atalho "editar", ao lado de um campo de URL.
+	 */
+	private static function seletor_destino( $valor ) {
+		$grupos = self::destinos();
+		if ( ! $grupos ) {
+			return;
+		}
+		echo '<span class="stcms-destino">';
+		echo '<select class="stcms-destino-select" aria-label="Escolher destino">';
+		echo '<option value="">Escolher página…</option>';
+		foreach ( $grupos as $titulo => $itens ) {
+			printf( '<optgroup label="%s">', esc_attr( $titulo ) );
+			foreach ( $itens as $item ) {
+				printf(
+					'<option value="%s" data-editar="%s"%s>%s</option>',
+					esc_attr( $item['url'] ),
+					esc_attr( isset( $item['editar'] ) ? $item['editar'] : '' ),
+					selected( $valor, $item['url'], false ),
+					esc_html( $item['label'] )
+				);
+			}
+			echo '</optgroup>';
+		}
+		echo '</select>';
+		echo '<a class="stcms-destino-editar button-link" href="#" target="_blank" rel="noopener" style="display:none">editar</a>';
+		echo '</span>';
+	}
+
+	private static function repeater( $path, $rows, $cols, $com_destino = false ) {
 		$base = self::option_name() . '[' . $path . ']';
 		$rows = array_values( array_filter( (array) $rows, 'is_array' ) );
 		if ( empty( $rows ) ) {
 			$rows = array( array() );
 		}
-		echo '<div class="stcms-repeater" data-base="' . esc_attr( $base ) . '">';
+		echo '<div class="stcms-repeater' . ( $com_destino ? ' stcms-com-destino' : '' ) . '" data-base="' . esc_attr( $base ) . '">';
 		echo '<script type="application/json" class="stcms-cols">' . wp_json_encode( $cols ) . '</script>';
 		echo '<div class="stcms-rows">';
 		foreach ( $rows as $i => $row ) {
-			echo '<div class="stcms-row" style="display:flex;gap:6px;margin-bottom:6px;align-items:center">';
+			echo '<div class="stcms-row" style="display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:wrap">';
 			foreach ( $cols as $key => $col_label ) {
 				$val = isset( $row[ $key ] ) ? $row[ $key ] : '';
 				printf(
-					'<input type="text" placeholder="%s" name="%s[%d][%s]" value="%s" style="flex:1" />',
+					'<input type="text" class="stcms-campo-%s" placeholder="%s" name="%s[%d][%s]" value="%s" style="flex:1" />',
+					esc_attr( $key ),
 					esc_attr( $col_label ),
 					esc_attr( $base ),
 					(int) $i,
 					esc_attr( $key ),
 					esc_attr( $val )
 				);
+				if ( $com_destino && 'url' === $key ) {
+					self::seletor_destino( $val );
+				}
 			}
 			echo '<button type="button" class="button-link stcms-remove" style="color:#b32d2e">×</button>';
 			echo '</div>';
@@ -721,8 +856,12 @@ class STCMS_Options {
 	}
 
 	public static function sanitize_en( $input ) {
+		// O idioma é estático: sem devolver ao valor anterior, tudo que for
+		// renderizado depois neste mesmo request sairia em inglês.
+		$anterior   = self::$lang;
 		self::$lang = 'en';
-		$limpo = self::sanitize( $input );
+		$limpo      = self::sanitize( $input );
+		self::$lang = $anterior;
 		// Guarda o que foi digitado. Antes daqui saía só a diferença em relação
 		// ao português, e todo valor igual ao português era descartado — por
 		// isso ícones, slugs, números e URLs voltavam vazios para a tela.
