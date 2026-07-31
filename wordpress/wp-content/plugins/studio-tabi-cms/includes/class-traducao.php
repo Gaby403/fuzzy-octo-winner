@@ -412,8 +412,17 @@ class STCMS_Traducao {
 	 * texto deles preenchendo os campos em inglês do original e manda a cópia
 	 * para a lixeira (não apaga em definitivo).
 	 */
+	/**
+	 * Itens em inglês soltos, deixados pelas versões anteriores. São de dois
+	 * tipos: os que guardam stcms_traducao_de (serviços, FAQs, projetos e
+	 * artigos) e as páginas de processo, que a versão 1.19 criou com o slug
+	 * terminado em -en e só a meta de idioma. As duas formas precisam ser
+	 * recolhidas, senão o texto em inglês fica num lugar que ninguém mais lê.
+	 */
 	public static function duplicatas() {
-		return get_posts(
+		$achados = array();
+
+		foreach ( get_posts(
 			array(
 				'post_type'   => self::tipos(),
 				'post_status' => 'any',
@@ -422,7 +431,54 @@ class STCMS_Traducao {
 					array( 'key' => 'stcms_traducao_de', 'compare' => 'EXISTS' ),
 				),
 			)
-		);
+		) as $p ) {
+			$achados[ $p->ID ] = $p;
+		}
+
+		foreach ( get_posts(
+			array(
+				'post_type'   => self::tipos(),
+				'post_status' => 'any',
+				'numberposts' => -1,
+			)
+		) as $p ) {
+			if ( isset( $achados[ $p->ID ] ) ) {
+				continue;
+			}
+			if ( self::origem_por_slug( $p ) ) {
+				$achados[ $p->ID ] = $p;
+			}
+		}
+
+		return array_values( $achados );
+	}
+
+	/**
+	 * Para uma cópia com slug "algo-en", devolve o post "algo" do mesmo tipo.
+	 */
+	private static function origem_por_slug( $copia ) {
+		if ( ! preg_match( '/^(.*)-en$/', (string) $copia->post_name, $m ) || '' === $m[1] ) {
+			return null;
+		}
+		$base = get_page_by_path( $m[1], OBJECT, $copia->post_type );
+		if ( ! $base || $base->ID === $copia->ID ) {
+			return null;
+		}
+		return $base;
+	}
+
+	/**
+	 * De onde veio a cópia: pela meta quando existe, senão pelo slug.
+	 */
+	private static function origem_da_copia( $copia ) {
+		$id = (int) get_post_meta( $copia->ID, 'stcms_traducao_de', true );
+		if ( $id ) {
+			$origem = get_post( $id );
+			if ( $origem && $origem->post_type === $copia->post_type ) {
+				return $origem;
+			}
+		}
+		return self::origem_por_slug( $copia );
 	}
 
 	public static function maybe_limpar_duplicatas() {
@@ -433,10 +489,8 @@ class STCMS_Traducao {
 
 		$removidas = 0;
 		foreach ( self::duplicatas() as $copia ) {
-			$origem_id = (int) get_post_meta( $copia->ID, 'stcms_traducao_de', true );
-			$origem    = $origem_id ? get_post( $origem_id ) : null;
-
-			if ( $origem && $origem->post_type === $copia->post_type ) {
+			$origem = self::origem_da_copia( $copia );
+			if ( $origem ) {
 				self::absorver( $origem, $copia );
 			}
 			wp_trash_post( $copia->ID );

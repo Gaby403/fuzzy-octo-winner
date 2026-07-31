@@ -232,5 +232,34 @@ $pt = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'pt']))->data;
 ok('API sem duplicatas depois da limpeza', 7 === count($pt['services']) && 7 === count($en['services']), count($pt['services']).'/'.count($en['services']));
 ok('FAQ sem duplicatas', 6 === count($pt['faq']) && 6 === count($en['faq']), count($pt['faq']).'/'.count($en['faq']));
 
+echo "== Páginas de processo órfãs da versão 1.19 ==\n";
+// A 1.19 criava a versão em inglês como página separada com slug -en e só a
+// meta de idioma — sem stcms_traducao_de. É o estado que ficou no WordPress.
+$orfa = criar_post('page','Diagnosis','<p>We dive into the business.</p>','diagnostico-en',0,array('stcms_lang'=>'en'));
+$ptPag = achar('page','Diagnóstico');
+delete_post_meta($ptPag->ID,'stcms_en_title');
+delete_post_meta($ptPag->ID,'stcms_en_body');
+
+$antesOrfa = count($GLOBALS['__posts']);
+ok('a órfã é detectada como duplicata', 1 === count(STCMS_Traducao::duplicatas()), (string) count(STCMS_Traducao::duplicatas()));
+
+$pgEnAntes = STCMS_Rest::get_page(new WP_REST_Request(['slug'=>'diagnostico','lang'=>'en']))->data;
+ok('antes da limpeza o /en mostra português', 'Diagnóstico' === $pgEnAntes['title'], $pgEnAntes['title']);
+
+$_GET = ['stcms_limpar_duplicatas'=>'1'];
+try { STCMS_Traducao::maybe_limpar_duplicatas(); } catch (Redirecionou $e) {}
+$_GET = [];
+
+ok('a órfã foi para a lixeira', count($GLOBALS['__posts']) === $antesOrfa - 1, (string) count($GLOBALS['__posts']));
+ok('título em inglês aproveitado', 'Diagnosis' === get_post_meta($ptPag->ID,'stcms_en_title'), get_post_meta($ptPag->ID,'stcms_en_title'));
+ok('texto em inglês aproveitado', str_contains((string) get_post_meta($ptPag->ID,'stcms_en_body'), 'We dive into the business'));
+
+$pgPt = STCMS_Rest::get_page(new WP_REST_Request(['slug'=>'diagnostico','lang'=>'pt']))->data;
+$pgEn = STCMS_Rest::get_page(new WP_REST_Request(['slug'=>'diagnostico','lang'=>'en']))->data;
+ok('/processo/diagnostico segue em português', 'Diagnóstico' === $pgPt['title'], $pgPt['title']);
+ok('/en/process/diagnostico agora em inglês', 'Diagnosis' === $pgEn['title'], $pgEn['title']);
+ok('o corpo também troca', str_contains($pgEn['content'],'We dive into the business') && str_contains($pgPt['content'],'Mergulhamos'), 'ok');
+ok('não sobrou duplicata', 0 === count(STCMS_Traducao::duplicatas()));
+
 echo "\n$ok passaram, $ko falharam\n";
 exit($ko ? 1 : 0);

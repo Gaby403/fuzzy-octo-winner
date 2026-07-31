@@ -658,9 +658,10 @@ class STCMS_Options {
 			$url = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_limpar_duplicatas=1' ), 'stcms_limpar_duplicatas' );
 			echo '<div class="notice notice-warning inline" style="margin:0 0 16px;padding:10px 12px">'
 				. '<p style="margin:0 0 8px"><strong>' . (int) count( $duplicatas ) . ' item(ns) duplicado(s) de uma versão anterior do plugin.</strong><br>'
-				. 'A versão antiga criava um post separado para o inglês. Agora a tradução fica dentro do próprio item. '
-				. 'O botão abaixo aproveita o texto das cópias, guarda nos campos em inglês do original e manda as cópias para a lixeira '
-				. '(dá para recuperar).</p>'
+				. 'A versão antiga criava um post separado para o inglês — inclusive as páginas de processo, com o slug terminado em '
+				. '<code>-en</code>. Agora a tradução fica dentro do próprio item, e enquanto essas cópias existirem o texto em inglês '
+				. 'delas não aparece no site. O botão abaixo aproveita esse texto, guarda nos campos em inglês do original e manda as '
+				. 'cópias para a lixeira (dá para recuperar).</p>'
 				. '<p style="margin:0"><a href="' . esc_url( $url ) . '" class="button button-primary">Desfazer a duplicação e aproveitar o texto</a></p>'
 				. '</div>';
 		}
