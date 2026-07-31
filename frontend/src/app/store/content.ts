@@ -164,8 +164,8 @@ export interface SiteContent {
 export const DEFAULT_CONTENT: SiteContent = {
     site: {
         title: "Studio Tabi",
-        metaDescription: "Studio Tabi — design, estratégia e desenvolvimento para transformar presença digital em valor, confiança e decisão.",
-        tagline: "Design e tecnologia que levam marcas até onde precisam chegar.",
+        metaDescription: "Desenvolvemos cada projeto com intenção, cuidado e respeito à essência da marca. Criamos experiências digitais que unem estratégia, estética e tecnologia para transmitir confiança, gerar valor e criar presença.",
+        tagline: "Desenvolvemos com propósito. Entregamos com honra.",
         logoUrl: "",
         faviconUrl: "",
         heroImageUrl: "",
@@ -187,9 +187,9 @@ export const DEFAULT_CONTENT: SiteContent = {
     },
     hero: {
         eyebrow: "STUDIO TABI — DIGITAL STUDIO",
-        titleLines: ["TRANSFORMAMOS", "A SUA MARCA", "EM EXPERIÊNCIA"],
+        titleLines: ["SUA MARCA,", "UMA EXPERIÊNCIA"],
         highlight: "DIGITAL.",
-        description: "Design, estratégia e desenvolvimento para transformar presença digital em percepção de valor, confiança e decisão.",
+        description: "Desenvolvemos cada projeto com intenção, cuidado e respeito à essência da marca. Criamos experiências digitais que unem estratégia, estética e tecnologia para transmitir confiança, gerar valor e criar presença.",
         ctaPrimary: { label: "VER PORTFÓLIO", url: "/projetos" },
         ctaSecondary: { label: "FALAR COM A EQUIPE", url: "/contato" },
     },
@@ -217,8 +217,8 @@ export const DEFAULT_CONTENT: SiteContent = {
         faq: { eyebrow: "STUDIO TABI — FAQ", note: "Não encontrou o que procura? Entre em contato diretamente com a equipe.", ctaLabel: "FALAR COM A EQUIPE", ctaUrl: "/contato" },
     },
     about: {
-        paragraph1: 'O Studio Tabi nasceu da convicção de que presença digital é um ativo estratégico — não uma despesa de comunicação. Reunimos designers, estrategistas e engenheiros que recusam o medíocre do "bom o suficiente".',
-        paragraph2: 'Cada projeto começa com uma pergunta simples: como esse negócio quer ser percebido daqui a cinco anos? A resposta guia cada decisão criativa, técnica e estratégica que tomamos.',
+        paragraph1: "Desenvolvemos cada projeto com intenção, cuidado e profundo respeito à essência de cada marca, valorizando sua identidade, sua história e seus diferenciais em cada detalhe do processo.",
+        paragraph2: "Criamos experiências digitais que unem estratégia, estética e tecnologia para transmitir confiança, gerar valor real e construir uma presença marcante, consistente e duradoura.",
         stats: [
             { numeric: 7, suffix: "+", label: "ANOS DE MERCADO" },
             { numeric: 120, suffix: "+", label: "PROJETOS ENTREGUES" },
@@ -244,17 +244,17 @@ export const DEFAULT_CONTENT: SiteContent = {
             content: "<p>Interface boa é invisível: o usuário chega onde quer sem perceber o esforço por trás. Desenhamos produtos e sites partindo da pesquisa — quem usa, o que precisa e onde trava — e traduzimos isso em fluxos claros, hierarquia visual e micro-interações que guiam a decisão.</p><p>Entregamos do wireframe ao design system documentado, prontos para o time de desenvolvimento. Cada tela é pensada para reduzir atrito e aumentar conversão, sem abrir mão da estética.</p><ul><li>UX research e arquitetura de informação</li><li>Wireframes e protótipos navegáveis</li><li>UI design e design system</li><li>Testes de usabilidade</li></ul>",
         },
         {
-            num: "03", slug: "websites-imersivos", title: "Websites Imersivos",
-            body: "Sites institucionais com direção visual forte, navegação fluida, responsividade e animações.",
+            num: "03", slug: "desenvolvimento-web", title: "Websites Imersivos",
+            body: "Sites institucionais com direção visual forte, navegação fluida, responsividade e animações GSAP.",
             content: "<p>Um site institucional é o cartão de visita mais importante da marca. Criamos experiências imersivas, com direção de arte forte, animações de scroll e transições que transformam a navegação em algo memorável — sem sacrificar performance nem acessibilidade.</p><p>Cada projeto é responsivo de verdade, rápido no celular e construído para ser encontrado no Google. Você recebe um site que impressiona e que também trabalha pelo seu negócio.</p><ul><li>Direção de arte e storytelling visual</li><li>Animações de scroll e micro-interações</li><li>Responsividade e performance (Core Web Vitals)</li><li>SEO técnico e integração com CMS</li></ul>",
         },
         {
-            num: "04", slug: "landing-pages-conversivas", title: "Landing Pages Conversivas",
+            num: "04", slug: "estrategia-digital", title: "Landing pages conversivas",
             body: "Copy persuasiva, estrutura de oferta e interface pensada para campanhas, tráfego pago e captação de leads.",
             content: "<p>Uma landing page tem um único objetivo: converter. Estruturamos cada seção — headline, prova social, oferta, objeções e CTA — para conduzir o visitante até a ação, seja um lead, uma venda ou um agendamento.</p><p>Unimos copy persuasiva, design orientado a conversão e testes A/B para extrair o máximo do seu investimento em tráfego pago. Páginas que carregam rápido e convertem mais.</p><ul><li>Copywriting e estrutura de oferta</li><li>Design focado em conversão</li><li>Integração com formulários, pixel e analytics</li><li>Testes A/B e otimização contínua</li></ul>",
         },
         {
-            num: "05", slug: "motion-para-sites", title: "Motion para Sites",
+            num: "05", slug: "motion-animacao", title: "Motion para sites",
             body: "Movimento que conta histórias. Animações de interface e motion graphics que transformam conteúdo em experiência.",
             content: "<p>Movimento é linguagem. Uma animação bem colocada guia o olhar, explica uma ideia e dá personalidade à marca. Produzimos motion para interfaces — transições, hover, scroll, loaders — e motion graphics para comunicação, sempre com propósito e performance.</p><p>Nada de animação por enfeite: cada movimento tem função, respeita quem prefere menos animação e roda liso em qualquer dispositivo.</p><ul><li>Animações de interface e transições</li><li>Motion graphics e vídeos curtos</li><li>Animações de scroll e storytelling</li><li>Otimização de performance e acessibilidade</li></ul>",
         },
@@ -266,7 +266,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     ],
     projects: [
         {
-            id: "01", name: "Nuvem Finance", category: "Branding & UI", year: "2025",
+            id: "01", name: "MCCO - Construtora em Ipatinga", category: "Site", year: "2025",
             bg: "linear-gradient(135deg,#1A0505 0%,#2D0A0A 50%,#1A0A14 100%)", accent: "#F20C25", featured: true,
             detail: {
                 client: "Nuvem Finance", scope: ["Identidade Visual", "UI/UX Design", "Design System"], duration: "14 semanas",
@@ -277,7 +277,7 @@ export const DEFAULT_CONTENT: SiteContent = {
             },
         },
         {
-            id: "02", name: "FlowDesk", category: "Produto SaaS", year: "2025",
+            id: "02", name: "Arbor craft", category: "E-commerce", year: "2025",
             bg: "linear-gradient(135deg,#06061A 0%,#0A0A2D 50%,#060F1A 100%)", accent: "#5B7FFF", featured: true,
             detail: {
                 client: "FlowDesk", scope: ["Produto SaaS", "UX Research", "Prototipação", "Dev Front-end"], duration: "22 semanas",
@@ -288,7 +288,7 @@ export const DEFAULT_CONTENT: SiteContent = {
             },
         },
         {
-            id: "03", name: "Maison Lux", category: "E-commerce", year: "2024",
+            id: "03", name: "Modu", category: "E-Learning App", year: "2026",
             bg: "linear-gradient(135deg,#0F0D08 0%,#1A1408 50%,#0D0B06 100%)", accent: "#C4A45A", featured: false,
             detail: {
                 client: "Maison Lux", scope: ["E-commerce", "UI Design", "Motion Design"], duration: "10 semanas",
@@ -299,7 +299,7 @@ export const DEFAULT_CONTENT: SiteContent = {
             },
         },
         {
-            id: "04", name: "Vitalize App", category: "Mobile UI", year: "2024",
+            id: "04", name: "Andrea & Suzy", category: "Landing page", year: "2026",
             bg: "linear-gradient(135deg,#060F08 0%,#081A0A 50%,#060D07 100%)", accent: "#3DBF72", featured: false,
             detail: {
                 client: "Vitalize", scope: ["Mobile UI", "iOS & Android", "Ilustração"], duration: "8 semanas",
@@ -320,7 +320,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     ],
     footer: {
         brand: "STUDIO TABI",
-        tagline: "Design e tecnologia que levam marcas até onde precisam chegar.",
+        tagline: "Desenvolvemos com propósito. Entregamos com honra.",
         ctaTitle: "Vamos construir a sua",
         ctaHighlight: "presença digital.",
         ctaLabel: "INICIAR PROJETO",
@@ -329,39 +329,41 @@ export const DEFAULT_CONTENT: SiteContent = {
             {
                 title: "Navegação",
                 links: [
-                    { label: "Trabalhos", url: "#trabalhos" },
-                    { label: "Serviços", url: "#servicos" },
-                    { label: "Sobre", url: "#sobre" },
-                    { label: "Contato", url: "#contato" },
+                    { label: "Trabalhos", url: "/projetos" },
+                    { label: "Serviços", url: "/servicos" },
+                    { label: "Sobre", url: "/sobre" },
+                    { label: "Contato", url: "/contato" },
                 ],
             },
             {
                 title: "Serviços",
                 links: [
-                    { label: "Branding", url: "#" },
-                    { label: "UI / UX Design", url: "#" },
-                    { label: "Desenvolvimento Web", url: "#" },
-                    { label: "Estratégia Digital", url: "#" },
-                    { label: "Motion & Animação", url: "#" },
+                    { label: "Branding", url: "/servicos/branding-identidade-visual" },
+                    { label: "UI / UX Design", url: "/servicos/design-de-interface-ui-ux" },
+                    { label: "Desenvolvimento Web", url: "/servicos/desenvolvimento-web" },
+                    { label: "Estratégia Digital", url: "/servicos/estrategia-digital" },
+                    { label: "Motion & Animação", url: "/servicos/motion-animacao" },
                 ],
             },
         ],
         newsletterTitle: "Newsletter",
-        newsletterText: "Novos artigos sobre design, estratégia e tecnologia. Sem spam.",
+        newsletterText: "E-mail para a newsletter",
         newsletterButton: "Inscrever",
         contactTitle: "Contato",
-        email: "oi@studiotabi.com.br",
-        phone: "+55 11 9 9999-9999",
-        city: "São Paulo, SP",
+        email: "contato@studiotabi.com.br",
+        phone: "",
+        city: "Rio de Janeiro, RJ",
         socialTitle: "Social",
         social: [
-            { label: "Instagram", url: "#" },
-            { label: "LinkedIn", url: "#" },
-            { label: "Behance", url: "#" },
-            { label: "GitHub", url: "#" },
+            { label: "Instagram", url: "https://www.instagram.com/tabi.std/" },
+            { label: "Behance", url: "https://www.behance.net/tabistudio" },
+            { label: "X", url: "https://x.com/tabistd" },
+            { label: "Threads", url: "https://www.threads.com/@tabi.std" },
+            { label: "Linkedin", url: "https://www.linkedin.com/company/tabi-std/?viewAsMember=true" },
+            { label: "Facebook", url: "https://www.facebook.com/profile.php?id=61577186025731&locale=pt_BR" },
         ],
         copyright: "© 2026 Studio Tabi. Todos os direitos reservados.",
-        madeIn: "Feito com precisão em São Paulo",
+        madeIn: "Feito com precisão no Rio de Janeiro",
         legal: [
             { label: "Política de Privacidade", url: "#" },
             { label: "Termos de Uso", url: "#" },
@@ -409,22 +411,22 @@ const SERVICES_EN: SiteContent["services"] = [
         },
         {
             num: "02", slug: "design-de-interface-ui-ux", title: "Interface Design (UI/UX)",
-            body: "Interfaces built from real user behaviour. Every pixel has a function. Every flow has intent.",
+            body: "Interfaces built around real user behavior. Every pixel has a purpose. Every flow has intention.",
             content: "<p>A good interface is invisible: users get where they want without noticing the effort behind it. We design products and websites starting from research — who uses it, what they need and where they get stuck — and translate that into clear flows, visual hierarchy and micro-interactions that guide the decision.</p><p>We deliver everything from wireframes to a documented design system, ready for the development team. Every screen is built to reduce friction and increase conversion, without giving up on aesthetics.</p><ul><li>UX research and information architecture</li><li>Wireframes and clickable prototypes</li><li>UI design and design system</li><li>Usability testing</li></ul>",
         },
         {
-            num: "03", slug: "websites-imersivos", title: "Immersive Websites",
-            body: "Company websites with strong art direction, fluid navigation, responsiveness and animation.",
+            num: "03", slug: "desenvolvimento-web", title: "Immersive Websites",
+            body: "Institutional websites with strong visual direction, seamless navigation, responsive design, and GSAP-powered animations.",
             content: "<p>A company website is the brand's most important calling card. We create immersive experiences, with strong art direction, scroll animations and transitions that turn browsing into something memorable — without sacrificing performance or accessibility.</p><p>Every project is genuinely responsive, fast on mobile and built to be found on Google. You get a site that impresses and that also works for your business.</p><ul><li>Art direction and visual storytelling</li><li>Scroll animations and micro-interactions</li><li>Responsiveness and performance (Core Web Vitals)</li><li>Technical SEO and CMS integration</li></ul>",
         },
         {
-            num: "04", slug: "landing-pages-conversivas", title: "High-Converting Landing Pages",
-            body: "Persuasive copy, offer structure and an interface designed for campaigns, paid traffic and lead generation.",
+            num: "04", slug: "estrategia-digital", title: "High-converting landing pages",
+            body: "Persuasive copy, offer structure, and interfaces designed for campaigns, paid traffic, and lead generation.",
             content: "<p>A landing page has a single goal: to convert. We structure every section — headline, social proof, offer, objections and CTA — to carry the visitor through to the action, be it a lead, a sale or a booking.</p><p>We combine persuasive copy, conversion-driven design and A/B testing to get the most out of your paid traffic investment. Pages that load fast and convert more.</p><ul><li>Copywriting and offer structure</li><li>Conversion-focused design</li><li>Integration with forms, pixel and analytics</li><li>A/B testing and continuous optimisation</li></ul>",
         },
         {
-            num: "05", slug: "motion-para-sites", title: "Motion for Websites",
-            body: "Movement that tells stories. Interface animation and motion graphics that turn content into experience.",
+            num: "05", slug: "motion-animacao", title: "Motion Design for Websites",
+            body: "Motion that tells stories. Interface animations and motion graphics that transform content into experiences.",
             content: "<p>Movement is a language. A well-placed animation guides the eye, explains an idea and gives the brand personality. We produce motion for interfaces — transitions, hover, scroll, loaders — and motion graphics for communication, always with purpose and performance in mind.</p><p>No animation for decoration's sake: every movement has a function, respects people who prefer reduced motion and runs smoothly on any device.</p><ul><li>Interface animation and transitions</li><li>Motion graphics and short videos</li><li>Scroll animation and storytelling</li><li>Performance and accessibility optimisation</li></ul>",
         },
         {
@@ -446,8 +448,8 @@ const DEFAULT_CONTENT_EN: SiteContent = {
     ...DEFAULT_CONTENT,
     site: {
         ...DEFAULT_CONTENT.site,
-        metaDescription: "Studio Tabi — design, strategy and engineering that turn digital presence into value, trust and decision.",
-        tagline: "Design and technology that take brands where they need to go.",
+        metaDescription: "We build every project with intention, care, and respect for the brand's essence. We create digital experiences that blend strategy, aesthetics, and technology to build trust, generate value, and establish presence.",
+        tagline: "We develop with honor, we deliver with purpose.",
     },
     nav: {
         brand: "STUDIO TABI",
@@ -463,9 +465,9 @@ const DEFAULT_CONTENT_EN: SiteContent = {
     },
     hero: {
         eyebrow: "STUDIO TABI — DIGITAL STUDIO",
-        titleLines: ["WE TURN", "YOUR BRAND", "INTO EXPERIENCE"],
-        highlight: "DIGITAL.",
-        description: "Design, strategy and engineering that turn digital presence into perceived value, trust and decision.",
+        titleLines: ["YOUR BRAND,", "A DIGITAL"],
+        highlight: "EXPERIENCE.",
+        description: "We build every project with intention, care, and respect for the brand's essence. We create digital experiences that blend strategy, aesthetics, and technology to build trust, generate value, and establish presence.",
         ctaPrimary: { label: "VIEW PORTFOLIO", url: "/en/work" },
         ctaSecondary: { label: "TALK TO THE TEAM", url: "/en/contact" },
     },
@@ -494,7 +496,7 @@ const DEFAULT_CONTENT_EN: SiteContent = {
     },
     about: {
         ...DEFAULT_CONTENT.about,
-        paragraph1: 'Studio Tabi was born from the conviction that digital presence is a strategic asset — not a communications expense. We bring together designers, strategists and engineers who refuse the mediocrity of "good enough".',
+        paragraph1: "We develop every project with intention, care, and deep respect for the essence of each brand, honoring its identity, story, and unique strengths throughout every stage of the process.",
         paragraph2: "Every project starts with a simple question: how does this business want to be perceived five years from now? The answer guides every creative, technical and strategic decision we make.",
         stats: [
             { numeric: 7, suffix: "+", label: "YEARS IN THE MARKET" },
@@ -512,7 +514,7 @@ const DEFAULT_CONTENT_EN: SiteContent = {
     })),
     footer: {
         ...DEFAULT_CONTENT.footer,
-        tagline: "Design and technology that take brands where they need to go.",
+        tagline: "We develop with honor, we deliver with purpose.",
         ctaTitle: "Let's build your",
         ctaHighlight: "digital presence.",
         ctaLabel: "START A PROJECT",
@@ -521,7 +523,7 @@ const DEFAULT_CONTENT_EN: SiteContent = {
             {
                 title: "Navigation",
                 links: [
-                    { label: "Work", url: "/en/work" },
+                    { label: "Projects", url: "/en/work" },
                     { label: "Services", url: "/en/services" },
                     { label: "About", url: "/en/about" },
                     { label: "Contact", url: "/en/contact" },
@@ -530,25 +532,26 @@ const DEFAULT_CONTENT_EN: SiteContent = {
             {
                 title: "Services",
                 links: [
-                    { label: "Branding", url: "/en/services/branding-identidade-visual" },
-                    { label: "UI / UX Design", url: "/en/services/design-de-interface-ui-ux" },
-                    { label: "Web Development", url: "/en/services/websites-imersivos" },
-                    { label: "Digital Strategy", url: "/en/services/landing-pages-conversivas" },
-                    { label: "Motion & Animation", url: "/en/services/motion-para-sites" },
+                    { label: "Branding & Visual Identity", url: "/en/services/branding-identidade-visual" },
+                    { label: "Interface Design (UI/UX)", url: "/en/services/design-de-interface-ui-ux" },
+                    { label: "Immersive Websites", url: "/en/services/desenvolvimento-web" },
+                    { label: "High-converting landing pages", url: "/en/services/estrategia-digital" },
+                    { label: "Motion Design for Websites", url: "/en/services/motion-animacao" },
+                    { label: "Content & Copywriting", url: "/en/services/conteudo-copywriting" },
                 ],
             },
         ],
         newsletterTitle: "Newsletter",
-        newsletterText: "New articles on design, strategy and technology. No spam.",
+        newsletterText: "Newsletter email",
         newsletterButton: "Subscribe",
         contactTitle: "Contact",
-        city: "São Paulo, Brazil",
+        city: "Rio de Janeiro, RJ",
         socialTitle: "Social",
         copyright: "© 2026 Studio Tabi. All rights reserved.",
-        madeIn: "Crafted with precision in São Paulo",
+        madeIn: "Crafted with precision in Rio de Janeiro.",
         legal: [
-            { label: "Privacy Policy", url: "#" },
-            { label: "Terms of Use", url: "#" },
+            { label: "Privacy Policy", url: "/en/p/politica-de-privacidade" },
+            { label: "Terms of Use", url: "/en/p/termos-de-uso" },
         ],
     },
 };

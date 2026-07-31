@@ -75,7 +75,7 @@ ok('link legal mantém a URL', '' !== ($depois['footer']['legal'][0]['url'] ?? '
 ok('link legal mantém o rótulo', 'Privacy Policy' === ($depois['footer']['legal'][0]['label'] ?? ''), $depois['footer']['legal'][0]['label'] ?? '(sumiu)');
 
 ok('nav em inglês', 'WORK' === ($depois['nav']['links'][0]['label'] ?? ''), $depois['nav']['links'][0]['label'] ?? '(sumiu)');
-ok('hero em inglês', 'WE TURN' === ($depois['hero']['title_lines'][0] ?? ''), $depois['hero']['title_lines'][0] ?? '(sumiu)');
+ok('hero em inglês', 'YOUR BRAND,' === ($depois['hero']['title_lines'][0] ?? ''), $depois['hero']['title_lines'][0] ?? '(sumiu)');
 
 echo "\n== Editar um campo salva o que foi digitado ==\n";
 $form = formulario_en();
@@ -104,14 +104,14 @@ try { STCMS_Options::maybe_restaurar_en(); } catch (Redirecionou $e) {}
 $_GET = array();
 ok('opção removida', ! isset($GLOBALS['__o']['stcms_options_en']));
 $depois = STCMS_Options::get('en');
-ok('volta ao padrão em inglês', 'DIGITAL.' === $depois['hero']['highlight'], $depois['hero']['highlight']);
+ok('volta ao padrão em inglês', 'EXPERIENCE.' === $depois['hero']['highlight'], $depois['hero']['highlight']);
 ok('etapas de volta', 4 === count($depois['process']) && 'Design' === $depois['process'][2]['title']);
 
 echo "\n== Coluna de serviços do rodapé ==\n";
 $GLOBALS['__o'] = [];
 $en = STCMS_Options::get('en');
 ok('EN traz os links de serviço', 5 === count($en['footer']['col2_links'] ?? []), (string) count($en['footer']['col2_links'] ?? []));
-ok('EN com rótulo em inglês', 'Web Development' === ($en['footer']['col2_links'][2]['label'] ?? ''), $en['footer']['col2_links'][2]['label'] ?? '(vazio)');
+ok('EN com rótulo em inglês', 'Immersive Websites' === ($en['footer']['col2_links'][2]['label'] ?? ''), $en['footer']['col2_links'][2]['label'] ?? '(vazio)');
 ok('EN apontando para /en/services', 0 === strpos((string)($en['footer']['col2_links'][0]['url'] ?? ''), '/en/services'), $en['footer']['col2_links'][0]['url'] ?? '(vazio)');
 
 $form = formulario_en();
@@ -120,7 +120,7 @@ $GLOBALS['__o']['stcms_options_en'] = STCMS_Options::sanitize_en( $form );
 $depois = STCMS_Options::get('en');
 ok('rótulo editado é salvo', 'Brand Systems' === $depois['footer']['col2_links'][0]['label'], $depois['footer']['col2_links'][0]['label']);
 ok('a coluna mantém 5 links', 5 === count($depois['footer']['col2_links']), (string) count($depois['footer']['col2_links']));
-ok('os demais links seguem intactos', 'UI / UX Design' === $depois['footer']['col2_links'][1]['label'], $depois['footer']['col2_links'][1]['label']);
+ok('os demais links seguem intactos', 'Interface Design (UI/UX)' === $depois['footer']['col2_links'][1]['label'], $depois['footer']['col2_links'][1]['label']);
 
 $GLOBALS['__o'] = [];
 $pt = STCMS_Options::get('pt');
@@ -168,7 +168,7 @@ ok('etapa aponta para /processo/…', '/processo/diagnostico' === ($grupos['Proc
 
 echo "\n== O português nunca é afetado ==\n";
 $pt = STCMS_Options::get('pt');
-ok('hero PT intacto', 'TRANSFORMAMOS' === $pt['hero']['title_lines'][0], $pt['hero']['title_lines'][0]);
+ok('hero PT intacto', 'SUA MARCA,' === $pt['hero']['title_lines'][0], $pt['hero']['title_lines'][0]);
 ok('etapa PT intacta', 'Design' === $pt['process'][2]['title'], $pt['process'][2]['title']);
 ok('nav PT intacto', '/contato' === $pt['nav']['cta_url'], $pt['nav']['cta_url']);
 

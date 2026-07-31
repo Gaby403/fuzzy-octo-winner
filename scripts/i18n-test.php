@@ -46,11 +46,11 @@ echo "== Sem nada salvo: /en já vem em inglês pelos padrões ==\n";
 $en = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'en']))->data;
 $pt = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'pt']))->data;
 ok('locale', $en['locale'] === 'en', $en['locale']);
-ok('hero traduzido', $en['hero']['titleLines'] === ['WE TURN','YOUR BRAND','INTO EXPERIENCE'], implode(' ', $en['hero']['titleLines']));
+ok('hero traduzido', $en['hero']['titleLines'] === ['YOUR BRAND,','A DIGITAL'], implode(' ', $en['hero']['titleLines']));
 ok('nav aponta para /en', $en['nav']['ctaUrl'] === '/en/contact', $en['nav']['ctaUrl']);
 ok('links de nav em inglês', $en['nav']['links'][0]['label'] === 'WORK', $en['nav']['links'][0]['label']);
 ok('rodapé traduzido', $en['footer']['ctaHighlight'] === 'digital presence.', $en['footer']['ctaHighlight']);
-ok('PT intacto', $pt['hero']['titleLines'][0] === 'TRANSFORMAMOS', $pt['hero']['titleLines'][0]);
+ok('PT intacto', $pt['hero']['titleLines'][0] === 'SUA MARCA,', $pt['hero']['titleLines'][0]);
 
 echo "== Campo ausente do dicionário EN herda do PT ==\n";
 ok('site.formEmail herdado', ($en['site']['ga4Id'] ?? '') === ($pt['site']['ga4Id'] ?? ''));
@@ -64,7 +64,7 @@ $pt = STCMS_Rest::get_content(new WP_REST_Request(['lang'=>'pt']))->data;
 ok('hero sobrescrito', implode(' ', $en['hero']['titleLines']) === 'WE SHAPE BRANDS', implode(' ', $en['hero']['titleLines']));
 ok('cta sobrescrito', $en['nav']['ctaLabel'] === 'BOOK A CALL', $en['nav']['ctaLabel']);
 ok('campo não editado mantém o padrão EN', str_starts_with($en['hero']['description'], 'Design, strategy'), substr($en['hero']['description'], 0, 24).'…');
-ok('PT segue intacto', $pt['hero']['titleLines'][0] === 'TRANSFORMAMOS' && $pt['nav']['ctaLabel'] === 'INICIAR PROJETO');
+ok('PT segue intacto', $pt['hero']['titleLines'][0] === 'SUA MARCA,' && $pt['nav']['ctaLabel'] === 'INICIAR PROJETO');
 
 echo "== Sitemap por idioma ==\n";
 $GLOBALS['__o']['stcms_site_origin'] = 'https://studiotabi.com.br';

@@ -51,9 +51,35 @@ class STCMS_Options {
 			$en = array();
 		}
 		$base = function_exists( 'stcms_default_options_en' )
-			? self::deep_merge( $pt, self::sem_vazios( stcms_default_options_en() ) )
+			? self::deep_merge( $pt, self::sem_vazios( stcms_default_options_en() ), true )
 			: $pt;
-		return self::deep_merge( $base, self::sem_vazios( $en ) );
+		return self::deep_merge( $base, self::sem_vazios( $en ), true );
+	}
+
+	/**
+	 * Numa lista, o inglês trocava a linha inteira do português. Uma coluna em
+	 * branco virava vazio em vez de herdar — era por isso que os números da
+	 * seção Sobre apareciam zerados em /en. Aqui a herança vale por célula.
+	 */
+	private static function merge_listas( $pt, $en ) {
+		$out = array();
+		foreach ( array_values( $en ) as $i => $linha ) {
+			$origem = isset( $pt[ $i ] ) ? $pt[ $i ] : null;
+			if ( ! is_array( $linha ) || ! is_array( $origem ) ) {
+				$out[] = $linha;
+				continue;
+			}
+			$mesclada = $linha;
+			foreach ( $origem as $coluna => $valor ) {
+				$vazia = ! isset( $mesclada[ $coluna ] )
+					|| ( is_array( $mesclada[ $coluna ] ) ? empty( $mesclada[ $coluna ] ) : '' === trim( (string) $mesclada[ $coluna ] ) );
+				if ( $vazia ) {
+					$mesclada[ $coluna ] = $valor;
+				}
+			}
+			$out[] = $mesclada;
+		}
+		return $out;
 	}
 
 	private static function sem_vazios( $arr ) {
@@ -94,10 +120,16 @@ class STCMS_Options {
 		return $out;
 	}
 
-	private static function deep_merge( $defaults, $values ) {
+	/**
+	 * $herdar_celulas só vale para o inglês: lá o branco significa "usa o
+	 * português". No português o branco é uma escolha e precisa ser respeitado.
+	 */
+	private static function deep_merge( $defaults, $values, $herdar_celulas = false ) {
 		foreach ( $values as $key => $value ) {
 			if ( is_array( $value ) && isset( $defaults[ $key ] ) && is_array( $defaults[ $key ] ) && self::is_assoc( $defaults[ $key ] ) ) {
-				$defaults[ $key ] = self::deep_merge( $defaults[ $key ], $value );
+				$defaults[ $key ] = self::deep_merge( $defaults[ $key ], $value, $herdar_celulas );
+			} elseif ( $herdar_celulas && is_array( $value ) && ! self::is_assoc( $value ) && isset( $defaults[ $key ] ) && is_array( $defaults[ $key ] ) ) {
+				$defaults[ $key ] = self::merge_listas( $defaults[ $key ], $value );
 			} else {
 				$defaults[ $key ] = $value;
 			}
@@ -956,8 +988,12 @@ class STCMS_Options {
 		}
 
 		if ( isset( $input['hero'] ) ) {
-			$lines = preg_split( '/\r\n|\r|\n/', (string) ( $input['hero']['title_lines'] ?? '' ) );
-			$lines = array_values( array_filter( array_map( 'sanitize_text_field', $lines ), 'strlen' ) );
+			// O campo é um textarea, mas o WordPress reexecuta o sanitize sobre o
+			// valor já gravado — que aí é array. Sem esta guarda, (string) array
+			// vira a palavra "Array" e era isso que aparecia no hero em inglês.
+			$bruto = $input['hero']['title_lines'] ?? '';
+			$lines = is_array( $bruto ) ? $bruto : preg_split( '/\r\n|\r|\n/', (string) $bruto );
+			$lines = array_values( array_filter( array_map( 'sanitize_text_field', (array) $lines ), 'strlen' ) );
 			$out['hero']['eyebrow']      = sanitize_text_field( $input['hero']['eyebrow'] ?? '' );
 			$out['hero']['title_lines']  = $lines ? $lines : ( 'en' === self::$lang ? array() : stcms_default_options()['hero']['title_lines'] );
 			$out['hero']['highlight']    = sanitize_text_field( $input['hero']['highlight'] ?? '' );

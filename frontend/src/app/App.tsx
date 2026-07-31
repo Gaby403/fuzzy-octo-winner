@@ -389,11 +389,18 @@ function Stat({ numeric, suffix, label, delay }: {
 }) {
     const ref = useRef<HTMLDivElement>(null);
     const inView = useInView(ref, { once: true, margin: "-60px" });
-    const mv = useMotionValue(0);
+    // Começa no valor final para que o HTML pré-renderizado traga o número de
+    // verdade — quem lê sem JavaScript via "0+ ANOS DE MERCADO". A contagem
+    // zera só no instante em que vai animar, e a seção fica abaixo da dobra,
+    // então esse instante nunca aparece na tela.
+    const mv = useMotionValue(numeric);
     const rounded = useTransform(mv, (v) => Math.round(v));
+    const animou = useRef(false);
     useEffect(() => {
-        if (!inView)
+        if (!inView || animou.current)
             return;
+        animou.current = true;
+        mv.set(0);
         const timeout = setTimeout(() => {
             const start = performance.now();
             const duration = 1400;

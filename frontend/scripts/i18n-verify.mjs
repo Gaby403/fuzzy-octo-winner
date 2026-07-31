@@ -44,7 +44,7 @@ check("canonical /en", new URL(d.canon).pathname==="/en", new URL(d.canon).pathn
 check("hreflang pt-BR+en+x-default", d.alts.join(" ")==="pt-BR=/ en=/en x-default=/", d.alts.join(" "));
 check("og:locale", d.ogloc==="en_US", d.ogloc);
 check("JSON-LD inLanguage", d.inLang==="en", d.inLang);
-check("hero em inglês", /WE TURN/i.test(d.hero||""), d.hero);
+check("hero em inglês", /YOUR BRAND/i.test(d.hero||""), d.hero);
 
 console.log("== EN: links internos permanecem em /en ==");
 const links = await p.evaluate(()=>[...document.querySelectorAll('a[href^="/"]')]
@@ -84,7 +84,7 @@ const home = await p.evaluate(()=>{
     projetos: /SELECTED\s+WORK/i.test(txt),
     sobre: /WE DON'T\s+BUILD WEBSITES/i.test(txt),
     servicoCard: /Branding & Visual Identity/i.test(txt),
-    rodapeServicos: /Web Development/i.test(txt),
+    rodapeServicos: /Immersive Websites/i.test(txt),
     rodapeNav: /Navigation/i.test(txt),
     resto: /ENTREGAMOS|PERGUNTAS|FREQUENTES|SELECIONADOS|Identidade Visual|Desenvolvimento Web|Quanto tempo/i.test(txt),
     faqLd: (JSON.parse(document.getElementById("ld-faq")?.textContent||"{}").mainEntity||[])[0]?.name || "",
