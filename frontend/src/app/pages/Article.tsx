@@ -6,6 +6,7 @@ import { fetchPost, PostFull } from "../store/blog";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { subscribeNewsletter } from "../store/blog";
 import { useLocale } from "../i18n/useLocale";
+import { siteOrigin } from "../i18n/locale";
 import type { ChaveTexto } from "../i18n/dicionario";
 const RED = "#F20C25";
 const RED_INK = "#FF3547";
@@ -68,7 +69,7 @@ export default function Article() {
         if (!post)
             return;
         document.title = `${post.title} — ${content.site.title}`;
-        const origin = window.location.origin;
+        const origin = siteOrigin();
         const el = document.getElementById("ld-article") as HTMLScriptElement | null;
         const s = el || Object.assign(document.createElement("script"), { type: "application/ld+json", id: "ld-article" });
         s.textContent = JSON.stringify({

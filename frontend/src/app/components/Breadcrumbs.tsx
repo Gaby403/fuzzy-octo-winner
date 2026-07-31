@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router";
 import { useLocale } from "../i18n/useLocale";
+import { siteOrigin } from "../i18n/locale";
 const RED_INK = "#FF3547";
 export interface Crumb {
     label: string;
@@ -13,7 +14,7 @@ export function Breadcrumbs({ items }: {
     useEffect(() => {
         if (typeof window === "undefined")
             return;
-        const origin = window.location.origin;
+        const origin = siteOrigin();
         const el = document.getElementById("ld-breadcrumb") as HTMLScriptElement | null;
         const script = el || Object.assign(document.createElement("script"), { type: "application/ld+json", id: "ld-breadcrumb" });
         script.textContent = JSON.stringify({

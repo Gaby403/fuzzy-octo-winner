@@ -11,13 +11,12 @@ DirectoryIndex index.html
 
   RewriteRule ^painel/?$ /admin.php [L]
 
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^ - [L]
 
   RewriteRule \.(js|mjs|css|map|json|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|eot)$ - [L]
 
-  RewriteRule ^ index.html [L]
+  RewriteRule ^ /seo.php [L,QSA]
 </IfModule>
 
 <IfModule mod_expires.c>

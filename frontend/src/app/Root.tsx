@@ -9,7 +9,7 @@ import { CustomCursor } from "./components/system/CustomCursor";
 import { PageTransition } from "./components/system/PageTransition";
 import { DeferUntilIdle } from "./components/system/DeferUntilIdle";
 import { initAnalytics, trackEvent } from "./utils/analytics";
-import { localeFromPath, switchLocalePath, path as rotaDe, HTML_LANG } from "./i18n/locale";
+import { localeFromPath, switchLocalePath, path as rotaDe, HTML_LANG, siteOrigin } from "./i18n/locale";
 import { traduzir } from "./i18n/dicionario";
 function upsertMeta(attr: "name" | "property", key: string, value: string) {
     if (!value)
@@ -125,7 +125,7 @@ export default function Root() {
     useEffect(() => {
         if (typeof window === "undefined")
             return;
-        const origin = window.location.origin;
+        const origin = siteOrigin();
         const url = origin + location.pathname;
         upsertLink("canonical", url);
         upsertMeta("property", "og:url", url);
@@ -147,7 +147,7 @@ export default function Root() {
     useEffect(() => {
         if (typeof window === "undefined")
             return;
-        const origin = window.location.origin;
+        const origin = siteOrigin();
         const { site, footer, services } = content;
         upsertJsonLd("ld-org", {
             "@context": "https://schema.org",

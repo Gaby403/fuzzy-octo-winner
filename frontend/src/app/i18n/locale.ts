@@ -1,5 +1,16 @@
 export type Locale = "pt" | "en";
 
+export const SITE_URL = "https://studiotabi.com.br";
+
+const HOSTS_LOCAIS = ["localhost", "127.0.0.1", "0.0.0.0", "::1"];
+
+export function siteOrigin(): string {
+    if (typeof window === "undefined")
+        return SITE_URL;
+    const { hostname, origin } = window.location;
+    return HOSTS_LOCAIS.includes(hostname) ? SITE_URL : origin;
+}
+
 export const LOCALES: Locale[] = ["pt", "en"];
 export const DEFAULT_LOCALE: Locale = "pt";
 export const HTML_LANG: Record<Locale, string> = { pt: "pt-BR", en: "en" };

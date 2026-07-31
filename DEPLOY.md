@@ -220,3 +220,36 @@ Para conferir qual origem respondeu:
 
 Para forçar a atualização antes das 6 horas, apague o `sitemap-cache.xml` pelo
 Gerenciador de Arquivos.
+
+---
+
+## Texto de prévia (WhatsApp, LinkedIn, Google)
+
+Quando alguém cola o link do site, quem monta a prévia é um robô que **não
+executa JavaScript**. Ele lê só o HTML que chega do servidor. Por isso o título
+e a descrição não podem depender do app React — precisam já vir prontos.
+
+Quem faz isso é o `seo.php`, que vem no ZIP. A cada página ele busca o título e
+a meta descrição no WordPress, injeta no HTML e entrega. O `.htaccess` já manda
+as páginas por ele; não há passo manual.
+
+- **Português e inglês saem certos**: `/en` e `/en/...` pedem o conteúdo em
+  inglês ao CMS, o resto pede em português.
+- **Cache de 5 minutos** por idioma. Editou a descrição no CMS, aparece na
+  prévia em até 5 minutos.
+- **Se o WordPress cair**, o site continua no ar: vale a última cópia boa e,
+  na falta dela, o texto que veio do build.
+
+Para conferir o que os robôs veem:
+
+    curl -s https://studiotabi.com.br/ | grep -i 'og:description'
+    curl -s https://studiotabi.com.br/en | grep -i 'og:description'
+
+> As redes guardam a prévia em cache do lado delas. Depois de mudar o texto,
+> use o [Sharing Debugger do Facebook](https://developers.facebook.com/tools/debug/)
+> ou o [Post Inspector do LinkedIn](https://www.linkedin.com/post-inspector/)
+> para forçar a releitura — senão o link continua mostrando o texto antigo.
+
+**Se precisar desligar:** no `.htaccess`, troque a última regra de reescrita
+`RewriteRule ^ /seo.php [L,QSA]` por `RewriteRule ^ index.html [L]`. O site volta
+ao comportamento anterior na hora; só a prévia deixa de acompanhar o CMS.

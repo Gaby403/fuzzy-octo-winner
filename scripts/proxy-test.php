@@ -58,26 +58,42 @@ PHP
 copy( $publico . '/api.php', $tmp . '/public/api.php' );
 copy( $publico . '/admin.php', $tmp . '/public/admin.php' );
 
-$porta_cms  = 8731;
-$porta_site = 8732;
+function porta_livre() {
+	$s = stream_socket_server( 'tcp://127.0.0.1:0', $errno, $errstr );
+	$nome = stream_socket_get_name( $s, false );
+	fclose( $s );
+	return (int) substr( $nome, strrpos( $nome, ':' ) + 1 );
+}
+
+function esperar_http( $porta, $caminho = '/' ) {
+	for ( $i = 0; $i < 100; $i++ ) {
+		$ch = curl_init( "http://127.0.0.1:{$porta}{$caminho}" );
+		curl_setopt_array( $ch, array( CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 2, CURLOPT_NOBODY => true ) );
+		curl_exec( $ch );
+		$code = (int) curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
+		curl_close( $ch );
+		if ( $code > 0 ) {
+			return true;
+		}
+		usleep( 100000 );
+	}
+	return false;
+}
+
+$porta_cms  = porta_livre();
+$porta_site = porta_livre();
 
 file_put_contents(
 	$tmp . '/public/cms-config.php',
 	"<?php return array( 'url' => 'http://127.0.0.1:{$porta_cms}', 'token' => 'chave-de-teste' );\n"
 );
 
-$cms  = proc_open( "php -S 127.0.0.1:{$porta_cms} " . escapeshellarg( $tmp . '/cms.php' ), array( 1 => array( 'file', '/dev/null', 'w' ), 2 => array( 'file', '/dev/null', 'w' ) ), $p1 );
-$site = proc_open( "php -S 127.0.0.1:{$porta_site} -t " . escapeshellarg( $tmp ) . ' ' . escapeshellarg( $tmp . '/router.php' ), array( 1 => array( 'file', '/dev/null', 'w' ), 2 => array( 'file', '/dev/null', 'w' ) ), $p2 );
+$cms  = proc_open( "exec php -S 127.0.0.1:{$porta_cms} " . escapeshellarg( $tmp . '/cms.php' ), array( 1 => array( 'file', '/dev/null', 'w' ), 2 => array( 'file', '/dev/null', 'w' ) ), $p1 );
+$site = proc_open( "exec php -S 127.0.0.1:{$porta_site} -t " . escapeshellarg( $tmp ) . ' ' . escapeshellarg( $tmp . '/router.php' ), array( 1 => array( 'file', '/dev/null', 'w' ), 2 => array( 'file', '/dev/null', 'w' ) ), $p2 );
 
-for ( $i = 0; $i < 50; $i++ ) {
-	$s = @fsockopen( '127.0.0.1', $porta_site, $e, $es, 0.2 );
-	$c = @fsockopen( '127.0.0.1', $porta_cms, $e, $es, 0.2 );
-	if ( $s && $c ) {
-		fclose( $s );
-		fclose( $c );
-		break;
-	}
-	usleep( 100000 );
+if ( ! esperar_http( $porta_cms ) || ! esperar_http( $porta_site, '/wp-json/studio-tabi/v1/content' ) ) {
+	echo "os servidores de teste não subiram\n";
+	exit( 1 );
 }
 
 function chamar( $caminho, $metodo = 'GET', $corpo = null, $seguir = false ) {
