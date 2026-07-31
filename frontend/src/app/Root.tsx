@@ -8,7 +8,6 @@ import { SmoothScroll } from "./components/system/SmoothScroll";
 import { CustomCursor } from "./components/system/CustomCursor";
 import { PageTransition } from "./components/system/PageTransition";
 import { DeferUntilIdle } from "./components/system/DeferUntilIdle";
-import { LanguageNotice } from "./components/system/LanguageNotice";
 import { initAnalytics, trackEvent } from "./utils/analytics";
 import { localeFromPath, switchLocalePath, path as rotaDe, HTML_LANG } from "./i18n/locale";
 import { traduzir } from "./i18n/dicionario";
@@ -204,7 +203,6 @@ export default function Root() {
           <SmoothScroll />
           <CustomCursor />
           <PageTransition />
-          <LanguageNotice />
         </DeferUntilIdle>
         <a href="#conteudo" className="skip-link">{traduzir(locale, "nav.pular")}</a>
         <Header />

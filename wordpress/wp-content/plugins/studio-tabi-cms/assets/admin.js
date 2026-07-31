@@ -299,3 +299,15 @@
 		document.querySelectorAll('.stcms-destino-select').forEach(atualizarEditar);
 	});
 })();
+
+/* Índice: abre o cartão fechado antes de rolar até ele. */
+(function () {
+	document.addEventListener('click', function (e) {
+		var link = e.target.closest ? e.target.closest('.stcms-indice-link') : null;
+		if (!link) { return; }
+		var alvo = document.getElementById('stcms-' + link.getAttribute('data-alvo'));
+		if (!alvo) { return; }
+		var cabeca = alvo.querySelector('.stcms-card-head');
+		if (cabeca && cabeca.getAttribute('aria-expanded') === 'false') { cabeca.click(); }
+	});
+})();

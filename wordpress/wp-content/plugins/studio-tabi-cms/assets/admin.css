@@ -210,3 +210,20 @@
 .stcms-destino { display: inline-flex; align-items: center; gap: 6px; }
 .stcms-destino-select { max-width: 220px; }
 .stcms-destino-editar { font-size: 12px; white-space: nowrap; }
+
+/* Índice das seções */
+.stcms-indice {
+	display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+	margin: 16px 0 8px; padding: 12px 14px;
+	background: #fff; border: 1px solid #dcdcde; border-radius: 8px;
+}
+.stcms-indice-rotulo { font-weight: 600; margin-right: 4px; color: #50575e; }
+.stcms-indice-link {
+	display: inline-flex; align-items: center; gap: 5px;
+	padding: 5px 11px; border-radius: 999px; text-decoration: none;
+	background: #f0f0f1; color: #1d2327; font-size: 13px; line-height: 1.6;
+}
+.stcms-indice-link:hover { background: #F20C25; color: #fff; }
+.stcms-indice-link .dashicons { font-size: 15px; width: 15px; height: 15px; }
+.stcms-mapa { margin: 0 0 18px; }
+.stcms-card:target { box-shadow: 0 0 0 2px #F20C25; }

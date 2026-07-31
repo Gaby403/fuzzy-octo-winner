@@ -143,6 +143,9 @@ export interface SiteContent {
             title: string;
             links: MenuLink[];
         }[];
+        newsletterTitle: string;
+        newsletterText: string;
+        newsletterButton: string;
         contactTitle: string;
         email: string;
         phone: string;
@@ -343,6 +346,9 @@ export const DEFAULT_CONTENT: SiteContent = {
                 ],
             },
         ],
+        newsletterTitle: "Newsletter",
+        newsletterText: "Novos artigos sobre design, estratégia e tecnologia. Sem spam.",
+        newsletterButton: "Inscrever",
         contactTitle: "Contato",
         email: "oi@studiotabi.com.br",
         phone: "+55 11 9 9999-9999",
@@ -532,6 +538,9 @@ const DEFAULT_CONTENT_EN: SiteContent = {
                 ],
             },
         ],
+        newsletterTitle: "Newsletter",
+        newsletterText: "New articles on design, strategy and technology. No spam.",
+        newsletterButton: "Subscribe",
         contactTitle: "Contact",
         city: "São Paulo, Brazil",
         socialTitle: "Social",

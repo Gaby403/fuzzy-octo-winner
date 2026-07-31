@@ -141,6 +141,32 @@ ok('PT: rótulo salvo', 'Branding' === $depoisPt['footer']['col2_links'][0]['lab
 ok('PT: URL salva', '/servicos/branding-identidade-visual' === $depoisPt['footer']['col2_links'][0]['url'], $depoisPt['footer']['col2_links'][0]['url']);
 ok('PT: coluna com 5 links', 5 === count($depoisPt['footer']['col2_links']), (string) count($depoisPt['footer']['col2_links']));
 
+echo "\n== Newsletter editável nos dois idiomas ==\n";
+$GLOBALS['__o'] = [];
+$pt = STCMS_Options::get('pt'); $en = STCMS_Options::get('en');
+ok('PT tem título da newsletter', 'Newsletter' === ($pt['footer']['newsletter_title'] ?? ''), $pt['footer']['newsletter_title'] ?? '(ausente)');
+ok('PT tem texto do botão', 'Inscrever' === ($pt['footer']['newsletter_button'] ?? ''), $pt['footer']['newsletter_button'] ?? '(ausente)');
+ok('EN tem texto do botão', 'Subscribe' === ($en['footer']['newsletter_button'] ?? ''), $en['footer']['newsletter_button'] ?? '(ausente)');
+$formPt = $pt; $formPt['hero']['title_lines'] = implode("\n", $pt['hero']['title_lines']);
+$formPt['footer']['newsletter_button'] = 'Quero receber';
+$GLOBALS['__o']['stcms_options'] = STCMS_Options::sanitize( $formPt );
+ok('PT: botão editado é salvo', 'Quero receber' === STCMS_Options::get('pt')['footer']['newsletter_button'], STCMS_Options::get('pt')['footer']['newsletter_button']);
+$formEn = formulario_en(); $formEn['footer']['newsletter_button'] = 'Join the list';
+$GLOBALS['__o']['stcms_options_en'] = STCMS_Options::sanitize_en( $formEn );
+ok('EN: botão editado é salvo', 'Join the list' === STCMS_Options::get('en')['footer']['newsletter_button'], STCMS_Options::get('en')['footer']['newsletter_button']);
+ok('PT não foi afetado', 'Quero receber' === STCMS_Options::get('pt')['footer']['newsletter_button']);
+
+echo "\n== Links da última linha do rodapé ==\n";
+$GLOBALS['__o'] = [];
+$formPt = STCMS_Options::get('pt'); $formPt['hero']['title_lines'] = implode("\n", $formPt['hero']['title_lines']);
+$formPt['footer']['legal'] = array(array('label'=>'Privacidade','url'=>'/p/privacidade'));
+$GLOBALS['__o']['stcms_options'] = STCMS_Options::sanitize( $formPt );
+$dep = STCMS_Options::get('pt');
+ok('guarda exatamente 1 link', 1 === count($dep['footer']['legal']), (string) count($dep['footer']['legal']));
+$formPt['footer']['legal'] = array();
+$GLOBALS['__o']['stcms_options'] = STCMS_Options::sanitize( $formPt );
+ok('lista vazia é aceita', 0 === count(STCMS_Options::get('pt')['footer']['legal'] ?? array()), (string) count(STCMS_Options::get('pt')['footer']['legal'] ?? array()));
+
 echo "\n== Menu de destinos ==\n";
 $grupos = STCMS_Options::destinos();
 ok('lista as páginas do site', isset($grupos['Páginas do site']));

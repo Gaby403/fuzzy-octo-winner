@@ -165,6 +165,8 @@ class STCMS_Options {
 				</p></div>
 			<?php endif; ?>
 
+			<?php self::render_indice(); ?>
+
 			<form method="post" action="options.php" class="stcms-form">
 				<?php settings_fields( 'en' === self::$lang ? 'stcms_group_en' : 'stcms_group' ); ?>
 				<input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr( admin_url( 'admin.php?page=studio-tabi&stcms_lang=' . self::$lang ) ); ?>" />
@@ -405,13 +407,26 @@ class STCMS_Options {
 						</table>
 					</div>
 
+					<div class="stcms-subgroup"><span class="stcms-subtitle">Newsletter</span>
+						<table class="form-table stcms-fields" role="presentation">
+							<?php
+							self::row_text( 'Título', 'footer][newsletter_title', $o['footer']['newsletter_title'] ?? '', 'Aparece acima do campo de e-mail no rodapé.' );
+							self::row_textarea( 'Texto de apoio', 'footer][newsletter_text', $o['footer']['newsletter_text'] ?? '' );
+							self::row_text( 'Texto do botão', 'footer][newsletter_button', $o['footer']['newsletter_button'] ?? '', 'Ex.: Inscrever / Subscribe.' );
+							?>
+						</table>
+					</div>
+
 					<div class="stcms-subgroup"><span class="stcms-subtitle">Rodapé inferior</span>
 						<table class="form-table stcms-fields" role="presentation">
 							<?php
 							self::row_text( 'Copyright', 'footer][copyright', $o['footer']['copyright'] );
 							self::row_text( 'Texto "feito em"', 'footer][made_in', $o['footer']['made_in'], 'Deixe vazio para ocultar.' );
 							?>
-							<tr><th scope="row">Links legais</th><td><?php self::repeater( 'footer][legal', $o['footer']['legal'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ), true ); ?></td></tr>
+							<tr><th scope="row">Links da última linha</th><td>
+								<?php self::repeater( 'footer][legal', $o['footer']['legal'], array( 'label' => 'Rótulo', 'url' => 'Link (#, /p/slug ou https://...)' ), true ); ?>
+								<p class="description">São exatamente estes os links que aparecem ao lado do copyright — nem mais, nem menos. Deixe a lista vazia para não mostrar nenhum.</p>
+							</td></tr>
 						</table>
 					</div>
 				<?php self::card_close(); ?>
@@ -425,9 +440,51 @@ class STCMS_Options {
 		<?php
 	}
 
+	/**
+	 * Índice das seções, para não ser preciso rolar a página inteira procurando.
+	 * A ordem acompanha a ordem em que a home é montada.
+	 */
+	private static function render_indice() {
+		$secoes = array(
+			'site'         => array( 'dashicons-admin-site-alt3', 'Site' ),
+			'nav'          => array( 'dashicons-menu-alt3', 'Menu' ),
+			'hero'         => array( 'dashicons-cover-image', 'Hero' ),
+			'sections'     => array( 'dashicons-layout', 'Seções da home' ),
+			'projects_cta' => array( 'dashicons-portfolio', 'Projetos' ),
+			'process'      => array( 'dashicons-networking', 'Processo' ),
+			'about'        => array( 'dashicons-info-outline', 'Sobre' ),
+			'contact'      => array( 'dashicons-email-alt', 'Contato' ),
+			'thankyou'     => array( 'dashicons-heart', 'Obrigado' ),
+			'footer'       => array( 'dashicons-align-full-width', 'Rodapé' ),
+			'inner_pages'  => array( 'dashicons-media-document', 'Páginas internas' ),
+			'integrations' => array( 'dashicons-chart-area', 'Integrações' ),
+		);
+		if ( 'en' === self::$lang ) {
+			$secoes = array( 'traducao' => array( 'dashicons-translation', 'Conteúdo em inglês' ) ) + $secoes;
+		}
+
+		echo '<div class="stcms-indice">';
+		echo '<span class="stcms-indice-rotulo">Ir para:</span>';
+		foreach ( $secoes as $id => $item ) {
+			printf(
+				'<a href="#stcms-%1$s" class="stcms-indice-link" data-alvo="%1$s"><span class="dashicons %2$s"></span>%3$s</a>',
+				esc_attr( $id ),
+				esc_attr( $item[0] ),
+				esc_html( $item[1] )
+			);
+		}
+		echo '</div>';
+
+		echo '<p class="description stcms-mapa">'
+			. '<strong>Onde fica cada coisa:</strong> os textos das seções ficam aqui. '
+			. 'Serviços, Projetos, FAQ e artigos do blog são editados no menu lateral do WordPress, '
+			. 'cada um no seu próprio item — e é lá também que fica a aba <em>English</em> de cada conteúdo.'
+			. '</p>';
+	}
+
 	private static function card_open( $id, $icon, $title, $subtitle ) {
 		printf(
-			'<section class="stcms-card" data-card="%1$s">'
+			'<section class="stcms-card" id="stcms-%1$s" data-card="%1$s">'
 			. '<button type="button" class="stcms-card-head" aria-expanded="true">'
 			. '<span class="stcms-card-icon dashicons %2$s"></span>'
 			. '<span class="stcms-card-title">%3$s<em>%4$s</em></span>'
@@ -1000,6 +1057,9 @@ class STCMS_Options {
 			$out['footer']['col1_links']    = self::sanitize_links( $input['footer']['col1_links'] ?? array() );
 			$out['footer']['col2_title']    = sanitize_text_field( $input['footer']['col2_title'] ?? '' );
 			$out['footer']['col2_links']    = self::sanitize_links( $input['footer']['col2_links'] ?? array() );
+			$out['footer']['newsletter_title']  = sanitize_text_field( $input['footer']['newsletter_title'] ?? '' );
+			$out['footer']['newsletter_text']   = sanitize_textarea_field( $input['footer']['newsletter_text'] ?? '' );
+			$out['footer']['newsletter_button'] = sanitize_text_field( $input['footer']['newsletter_button'] ?? '' );
 			$out['footer']['contact_title'] = sanitize_text_field( $input['footer']['contact_title'] ?? '' );
 			$out['footer']['email']         = sanitize_email( $input['footer']['email'] ?? '' );
 			$out['footer']['phone']         = sanitize_text_field( $input['footer']['phone'] ?? '' );

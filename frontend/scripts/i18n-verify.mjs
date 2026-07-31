@@ -55,27 +55,14 @@ check("nenhum link vaza para o PT (fora do seletor de idioma)", vazam.length===0
 const troca = await p.evaluate(()=>[...document.querySelectorAll('a[hreflang]')].map(a=>a.getAttribute("hreflang")+"→"+a.getAttribute("href")).join(" "));
 check("seletor de idioma aponta para os dois idiomas", troca.includes("pt→/")&&troca.includes("en→/en"), troca);
 
-console.log("== EN: aviso de idioma (navegador en-US em /en → não aparece) ==");
-let aviso = await p.evaluate(()=>!!document.querySelector('[data-no-prerender][role=region]'));
-check("sem aviso em /en com navegador en", aviso===false);
+console.log("== Aviso de idioma foi removido ==");
+const semAviso = await p.evaluate(() => !document.querySelector('[data-no-prerender][role=region]'));
+check("nenhum popup de idioma no /en", semAviso === true);
 await p.close();
-
-console.log("== PT: navegador en-US em / → aviso aparece, sem redirecionar ==");
 p = await abrir("/");
-const r2 = await p.evaluate(()=>{
-  const el = document.querySelector('[data-no-prerender][role=region]');
-  return { visivel: !!el, texto: el?.innerText.replace(/\s+/g," ").trim(), destino: el?.querySelector("a")?.getAttribute("href"), url: location.pathname, lang: document.documentElement.lang };
-});
-check("não redirecionou", r2.url==="/", r2.url);
-check("html lang pt-BR", r2.lang==="pt-BR", r2.lang);
-check("aviso visível", r2.visivel===true);
-check("aviso em inglês", /available in English/.test(r2.texto||""), (r2.texto||"").slice(0,60));
-check("aviso leva para /en", r2.destino==="/en", r2.destino);
+const semAvisoPt = await p.evaluate(() => !document.querySelector('[data-no-prerender][role=region]'));
+check("nenhum popup de idioma no PT", semAvisoPt === true);
 await p.close();
-
-console.log("== Prerender não gravou o aviso no HTML ==");
-const html = await readFile(join(DIST,"index.html"),"utf8");
-check("data-no-prerender ausente do HTML estático", !html.includes("data-no-prerender"));
 
 console.log("== EN: navegação para páginas internas ==");
 for (const [rota, esperado] of [["/en/about","WE DON'T BUILD"],["/en/services","WHAT WE"],["/en/work","ALL OF OUR"],["/en/blog","BLOG"],["/en/contact",""]]) {

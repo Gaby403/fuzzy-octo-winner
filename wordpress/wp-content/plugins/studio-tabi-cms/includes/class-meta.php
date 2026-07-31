@@ -35,9 +35,13 @@ class STCMS_Meta {
 	}
 
 	public static function add_boxes() {
-		add_meta_box( 'stcms_service', 'Dados do serviço', array( __CLASS__, 'render_service' ), 'st_service', 'side', 'high' );
-		add_meta_box( 'stcms_service_page', 'Conteúdo da página interna (/servicos/…)', array( __CLASS__, 'render_service_page' ), 'st_service', 'normal', 'high' );
-		add_meta_box( 'stcms_project', 'Dados do projeto', array( __CLASS__, 'render_project' ), 'st_project', 'normal', 'high' );
+		$compat = array(
+			'__block_editor_compatible_meta_box' => true,
+			'__back_compat_meta_box'             => false,
+		);
+		add_meta_box( 'stcms_service', 'Dados do serviço', array( __CLASS__, 'render_service' ), 'st_service', 'side', 'high', $compat );
+		add_meta_box( 'stcms_service_page', 'Conteúdo da página interna (/servicos/…)', array( __CLASS__, 'render_service_page' ), 'st_service', 'normal', 'high', $compat );
+		add_meta_box( 'stcms_project', 'Dados do projeto', array( __CLASS__, 'render_project' ), 'st_project', 'normal', 'high', $compat );
 	}
 
 	private static function field( $post_id, $key, $default = '' ) {

@@ -132,7 +132,13 @@ class STCMS_Traducao {
 				array( __CLASS__, 'render' ),
 				$tipo,
 				'normal',
-				'high'
+				'high',
+				// Sem isto o editor de blocos esconde a caixa atrás do painel
+				// "Área avançada" ou simplesmente não a mostra em posts e páginas.
+				array(
+					'__block_editor_compatible_meta_box' => true,
+					'__back_compat_meta_box'             => false,
+				)
 			);
 		}
 	}

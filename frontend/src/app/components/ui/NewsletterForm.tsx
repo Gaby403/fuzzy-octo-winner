@@ -31,10 +31,10 @@ export function NewsletterForm({ compact = false }: {
         }
     };
     return (<form onSubmit={submit} style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-      <label htmlFor={id} style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}>E-mail para a newsletter</label>
+      <label htmlFor={id} style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}>{t("news.email")}</label>
       <input id={id} type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder={t("form.exemploEmail")} style={{ flex: "1 1 200px", minWidth: 0, background: colors.surface, border: `1px solid ${colors.borderStrong}`, borderRadius: radii.pill, color: colors.white, fontFamily: fonts.body, fontSize: 14, padding: "12px 18px", outline: "none" }}/>
       <button type="submit" disabled={sending} style={{ padding: "12px 22px", borderRadius: radii.pill, border: "none", background: colors.redBtn, color: colors.pureWhite, fontFamily: fonts.body, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", cursor: sending ? "default" : "pointer", opacity: sending ? 0.6 : 1 }}>
-        {sending ? "Enviando…" : "Inscrever"}
+        {sending ? t("news.enviando") : (content.footer.newsletterButton || t("news.inscrever"))}
       </button>
       {msg && <p role="status" style={{ margin: "4px 0 0", width: "100%", fontSize: 13, color: ok ? colors.ok : colors.error }}>{msg}</p>}
     </form>);
