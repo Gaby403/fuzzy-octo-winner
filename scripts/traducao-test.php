@@ -110,7 +110,6 @@ $ok = 0; $ko = 0;
 function ok($rotulo,$cond,$valor=''){global $ok,$ko;$cond?$ok++:$ko++;echo '  '.($cond?'✓':'✗')."  $rotulo".($valor!==''?": $valor":'')."\n";}
 function achar($tipo,$titulo){foreach($GLOBALS['__posts'] as $p){if($p->post_type===$tipo && $p->post_title===$titulo) return $p;} return null;}
 
-// Conteúdo de partida: o que o plugin instala + um serviço escrito pelo autor.
 $ordem = 0;
 foreach (stcms_default_services() as $s) {
     criar_post('st_service', $s['title'], $s['body'], null, $ordem++, ['stcms_num'=>$s['num'], 'stcms_page_content'=>$s['content'] ?? '']);
@@ -233,8 +232,6 @@ ok('API sem duplicatas depois da limpeza', 7 === count($pt['services']) && 7 ===
 ok('FAQ sem duplicatas', 6 === count($pt['faq']) && 6 === count($en['faq']), count($pt['faq']).'/'.count($en['faq']));
 
 echo "== Páginas de processo órfãs da versão 1.19 ==\n";
-// A 1.19 criava a versão em inglês como página separada com slug -en e só a
-// meta de idioma — sem stcms_traducao_de. É o estado que ficou no WordPress.
 $orfa = criar_post('page','Diagnosis','<p>We dive into the business.</p>','diagnostico-en',0,array('stcms_lang'=>'en'));
 $ptPag = achar('page','Diagnóstico');
 delete_post_meta($ptPag->ID,'stcms_en_title');

@@ -45,16 +45,11 @@ $GLOBALS['__o']['stcms_options']=['site'=>['recaptcha_secret'=>'SEGREDO-ULTRA']]
 $j=json_encode(STCMS_Rest::get_content()->data);
 echo "  ".(strpos($j,'SEGREDO-ULTRA')===false?"não exposto ✓":"VAZOU ✗")."\n";
 
-/**
- * Com o repasse (api.php) na frente, todas as chamadas chegam do IP do
- * servidor do site. Sem confiar no cabeçalho, o limite de 5 envios por hora
- * valeria para o site inteiro — o primeiro visitante gastaria a cota de todos.
- */
 echo "\n== Repasse do site: IP do visitante ==\n";
-$GLOBALS['__t']=[]; unset($GLOBALS['__o']['stcms_options']); // sem reCAPTCHA configurado
+$GLOBALS['__t']=[]; unset($GLOBALS['__o']['stcms_options']);
 $GLOBALS['__o']['stcms_proxy_token']='chave-secreta-do-proxy';
 $_SERVER['HTTP_ORIGIN']='https://studiotabi.com.br';
-$_SERVER['REMOTE_ADDR']='198.51.100.7'; // sempre o mesmo: o servidor do site
+$_SERVER['REMOTE_ADDR']='198.51.100.7';
 $_SERVER['HTTP_X_STCMS_PROXY']='chave-secreta-do-proxy';
 $status=[];
 foreach(['203.0.113.1','203.0.113.2','203.0.113.3','203.0.113.4','203.0.113.5','203.0.113.6'] as $ip){
@@ -73,7 +68,7 @@ echo "== Cabeçalho de IP sem a chave é ignorado ==\n";
 $GLOBALS['__t']=[];
 unset($_SERVER['HTTP_X_STCMS_PROXY']);
 $ultimo=0; for($i=1;$i<=6;$i++){
-  $_SERVER['HTTP_X_STCMS_CLIENT_IP']='203.0.113.'.(100+$i); // tentando trocar de IP a cada envio
+  $_SERVER['HTTP_X_STCMS_CLIENT_IP']='203.0.113.'.(100+$i);
   $ultimo=STCMS_Rest::submit_contact(new WP_REST_Request($payload))->status;
 }
 echo "  6ª tentativa → {$ultimo} — ".($ultimo===429?"não dá para burlar ✓":"BURLADO ✗")."\n";

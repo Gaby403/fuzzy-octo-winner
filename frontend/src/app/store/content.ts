@@ -555,8 +555,6 @@ const DEFAULT_CONTENT_EN: SiteContent = {
 export function defaultContent(lang: "pt" | "en" = "pt"): SiteContent {
     return lang === "en" ? DEFAULT_CONTENT_EN : DEFAULT_CONTENT;
 }
-// Vazio de propósito: o site fala com o próprio domínio e o api.php repassa
-// para o WordPress. Assim o endereço do CMS não vai para o navegador.
 const FALLBACK_WP_API = "";
 declare global {
     interface Window {
@@ -571,8 +569,6 @@ function resolveApiBase(): string {
 }
 export const WP_API: string = resolveApiBase();
 const CONTENT_ENDPOINT = "/wp-json/studio-tabi/v1/content";
-// O redirecionamento acontece no servidor (admin.php), então o endereço do
-// CMS não precisa existir no pacote do site.
 export const WP_ADMIN_URL: string = WP_API ? `${WP_API}/wp-admin/` : "/painel";
 function mergeContent(remote: Partial<SiteContent> | null | undefined, lang: "pt" | "en" = "pt"): SiteContent {
     const base = defaultContent(lang);

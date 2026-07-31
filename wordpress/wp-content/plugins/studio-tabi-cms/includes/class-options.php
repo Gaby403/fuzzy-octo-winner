@@ -27,12 +27,6 @@ class STCMS_Options {
 		add_action( 'admin_init', array( __CLASS__, 'maybe_gerar_proxy_token' ) );
 	}
 
-	/**
-	 * Cria (ou troca) a chave que o site usa para se identificar no repasse.
-	 *
-	 * Fica numa opção separada de propósito: é credencial, não conteúdo, e
-	 * assim nunca entra no array que alimenta a API pública.
-	 */
 	public static function maybe_gerar_proxy_token() {
 		if ( empty( $_GET['stcms_gerar_proxy'] ) || ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -62,12 +56,6 @@ class STCMS_Options {
 		return self::deep_merge( $base, self::sem_vazios( $en ) );
 	}
 
-	/**
-	 * Remove o que está em branco — é assim que um campo vazio na aba English
-	 * volta a herdar o português. Listas são tratadas inteiras: uma linha do
-	 * repetidor é mantida como está (mesmo com uma coluna em branco) e some
-	 * apenas quando fica totalmente vazia, para não abrir buraco na lista.
-	 */
 	private static function sem_vazios( $arr ) {
 		$out = array();
 		foreach ( $arr as $k => $v ) {
@@ -464,10 +452,6 @@ class STCMS_Options {
 		<?php
 	}
 
-	/**
-	 * Índice das seções, para não ser preciso rolar a página inteira procurando.
-	 * A ordem acompanha a ordem em que a home é montada.
-	 */
 	private static function render_indice() {
 		$secoes = array(
 			'site'         => array( 'dashicons-admin-site-alt3', 'Site' ),
@@ -540,10 +524,6 @@ class STCMS_Options {
 		);
 	}
 
-	/**
-	 * Chave do repasse. Não faz parte do formulário de opções: é uma opção
-	 * própria, gerada por botão, para nunca trafegar junto com o conteúdo.
-	 */
 	private static function row_proxy_token() {
 		$token = (string) get_option( 'stcms_proxy_token', '' );
 		$link  = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_gerar_proxy=1' ), 'stcms_gerar_proxy' );
@@ -589,10 +569,6 @@ class STCMS_Options {
 		echo '</div></td></tr>';
 	}
 
-	/**
-	 * Destinos do site que podem virar link, com o atalho para editar cada um.
-	 * Alimenta o seletor ao lado dos campos de URL.
-	 */
 	public static function destinos() {
 		$prefixo = 'en' === self::$lang ? '/en' : '';
 		$rota    = function ( $chave ) use ( $prefixo ) {
@@ -691,9 +667,6 @@ class STCMS_Options {
 		return $grupos;
 	}
 
-	/**
-	 * Seletor de destino + atalho "editar", ao lado de um campo de URL.
-	 */
 	private static function seletor_destino( $valor ) {
 		$grupos = self::destinos();
 		if ( ! $grupos ) {
@@ -947,11 +920,6 @@ class STCMS_Options {
 		exit;
 	}
 
-	/**
-	 * Apaga o que está salvo na aba English e volta aos padrões em inglês do
-	 * plugin. Serve para quem salvou com a versão que descartava os valores
-	 * iguais ao português e ficou com campos vazios na tela.
-	 */
 	public static function maybe_restaurar_en() {
 		if ( empty( $_GET['stcms_restaurar_en'] ) || ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -963,15 +931,10 @@ class STCMS_Options {
 	}
 
 	public static function sanitize_en( $input ) {
-		// O idioma é estático: sem devolver ao valor anterior, tudo que for
-		// renderizado depois neste mesmo request sairia em inglês.
 		$anterior   = self::$lang;
 		self::$lang = 'en';
 		$limpo      = self::sanitize( $input );
 		self::$lang = $anterior;
-		// Guarda o que foi digitado. Antes daqui saía só a diferença em relação
-		// ao português, e todo valor igual ao português era descartado — por
-		// isso ícones, slugs, números e URLs voltavam vazios para a tela.
 		return self::sem_vazios( $limpo );
 	}
 

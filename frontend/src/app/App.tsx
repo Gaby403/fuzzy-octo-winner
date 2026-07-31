@@ -547,7 +547,6 @@ function AboutSection() {
           </div>
         </Reveal>
 
-
         {STEPS.map((p, i) => (<Pillar key={p.slug || p.title} index={`0${i + 1}`} title={p.title} body={p.summary} delay={i * 0.06} icon={p.icon} to={p.slug ? rota("processo", p.slug) : undefined} onNavigate={goTo}/>))}
       </div>
 

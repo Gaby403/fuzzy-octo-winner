@@ -117,8 +117,6 @@ check("PT home — seções e FAQ intactos",
   JSON.stringify(ptHome));
 await p.close();
 
-// Em produção o /sitemap.xml é montado pelo sitemap.php; aqui conferimos a
-// reserva estática que ele serve quando o WordPress não responde.
 console.log("== sitemap: reserva estática ==");
 const sm = await (await fetch(`http://localhost:${PORTA}/sitemap-fallback.xml`)).text();
 check("urlset com xhtml", sm.includes('xmlns:xhtml') && sm.includes('<xhtml:link'));

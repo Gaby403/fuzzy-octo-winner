@@ -1,13 +1,4 @@
 <?php
-/**
- * Contract test (sem WordPress).
- *
- * Stuba as poucas funções do WordPress usadas pela camada REST e executa
- * de verdade STCMS_Rest::get_content(), validando que o JSON produzido tem
- * exatamente o formato que o front-end React consome (SiteContent).
- *
- * Uso:  php scripts/contract-test.php
- */
 
 error_reporting( E_ALL & ~E_DEPRECATED );
 
@@ -15,12 +6,10 @@ define( 'ABSPATH', __DIR__ . '/' );
 
 $PLUGIN = __DIR__ . '/../wordpress/wp-content/plugins/studio-tabi-cms';
 
-/* ------------------------------------------------- WordPress stubs (mínimos) */
-
 $GLOBALS['__options'] = array();
-$GLOBALS['__posts']   = array(); // type => [ {ID, post_title, post_content, menu_order, post_name, post_status, post_type} ]
-$GLOBALS['__meta']    = array(); // ID => [ key => value ]
-$GLOBALS['__thumbs']  = array(); // ID => url
+$GLOBALS['__posts']   = array();
+$GLOBALS['__meta']    = array();
+$GLOBALS['__thumbs']  = array();
 $GLOBALS['__next_id'] = 1;
 
 function get_option( $k, $d = false ) { return $GLOBALS['__options'][ $k ] ?? $d; }
@@ -68,16 +57,12 @@ class WP_Query {
 	}
 }
 
-/* ------------------------------------------------ carrega o código real do plugin */
-
 function get_post($id){return $GLOBALS['__posts'][$id] ?? null;}
 function delete_post_meta($id,$k){return true;}
 require_once "$PLUGIN/includes/defaults.php";
 require_once "$PLUGIN/includes/class-options.php";
 require_once "$PLUGIN/includes/class-traducao.php";
 require_once "$PLUGIN/includes/class-rest.php";
-
-/* ---------------------------------------------------------- semeia como a ativação */
 
 function stub_insert( $type, $title, $content, $order, $meta = array() ) {
 	$id = $GLOBALS['__next_id']++;
@@ -130,8 +115,6 @@ foreach ( stcms_default_projects() as $p ) {
 	);
 }
 
-/* --------------------------------------------------------------- executa e valida */
-
 $resp = STCMS_Rest::get_content();
 $data = $resp->data;
 
@@ -166,7 +149,6 @@ check( $pr['detail']['mockupLines'] === array( 'DASHBOARD', 'PORTFÓLIO', 'ANÁL
 check( count( $data['faq'] ) === 6 && isset( $data['faq'][0]['q'], $data['faq'][0]['a'] ), 'faq [q/a]' );
 check( isset( $data['footer']['tagline'], $data['footer']['email'], $data['footer']['phone'], $data['footer']['city'] ), 'footer completo' );
 
-// Botões editáveis (CTAs) e flag de "aparecer na home".
 check( isset( $pr['home'] ) && $pr['home'] === true, 'project.home é boolean (aparecer na home)' );
 check( isset( $data['nav']['ctaUrl'] ) && $data['nav']['ctaUrl'] === '/contato', 'nav.ctaUrl' );
 check( isset( $data['hero']['ctaPrimary']['label'], $data['hero']['ctaPrimary']['url'] ) && $data['hero']['ctaPrimary']['url'] === '/projetos', 'hero.ctaPrimary {label,url}' );
@@ -176,7 +158,6 @@ check( isset( $data['thankYou']['title'], $data['thankYou']['message'] ) && $dat
 check( isset( $data['contact']['title'], $data['contact']['highlight'], $data['contact']['description'] ), 'contact {title,highlight,description}' );
 check( isset( $data['footer']['ctaUrl'] ) && $data['footer']['ctaUrl'] === '/contato', 'footer.ctaUrl' );
 
-// Simula uma edição no backend e confirma que reflete na saída da API.
 $opts = STCMS_Options::get();
 $opts['hero']['title_lines'] = array( 'NOVO', 'TÍTULO' );
 $opts['footer']['email']     = 'novo@studiotabi.com.br';
@@ -187,7 +168,6 @@ check( $data2['footer']['email'] === 'novo@studiotabi.com.br', 'edição do roda
 
 echo "\n" . ( $fail === 0 ? "RESULTADO: TODOS OS TESTES PASSARAM ✓\n" : "RESULTADO: $fail FALHA(S) ✗\n" );
 
-// Amostra do JSON entregue ao front-end.
 echo "\n--- amostra do JSON (hero + 1º serviço) ---\n";
 echo json_encode(
 	array( 'site' => $data['site'], 'hero' => $data['hero'], 'services[0]' => $data['services'][0] ),

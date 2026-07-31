@@ -344,11 +344,6 @@ function stcms_default_options_en() {
 	);
 }
 
-/**
- * Traduções prontas do conteúdo que o plugin instala por padrão.
- * A chave é o texto em português; quem não estiver aqui é duplicado como está,
- * para o autor traduzir à mão sem perder imagem, ordem e configurações.
- */
 function stcms_traducoes_en() {
 	return array(
 		'servicos' => array(

@@ -480,12 +480,6 @@ class STCMS_Rest {
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Inscrição confirmada! Obrigado.' ), 200 );
 	}
 
-	/**
-	 * Confere se a chamada veio do repasse do site (frontend/public/api.php).
-	 *
-	 * Sem chave configurada nada é confiado: qualquer um poderia mandar o
-	 * cabeçalho e escolher o próprio IP para escapar do limite de envios.
-	 */
 	private static function proxy_confiavel() {
 		$esperado = trim( (string) get_option( 'stcms_proxy_token', '' ) );
 		if ( '' === $esperado ) {
@@ -499,8 +493,6 @@ class STCMS_Rest {
 	}
 
 	private static function client_ip() {
-		// Com o repasse ligado, REMOTE_ADDR é sempre o servidor do site — o
-		// limite por hora viraria um limite global. O IP real vem no cabeçalho.
 		if ( self::proxy_confiavel() && isset( $_SERVER['HTTP_X_STCMS_CLIENT_IP'] ) ) {
 			$encaminhado = trim( (string) wp_unslash( $_SERVER['HTTP_X_STCMS_CLIENT_IP'] ) );
 			if ( filter_var( $encaminhado, FILTER_VALIDATE_IP ) ) {
@@ -530,7 +522,6 @@ class STCMS_Rest {
 	}
 
 	private static function origem_permitida() {
-		// Chamada assinada pelo repasse do próprio site: já é da casa.
 		if ( self::proxy_confiavel() ) {
 			return true;
 		}
@@ -969,8 +960,6 @@ class STCMS_Rest {
 			$servicos_en[ $sp->post_name ] = STCMS_Traducao::tem_traducao( $sp );
 		}
 
-		// Um conteúdo serve os dois idiomas com o mesmo slug: quando existe
-		// tradução, as duas URLs se apontam; quando não existe, só a portuguesa entra.
 		$par = function ( $chave, $slug ) use ( $base ) {
 			$pt = self::rota( $base, 'pt', $chave, $slug );
 			$en = self::rota( $base, 'en', $chave, $slug );

@@ -15,7 +15,6 @@ function get_post_meta($i,$k,$s=true){return '';}
 function mysql2date($f,$d,$t=true){return date($f, strtotime($d));} function wp_strip_all_tags($s){return $s;} function apply_filters($t,$v){return $v;}
 function esc_html($s){return $s;} function esc_attr($s){return $s;} function get_page_by_path($s,$o=null,$t=null){return null;}
 function wp_get_attachment_image_url($i,$s=null){return '';}
-// Um único conjunto de serviços serve os dois idiomas: o texto é que muda.
 $GLOBALS['__servicos'] = ['branding','ui-ux'];
 function get_posts($a){
   $tipos = (array) ($a['post_type'] ?? '');

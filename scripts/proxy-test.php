@@ -1,11 +1,4 @@
 <?php
-/**
- * Testa o repasse do site para o WordPress (frontend/public/api.php).
- *
- * Sobe dois servidores embutidos do PHP: um faz de CMS e devolve o que
- * recebeu, o outro serve a pasta pública do site com o mesmo roteamento do
- * .htaccess. As chamadas passam pelo caminho real, com HTTP de verdade.
- */
 
 $raiz    = dirname( __DIR__ );
 $publico = $raiz . '/frontend/public';
@@ -24,8 +17,6 @@ function checa( $nome, $condicao, $detalhe = '' ) {
 		echo "FAIL  {$nome}" . ( $detalhe ? " — {$detalhe}" : '' ) . "\n";
 	}
 }
-
-/* ---------------------------------------------------------------- CMS falso */
 
 file_put_contents( $tmp . '/cms.php', <<<'PHP'
 <?php
@@ -48,8 +39,6 @@ echo json_encode(array(
 PHP
 );
 
-/* -------------------------------------- roteador do site (espelha .htaccess) */
-
 file_put_contents( $tmp . '/router.php', <<<'PHP'
 <?php
 $caminho = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -65,8 +54,6 @@ return false;
 PHP
 );
 
-// O roteador é servido a partir de uma cópia do público para que
-// __DIR__ . '/cms-config.php' aponte para a configuração de teste.
 @mkdir( $tmp . '/public', 0777, true );
 copy( $publico . '/api.php', $tmp . '/public/api.php' );
 copy( $publico . '/admin.php', $tmp . '/public/admin.php' );
@@ -82,7 +69,6 @@ file_put_contents(
 $cms  = proc_open( "php -S 127.0.0.1:{$porta_cms} " . escapeshellarg( $tmp . '/cms.php' ), array( 1 => array( 'file', '/dev/null', 'w' ), 2 => array( 'file', '/dev/null', 'w' ) ), $p1 );
 $site = proc_open( "php -S 127.0.0.1:{$porta_site} -t " . escapeshellarg( $tmp ) . ' ' . escapeshellarg( $tmp . '/router.php' ), array( 1 => array( 'file', '/dev/null', 'w' ), 2 => array( 'file', '/dev/null', 'w' ) ), $p2 );
 
-// Espera os servidores subirem.
 for ( $i = 0; $i < 50; $i++ ) {
 	$s = @fsockopen( '127.0.0.1', $porta_site, $e, $es, 0.2 );
 	$c = @fsockopen( '127.0.0.1', $porta_cms, $e, $es, 0.2 );
@@ -185,8 +171,6 @@ clearstatcache();
 $r = chamar( '/wp-json/studio-tabi/v1/content' );
 checa( 'sem URL do CMS devolve 503', 503 === $r['status'], 'status ' . $r['status'] );
 
-// http para um domínio de verdade mandaria o formulário do visitante em texto
-// aberto pela rede; só o WordPress local pode usar http.
 file_put_contents( $tmp . '/public/cms-config.php', "<?php return array( 'url' => 'http://cms.exemplo.com.br', 'token' => '' );\n" );
 clearstatcache();
 $r = chamar( '/wp-json/studio-tabi/v1/content' );
@@ -199,13 +183,10 @@ clearstatcache();
 $r = chamar( '/painel' );
 checa( '/painel não redireciona para esquema estranho', 503 === $r['status'], 'status ' . $r['status'] );
 
-/* ------------------------------------------------------------------ limpeza */
-
 foreach ( array( $p1, $p2 ) as $p ) {
 	if ( is_resource( $p ) ) {
 		$info = proc_get_status( $p );
 		if ( ! empty( $info['pid'] ) ) {
-			// O php -S roda como filho do shell: derruba o grupo inteiro.
 			@exec( 'pkill -P ' . (int) $info['pid'] . ' 2>/dev/null' );
 		}
 		proc_terminate( $p );

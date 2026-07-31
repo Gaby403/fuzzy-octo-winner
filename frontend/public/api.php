@@ -1,23 +1,9 @@
 <?php
-/**
- * Repasse das chamadas do site para o WordPress.
- *
- * O navegador fala só com studiotabi.com.br; quem conversa com o CMS é este
- * arquivo, do lado do servidor. Assim o endereço do WordPress não aparece no
- * código do site nem na aba de rede do navegador.
- *
- * Só as rotas listadas em ROTAS são repassadas — nada de wp-admin, wp-login,
- * xmlrpc ou qualquer outro caminho do WordPress.
- */
 
 $config = @include __DIR__ . '/cms-config.php';
 $base   = is_array($config) && ! empty($config['url']) ? rtrim($config['url'], '/') : '';
 $token  = is_array($config) && ! empty($config['token']) ? (string) $config['token'] : '';
 
-/**
- * Endereço mal configurado não é repassado: http em produção mandaria o que o
- * visitante escreveu no formulário em texto aberto pela rede.
- */
 $host   = parse_url($base, PHP_URL_HOST);
 $scheme = parse_url($base, PHP_URL_SCHEME);
 $local  = in_array($host, array('localhost', '127.0.0.1'), true);
@@ -25,7 +11,6 @@ if (! $host || ! preg_match('/^[a-z0-9.-]+$/i', $host) || ('https' !== $scheme &
     $base = '';
 }
 
-/** Rotas liberadas: expressão do caminho => métodos aceitos. */
 const ROTAS = array(
     '#^content$#'                    => array('GET'),
     '#^pages$#'                      => array('GET'),
@@ -38,7 +23,6 @@ const ROTAS = array(
     '#^subscribe$#'                  => array('POST'),
 );
 
-/** Parâmetros de consulta aceitos, com o formato de cada um. */
 const PARAMETROS = array(
     'lang'     => '#^(pt|en)$#',
     'page'     => '#^[0-9]{1,4}$#',
@@ -58,7 +42,6 @@ if ('' === $base) {
     recusar(503, 'CMS não configurado.');
 }
 
-/** Caminho pedido, depois do prefixo do namespace. */
 $pedido = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '';
 $rota   = '';
 if (preg_match('#/wp-json/studio-tabi/v1/(.+)$#', (string) $pedido, $m)) {
@@ -83,7 +66,6 @@ if (! $liberada) {
     recusar(404, 'Rota não encontrada.');
 }
 
-/** Só os parâmetros conhecidos seguem adiante, cada um validado. */
 $query = array();
 foreach (PARAMETROS as $nome => $formato) {
     if (isset($_GET[$nome]) && is_string($_GET[$nome]) && preg_match($formato, $_GET[$nome])) {
@@ -110,7 +92,6 @@ $ip = isset($_SERVER['REMOTE_ADDR']) && filter_var($_SERVER['REMOTE_ADDR'], FILT
 
 $cabecalhos = array(
     'Accept: application/json',
-    // O plugin confere a origem das escritas; a chamada nasce no próprio site.
     'Origin: ' . (isset($_SERVER['HTTP_HOST']) ? 'https://' . preg_replace('/[^a-z0-9.:-]/i', '', $_SERVER['HTTP_HOST']) : ''),
     'X-STCMS-Client-IP: ' . $ip,
 );
@@ -166,6 +147,5 @@ if (false === $resposta || ! $status) {
 
 http_response_code($status);
 header('Content-Type: ' . $tipo);
-// Só leitura é cacheável; envio de formulário nunca.
 header('Cache-Control: ' . ('GET' === $metodo ? 'public, max-age=120' : 'no-store'));
 echo $resposta;

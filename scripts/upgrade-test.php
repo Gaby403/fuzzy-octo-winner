@@ -1,13 +1,4 @@
 <?php
-/**
- * Contract test (sem WordPress).
- *
- * Stuba as poucas funções do WordPress usadas pela camada REST e executa
- * de verdade STCMS_Rest::get_content(), validando que o JSON produzido tem
- * exatamente o formato que o front-end React consome (SiteContent).
- *
- * Uso:  php scripts/contract-test.php
- */
 
 error_reporting( E_ALL & ~E_DEPRECATED );
 
@@ -15,12 +6,10 @@ define( 'ABSPATH', __DIR__ . '/' );
 
 $PLUGIN = __DIR__ . '/../wordpress/wp-content/plugins/studio-tabi-cms';
 
-/* ------------------------------------------------- WordPress stubs (mínimos) */
-
 $GLOBALS['__options'] = array();
-$GLOBALS['__posts']   = array(); // type => [ {ID, post_title, post_content, menu_order, post_name, post_status, post_type} ]
-$GLOBALS['__meta']    = array(); // ID => [ key => value ]
-$GLOBALS['__thumbs']  = array(); // ID => url
+$GLOBALS['__posts']   = array();
+$GLOBALS['__meta']    = array();
+$GLOBALS['__thumbs']  = array();
 $GLOBALS['__next_id'] = 1;
 
 function get_option( $k, $d = false ) { return $GLOBALS['__options'][ $k ] ?? $d; }
@@ -68,16 +57,12 @@ class WP_Query {
 	}
 }
 
-/* ------------------------------------------------ carrega o código real do plugin */
-
 function get_post($id){return $GLOBALS['__posts'][$id] ?? null;}
 function delete_post_meta($id,$k){return true;}
 require_once "$PLUGIN/includes/defaults.php";
 require_once "$PLUGIN/includes/class-options.php";
 require_once "$PLUGIN/includes/class-traducao.php";
 require_once "$PLUGIN/includes/class-rest.php";
-
-/* ---------------------------------------------------------- semeia como a ativação */
 
 function stub_insert( $type, $title, $content, $order, $meta = array() ) {
 	$id = $GLOBALS['__next_id']++;
@@ -130,17 +115,13 @@ foreach ( stcms_default_projects() as $p ) {
 	);
 }
 
-/* --------------------------------------------------------------- executa e valida */
-
-
-/* ---- Simulação de UPGRADE: opções gravadas pela v1.11 (sem chaves novas) ---- */
 $GLOBALS['__options']['stcms_options'] = array(
 	'site' => array( 'title' => 'Studio Tabi', 'tagline' => 'Antigo', 'logo_id' => 0, 'favicon_id' => 0, 'meta_description' => 'desc antiga' ),
 	'nav'  => array( 'brand' => 'STUDIO TABI', 'cta_label' => 'INICIAR PROJETO', 'cta_url' => '/contato',
 		'links' => array( array( 'label' => 'TRABALHOS', 'url' => '#trabalhos' ) ) ),
 	'hero' => array( 'eyebrow' => 'X', 'title_lines' => array( 'A', 'B' ), 'highlight' => 'C', 'description' => 'D', 'image_id' => 0 ),
-	'sections' => array( 'about_eyebrow' => 'SOBRE', 'faq_eyebrow' => 'FAQ' ), // sem blog_*
-	'footer'   => array( 'brand' => 'STUDIO TABI', 'email' => 'oi@studiotabi.com.br' ), // sem cta_title/cta_highlight
+	'sections' => array( 'about_eyebrow' => 'SOBRE', 'faq_eyebrow' => 'FAQ' ),
+	'footer'   => array( 'brand' => 'STUDIO TABI', 'email' => 'oi@studiotabi.com.br' ),
 	'about'    => array( 'paragraph1' => 'p1', 'paragraph2' => 'p2', 'stats' => array(), 'pillars' => array() ),
 );
 

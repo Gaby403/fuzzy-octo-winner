@@ -1,28 +1,10 @@
 <?php
-/**
- * sitemap.xml do Studio Tabi, montado no próprio servidor.
- *
- * Busca a lista de URLs no WordPress (studio-tabi/v1/sitemap) e guarda o
- * resultado em cache num arquivo ao lado. Assim o sitemap acompanha os
- * artigos, serviços e traduções publicados no CMS sem precisar de build:
- * o Hostinger roda PHP, e é só isso que este arquivo usa.
- *
- * Ordem de preferência ao responder:
- *   1. cache recente;
- *   2. resposta nova do WordPress;
- *   3. cache vencido (melhor um sitemap velho que nenhum);
- *   4. sitemap-fallback.xml, que vem junto com o site.
- */
 
-const VALIDADE = 6 * 3600;          // 6 horas de cache
-const TIMEOUT  = 8;                 // segundos esperando o WordPress
+const VALIDADE = 6 * 3600;
+const TIMEOUT  = 8;
 const CACHE    = __DIR__ . '/sitemap-cache.xml';
 const RESERVA  = __DIR__ . '/sitemap-fallback.xml';
 
-/**
- * Endereço do WordPress: lido do mesmo config.js que o site usa, para existir
- * um lugar só para editar. Só aceita https e um host bem formado.
- */
 function endereco_valido($url) {
     $url    = rtrim((string) $url, '/');
     $host   = parse_url($url, PHP_URL_HOST);
@@ -30,7 +12,6 @@ function endereco_valido($url) {
     if (! $host || ! preg_match('/^[a-z0-9.-]+$/i', $host)) {
         return '';
     }
-    // Em produção só https. Http fica liberado apenas para o WordPress local.
     $local = in_array($host, array('localhost', '127.0.0.1'), true);
     if ('https' !== $scheme && ! ('http' === $scheme && $local)) {
         return '';
@@ -39,7 +20,6 @@ function endereco_valido($url) {
 }
 
 function endereco_do_cms() {
-    // O endereço mora no cms-config.php, que não é servido como texto.
     $cfg = @include __DIR__ . '/cms-config.php';
     if (is_array($cfg) && ! empty($cfg['url'])) {
         $url = endereco_valido($cfg['url']);
@@ -47,12 +27,10 @@ function endereco_do_cms() {
             return $url;
         }
     }
-    // Instalações antigas ainda podem ter o endereço no config.js.
     $config = @file_get_contents(__DIR__ . '/config.js');
     if (false === $config) {
         return '';
     }
-    // A última atribuição vence — as anteriores costumam ser exemplos no comentário.
     if (! preg_match_all('/^\s*window\.__STUDIO_TABI_API__\s*=\s*["\']([^"\']+)["\']/m', $config, $m)) {
         return '';
     }
@@ -105,7 +83,6 @@ function responder($xml, $origem) {
     exit;
 }
 
-// 1. Cache ainda válido.
 if (is_readable(CACHE) && (time() - filemtime(CACHE)) < VALIDADE) {
     $xml = file_get_contents(CACHE);
     if ($xml) {
@@ -113,18 +90,15 @@ if (is_readable(CACHE) && (time() - filemtime(CACHE)) < VALIDADE) {
     }
 }
 
-// 2. Busca no WordPress e renova o cache.
 $base = endereco_do_cms();
 if ($base) {
     $xml = buscar_no_cms($base);
     if ($xml) {
-        // @ porque um diretório sem permissão de escrita não pode derrubar o sitemap.
         @file_put_contents(CACHE, $xml, LOCK_EX);
         responder($xml, 'cms');
     }
 }
 
-// 3. Cache vencido serve melhor que nada.
 if (is_readable(CACHE)) {
     $xml = file_get_contents(CACHE);
     if ($xml) {
@@ -132,7 +106,6 @@ if (is_readable(CACHE)) {
     }
 }
 
-// 4. Cópia estática publicada junto com o site.
 if (is_readable(RESERVA)) {
     $xml = file_get_contents(RESERVA);
     if ($xml) {

@@ -33,8 +33,6 @@ const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--lang=en-US"],
 });
 
-// Detector genérico de português: diacríticos que o inglês não usa + palavras
-// funcionais sem acento. Duas ocorrências ou um diacrítico já acusam.
 const DETECTOR = `(() => {
     const DIACRITICO = /[ãõçáàâéêíóôúÃÕÇÁÀÂÉÊÍÓÔÚ]/;
     const PALAVRAS = new RegExp("\\\\b(" + [
@@ -130,7 +128,6 @@ for (const rota of ROTAS) {
     await new Promise(r => setTimeout(r, 1800));
     registrar(rota, "", await p.evaluate(DETECTOR));
 
-    // Estados interativos: menu, acordeão do FAQ e modal de projeto.
     const abrirMenu = await p.evaluate(() => {
         const b = document.querySelector('header button[aria-expanded]');
         if (!b) return false;

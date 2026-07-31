@@ -1,9 +1,4 @@
 <?php
-/**
- * Exercita os handlers de save do plugin com $_POST realista e mostra o que
- * realmente fica gravado. Serve para separar "não salva" de "salva mas
- * a sanitização come o conteúdo".
- */
 error_reporting(E_ALL & ~E_DEPRECATED);
 define('ABSPATH', __DIR__.'/');
 $P = __DIR__.'/../wordpress/wp-content/plugins/studio-tabi-cms';
@@ -32,9 +27,8 @@ function check_admin_referer($a){return true;} function wp_trash_post($id){retur
 function maybe_unserialize($v){return $v;}
 function wp_strip_all_tags($s){return strip_tags((string)$s);}
 if(!defined('OBJECT')) define('OBJECT','OBJECT');
-if(!defined('DOING_AUTOSAVE')) { /* não definimos: simula um save normal */ }
+if(!defined('DOING_AUTOSAVE')) { }
 
-// --- Núcleo do teste: as funções reais do WordPress que importam aqui ---
 function wp_unslash($v){ return is_array($v) ? array_map('wp_unslash', $v) : stripslashes((string)$v); }
 function sanitize_text_field($s){
     $s = strip_tags((string)$s);
@@ -42,11 +36,10 @@ function sanitize_text_field($s){
     return trim($s);
 }
 function sanitize_textarea_field($s){
-    $s = strip_tags((string)$s);          // <- o WordPress também remove tags aqui
+    $s = strip_tags((string)$s);
     return trim($s);
 }
 function wp_kses_post($s){
-    // Aproxima o wp_kses_post: mantém HTML de conteúdo, remove script/on*/iframe.
     $s = preg_replace('#<script\b[^>]*>.*?</script>#is', '', (string)$s);
     $s = preg_replace('#<iframe\b[^>]*>.*?</iframe>#is', '', $s);
     $s = preg_replace('/\son\w+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $s);

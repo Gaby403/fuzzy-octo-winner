@@ -4,15 +4,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Versão em inglês de cada conteúdo, guardada no próprio post.
- *
- * Não existe post gêmeo: o serviço, a pergunta, o projeto, o artigo e a página
- * continuam sendo um só registro no WordPress. A caixa "Versão em inglês"
- * aparece dentro do próprio item e guarda os textos em metas stcms_en_*.
- * Quando a API é chamada com lang=en, cada campo devolve a versão em inglês se
- * estiver preenchida e o texto em português quando não estiver.
- */
 class STCMS_Traducao {
 
 	const PREFIXO = 'stcms_en_';
@@ -24,15 +15,6 @@ class STCMS_Traducao {
 		add_action( 'admin_init', array( __CLASS__, 'maybe_limpar_duplicatas' ) );
 	}
 
-	/**
-	 * Campos traduzíveis por tipo de conteúdo.
-	 * origem: de onde vem o texto em português (post_title, post_content,
-	 * post_excerpt ou o nome de uma meta).
-	 */
-	/**
-	 * ID aceito pelo TinyMCE: só minúsculas, dígitos e hífen. Com underscore o
-	 * editor visual não devolve o conteúdo para o textarea e o campo salva vazio.
-	 */
 	public static function id_editor( $chave ) {
 		return 'stcms-en-' . str_replace( '_', '-', $chave );
 	}
@@ -75,10 +57,6 @@ class STCMS_Traducao {
 		return array( 'st_service', 'st_faq', 'st_project', 'post', 'page' );
 	}
 
-	/**
-	 * Valor de um campo no idioma pedido, caindo no português quando a tradução
-	 * está vazia. É o único ponto por onde a API lê texto traduzível.
-	 */
 	public static function texto( $post, $campo, $lang = 'pt', $padrao_pt = null ) {
 		$id  = is_object( $post ) ? $post->ID : (int) $post;
 		$obj = is_object( $post ) ? $post : get_post( $id );
@@ -104,10 +82,6 @@ class STCMS_Traducao {
 		return ( '' === $en || null === $en ) ? $padrao_pt : $en;
 	}
 
-	/**
-	 * Lista traduzida item a item, preservando o comprimento da lista em
-	 * português — traduzir a lista não pode mudar quantos itens ela tem.
-	 */
 	public static function lista( $post, $campo, $lang, $pt ) {
 		if ( 'en' !== $lang ) {
 			return $pt;
@@ -133,8 +107,6 @@ class STCMS_Traducao {
 				$tipo,
 				'normal',
 				'high',
-				// Sem isto o editor de blocos esconde a caixa atrás do painel
-				// "Área avançada" ou simplesmente não a mostra em posts e páginas.
 				array(
 					'__block_editor_compatible_meta_box' => true,
 					'__back_compat_meta_box'             => false,
@@ -143,9 +115,6 @@ class STCMS_Traducao {
 		}
 	}
 
-	/**
-	 * Texto em português de um campo, para exibir lado a lado com a tradução.
-	 */
 	private static function valor_pt( $post, $chave, $cfg ) {
 		switch ( $cfg['origem'] ) {
 			case 'post_title':
@@ -170,10 +139,6 @@ class STCMS_Traducao {
 		return is_scalar( $valor ) ? (string) $valor : '';
 	}
 
-	/**
-	 * Onde se edita o texto em português de cada campo — o painel PT é só
-	 * referência, para não existirem dois lugares editando a mesma coisa.
-	 */
 	private static function onde_editar( $cfg ) {
 		switch ( $cfg['origem'] ) {
 			case 'post_title':
@@ -200,7 +165,6 @@ class STCMS_Traducao {
 			. '<a href="#" class="nav-tab" data-aba="en">English <span class="stcms-aba-status"></span></a>'
 			. '</h2>';
 
-		// ---------- Aba Português ----------
 		echo '<div class="stcms-painel" data-painel="pt">';
 		echo '<p class="description" style="margin:0 0 14px">'
 			. 'O texto em português deste item, para você comparar enquanto traduz. '
@@ -224,7 +188,6 @@ class STCMS_Traducao {
 		}
 		echo '</div>';
 
-		// ---------- Aba English ----------
 		echo '<div class="stcms-painel" data-painel="en" style="display:none">';
 		echo '<p class="description" style="margin:0 0 14px">'
 			. 'Preencha só o que quiser traduzir. Campo em branco mostra o texto em português no <code>/en</code>. '
@@ -299,11 +262,8 @@ class STCMS_Traducao {
 			if ( 'texto' === $cfg['formato'] ) {
 				$limpo = sanitize_text_field( $bruto );
 			} elseif ( 'linhas' === $cfg['formato'] ) {
-				// Listas são texto puro — aqui remover marcação é o certo.
 				$limpo = sanitize_textarea_field( $bruto );
 			} else {
-				// 'rico' e 'area' vão para conteúdo, onde HTML é legítimo.
-				// sanitize_textarea_field apagaria <strong>, <em>, links…
 				$limpo = wp_kses_post( $bruto );
 			}
 			if ( '' === trim( (string) $limpo ) ) {
@@ -314,9 +274,6 @@ class STCMS_Traducao {
 		}
 	}
 
-	/**
-	 * Quantos itens de cada tipo ainda não têm nenhum campo traduzido.
-	 */
 	public static function pendentes() {
 		$out = array();
 		foreach ( self::tipos() as $tipo ) {
@@ -352,11 +309,6 @@ class STCMS_Traducao {
 		);
 	}
 
-	/**
-	 * Preenche os campos em inglês do conteúdo que o plugin instala por padrão,
-	 * casando pelo texto em português. Não cria nem apaga nenhum post e nunca
-	 * sobrescreve um campo que já tenha tradução.
-	 */
 	public static function maybe_preencher() {
 		if ( empty( $_GET['stcms_preencher_en'] ) || ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -413,18 +365,6 @@ class STCMS_Traducao {
 		return $mudados;
 	}
 
-	/**
-	 * Desfaz os posts gêmeos criados pela versão anterior do plugin: aproveita o
-	 * texto deles preenchendo os campos em inglês do original e manda a cópia
-	 * para a lixeira (não apaga em definitivo).
-	 */
-	/**
-	 * Itens em inglês soltos, deixados pelas versões anteriores. São de dois
-	 * tipos: os que guardam stcms_traducao_de (serviços, FAQs, projetos e
-	 * artigos) e as páginas de processo, que a versão 1.19 criou com o slug
-	 * terminado em -en e só a meta de idioma. As duas formas precisam ser
-	 * recolhidas, senão o texto em inglês fica num lugar que ninguém mais lê.
-	 */
 	public static function duplicatas() {
 		$achados = array();
 
@@ -459,9 +399,6 @@ class STCMS_Traducao {
 		return array_values( $achados );
 	}
 
-	/**
-	 * Para uma cópia com slug "algo-en", devolve o post "algo" do mesmo tipo.
-	 */
 	private static function origem_por_slug( $copia ) {
 		if ( ! preg_match( '/^(.*)-en$/', (string) $copia->post_name, $m ) || '' === $m[1] ) {
 			return null;
@@ -473,9 +410,6 @@ class STCMS_Traducao {
 		return $base;
 	}
 
-	/**
-	 * De onde veio a cópia: pela meta quando existe, senão pelo slug.
-	 */
 	private static function origem_da_copia( $copia ) {
 		$id = (int) get_post_meta( $copia->ID, 'stcms_traducao_de', true );
 		if ( $id ) {
@@ -503,7 +437,6 @@ class STCMS_Traducao {
 			$removidas++;
 		}
 
-		// A meta de idioma pertencia ao modelo antigo e não é mais lida.
 		foreach ( self::tipos() as $tipo ) {
 			foreach ( self::itens( $tipo ) as $p ) {
 				delete_post_meta( $p->ID, 'stcms_lang' );
@@ -514,10 +447,6 @@ class STCMS_Traducao {
 		exit;
 	}
 
-	/**
-	 * Copia o texto da duplicata para os campos em inglês do original, sem
-	 * sobrescrever o que já estiver preenchido lá.
-	 */
 	private static function absorver( $origem, $copia ) {
 		foreach ( self::campos( $origem->post_type ) as $chave => $cfg ) {
 			if ( '' !== (string) get_post_meta( $origem->ID, self::PREFIXO . $chave, true ) ) {
@@ -555,7 +484,6 @@ class STCMS_Traducao {
 				continue;
 			}
 
-			// Só guarda se for mesmo diferente do português: cópia idêntica não é tradução.
 			$pt = 'post_title' === $cfg['origem'] ? $origem->post_title
 				: ( 'post_content' === $cfg['origem'] ? $origem->post_content
 				: ( 'post_excerpt' === $cfg['origem'] ? $origem->post_excerpt

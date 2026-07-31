@@ -1,8 +1,4 @@
 <?php
-/**
- * Salva a aba English como o formulário do painel salva e confere o que volta
- * para a tela. Reproduz o caso em que um valor idêntico ao português some.
- */
 error_reporting(E_ALL & ~E_DEPRECATED);
 define('ABSPATH', __DIR__.'/');
 $P = __DIR__.'/../wordpress/wp-content/plugins/studio-tabi-cms';
@@ -49,13 +45,10 @@ require_once "$P/includes/class-traducao.php";
 $ok=0; $ko=0;
 function ok($r,$c,$v=''){global $ok,$ko;$c?$ok++:$ko++;echo '  '.($c?'✓':'✗')."  $r".($v!==''?": $v":'')."\n";}
 
-/** Monta o $_POST como o formulário da aba English envia: os valores que a tela mostra. */
 function formulario_en() {
     $en = stcms_default_options_en();
     $pt = stcms_default_options();
-    // A tela renderiza o resultado do merge; o navegador devolve tudo isso.
     $tela = STCMS_Options::get('en');
-    // O formulário envia as linhas do hero como textarea, uma por linha.
     $tela['hero']['title_lines'] = implode("\n", (array) $tela['hero']['title_lines']);
     return $tela;
 }
@@ -86,7 +79,6 @@ ok('hero em inglês', 'WE TURN' === ($depois['hero']['title_lines'][0] ?? ''), $
 
 echo "\n== Editar um campo salva o que foi digitado ==\n";
 $form = formulario_en();
-// title_lines é textarea: troca a primeira linha, não o primeiro byte.
 $linhas = explode("\n", $form['hero']['title_lines']);
 $linhas[0] = 'WE SHAPE';
 $form['hero']['title_lines'] = implode("\n", $linhas);
@@ -108,7 +100,6 @@ echo "\n== Restaurar os padrões em inglês ==\n";
 $GLOBALS['__o']['stcms_options_en'] = array('hero'=>array('highlight'=>'QUEBRADO.'));
 ok('opção corrompida presente', 'QUEBRADO.' === STCMS_Options::get('en')['hero']['highlight']);
 $_GET = array('stcms_restaurar_en'=>'1');
-// O plugin encerra com exit depois de redirecionar.
 try { STCMS_Options::maybe_restaurar_en(); } catch (Redirecionou $e) {}
 $_GET = array();
 ok('opção removida', ! isset($GLOBALS['__o']['stcms_options_en']));

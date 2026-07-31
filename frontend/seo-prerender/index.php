@@ -1,15 +1,4 @@
 <?php
-/**
- * Pré-renderização de SEO para o front-end estático (Hostinger / PHP).
- *
- * Injeta <title>, <meta name="description"> e as tags Open Graph / Twitter
- * diretamente no HTML inicial, buscando os valores no WordPress. Assim os
- * buscadores e as prévias de compartilhamento leem as meta tags mesmo sem
- * executar JavaScript. O app React continua assumindo normalmente depois.
- *
- * É dinâmico: editar a "Meta descrição" no WordPress reflete aqui (com um
- * cache curto para não consultar o WP a cada acesso).
- */
 
 $dir  = __DIR__;
 $html = @file_get_contents( $dir . '/index.html' );
@@ -19,7 +8,6 @@ if ( false === $html ) {
 	exit;
 }
 
-// URL do WordPress — lida do próprio config.js (fonte única de configuração).
 $api = '';
 $cfg = @file_get_contents( $dir . '/config.js' );
 if ( $cfg && preg_match( '/__STUDIO_TABI_API__\s*=\s*["\']([^"\']+)["\']/', $cfg, $m ) ) {
@@ -35,14 +23,12 @@ header( 'Content-Type: text/html; charset=UTF-8' );
 echo $html;
 exit;
 
-/* ------------------------------------------------------------------ helpers */
-
 function stcms_seo_meta( $api ) {
 	if ( ! $api ) {
 		return null;
 	}
 	$cache = sys_get_temp_dir() . '/stcms_seo_' . md5( $api ) . '.json';
-	$ttl   = 300; // 5 minutos
+	$ttl   = 300;
 
 	if ( is_readable( $cache ) && ( time() - filemtime( $cache ) ) < $ttl ) {
 		$c = json_decode( file_get_contents( $cache ), true );
@@ -53,7 +39,6 @@ function stcms_seo_meta( $api ) {
 
 	$json = stcms_http_get( $api . '/wp-json/studio-tabi/v1/content' );
 	if ( ! $json ) {
-		// Fallback: usa um cache antigo, se houver.
 		if ( is_readable( $cache ) ) {
 			$c = json_decode( file_get_contents( $cache ), true );
 			if ( $c ) {
@@ -106,7 +91,6 @@ function stcms_inject_head( $html, $meta ) {
 	if ( null !== $title ) {
 		$html = preg_replace( '/<title>.*?<\/title>/is', '<title>' . stcms_esc( $title ) . '</title>', $html, 1 );
 	}
-	// Remove a meta description base para não duplicar.
 	if ( null !== $desc ) {
 		$html = preg_replace( '/\s*<meta\s+name=["\']description["\'][^>]*>/i', '', $html, 1 );
 	}
