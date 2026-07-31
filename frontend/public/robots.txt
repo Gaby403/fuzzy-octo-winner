@@ -1,8 +1,6 @@
-# Studio Tabi — robots.txt
 User-agent: *
 Allow: /
 
-# Bots de IA são bem-vindos (navegação agêntica).
 User-agent: GPTBot
 Allow: /
 User-agent: ClaudeBot

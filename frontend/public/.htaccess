@@ -1,40 +1,25 @@
-# SPA routing para o front-end React (Hostinger / Apache / LiteSpeed).
-# Servimos sempre o index.html estático (robusto). As meta tags são geridas
-# pelo próprio app. (Pré-render SEO via PHP é opcional — ver frontend/seo-prerender.)
 
-# Força o index.html como página inicial (evita que um index.php residual assuma).
 DirectoryIndex index.html
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
 
-  # O sitemap é montado pelo sitemap.php, que busca as URLs no WordPress e
-  # guarda em cache. Fica antes de tudo para valer mesmo existindo um .xml.
   RewriteRule ^sitemap\.xml$ /sitemap.php [L]
 
-  # As chamadas ao CMS passam pelo próprio domínio: quem fala com o WordPress
-  # é o api.php, do lado do servidor. O endereço do CMS não vai ao navegador.
   RewriteRule ^wp-json/studio-tabi/v1/.+$ /api.php [L,QSA]
 
-  # Atalho do painel: redireciona no servidor, sem expor a URL no código.
   RewriteRule ^painel/?$ /admin.php [L]
 
-  # Não reescrever arquivos e pastas que existem de verdade.
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # Arquivos estáticos AUSENTES (js/css/imagens/fontes) devem retornar 404 —
-  # NUNCA cair no index.html, senão o navegador recebe HTML no lugar de JS e a
-  # página fica em branco.
   RewriteRule \.(js|mjs|css|map|json|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|eot)$ - [L]
 
-  # Demais rotas (/, /p/slug, /admin…) → index.html (roteamento no cliente).
   RewriteRule ^ index.html [L]
 </IfModule>
 
-# Cache dos assets versionados (hash no nome do arquivo).
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/css "access plus 1 year"
@@ -46,7 +31,6 @@ DirectoryIndex index.html
   ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
 
-# O index.html nunca é cacheado (para publicar novas versões na hora).
 <IfModule mod_headers.c>
   <FilesMatch "^index\.html$">
     Header set Cache-Control "no-cache, no-store, must-revalidate"

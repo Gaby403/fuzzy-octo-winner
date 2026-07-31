@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Gerado a cada build por scripts/sitemap.mjs a partir de studio-tabi/v1/sitemap.
-     Esta versão estática é a reserva usada quando o WordPress não responde. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://studiotabi.com.br/</loc>

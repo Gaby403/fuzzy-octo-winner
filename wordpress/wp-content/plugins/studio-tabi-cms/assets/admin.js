@@ -1,8 +1,6 @@
-/* Studio Tabi CMS — admin helpers: repeaters + media pickers */
 (function () {
 	'use strict';
 
-	// Garante que a biblioteca de mídia do WordPress está disponível.
 	function mediaReady() {
 		if (typeof wp === 'undefined' || !wp.media) {
 			window.alert('A biblioteca de mídia do WordPress não carregou nesta tela. Recarregue a página (F5). Se continuar, pode ser conflito com outro plugin.');
@@ -27,7 +25,6 @@
 		var row = document.createElement('div');
 		row.className = 'stcms-row';
 		row.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:wrap';
-		/* Modelo do seletor de destino, copiado de uma linha existente. */
 		var modelo = rep ? rep.querySelector('.stcms-destino') : null;
 		Object.keys(cols).forEach(function (key) {
 			var input = document.createElement('input');
@@ -56,7 +53,6 @@
 	}
 
 	document.addEventListener('click', function (e) {
-		// Recolher/expandir card de seção
 		var head = e.target.closest && e.target.closest('.stcms-card-head');
 		if (head) {
 			var card = head.closest('.stcms-card');
@@ -65,7 +61,6 @@
 			return;
 		}
 
-		// Add row
 		if (e.target.classList.contains('stcms-add')) {
 			e.preventDefault();
 			var rep = e.target.closest('.stcms-repeater');
@@ -73,20 +68,17 @@
 			var cols = JSON.parse(rep.querySelector('.stcms-cols').textContent);
 			rowsEl.appendChild(buildRow(rep.dataset.base, nextIndex(rowsEl), cols, rep));
 		}
-		// Remove row
 		if (e.target.classList.contains('stcms-remove')) {
 			e.preventDefault();
 			var row = e.target.closest('.stcms-row');
 			var container = row.parentNode;
 			row.remove();
 			if (!container.querySelector('.stcms-row')) {
-				// keep at least one empty row so the section stays usable
 				var rep2 = container.closest('.stcms-repeater');
 				var cols2 = JSON.parse(rep2.querySelector('.stcms-cols').textContent);
 				container.appendChild(buildRow(rep2.dataset.base, 0, cols2, rep2));
 			}
 		}
-		// Media picker (used on the options page)
 		if (e.target.classList.contains('stcms-media-pick')) {
 			e.preventDefault();
 			if (!mediaReady()) return;
@@ -110,7 +102,6 @@
 			e.target.style.display = 'none';
 		}
 
-		// Gallery: adicionar várias imagens
 		if (e.target.classList.contains('stcms-gallery-add')) {
 			e.preventDefault();
 			if (!mediaReady()) return;
@@ -139,7 +130,6 @@
 			gframe.open();
 		}
 
-		// Gallery: remover uma imagem
 		if (e.target.classList.contains('stcms-gallery-remove')) {
 			e.preventDefault();
 			var item2 = e.target.closest('.stcms-gallery-item');
@@ -151,7 +141,6 @@
 			item2.remove();
 		}
 
-		// Documentos (PDFs): adicionar
 		if (e.target.classList.contains('stcms-docs-add')) {
 			e.preventDefault();
 			if (!mediaReady()) return;
@@ -186,7 +175,6 @@
 			dframe.open();
 		}
 
-		// Documentos: remover
 		if (e.target.classList.contains('stcms-doc-remove')) {
 			e.preventDefault();
 			var ditem = e.target.closest('.stcms-doc-item');
@@ -200,7 +188,6 @@
 	});
 })();
 
-/* Abas Português / English da caixa de idioma. */
 (function () {
 	document.addEventListener('click', function (e) {
 		var aba = e.target.closest ? e.target.closest('.stcms-abas .nav-tab') : null;
@@ -215,8 +202,6 @@
 		caixa.querySelectorAll('.stcms-painel').forEach(function (p) {
 			p.style.display = p.getAttribute('data-painel') === alvo ? '' : 'none';
 		});
-		/* O TinyMCE criado dentro de um painel oculto nasce com altura zero;
-		   ao exibir o painel ele precisa recalcular o layout. */
 		if (window.tinymce) {
 			window.tinymce.editors.forEach(function (ed) {
 				if (ed.getContainer() && caixa.contains(ed.getContainer())) {
@@ -227,15 +212,12 @@
 		}
 	});
 
-	/* Rede de segurança: leva o conteúdo do editor visual para o textarea antes
-	   de enviar o formulário, inclusive quando a aba está oculta. */
 	document.addEventListener('submit', function (e) {
 		if (e.target && e.target.id === 'post' && window.tinymce) {
 			try { window.tinymce.triggerSave(); } catch (err) {}
 		}
 	}, true);
 
-	/* Marca a aba English quando já existe alguma tradução preenchida. */
 	document.addEventListener('DOMContentLoaded', function () {
 		document.querySelectorAll('.stcms-idiomas').forEach(function (caixa) {
 			var painel = caixa.querySelector('.stcms-painel[data-painel="en"]');
@@ -252,7 +234,6 @@
 	});
 })();
 
-/* Seletor de destino ao lado dos campos de link. */
 (function () {
 	function campoDoSeletor(sel) {
 		var linha = sel.closest('.stcms-row');
@@ -273,7 +254,6 @@
 		}
 	}
 
-	/* Ao escolher no menu, preenche a URL e libera o atalho de edição. */
 	document.addEventListener('change', function (e) {
 		if (!e.target.classList || !e.target.classList.contains('stcms-destino-select')) { return; }
 		var campo = campoDoSeletor(e.target);
@@ -284,7 +264,6 @@
 		atualizarEditar(e.target);
 	});
 
-	/* Digitar a URL na mão mantém o menu em sincronia. */
 	document.addEventListener('input', function (e) {
 		if (!e.target.classList || !e.target.classList.contains('stcms-campo-url')) { return; }
 		var linha = e.target.closest('.stcms-row');
@@ -300,7 +279,6 @@
 	});
 })();
 
-/* Índice: abre o cartão fechado antes de rolar até ele. */
 (function () {
 	document.addEventListener('click', function (e) {
 		var link = e.target.closest ? e.target.closest('.stcms-indice-link') : null;
