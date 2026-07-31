@@ -555,7 +555,9 @@ const DEFAULT_CONTENT_EN: SiteContent = {
 export function defaultContent(lang: "pt" | "en" = "pt"): SiteContent {
     return lang === "en" ? DEFAULT_CONTENT_EN : DEFAULT_CONTENT;
 }
-const FALLBACK_WP_API = "https://cms.studiotabi.com.br";
+// Vazio de propósito: o site fala com o próprio domínio e o api.php repassa
+// para o WordPress. Assim o endereço do CMS não vai para o navegador.
+const FALLBACK_WP_API = "";
 declare global {
     interface Window {
         __STUDIO_TABI_API__?: string;
@@ -565,15 +567,13 @@ function resolveApiBase(): string {
     const runtime = typeof window !== "undefined" ? window.__STUDIO_TABI_API__ : undefined;
     const build = import.meta.env.VITE_WP_API as string | undefined;
     const resolved = (runtime || build || FALLBACK_WP_API).trim();
-    if (!runtime && typeof console !== "undefined") {
-        console.info(`[Studio Tabi] config.js não definiu a URL do WordPress; usando o padrão ${FALLBACK_WP_API}. ` +
-            "Se o endereço do CMS for outro, atualize o config.js no servidor.");
-    }
     return resolved.replace(/\/$/, "");
 }
 export const WP_API: string = resolveApiBase();
 const CONTENT_ENDPOINT = "/wp-json/studio-tabi/v1/content";
-export const WP_ADMIN_URL: string = WP_API ? `${WP_API}/wp-admin/` : "/wp-admin/";
+// O redirecionamento acontece no servidor (admin.php), então o endereço do
+// CMS não precisa existir no pacote do site.
+export const WP_ADMIN_URL: string = WP_API ? `${WP_API}/wp-admin/` : "/painel";
 function mergeContent(remote: Partial<SiteContent> | null | undefined, lang: "pt" | "en" = "pt"): SiteContent {
     const base = defaultContent(lang);
     if (!remote)
@@ -602,12 +602,6 @@ function mergeContent(remote: Partial<SiteContent> | null | undefined, lang: "pt
     };
 }
 export async function fetchContent(lang: "pt" | "en" = "pt"): Promise<SiteContent> {
-    if (!WP_API) {
-        console.warn("[Studio Tabi] MODO OFFLINE: window.__STUDIO_TABI_API__ está vazio em config.js. " +
-            "O site está mostrando o conteúdo padrão embutido e NÃO o conteúdo do CMS. " +
-            'Defina a URL do WordPress em config.js, ex.: window.__STUDIO_TABI_API__ = "https://cms.studiotabi.com.br";');
-        return defaultContent(lang);
-    }
     try {
         const res = await fetch(`${WP_API}${CONTENT_ENDPOINT}${lang === "en" ? "?lang=en" : ""}`, { headers: { Accept: "application/json" } });
         if (!res.ok)

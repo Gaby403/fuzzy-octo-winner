@@ -24,6 +24,23 @@ class STCMS_Options {
 		add_action( 'admin_init', array( __CLASS__, 'register' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_create_process_pages' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_restaurar_en' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_gerar_proxy_token' ) );
+	}
+
+	/**
+	 * Cria (ou troca) a chave que o site usa para se identificar no repasse.
+	 *
+	 * Fica numa opção separada de propósito: é credencial, não conteúdo, e
+	 * assim nunca entra no array que alimenta a API pública.
+	 */
+	public static function maybe_gerar_proxy_token() {
+		if ( empty( $_GET['stcms_gerar_proxy'] ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		check_admin_referer( 'stcms_gerar_proxy' );
+		update_option( 'stcms_proxy_token', wp_generate_password( 40, false, false ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=studio-tabi&stcms_proxy=1#stcms-integrations' ) );
+		exit;
 	}
 
 	public static function get( $lang = 'pt' ) {
@@ -164,6 +181,12 @@ class STCMS_Options {
 					usam automaticamente o texto em português — assim a página nunca fica vazia.
 				</p></div>
 			<?php endif; ?>
+			<?php if ( ! empty( $_GET['stcms_proxy'] ) ) : ?>
+				<div class="notice notice-success inline" style="margin:12px 0"><p>
+					Chave do proxy gerada. Copie o valor em <strong>Integrações &amp; Analytics</strong>
+					e cole no arquivo <code>cms-config.php</code> do site.
+				</p></div>
+			<?php endif; ?>
 
 			<?php self::render_indice(); ?>
 
@@ -191,6 +214,7 @@ class STCMS_Options {
 						self::row_text( 'reCAPTCHA v3 — Site Key', 'site][recaptcha_site', $o['site']['recaptcha_site'], 'Chave pública (client). Ativa a proteção anti-spam nos formulários.' );
 						self::row_text( 'reCAPTCHA v3 — Secret Key', 'site][recaptcha_secret', $o['site']['recaptcha_secret'], 'Chave secreta (server). Nunca é exposta na API pública.' );
 						self::row_text( 'E-mail que RECEBE os formulários', 'site][form_email', $o['site']['form_email'] ?? '', 'Para onde vão contato e newsletter. Se vazio, usa o e-mail do Rodapé; se este também estiver vazio, usa o e-mail do administrador do WordPress.' );
+						self::row_proxy_token();
 						?>
 					</table>
 				<?php self::card_close(); ?>
@@ -514,6 +538,31 @@ class STCMS_Options {
 			esc_attr( $value ),
 			$help ? '<p class="description">' . esc_html( $help ) . '</p>' : ''
 		);
+	}
+
+	/**
+	 * Chave do repasse. Não faz parte do formulário de opções: é uma opção
+	 * própria, gerada por botão, para nunca trafegar junto com o conteúdo.
+	 */
+	private static function row_proxy_token() {
+		$token = (string) get_option( 'stcms_proxy_token', '' );
+		$link  = wp_nonce_url( admin_url( 'admin.php?page=studio-tabi&stcms_gerar_proxy=1' ), 'stcms_gerar_proxy' );
+		echo '<tr><th scope="row">Chave do proxy</th><td>';
+		printf(
+			'<input type="text" readonly value="%s" onclick="this.select()" class="regular-text" style="width:100%%;max-width:640px;font-family:monospace" placeholder="ainda não gerada" />',
+			esc_attr( $token )
+		);
+		printf(
+			'<p><a href="%s" class="button">%s</a></p>',
+			esc_url( $link ),
+			$token ? 'Gerar uma nova chave' : 'Gerar chave'
+		);
+		echo '<p class="description">'
+			. 'Cole esta chave no arquivo <code>cms-config.php</code> do site (campo <code>token</code>). '
+			. 'Ela permite que o WordPress reconheça as chamadas vindas do site e conte o limite de envios por visitante, e não por servidor. '
+			. 'Gerar uma nova chave invalida a anterior — atualize o arquivo depois.'
+			. '</p>';
+		echo '</td></tr>';
 	}
 
 	private static function row_textarea( $label, $path, $value, $help = '' ) {

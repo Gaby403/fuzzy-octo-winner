@@ -480,7 +480,33 @@ class STCMS_Rest {
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Inscrição confirmada! Obrigado.' ), 200 );
 	}
 
+	/**
+	 * Confere se a chamada veio do repasse do site (frontend/public/api.php).
+	 *
+	 * Sem chave configurada nada é confiado: qualquer um poderia mandar o
+	 * cabeçalho e escolher o próprio IP para escapar do limite de envios.
+	 */
+	private static function proxy_confiavel() {
+		$esperado = trim( (string) get_option( 'stcms_proxy_token', '' ) );
+		if ( '' === $esperado ) {
+			return false;
+		}
+		$recebido = isset( $_SERVER['HTTP_X_STCMS_PROXY'] ) ? trim( (string) wp_unslash( $_SERVER['HTTP_X_STCMS_PROXY'] ) ) : '';
+		if ( '' === $recebido ) {
+			return false;
+		}
+		return hash_equals( $esperado, $recebido );
+	}
+
 	private static function client_ip() {
+		// Com o repasse ligado, REMOTE_ADDR é sempre o servidor do site — o
+		// limite por hora viraria um limite global. O IP real vem no cabeçalho.
+		if ( self::proxy_confiavel() && isset( $_SERVER['HTTP_X_STCMS_CLIENT_IP'] ) ) {
+			$encaminhado = trim( (string) wp_unslash( $_SERVER['HTTP_X_STCMS_CLIENT_IP'] ) );
+			if ( filter_var( $encaminhado, FILTER_VALIDATE_IP ) ) {
+				return $encaminhado;
+			}
+		}
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : '';
 		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
 	}
@@ -504,6 +530,10 @@ class STCMS_Rest {
 	}
 
 	private static function origem_permitida() {
+		// Chamada assinada pelo repasse do próprio site: já é da casa.
+		if ( self::proxy_confiavel() ) {
+			return true;
+		}
 		$origin = isset( $_SERVER['HTTP_ORIGIN'] ) ? untrailingslashit( esc_url_raw( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) ) : '';
 		if ( '' === $origin ) {
 			return true;

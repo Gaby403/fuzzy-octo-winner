@@ -10,15 +10,14 @@
        Roboto Condensed (título do hero) e Be Vietnam Pro 400 (corpo). -->
   <link rel="preload" as="font" type="font/woff2" href="/fonts/ieVl2ZhZI2eCN5jzbjEETS9weq8-19K7DQ.woff2" crossorigin/>
   <link rel="preload" as="font" type="font/woff2" href="/fonts/QdVPSTAyLFyeg_IDWvOJmVES_Hw3BXo.woff2" crossorigin/>
-  <!-- Abre a conexão com o CMS antecipadamente: o primeiro fetch do conteúdo
-       não paga DNS + TLS, o que adianta o preenchimento da página. -->
-  <link rel="preconnect" href="https://cms.studiotabi.com.br" crossorigin/>
-  <link rel="dns-prefetch" href="https://cms.studiotabi.com.br"/>
-  <!-- Configuração de runtime: aponta para o WordPress. Editável no servidor.
-       O ?v evita que uma versão antiga fique presa no cache do navegador/CDN
-       e deixe o site sem conteúdo do CMS. Ao alterar o config.js, troque o
-       número para forçar a releitura. -->
-  <script src="/config.js?v=2"></script>
+  <!-- Sem preconnect para o CMS: o conteúdo vem do próprio domínio (o api.php
+       repassa), então a conexão já está aberta — e o endereço do WordPress não
+       precisa aparecer no HTML. -->
+  <!-- Configuração de runtime. Fica vazia por padrão: o endereço do WordPress
+       mora no cms-config.php, do lado do servidor. Só preencha aqui se quiser
+       falar direto com o CMS (desenvolvimento). O ?v força a releitura quando
+       o arquivo mudar. -->
+  <script src="/config.js?v=3"></script>
 </head>
 <body>
   <div id="root"></div>

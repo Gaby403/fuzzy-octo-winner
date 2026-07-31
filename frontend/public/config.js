@@ -1,14 +1,12 @@
 /**
  * Configuração de tempo de execução do front-end.
  *
- * Edite ESTA linha no servidor (Hostinger → Gerenciador de Arquivos) apontando
- * para a URL do seu WordPress headless, SEM barra no final. Não precisa
- * recompilar nada — basta salvar e recarregar o site.
+ * O endereço do WordPress NÃO fica aqui: este arquivo é público e chega ao
+ * navegador. Ele mora no cms-config.php, que o servidor executa em vez de
+ * mostrar, e o api.php faz o repasse.
  *
- * Exemplos:
- *   window.__STUDIO_TABI_API__ = "https://cms.seudominio.com.br";
- *   window.__STUDIO_TABI_API__ = "https://seudominio.com.br/cms";
- *
- * Se deixar vazio, o site mostra o conteúdo padrão embutido (modo offline).
+ * Deixe vazio para o site falar com o próprio domínio (o normal). Só preencha
+ * se quiser voltar a chamar o WordPress direto do navegador — aí o endereço
+ * volta a ficar visível.
  */
-window.__STUDIO_TABI_API__ = "https://cms.studiotabi.com.br";
+window.__STUDIO_TABI_API__ = "";

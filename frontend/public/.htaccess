@@ -13,6 +13,13 @@ DirectoryIndex index.html
   # guarda em cache. Fica antes de tudo para valer mesmo existindo um .xml.
   RewriteRule ^sitemap\.xml$ /sitemap.php [L]
 
+  # As chamadas ao CMS passam pelo próprio domínio: quem fala com o WordPress
+  # é o api.php, do lado do servidor. O endereço do CMS não vai ao navegador.
+  RewriteRule ^wp-json/studio-tabi/v1/.+$ /api.php [L,QSA]
+
+  # Atalho do painel: redireciona no servidor, sem expor a URL no código.
+  RewriteRule ^painel/?$ /admin.php [L]
+
   # Não reescrever arquivos e pastas que existem de verdade.
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
@@ -54,7 +61,7 @@ DirectoryIndex index.html
   Header always set Cross-Origin-Opener-Policy "same-origin"
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
 
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://cms.studiotabi.com.br https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com; frame-src https://www.google.com https://www.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com; frame-src https://www.google.com https://www.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
 </IfModule>
 
 <IfModule mod_headers.c>
@@ -62,6 +69,9 @@ DirectoryIndex index.html
     Require all denied
   </FilesMatch>
   <FilesMatch "^sitemap-(cache|fallback)\.xml$">
+    Require all denied
+  </FilesMatch>
+  <FilesMatch "^cms-config\.php$">
     Require all denied
   </FilesMatch>
 </IfModule>

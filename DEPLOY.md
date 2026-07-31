@@ -89,17 +89,14 @@ No admin do WordPress:
 ## Parte 2 — Front-end React (o site)
 
 ### 2.1 Configurar a URL da API
-No seu computador, dentro de `frontend/`:
 
-```bash
-cp .env.example .env
-```
+O endereço do WordPress **não vai para dentro do site compilado**. Ele fica em
+um único arquivo PHP que só o servidor lê — `cms-config.php` — e o
+`api.php` repassa as chamadas. Para o navegador, o site conversa apenas com
+`seudominio.com.br`; o endereço do CMS não aparece no código nem na aba de rede.
 
-Edite `.env` e aponte para o WordPress publicado:
-
-```
-VITE_WP_API=https://cms.seudominio.com.br
-```
+Nada a fazer nesta etapa no seu computador: a configuração é feita direto na
+Hostinger, no passo **2.4**.
 
 ### 2.2 Compilar
 ```bash
@@ -121,11 +118,41 @@ domínio principal:
 - **FTP** (FileZilla): arraste os arquivos de `dist/` para `public_html`.
 
 > O `.htaccess` incluído faz o roteamento do lado do cliente funcionar — assim
-> `/admin` e `/p/{slug}` funcionam mesmo ao recarregar a página.
+> `/admin` e `/p/{slug}` funcionam mesmo ao recarregar a página. Ele também
+> manda `/wp-json/studio-tabi/v1/…` para o `api.php` e `/painel` para o
+> `admin.php`.
 
-### 2.4 Pronto
+### 2.4 Apontar para o WordPress (`cms-config.php`)
+
+No **Gerenciador de Arquivos** da Hostinger, abra `public_html/cms-config.php`
+e edite as duas linhas:
+
+```php
+return array(
+    'url'   => 'https://cms.seudominio.com.br',
+    'token' => '',
+);
+```
+
+- **`url`** — endereço do WordPress, sem barra no final. Obrigatório.
+- **`token`** — opcional, mas recomendado. No WordPress, vá em
+  **Studio Tabi → Integrações & Analytics → Chave do proxy**, clique em
+  *Gerar chave*, copie o valor e cole aqui.
+
+Para que serve a chave: com o repasse ligado, todas as chamadas chegam ao
+WordPress vindas do IP do servidor do site. Sem a chave, o limite de 5 envios
+de formulário por hora passaria a valer para o site inteiro — o primeiro
+visitante gastaria a cota de todos. Com a chave, o WordPress reconhece a
+chamada e conta o limite por visitante.
+
+> Não apague o `cms-config.php` nem renomeie para `.txt`. Ele é PHP de
+> propósito: o Apache executa o arquivo em vez de mostrá-lo, então o endereço
+> do CMS não chega ao navegador.
+
+### 2.5 Pronto
 Acesse `https://seudominio.com.br`. O site carrega e busca o conteúdo do
 WordPress. Qualquer alteração feita no admin aparece ao recarregar.
+O painel do WordPress fica em `https://seudominio.com.br/painel`.
 
 ---
 
@@ -134,8 +161,8 @@ WordPress. Qualquer alteração feita no admin aparece ao recarregar.
 | Item | URL |
 |------|-----|
 | Site (front-end) | `https://seudominio.com.br` |
-| WordPress (admin) | `https://cms.seudominio.com.br/wp-admin` |
-| API de conteúdo | `https://cms.seudominio.com.br/wp-json/studio-tabi/v1/content` |
+| WordPress (admin) | `https://seudominio.com.br/painel` (atalho) ou `https://cms.seudominio.com.br/wp-admin` |
+| API de conteúdo (o que o navegador chama) | `https://seudominio.com.br/wp-json/studio-tabi/v1/content` |
 | Página no site | `https://seudominio.com.br/p/{slug}` |
 
 Na Hostinger, HTTP/HTTPS (80/443) já são gerenciados pelo painel — não é
@@ -180,7 +207,7 @@ um artigo, um serviço ou uma tradução.
 
 Requisitos: subir o `sitemap.php`, o `sitemap-fallback.xml` e o `.htaccess` junto
 com o resto do site (já estão no ZIP) e manter o endereço do WordPress correto no
-`config.js`.
+`cms-config.php`.
 
 Para conferir qual origem respondeu:
 

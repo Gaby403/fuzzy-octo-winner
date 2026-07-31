@@ -44,3 +44,60 @@ echo "== Secret do reCAPTCHA na API pública ==\n";
 $GLOBALS['__o']['stcms_options']=['site'=>['recaptcha_secret'=>'SEGREDO-ULTRA']];
 $j=json_encode(STCMS_Rest::get_content()->data);
 echo "  ".(strpos($j,'SEGREDO-ULTRA')===false?"não exposto ✓":"VAZOU ✗")."\n";
+
+/**
+ * Com o repasse (api.php) na frente, todas as chamadas chegam do IP do
+ * servidor do site. Sem confiar no cabeçalho, o limite de 5 envios por hora
+ * valeria para o site inteiro — o primeiro visitante gastaria a cota de todos.
+ */
+echo "\n== Repasse do site: IP do visitante ==\n";
+$GLOBALS['__t']=[]; unset($GLOBALS['__o']['stcms_options']); // sem reCAPTCHA configurado
+$GLOBALS['__o']['stcms_proxy_token']='chave-secreta-do-proxy';
+$_SERVER['HTTP_ORIGIN']='https://studiotabi.com.br';
+$_SERVER['REMOTE_ADDR']='198.51.100.7'; // sempre o mesmo: o servidor do site
+$_SERVER['HTTP_X_STCMS_PROXY']='chave-secreta-do-proxy';
+$status=[];
+foreach(['203.0.113.1','203.0.113.2','203.0.113.3','203.0.113.4','203.0.113.5','203.0.113.6'] as $ip){
+  $_SERVER['HTTP_X_STCMS_CLIENT_IP']=$ip;
+  $status[]=STCMS_Rest::submit_contact(new WP_REST_Request($payload))->status;
+}
+echo "  6 visitantes diferentes → ".implode(',',$status)." — ".(count(array_unique($status))===1&&$status[0]===200?"cada um com sua cota ✓":"cota compartilhada ✗")."\n";
+
+echo "== Repasse do site: mesmo visitante ainda tem limite ==\n";
+$GLOBALS['__t']=[];
+$_SERVER['HTTP_X_STCMS_CLIENT_IP']='203.0.113.99';
+$ultimo=0; for($i=1;$i<=6;$i++){ $ultimo=STCMS_Rest::submit_contact(new WP_REST_Request($payload))->status; }
+echo "  6ª tentativa → {$ultimo} — ".($ultimo===429?"limitado ✓":"sem limite ✗")."\n";
+
+echo "== Cabeçalho de IP sem a chave é ignorado ==\n";
+$GLOBALS['__t']=[];
+unset($_SERVER['HTTP_X_STCMS_PROXY']);
+$ultimo=0; for($i=1;$i<=6;$i++){
+  $_SERVER['HTTP_X_STCMS_CLIENT_IP']='203.0.113.'.(100+$i); // tentando trocar de IP a cada envio
+  $ultimo=STCMS_Rest::submit_contact(new WP_REST_Request($payload))->status;
+}
+echo "  6ª tentativa → {$ultimo} — ".($ultimo===429?"não dá para burlar ✓":"BURLADO ✗")."\n";
+
+echo "== Chave errada não é aceita ==\n";
+$GLOBALS['__t']=[];
+$_SERVER['HTTP_X_STCMS_PROXY']='chave-errada';
+$ultimo=0; for($i=1;$i<=6;$i++){
+  $_SERVER['HTTP_X_STCMS_CLIENT_IP']='203.0.113.'.(200+$i);
+  $ultimo=STCMS_Rest::submit_contact(new WP_REST_Request($payload))->status;
+}
+echo "  6ª tentativa → {$ultimo} — ".($ultimo===429?"rejeitada ✓":"ACEITA ✗")."\n";
+
+echo "== Sem chave configurada, o cabeçalho não vale nada ==\n";
+$GLOBALS['__t']=[]; unset($GLOBALS['__o']['stcms_proxy_token']);
+$_SERVER['HTTP_X_STCMS_PROXY']='';
+$ultimo=0; for($i=1;$i<=6;$i++){
+  $_SERVER['HTTP_X_STCMS_CLIENT_IP']='203.0.113.'.(210+$i);
+  $ultimo=STCMS_Rest::submit_contact(new WP_REST_Request($payload))->status;
+}
+echo "  6ª tentativa → {$ultimo} — ".($ultimo===429?"ignorado ✓":"ACEITO ✗")."\n";
+
+echo "== Origem estranha continua bloqueada sem a chave ==\n";
+$GLOBALS['__t']=[];
+$_SERVER['HTTP_ORIGIN']='https://site-malicioso.com'; unset($_SERVER['HTTP_X_STCMS_CLIENT_IP']);
+$r=STCMS_Rest::submit_contact(new WP_REST_Request($payload));
+echo "  status {$r->status} — ".($r->status===403?"BLOQUEADO ✓":"PASSOU ✗")."\n";

@@ -23,16 +23,8 @@ const RESERVA  = __DIR__ . '/sitemap-fallback.xml';
  * Endereço do WordPress: lido do mesmo config.js que o site usa, para existir
  * um lugar só para editar. Só aceita https e um host bem formado.
  */
-function endereco_do_cms() {
-    $config = @file_get_contents(__DIR__ . '/config.js');
-    if (false === $config) {
-        return '';
-    }
-    // A última atribuição vence — as anteriores costumam ser exemplos no comentário.
-    if (! preg_match_all('/^\s*window\.__STUDIO_TABI_API__\s*=\s*["\']([^"\']+)["\']/m', $config, $m)) {
-        return '';
-    }
-    $url    = rtrim(end($m[1]), '/');
+function endereco_valido($url) {
+    $url    = rtrim((string) $url, '/');
     $host   = parse_url($url, PHP_URL_HOST);
     $scheme = parse_url($url, PHP_URL_SCHEME);
     if (! $host || ! preg_match('/^[a-z0-9.-]+$/i', $host)) {
@@ -44,6 +36,27 @@ function endereco_do_cms() {
         return '';
     }
     return $url;
+}
+
+function endereco_do_cms() {
+    // O endereço mora no cms-config.php, que não é servido como texto.
+    $cfg = @include __DIR__ . '/cms-config.php';
+    if (is_array($cfg) && ! empty($cfg['url'])) {
+        $url = endereco_valido($cfg['url']);
+        if ('' !== $url) {
+            return $url;
+        }
+    }
+    // Instalações antigas ainda podem ter o endereço no config.js.
+    $config = @file_get_contents(__DIR__ . '/config.js');
+    if (false === $config) {
+        return '';
+    }
+    // A última atribuição vence — as anteriores costumam ser exemplos no comentário.
+    if (! preg_match_all('/^\s*window\.__STUDIO_TABI_API__\s*=\s*["\']([^"\']+)["\']/m', $config, $m)) {
+        return '';
+    }
+    return endereco_valido(end($m[1]));
 }
 
 function buscar_no_cms($base) {
