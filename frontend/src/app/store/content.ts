@@ -621,8 +621,6 @@ export interface WpPage {
     content: string;
 }
 export async function fetchPage(slug: string, lang: "pt" | "en" = "pt"): Promise<WpPage | null> {
-    if (!WP_API)
-        return null;
     const qs = lang === "en" ? "?lang=en" : "";
     try {
         const res = await fetch(`${WP_API}/wp-json/studio-tabi/v1/page/${encodeURIComponent(slug)}${qs}`, {
@@ -649,9 +647,6 @@ export interface ContactResult {
     message: string;
 }
 export async function submitContact(payload: ContactPayload, lang: "pt" | "en" = "pt"): Promise<ContactResult> {
-    if (!WP_API) {
-        return { ok: false, message: traduzir(lang, "form.indisponivel") };
-    }
     try {
         const res = await fetch(`${WP_API}/wp-json/studio-tabi/v1/contact`, {
             method: "POST",

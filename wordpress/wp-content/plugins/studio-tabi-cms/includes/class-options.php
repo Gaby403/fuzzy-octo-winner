@@ -56,11 +56,6 @@ class STCMS_Options {
 		return self::deep_merge( $base, self::sem_vazios( $en ), true );
 	}
 
-	/**
-	 * Numa lista, o inglês trocava a linha inteira do português. Uma coluna em
-	 * branco virava vazio em vez de herdar — era por isso que os números da
-	 * seção Sobre apareciam zerados em /en. Aqui a herança vale por célula.
-	 */
 	private static function merge_listas( $pt, $en ) {
 		$out = array();
 		foreach ( array_values( $en ) as $i => $linha ) {
@@ -120,10 +115,6 @@ class STCMS_Options {
 		return $out;
 	}
 
-	/**
-	 * $herdar_celulas só vale para o inglês: lá o branco significa "usa o
-	 * português". No português o branco é uma escolha e precisa ser respeitado.
-	 */
 	private static function deep_merge( $defaults, $values, $herdar_celulas = false ) {
 		foreach ( $values as $key => $value ) {
 			if ( is_array( $value ) && isset( $defaults[ $key ] ) && is_array( $defaults[ $key ] ) && self::is_assoc( $defaults[ $key ] ) ) {
@@ -988,9 +979,6 @@ class STCMS_Options {
 		}
 
 		if ( isset( $input['hero'] ) ) {
-			// O campo é um textarea, mas o WordPress reexecuta o sanitize sobre o
-			// valor já gravado — que aí é array. Sem esta guarda, (string) array
-			// vira a palavra "Array" e era isso que aparecia no hero em inglês.
 			$bruto = $input['hero']['title_lines'] ?? '';
 			$lines = is_array( $bruto ) ? $bruto : preg_split( '/\r\n|\r|\n/', (string) $bruto );
 			$lines = array_values( array_filter( array_map( 'sanitize_text_field', (array) $lines ), 'strlen' ) );

@@ -36,8 +36,6 @@ if ( false === $html ) {
 	exit;
 }
 
-// Se algo abaixo estourar, o HTML estático ainda sai — a página nunca fica em
-// branco por causa da injeção.
 $GLOBALS['stcms_html_base'] = $html;
 $GLOBALS['stcms_entregue']  = false;
 register_shutdown_function(
@@ -98,7 +96,6 @@ function stcms_seo_meta( $raiz, $lang ) {
 
 	$json = stcms_http_get( $api . '/wp-json/studio-tabi/v1/content?lang=' . $lang );
 	if ( ! $json ) {
-		// CMS fora do ar: vale a última cópia boa, mesmo vencida.
 		if ( is_readable( $cache ) ) {
 			$c = json_decode( (string) file_get_contents( $cache ), true );
 			if ( $c ) {
@@ -144,10 +141,6 @@ function stcms_http_get( $url ) {
 	return @file_get_contents( $url, false, $ctx );
 }
 
-/**
- * Troca as tags que já vieram do build em vez de acrescentar outras — duas
- * og:description no mesmo HTML deixam a prévia a critério de quem lê.
- */
 function stcms_injetar( $html, $meta ) {
 	$title = '' !== $meta['title'] ? $meta['title'] : null;
 	$desc  = '' !== $meta['description'] ? $meta['description'] : null;

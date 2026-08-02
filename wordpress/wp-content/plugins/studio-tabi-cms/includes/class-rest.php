@@ -334,7 +334,6 @@ class STCMS_Rest {
 		$args = array(
 			'post_type'      => 'post',
 			'post_status'    => 'publish',
-			'meta_query'     => self::meta_lang( self::req_lang( $req ) ),
 			'posts_per_page' => $per_page,
 			'paged'          => $page,
 			'orderby'        => 'date',

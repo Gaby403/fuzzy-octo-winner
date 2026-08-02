@@ -40,8 +40,6 @@ export async function fetchPosts(opts: {
     lang?: "pt" | "en";
 } = {}): Promise<PostsPage> {
     const empty: PostsPage = { items: [], total: 0, totalPages: 0, page: 1, perPage: opts.perPage ?? 9 };
-    if (!WP_API)
-        return empty;
     const qs = new URLSearchParams();
     qs.set("page", String(opts.page ?? 1));
     qs.set("per_page", String(opts.perPage ?? 9));
@@ -62,8 +60,6 @@ export async function fetchPosts(opts: {
     }
 }
 export async function fetchPost(slug: string, lang: "pt" | "en" = "pt"): Promise<PostFull | null> {
-    if (!WP_API)
-        return null;
     const qs = lang === "en" ? "?lang=en" : "";
     try {
         const res = await fetch(`${WP_API}${NS}/post/${encodeURIComponent(slug)}${qs}`, { headers: { Accept: "application/json" } });
@@ -76,8 +72,6 @@ export async function fetchPost(slug: string, lang: "pt" | "en" = "pt"): Promise
     }
 }
 export async function fetchCategories(lang: "pt" | "en" = "pt"): Promise<BlogCategory[]> {
-    if (!WP_API)
-        return [];
     const qs = lang === "en" ? "?lang=en" : "";
     try {
         const res = await fetch(`${WP_API}${NS}/categories${qs}`, { headers: { Accept: "application/json" } });
@@ -93,8 +87,6 @@ export async function subscribeNewsletter(email: string, recaptchaToken = "", la
     ok: boolean;
     message: string;
 }> {
-    if (!WP_API)
-        return { ok: false, message: traduzir(lang, "news.indisponivel") };
     try {
         const res = await fetch(`${WP_API}${NS}/subscribe`, {
             method: "POST",
