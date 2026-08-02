@@ -62,3 +62,21 @@ export function switchLocalePath(pathname: string, alvo: Locale): string {
     const caminho = [traduzido, ...cauda].filter(Boolean).join("/");
     return alvo === "pt" ? `/${caminho}` : `/en/${caminho}`;
 }
+
+export function formatarData(iso: string, locale: Locale, cru = ""): string {
+    if (!iso)
+        return cru;
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime()))
+        return cru;
+    try {
+        return d.toLocaleDateString(locale === "en" ? "en-US" : "pt-BR", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        });
+    }
+    catch {
+        return cru;
+    }
+}

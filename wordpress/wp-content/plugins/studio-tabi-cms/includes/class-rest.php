@@ -369,7 +369,7 @@ class STCMS_Rest {
 	private static function post_card( $p, $lang = 'pt' ) {
 		$cats = array();
 		foreach ( (array) get_the_category( $p->ID ) as $c ) {
-			$cats[] = array( 'name' => self::decode( $c->name ), 'slug' => $c->slug );
+			$cats[] = array( 'name' => self::decode( STCMS_Traducao::nome_termo( $c, $lang ) ), 'slug' => $c->slug );
 		}
 		$corpo = (string) STCMS_Traducao::texto( $p, 'body', $lang );
 		$plain = wp_strip_all_tags( $corpo );
@@ -424,7 +424,7 @@ class STCMS_Rest {
 
 		$tags = array();
 		foreach ( (array) get_the_tags( $post->ID ) as $t ) {
-			$tags[] = array( 'name' => self::decode( $t->name ), 'slug' => $t->slug );
+			$tags[] = array( 'name' => self::decode( STCMS_Traducao::nome_termo( $t, $lang ) ), 'slug' => $t->slug );
 		}
 
 		$data = array_merge(
@@ -440,12 +440,13 @@ class STCMS_Rest {
 		return new WP_REST_Response( $data, 200 );
 	}
 
-	public static function get_categories_list() {
+	public static function get_categories_list( $req = null ) {
+		$lang = self::req_lang( $req );
 		$cats = get_categories( array( 'hide_empty' => true ) );
 		$out  = array();
 		foreach ( $cats as $c ) {
 			$out[] = array(
-				'name'  => self::decode( $c->name ),
+				'name'  => self::decode( STCMS_Traducao::nome_termo( $c, $lang ) ),
 				'slug'  => $c->slug,
 				'count' => (int) $c->count,
 			);

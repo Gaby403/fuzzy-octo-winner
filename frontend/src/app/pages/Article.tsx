@@ -6,7 +6,7 @@ import { fetchPost, PostFull } from "../store/blog";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { subscribeNewsletter } from "../store/blog";
 import { useLocale } from "../i18n/useLocale";
-import { siteOrigin } from "../i18n/locale";
+import { siteOrigin, formatarData } from "../i18n/locale";
 import type { ChaveTexto } from "../i18n/dicionario";
 const RED = "#F20C25";
 const RED_INK = "#FF3547";
@@ -107,7 +107,7 @@ export default function Article() {
           <Breadcrumbs items={[{ label: t("geral.home"), to: rota("home") }, { label: t("blog.titulo"), to: rota("blog") }, { label: post.title }]}/>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", margin: "22px 0 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
             {post.categories[0]?.name && <span style={{ color: RED_INK }}>{post.categories[0].name}</span>}
-            <span style={{ color: "rgba(239,239,239,0.5)" }}><time dateTime={post.dateISO}>{post.date}</time> · {post.readingTime} {t("blog.leitura")}</span>
+            <span style={{ color: "rgba(239,239,239,0.5)" }}><time dateTime={post.dateISO}>{formatarData(post.dateISO, locale, post.date)}</time> · {post.readingTime} {t("blog.leitura")}</span>
           </div>
           <h1 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(34px,5vw,64px)", letterSpacing: "-0.04em", textTransform: "uppercase", lineHeight: 0.98, margin: "0 0 20px" }}>{post.title}</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28 }}>

@@ -218,11 +218,17 @@
 		}
 	}, true);
 
-	document.addEventListener('DOMContentLoaded', function () {
+	function iniciar() {
 		document.querySelectorAll('.stcms-idiomas').forEach(function (caixa) {
 			var painel = caixa.querySelector('.stcms-painel[data-painel="en"]');
 			var marca = caixa.querySelector('.stcms-aba-status');
-			if (!painel || !marca) { return; }
+			if (!painel) { return; }
+			var ativa = caixa.querySelector('.stcms-abas .nav-tab-active');
+			var alvo = ativa ? ativa.getAttribute('data-aba') : 'pt';
+			caixa.querySelectorAll('.stcms-painel').forEach(function (p) {
+				p.style.display = p.getAttribute('data-painel') === alvo ? '' : 'none';
+			});
+			if (!marca) { return; }
 			var campos = painel.querySelectorAll('input[type="text"], textarea');
 			var preenchido = Array.prototype.some.call(campos, function (c) {
 				return c.value && c.value.trim() !== '';
@@ -231,7 +237,13 @@
 			marca.style.color = '#1a7f37';
 			marca.title = preenchido ? 'Este item já tem tradução' : '';
 		});
-	});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', iniciar);
+	} else {
+		iniciar();
+	}
 })();
 
 (function () {

@@ -13,6 +13,59 @@ class STCMS_Traducao {
 		add_action( 'save_post', array( __CLASS__, 'save' ), 10, 2 );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_preencher' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_limpar_duplicatas' ) );
+		foreach ( array( 'category', 'post_tag' ) as $tax ) {
+			add_action( $tax . '_edit_form_fields', array( __CLASS__, 'campo_termo' ), 10, 1 );
+			add_action( $tax . '_add_form_fields', array( __CLASS__, 'campo_termo_novo' ) );
+			add_action( 'edited_' . $tax, array( __CLASS__, 'salvar_termo' ) );
+			add_action( 'created_' . $tax, array( __CLASS__, 'salvar_termo' ) );
+		}
+	}
+
+	public static function nome_termo( $termo, $lang = 'pt' ) {
+		$id = is_object( $termo ) ? $termo->term_id : (int) $termo;
+		$pt = is_object( $termo ) ? $termo->name : '';
+		if ( 'en' !== $lang ) {
+			return $pt;
+		}
+		$en = get_term_meta( $id, self::PREFIXO . 'name', true );
+		return ( '' === $en || null === $en ) ? $pt : $en;
+	}
+
+	public static function campo_termo( $termo ) {
+		$valor = get_term_meta( $termo->term_id, self::PREFIXO . 'name', true );
+		wp_nonce_field( 'stcms_en_termo', 'stcms_en_termo_nonce' );
+		echo '<tr class="form-field"><th scope="row"><label for="stcms_en_name">Nome em inglês</label></th><td>';
+		printf(
+			'<input type="text" id="stcms_en_name" name="stcms_en_name" value="%s" style="width:95%%" />',
+			esc_attr( $valor )
+		);
+		echo '<p class="description">Aparece no site em <code>/en</code>. Deixe vazio para usar o nome em português.</p>';
+		echo '</td></tr>';
+	}
+
+	public static function campo_termo_novo() {
+		wp_nonce_field( 'stcms_en_termo', 'stcms_en_termo_nonce' );
+		echo '<div class="form-field"><label for="stcms_en_name">Nome em inglês</label>';
+		echo '<input type="text" id="stcms_en_name" name="stcms_en_name" value="" />';
+		echo '<p>Aparece no site em <code>/en</code>. Deixe vazio para usar o nome em português.</p></div>';
+	}
+
+	public static function salvar_termo( $term_id ) {
+		if ( ! isset( $_POST['stcms_en_termo_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['stcms_en_termo_nonce'] ) ), 'stcms_en_termo' ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'manage_categories' ) ) {
+			return;
+		}
+		if ( ! isset( $_POST['stcms_en_name'] ) ) {
+			return;
+		}
+		$valor = sanitize_text_field( wp_unslash( $_POST['stcms_en_name'] ) );
+		if ( '' === $valor ) {
+			delete_term_meta( $term_id, self::PREFIXO . 'name' );
+		} else {
+			update_term_meta( $term_id, self::PREFIXO . 'name', $valor );
+		}
 	}
 
 	public static function id_editor( $chave ) {
@@ -188,7 +241,7 @@ class STCMS_Traducao {
 		}
 		echo '</div>';
 
-		echo '<div class="stcms-painel" data-painel="en" style="display:none">';
+		echo '<div class="stcms-painel" data-painel="en">';
 		echo '<p class="description" style="margin:0 0 14px">'
 			. 'Preencha só o que quiser traduzir. Campo em branco mostra o texto em português no <code>/en</code>. '
 			. 'Tudo fica dentro deste mesmo item — nada é duplicado.'

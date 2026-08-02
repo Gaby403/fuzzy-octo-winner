@@ -6,6 +6,7 @@ import { fetchPosts, fetchCategories, PostCard, BlogCategory } from "../store/bl
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { TabiDetail } from "../components/TabiDetail";
 import { useLocale } from "../i18n/useLocale";
+import { formatarData } from "../i18n/locale";
 import type { ChaveTexto } from "../i18n/dicionario";
 const RED = "#F20C25";
 const RED_INK = "#FF3547";
@@ -124,7 +125,7 @@ function ArticleCard({ p, index, to, t }: {
           </div>
           <h2 style={{ fontFamily: FONT_HEAD, fontWeight: 900, fontSize: "clamp(18px,1.6vw,24px)", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.08, margin: 0 }}>{p.title}</h2>
           <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "rgba(239,239,239,0.55)", margin: 0, flex: 1 }}>{p.excerpt}</p>
-          <div style={{ fontSize: 11, color: "rgba(239,239,239,0.4)" }}>{p.author} · <time dateTime={p.dateISO}>{p.date}</time></div>
+          <div style={{ fontSize: 11, color: "rgba(239,239,239,0.4)" }}>{p.author} · <time dateTime={p.dateISO}>{formatarData(p.dateISO, locale, p.date)}</time></div>
         </div>
       </Link>
     </m.article>);

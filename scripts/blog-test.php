@@ -51,6 +51,9 @@ function get_page_by_path( $slug, $o = null, $tipo = null ) {
 	return null;
 }
 function get_the_category( $id ) { return $GLOBALS['__cats'][ $id ] ?? array(); }
+function get_term_meta( $id, $k = '', $s = true ) { return $GLOBALS['__termmeta'][ $id ][ $k ] ?? ''; }
+function update_term_meta( $id, $k, $v ) { $GLOBALS['__termmeta'][ $id ][ $k ] = $v; return true; }
+function delete_term_meta( $id, $k ) { unset( $GLOBALS['__termmeta'][ $id ][ $k ] ); return true; }
 function get_the_tags( $id ) { return array(); }
 function wp_get_post_categories( $id ) { return array( 1 ); }
 function get_categories( $a = array() ) { return $GLOBALS['__todascats'] ?? array(); }
@@ -110,7 +113,8 @@ function post_falso( $id, $slug, $titulo, $conteudo ) {
 	return $p;
 }
 
-$c = new stdClass(); $c->name = 'Design'; $c->slug = 'design'; $c->count = 2;
+$c = new stdClass(); $c->term_id = 5; $c->name = 'Estratégia'; $c->slug = 'estrategia'; $c->count = 2;
+$GLOBALS['__termmeta'] = array( 5 => array( 'stcms_en_name' => 'Strategy' ) );
 $GLOBALS['__todascats'] = array( $c );
 $GLOBALS['__posts'] = array(
 	10 => post_falso( 10, 'tipografia-que-vende', 'Tipografia que vende', '<p>Um texto sobre tipografia e conversão.</p>' ),
@@ -157,7 +161,17 @@ ok( 'slug inexistente devolve 404', 404 === $r->status, (string) $r->status );
 echo "\n== Categorias ==\n";
 $r = STCMS_Rest::get_categories_list();
 ok( 'categorias respondem 200', 200 === $r->status, (string) $r->status );
-ok( 'categoria presente', 'design' === ( $r->data[0]['slug'] ?? '' ), $r->data[0]['slug'] ?? '' );
+ok( 'categoria presente', 'estrategia' === ( $r->data[0]['slug'] ?? '' ), $r->data[0]['slug'] ?? '' );
+ok( 'categoria em PT', 'Estratégia' === ( $r->data[0]['name'] ?? '' ), $r->data[0]['name'] ?? '' );
+$r = STCMS_Rest::get_categories_list( new WP_REST_Request( array( 'lang' => 'en' ) ) );
+ok( 'categoria traduzida em EN', 'Strategy' === ( $r->data[0]['name'] ?? '' ), $r->data[0]['name'] ?? '' );
+
+echo "\n== Categoria no cartão do post ==\n";
+$r = STCMS_Rest::get_posts_list( new WP_REST_Request( array() ) );
+ok( 'cartão PT com a categoria em português', 'Estratégia' === ( $r->data['items'][0]['categories'][0]['name'] ?? '' ), $r->data['items'][0]['categories'][0]['name'] ?? '' );
+$r = STCMS_Rest::get_posts_list( new WP_REST_Request( array( 'lang' => 'en' ) ) );
+ok( 'cartão EN com a categoria traduzida', 'Strategy' === ( $r->data['items'][0]['categories'][0]['name'] ?? '' ), $r->data['items'][0]['categories'][0]['name'] ?? '' );
+ok( 'slug da categoria não muda', 'estrategia' === ( $r->data['items'][0]['categories'][0]['slug'] ?? '' ) );
 
 echo "\n== Busca e paginação ==\n";
 $r = STCMS_Rest::get_posts_list( new WP_REST_Request( array( 'search' => 'Cor', 'lang' => 'en' ) ) );
