@@ -51,7 +51,11 @@ function get_home_url() { return 'https://studiotabi.com.br'; }
 function get_bloginfo( $x = '' ) { return 'Studio Tabi'; }
 function wp_generate_password( $n = 12, ...$r ) { return substr( str_replace( array( '/', '+', '=' ), 'a', base64_encode( random_bytes( $n ) ) ), 0, $n ); }
 function wpautop( $s ) { return '<p>' . str_replace( "\n\n", '</p><p>', (string) $s ) . '</p>'; }
-function add_query_arg( $args, $url ) { return $url . ( false === strpos( $url, '?' ) ? '?' : '&' ) . http_build_query( $args ); }
+function add_query_arg( ...$a ) {
+	$args = is_array( $a[0] ) ? $a[0] : array( $a[0] => $a[1] );
+	$url  = is_array( $a[0] ) ? $a[1] : $a[2];
+	return $url . ( false === strpos( $url, '?' ) ? '?' : '&' ) . http_build_query( $args );
+}
 function wp_get_attachment_image_url( $i, $s = null ) { return ''; }
 function get_post_meta( $i, $k = '', $s = true ) { return $GLOBALS['__pmeta'][ $i ][ $k ] ?? ''; }
 function update_post_meta( $i, $k, $v ) { $GLOBALS['__pmeta'][ $i ][ $k ] = $v; return true; }
@@ -122,7 +126,36 @@ function esc_textarea( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES, 
 class Redirecionou extends Exception {}
 function wp_safe_redirect( $u ) { throw new Redirecionou( $u ); }
 function wp_die( $m ) { throw new Exception( $m ); }
+function add_meta_box( $id, $titulo, $cb, $tela, $ctx = '', $pri = '' ) {
+	$GLOBALS['__metabox'][] = array( 'id' => $id, 'titulo' => $titulo, 'cb' => $cb, 'tela' => $tela, 'ctx' => $ctx );
+	return true;
+}
+function get_edit_post_link( $i, $ctx = '' ) { return get_post( $i ) ? "/wp-admin/post.php?post=$i&action=edit" : null; }
+function wp_nonce_url( $u, $a = -1 ) { return $u . ( false === strpos( $u, '?' ) ? '?' : '&' ) . '_wpnonce=nonce'; }
+function get_date_from_gmt( $d, $f = 'Y-m-d H:i:s' ) { return gmdate( $f, strtotime( $d . ' UTC' ) ); }
+function get_current_screen() { return $GLOBALS['__screen'] ?? null; }
 require_once "$P/includes/class-campanhas.php";
+
+function metabox_html( $post ) {
+	ob_start();
+	STCMS_Campanhas::render_metabox( $post );
+	return ob_get_clean();
+}
+function disparar_post( $id, $forcar = false ) {
+	$_GET = array( 'post' => $id, '_wpnonce' => 'nonce' );
+	if ( $forcar ) { $_GET['forcar'] = '1'; }
+	try { STCMS_Campanhas::enviar_post(); } catch ( Redirecionou $e ) { return $e->getMessage(); }
+	return '';
+}
+function aviso_html( $chave ) {
+	$tela = new stdClass();
+	$tela->base = 'post'; $tela->post_type = 'post';
+	$GLOBALS['__screen'] = $tela;
+	$_GET = array( 'stcms_aviso' => $chave );
+	ob_start();
+	STCMS_Campanhas::aviso_no_post();
+	return ob_get_clean();
+}
 
 $ok = 0; $ko = 0;
 function ok( $r, $c, $v = '' ) { global $ok, $ko; $c ? $ok++ : $ko++; echo '  ' . ( $c ? '✓' : '✗' ) . "  $r" . ( '' !== $v ? ": $v" : '' ) . "\n"; }
@@ -479,6 +512,114 @@ limpar();
 try { STCMS_Campanhas::processar_agora(); } catch ( Redirecionou $e ) { $destino = $e->getMessage(); }
 ok( 'envia o que estava parado', 5 === count( $GLOBALS['__enviados'] ), (string) count( $GLOBALS['__enviados'] ) );
 ok( 'e avisa na volta', false !== strpos( $destino, 'processado' ), $destino );
+
+echo "\n== Botão de envio dentro do artigo ==\n";
+$GLOBALS['__o']['stcms_options']    = array();
+$GLOBALS['__pmeta']                 = array();
+$GLOBALS['__cron']                  = array();
+$GLOBALS['__o']['stcms_newsletter'] = array();
+$GLOBALS['__o']['stcms_campanha']   = array();
+update_option( 'stcms_auto_newsletter', '' );
+STCMS_Emails::inscrever( 'pt9@exemplo.com', 'pt' );
+STCMS_Emails::inscrever( 'en9@exemplo.com', 'en' );
+
+$manual = new stdClass();
+$manual->ID = 910; $manual->post_type = 'post'; $manual->post_status = 'publish';
+$manual->post_name = 'manual'; $manual->post_title = 'Envio manual';
+$manual->post_excerpt = 'Resumo do artigo.'; $manual->post_content = '<p>Texto.</p>';
+$GLOBALS['__posts'][910] = $manual;
+
+$GLOBALS['__metabox'] = array();
+STCMS_Campanhas::metabox();
+ok( 'registra a caixa no artigo', 1 === count( $GLOBALS['__metabox'] ) && 'post' === $GLOBALS['__metabox'][0]['tela'] );
+ok( 'fica na barra lateral', 'side' === $GLOBALS['__metabox'][0]['ctx'] );
+
+$html = metabox_html( $manual );
+ok( 'oferece o botão de envio', false !== strpos( $html, 'Enviar para a lista' ) );
+ok( 'mostra quantos vão receber', false !== strpos( $html, '<strong>2</strong> inscritos' ) );
+ok( 'o link carrega nonce', false !== strpos( $html, '_wpnonce=' ) );
+ok( 'o link aponta para a ação certa', false !== strpos( $html, 'action=stcms_campanha_post&#038;post=910' ) || false !== strpos( $html, 'action=stcms_campanha_post&post=910' ) );
+ok( 'pede confirmação antes', false !== strpos( $html, 'onclick="return confirm(' ) );
+ok( 'avisa que o automático está desligado', false !== strpos( $html, 'automático está desligado' ) );
+
+limpar();
+$destino = disparar_post( 910 );
+$c = STCMS_Campanhas::campanha();
+ok( 'botão enfileira a lista', 'enviando' === $c['estado'] && 2 === (int) $c['total'], $c['estado'] . '/' . $c['total'] );
+ok( 'guarda o artigo de origem', 910 === (int) $c['post_id'], (string) $c['post_id'] );
+ok( 'agenda a continuação', false !== wp_next_scheduled( 'stcms_campanha_tick' ) );
+ok( 'volta para a tela do artigo', false !== strpos( $destino, 'post.php?post=910' ), $destino );
+ok( 'com aviso de iniciado', false !== strpos( $destino, 'stcms_aviso=iniciado' ), $destino );
+
+lote();
+$pt = ultimo_para( 'pt9@exemplo.com' );
+$en = ultimo_para( 'en9@exemplo.com' );
+ok( 'os dois receberam', 2 === count( $GLOBALS['__enviados'] ), (string) count( $GLOBALS['__enviados'] ) );
+ok( 'português usa o título do artigo', false !== strpos( (string) $pt['assunto'], 'Envio manual' ), (string) $pt['assunto'] );
+ok( 'inglês cai no /en/blog/', false !== strpos( (string) $en['corpo'], '/en/blog/manual' ) );
+
+echo "\n== O botão respeita as mesmas travas ==\n";
+$GLOBALS['__o']['stcms_campanha']['estado'] = 'rascunho';
+ok( 'segundo clique não reenvia', 'ja_enviado' === STCMS_Campanhas::enfileirar_post( 910 ) );
+$html = metabox_html( $manual );
+ok( 'a caixa passa a mostrar a data do envio', false !== strpos( $html, 'Já enviado em' ) );
+ok( 'e troca o botão por “Enviar de novo”', false !== strpos( $html, 'Enviar de novo' ) );
+ok( 'avisando que quem já recebeu recebe outra vez', false !== strpos( $html, 'já recebeu vai receber outra vez' ) );
+
+limpar();
+disparar_post( 910, true );
+ok( 'forçar reenvia de propósito', 'enviando' === STCMS_Campanhas::campanha()['estado'] );
+
+$GLOBALS['__o']['stcms_campanha']['estado']  = 'enviando';
+$GLOBALS['__o']['stcms_campanha']['post_id'] = 910;
+$outro = clone $manual;
+$outro->ID = 911; $outro->post_name = 'outro-manual';
+$GLOBALS['__posts'][911] = $outro;
+ok( 'não atropela envio em andamento', 'ocupado' === STCMS_Campanhas::enfileirar_post( 911 ) );
+ok( 'nem marca o artigo', '' === get_post_meta( 911, '_stcms_newsletter_enviada', true ) );
+$html = metabox_html( $outro );
+ok( 'a caixa explica a espera', false !== strpos( $html, 'outro envio em andamento' ) );
+$html = metabox_html( $manual );
+ok( 'no artigo em envio mostra o progresso', false !== strpos( $html, 'Enviando agora' ) );
+
+$GLOBALS['__o']['stcms_campanha']['estado'] = 'rascunho';
+$rascunho = clone $manual;
+$rascunho->ID = 912; $rascunho->post_status = 'draft'; $rascunho->post_name = 'rascunho';
+$GLOBALS['__posts'][912] = $rascunho;
+ok( 'rascunho não vai para a lista', 'nao_publicado' === STCMS_Campanhas::enfileirar_post( 912 ) );
+ok( 'a caixa pede para publicar antes', false !== strpos( metabox_html( $rascunho ), 'Publique o artigo' ) );
+
+$pagina2 = clone $manual;
+$pagina2->ID = 913; $pagina2->post_type = 'page';
+$GLOBALS['__posts'][913] = $pagina2;
+ok( 'página não vira newsletter', 'post_invalido' === STCMS_Campanhas::enfileirar_post( 913 ) );
+ok( 'id inexistente também não', 'post_invalido' === STCMS_Campanhas::enfileirar_post( 99999 ) );
+
+$GLOBALS['__o']['stcms_newsletter'] = array();
+$vazio = clone $manual;
+$vazio->ID = 914; $vazio->post_name = 'sem-lista';
+$GLOBALS['__posts'][914] = $vazio;
+ok( 'lista vazia não enfileira', 'sem_lista' === STCMS_Campanhas::enfileirar_post( 914 ) );
+ok( 'nem marca o artigo', '' === get_post_meta( 914, '_stcms_newsletter_enviada', true ) );
+ok( 'a caixa diz que ninguém se inscreveu', false !== strpos( metabox_html( $vazio ), 'Ninguém inscrito' ) );
+
+STCMS_Emails::inscrever( 'pt10@exemplo.com', 'pt' );
+$GLOBALS['__o']['stcms_options'] = array( 'emails' => array( 'auto_assunto' => '' ) );
+ok( 'modelo em branco não dispara e-mail vazio', 'sem_modelo' === STCMS_Campanhas::enfileirar_post( 914 ) );
+ok( 'nem marca o artigo', '' === get_post_meta( 914, '_stcms_newsletter_enviada', true ) );
+$GLOBALS['__o']['stcms_options'] = array();
+
+echo "\n== Avisos na tela do artigo ==\n";
+ok( 'iniciado aparece como sucesso', false !== strpos( aviso_html( 'iniciado' ), 'notice-success' ) );
+ok( 'sem lista aparece como erro', false !== strpos( aviso_html( 'sem_lista' ), 'notice-error' ) );
+ok( 'já enviado é só aviso', false !== strpos( aviso_html( 'ja_enviado' ), 'notice-warning' ) );
+ok( 'chave desconhecida não imprime nada', '' === aviso_html( 'inventado' ) );
+$GLOBALS['__screen'] = null;
+$_GET = array( 'stcms_aviso' => 'iniciado' );
+ob_start();
+STCMS_Campanhas::aviso_no_post();
+ok( 'fora da tela de artigo não imprime', '' === ob_get_clean() );
+$_GET = array();
 
 echo "\n$ok passaram, $ko falharam\n";
 exit( $ko ? 1 : 0 );

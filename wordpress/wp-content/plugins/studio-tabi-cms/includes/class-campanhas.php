@@ -25,6 +25,9 @@ class STCMS_Campanhas {
 		add_action( 'admin_post_stcms_campanha_teste', array( __CLASS__, 'teste' ) );
 		add_action( 'admin_post_stcms_campanha_iniciar', array( __CLASS__, 'iniciar' ) );
 		add_action( 'admin_post_stcms_campanha_parar', array( __CLASS__, 'parar' ) );
+		add_action( 'admin_post_stcms_campanha_post', array( __CLASS__, 'enviar_post' ) );
+		add_action( 'add_meta_boxes', array( __CLASS__, 'metabox' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'aviso_no_post' ) );
 	}
 
 	public static function menu() {
@@ -160,16 +163,36 @@ class STCMS_Campanhas {
 		if ( ! self::auto_ligado() ) {
 			return;
 		}
-		if ( get_post_meta( $post->ID, self::META_ENVIO, true ) ) {
-			return;
+		self::enfileirar_post( $post->ID );
+	}
+
+	/**
+	 * Põe um artigo na fila da newsletter. Mesmo caminho para o disparo
+	 * automático e para o botão no painel do artigo, então as duas portas têm
+	 * as mesmas travas. Devolve o motivo quando não dá para enviar.
+	 */
+	public static function enfileirar_post( $post_id, $forcar = false ) {
+		$post = get_post( (int) $post_id );
+		if ( ! $post || 'post' !== $post->post_type ) {
+			return 'post_invalido';
+		}
+		if ( 'publish' !== $post->post_status ) {
+			return 'nao_publicado';
+		}
+		if ( ! $forcar && get_post_meta( $post->ID, self::META_ENVIO, true ) ) {
+			return 'ja_enviado';
 		}
 		$c = self::campanha();
 		if ( 'enviando' === $c['estado'] ) {
-			return;
+			return 'ocupado';
+		}
+		$o = STCMS_Options::get();
+		if ( '' === trim( (string) ( $o['emails']['auto_assunto'] ?? '' ) ) ) {
+			return 'sem_modelo';
 		}
 		$destinos = self::destinatarios( 'todos' );
 		if ( ! $destinos ) {
-			return;
+			return 'sem_lista';
 		}
 		update_post_meta( $post->ID, self::META_ENVIO, gmdate( 'Y-m-d H:i:s' ) );
 
@@ -183,6 +206,120 @@ class STCMS_Campanhas {
 		$c['quando']   = gmdate( 'Y-m-d H:i:s' );
 		self::guardar( $c );
 		self::agendar();
+		return 'iniciado';
+	}
+
+	/**
+	 * Botão “Enviar para a lista” dentro do artigo. É um link com nonce, e não
+	 * um formulário, porque a tela de edição já é um formulário e HTML não
+	 * aceita um dentro do outro.
+	 */
+	public static function enviar_post() {
+		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0;
+		check_admin_referer( 'stcms_campanha_post_' . $post_id );
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_die( 'Sem permissão.' );
+		}
+		$forcar = ! empty( $_GET['forcar'] );
+		$aviso  = self::enfileirar_post( $post_id, $forcar );
+		$volta  = get_edit_post_link( $post_id, 'raw' );
+		if ( ! $volta ) {
+			$volta = admin_url( 'admin.php?page=studio-tabi-newsletter' );
+		}
+		wp_safe_redirect( add_query_arg( 'stcms_aviso', $aviso, $volta ) );
+		exit;
+	}
+
+	public static function metabox() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		add_meta_box( 'stcms-newsletter', 'Newsletter', array( __CLASS__, 'render_metabox' ), 'post', 'side', 'default' );
+	}
+
+	public static function render_metabox( $post ) {
+		$enviado  = (string) get_post_meta( $post->ID, self::META_ENVIO, true );
+		$lista    = count( STCMS_Emails::lista() );
+		$c        = self::campanha();
+		$ocupado  = 'enviando' === $c['estado'];
+		$deste    = $ocupado && (int) ( $c['post_id'] ?? 0 ) === (int) $post->ID;
+		$publicado = 'publish' === $post->post_status;
+		$link     = function ( $forcar ) use ( $post ) {
+			$url = admin_url( 'admin-post.php?action=stcms_campanha_post&post=' . (int) $post->ID );
+			if ( $forcar ) {
+				$url .= '&forcar=1';
+			}
+			return wp_nonce_url( $url, 'stcms_campanha_post_' . (int) $post->ID );
+		};
+		?>
+		<div style="font-size:13px;line-height:1.6">
+			<?php if ( $deste ) : ?>
+				<p style="margin:0 0 10px">
+					<strong>Enviando agora</strong> — <?php echo (int) $c['enviados']; ?> de <?php echo (int) $c['total']; ?>.
+				</p>
+				<p style="margin:0"><a href="<?php echo esc_url( admin_url( 'admin.php?page=studio-tabi-newsletter' ) ); ?>">Acompanhar o envio</a></p>
+			<?php elseif ( $ocupado ) : ?>
+				<p style="margin:0">
+					Há outro envio em andamento. Espere terminar para disparar este artigo.
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=studio-tabi-newsletter' ) ); ?>">Ver</a>
+				</p>
+			<?php elseif ( ! $publicado ) : ?>
+				<p style="margin:0">Publique o artigo para poder avisar a lista.</p>
+			<?php elseif ( ! $lista ) : ?>
+				<p style="margin:0">Ninguém inscrito na newsletter ainda.</p>
+			<?php elseif ( $enviado ) : ?>
+				<p style="margin:0 0 10px">
+					Já enviado em <strong><?php echo esc_html( get_date_from_gmt( $enviado, 'd/m/Y \à\s H:i' ) ); ?></strong>.
+				</p>
+				<p style="margin:0">
+					<a href="<?php echo esc_url( $link( true ) ); ?>" class="button"
+						onclick="return confirm('Enviar de novo para <?php echo (int) $lista; ?> pessoas? Quem já recebeu vai receber outra vez.');">Enviar de novo</a>
+				</p>
+			<?php else : ?>
+				<p style="margin:0 0 10px">
+					Avisar <strong><?php echo (int) $lista; ?></strong> inscritos sobre este artigo,
+					cada um no idioma em que se inscreveu.
+				</p>
+				<p style="margin:0">
+					<a href="<?php echo esc_url( $link( false ) ); ?>" class="button button-primary"
+						onclick="return confirm('Enviar para <?php echo (int) $lista; ?> pessoas? Não dá para voltar atrás.');">Enviar para a lista</a>
+				</p>
+			<?php endif; ?>
+			<p style="margin:10px 0 0;color:#666;font-size:12px">
+				<?php if ( self::auto_ligado() ) : ?>
+					O aviso automático está ligado: artigos novos saem sozinhos ao publicar.
+				<?php else : ?>
+					O aviso automático está desligado: só sai o que você disparar por aqui.
+				<?php endif; ?>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=studio-tabi-newsletter' ) ); ?>">Configurar</a>
+			</p>
+		</div>
+		<?php
+	}
+
+	public static function aviso_no_post() {
+		$tela = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $tela || 'post' !== $tela->base || 'post' !== $tela->post_type ) {
+			return;
+		}
+		$mapa = array(
+			'iniciado'      => array( 'success', 'Envio iniciado. A fila continua em segundo plano.' ),
+			'ja_enviado'    => array( 'warning', 'Este artigo já foi enviado antes. Use “Enviar de novo” se for mesmo o caso.' ),
+			'nao_publicado' => array( 'error', 'Publique o artigo antes de avisar a lista.' ),
+			'ocupado'       => array( 'error', 'Há outro envio em andamento. Espere terminar.' ),
+			'sem_lista'     => array( 'error', 'Não há ninguém inscrito na newsletter.' ),
+			'sem_modelo'    => array( 'error', 'Preencha o modelo em Conteúdo → E-mails automáticos antes de disparar.' ),
+			'post_invalido' => array( 'error', 'Só artigos do blog podem ser enviados para a lista.' ),
+		);
+		$chave = isset( $_GET['stcms_aviso'] ) ? sanitize_key( wp_unslash( $_GET['stcms_aviso'] ) ) : '';
+		if ( ! isset( $mapa[ $chave ] ) ) {
+			return;
+		}
+		printf(
+			'<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
+			esc_attr( $mapa[ $chave ][0] ),
+			esc_html( $mapa[ $chave ][1] )
+		);
 	}
 
 	private static function agendar() {
@@ -450,7 +587,9 @@ class STCMS_Campanhas {
 								<span class="description">
 									O e-mail sai sozinho ao publicar, com o título e o resumo do artigo, no
 									idioma de cada inscrito. Cada artigo dispara uma vez só — editar depois
-									não reenvia. O texto está em Conteúdo → E-mails automáticos.
+									não reenvia. O texto está em Conteúdo → E-mails automáticos.<br />
+									Com isto desligado, cada artigo tem um botão <strong>Enviar para a lista</strong>
+									na barra lateral da tela de edição, para você disparar quando quiser.
 								</span>
 							</span>
 						</label>

@@ -23,7 +23,14 @@ function delete_post_meta($id,$k){return true;}
 if(!defined('OBJECT')) define('OBJECT','OBJECT');
 class WP_REST_Response{public $data;public $status;function __construct($d,$s=200){$this->data=$d;$this->status=$s;}}
 class WP_REST_Request{private $j;function __construct($j){$this->j=$j;} function get_json_params(){return $this->j;} function get_params(){return $this->j;} function get_param($k){return $this->j[$k]??null;}}
-require_once "$P/includes/defaults.php"; require_once "$P/includes/class-options.php"; require_once "$P/includes/class-traducao.php"; require_once "$P/includes/class-rest.php";
+function add_action(...$a){return true;} function add_filter(...$a){return true;} function remove_filter(...$a){return true;}
+function wpautop($s){return '<p>'.$s.'</p>';} function wp_kses_post($s){return $s;}
+function wp_generate_password($n=12,...$r){return str_repeat('a',$n);}
+function add_query_arg(...$a){$args=is_array($a[0])?$a[0]:[$a[0]=>$a[1]];$u=is_array($a[0])?$a[1]:$a[2];return $u.(strpos($u,'?')===false?'?':'&').http_build_query($args);}
+function esc_url($s){return $s;} function get_avatar_url($i,$a=[]){return '';}
+function wp_trim_words($s,$n=55,$m='…'){return $s;} function sanitize_title($s){return strtolower(preg_replace('/[^a-z0-9]+/i','-',(string)$s));}
+function home_url($p=''){return 'https://cms.studiotabi.com.br'.$p;}
+require_once "$P/includes/defaults.php"; require_once "$P/includes/class-options.php"; require_once "$P/includes/class-traducao.php"; require_once "$P/includes/class-emails.php"; require_once "$P/includes/class-rest.php";
 
 $payload=['name'=>'Ana','email'=>'ana@exemplo.com','subject'=>'Oi','message'=>'Teste de mensagem'];
 echo "== Origem não autorizada ==\n";
