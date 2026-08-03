@@ -21,6 +21,7 @@ const ROTAS = array(
     '#^sitemap$#'                    => array('GET'),
     '#^contact$#'                    => array('POST'),
     '#^subscribe$#'                  => array('POST'),
+    '#^unsubscribe$#'                => array('GET'),
 );
 
 const PARAMETROS = array(
@@ -29,6 +30,8 @@ const PARAMETROS = array(
     'per_page' => '#^[0-9]{1,3}$#',
     'category' => '#^[a-zA-Z0-9\-_%]{1,80}$#',
     'search'   => '#^.{0,120}$#u',
+    'e'        => '#^[^\s]{3,120}$#u',
+    't'        => '#^[A-Za-z0-9]{8,64}$#',
 );
 
 function recusar($status, $mensagem) {

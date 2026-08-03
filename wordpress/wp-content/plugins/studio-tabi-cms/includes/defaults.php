@@ -51,6 +51,14 @@ function stcms_default_options() {
 			'title'   => 'OBRIGADO',
 			'message' => 'Recebemos a sua mensagem. Nossa equipe entra em contato em até 1 dia útil. Toda grande jornada — tabi — começa com um primeiro passo.',
 		),
+		'emails' => array(
+			'contato_assunto' => 'Recebemos a sua mensagem — {site}',
+			'contato_titulo'  => 'Olá, {nome}. Recebemos a sua mensagem.',
+			'contato_texto'   => "Obrigado por escrever para o Studio Tabi.\n\nNossa equipe lê tudo e responde em até 1 dia útil. Se o seu projeto tiver prazo apertado, é só responder este e-mail contando — a gente prioriza.\n\nToda grande jornada — tabi — começa com um primeiro passo.",
+			'news_assunto'    => 'Inscrição confirmada — {site}',
+			'news_titulo'     => 'Bem-vindo à newsletter.',
+			'news_texto'      => "Sua inscrição está confirmada.\n\nDe tempos em tempos enviamos ideias sobre design, estratégia e tecnologia — direto de quem constrói. Sem spam, e você cancela quando quiser.",
+		),
 		'contact' => array(
 			'title'       => 'VAMOS',
 			'highlight'   => 'CONVERSAR.',
@@ -263,6 +271,14 @@ function stcms_default_options_en() {
 		'thankyou' => array(
 			'title'   => 'THANK YOU',
 			'message' => 'We received your message. Our team will be in touch within one business day. Every great journey — tabi — begins with a first step.',
+		),
+		'emails' => array(
+			'contato_assunto' => 'We received your message — {site}',
+			'contato_titulo'  => 'Hi {nome}, we received your message.',
+			'contato_texto'   => "Thank you for writing to Studio Tabi.\n\nOur team reads everything and replies within one business day. If your project is on a tight deadline, just reply to this email and let us know — we will prioritise it.\n\nEvery great journey — tabi — begins with a first step.",
+			'news_assunto'    => 'Subscription confirmed — {site}',
+			'news_titulo'     => 'Welcome to the newsletter.',
+			'news_texto'      => "Your subscription is confirmed.\n\nEvery now and then we send ideas on design, strategy and technology — straight from the people building it. No spam, and you can unsubscribe whenever you like.",
 		),
 		'contact' => array(
 			'title'       => "LET'S",

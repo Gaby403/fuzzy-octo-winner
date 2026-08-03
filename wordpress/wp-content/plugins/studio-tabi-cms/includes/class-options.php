@@ -232,6 +232,23 @@ class STCMS_Options {
 					</table>
 				<?php self::card_close(); ?>
 
+				<?php self::card_open( 'emails', 'dashicons-email-alt', 'E-mails automáticos', 'O que a pessoa recebe depois de enviar o formulário ou assinar a newsletter' ); ?>
+					<table class="form-table stcms-fields" role="presentation">
+						<?php
+						self::row_text( 'Contato — assunto', 'emails][contato_assunto', $o['emails']['contato_assunto'] ?? '', 'Use {nome} e {site} para preencher automaticamente.' );
+						self::row_text( 'Contato — título', 'emails][contato_titulo', $o['emails']['contato_titulo'] ?? '' );
+						self::row_textarea( 'Contato — mensagem', 'emails][contato_texto', $o['emails']['contato_texto'] ?? '', 'A mensagem que a pessoa escreveu é anexada logo abaixo, automaticamente.' );
+						self::row_text( 'Newsletter — assunto', 'emails][news_assunto', $o['emails']['news_assunto'] ?? '' );
+						self::row_text( 'Newsletter — título', 'emails][news_titulo', $o['emails']['news_titulo'] ?? '' );
+						self::row_textarea( 'Newsletter — mensagem', 'emails][news_texto', $o['emails']['news_texto'] ?? '', 'O link de cancelar inscrição entra sozinho no rodapé — é exigido por lei.' );
+						?>
+					</table>
+					<p class="description" style="padding:0 4px 4px">
+						Deixar assunto ou título em branco desliga aquele e-mail. O visual segue a
+						identidade do site e o idioma é o mesmo em que a pessoa navegava.
+					</p>
+				<?php self::card_close(); ?>
+
 				<?php self::card_open( 'nav', 'dashicons-menu-alt3', 'Menu (cabeçalho)', 'A marca e os links do topo do site' ); ?>
 					<table class="form-table stcms-fields" role="presentation">
 						<?php
@@ -491,6 +508,7 @@ class STCMS_Options {
 			'footer'       => array( 'dashicons-align-full-width', 'Rodapé' ),
 			'inner_pages'  => array( 'dashicons-media-document', 'Páginas internas' ),
 			'integrations' => array( 'dashicons-chart-area', 'Integrações' ),
+			'emails'       => array( 'dashicons-email-alt', 'E-mails' ),
 		);
 		if ( 'en' === self::$lang ) {
 			$secoes = array( 'traducao' => array( 'dashicons-translation', 'Conteúdo em inglês' ) ) + $secoes;
@@ -978,6 +996,15 @@ class STCMS_Options {
 			$out['site']['recaptcha_site']  = sanitize_text_field( $input['site']['recaptcha_site'] ?? '' );
 			$out['site']['recaptcha_secret'] = sanitize_text_field( $input['site']['recaptcha_secret'] ?? '' );
 			$out['site']['form_email']      = sanitize_email( $input['site']['form_email'] ?? '' );
+		}
+
+		if ( isset( $input['emails'] ) ) {
+			foreach ( array( 'contato_assunto', 'contato_titulo', 'news_assunto', 'news_titulo' ) as $c ) {
+				$out['emails'][ $c ] = sanitize_text_field( $input['emails'][ $c ] ?? '' );
+			}
+			foreach ( array( 'contato_texto', 'news_texto' ) as $c ) {
+				$out['emails'][ $c ] = sanitize_textarea_field( $input['emails'][ $c ] ?? '' );
+			}
 		}
 
 		if ( isset( $input['hero'] ) ) {

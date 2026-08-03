@@ -96,6 +96,15 @@ class STCMS_Rest {
 		);
 		register_rest_route(
 			self::NS,
+			'/unsubscribe',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'unsubscribe' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+		register_rest_route(
+			self::NS,
 			'/sitemap',
 			array(
 				'methods'             => 'GET',
@@ -315,6 +324,13 @@ class STCMS_Rest {
 
 		$sent = wp_mail( $recipient, '[' . $site_name . '] ' . $mail_title, $mail_body, $headers );
 
+		if ( $sent ) {
+			STCMS_Emails::confirmar_contato(
+				array( 'name' => $name, 'email' => $email, 'subject' => $subject, 'message' => $message ),
+				self::req_lang( $req )
+			);
+		}
+
 		if ( ! $sent ) {
 			return new WP_REST_Response(
 				array( 'ok' => false, 'message' => 'Não foi possível enviar agora. Tente novamente ou escreva direto para o nosso e-mail.' ),
@@ -440,6 +456,33 @@ class STCMS_Rest {
 		return new WP_REST_Response( $data, 200 );
 	}
 
+	public static function unsubscribe( WP_REST_Request $req ) {
+		$email = sanitize_email( (string) $req->get_param( 'e' ) );
+		$token = sanitize_text_field( (string) $req->get_param( 't' ) );
+		$lang  = self::req_lang( $req );
+		$ok    = is_email( $email ) && '' !== $token && STCMS_Emails::descadastrar( $email, $token );
+
+		$titulo = $ok
+			? ( 'en' === $lang ? 'You have been unsubscribed.' : 'Inscrição cancelada.' )
+			: ( 'en' === $lang ? 'Link no longer valid.' : 'Link não é mais válido.' );
+		$texto = $ok
+			? ( 'en' === $lang ? 'You will not receive our newsletter again. You can subscribe any time on the website.' : 'Você não receberá mais a nossa newsletter. Pode se inscrever de novo pelo site quando quiser.' )
+			: ( 'en' === $lang ? 'This address is not on the list, or the link has already been used.' : 'Este endereço não está na lista, ou o link já foi usado.' );
+
+		$html = STCMS_Emails::modelo(
+			$lang,
+			$titulo,
+			array(
+				wpautop( $texto ),
+				array( 'cta' => 'en' === $lang ? 'Back to the site' : 'Voltar ao site', 'url' => STCMS_Emails::url_site() ),
+			)
+		);
+
+		$resposta = new WP_REST_Response( $html, $ok ? 200 : 404 );
+		$resposta->header( 'Content-Type', 'text/html; charset=UTF-8' );
+		return $resposta;
+	}
+
 	public static function get_categories_list( $req = null ) {
 		$lang = self::req_lang( $req );
 		$cats = get_categories( array( 'hide_empty' => true ) );
@@ -468,14 +511,11 @@ class STCMS_Rest {
 		if ( ! self::verify_recaptcha( is_array( $p ) ? ( $p['recaptchaToken'] ?? '' ) : '', 'newsletter' ) ) {
 			return new WP_REST_Response( array( 'ok' => false, 'message' => 'Falha na verificação anti-spam. Tente novamente.' ), 422 );
 		}
-		$list = get_option( 'stcms_newsletter', array() );
-		if ( ! is_array( $list ) ) {
-			$list = array();
-		}
-		if ( ! in_array( $email, $list, true ) ) {
-			$list[] = $email;
-			update_option( 'stcms_newsletter', $list );
+		$lang = self::req_lang( $req );
+		$novo = STCMS_Emails::inscrever( $email, $lang );
+		if ( $novo ) {
 			wp_mail( self::form_recipient(), '[' . get_bloginfo( 'name' ) . '] Nova inscrição na newsletter', "Novo e-mail inscrito: {$email}" );
+			STCMS_Emails::boas_vindas_newsletter( $email, $novo['token'], $lang );
 		}
 		return new WP_REST_Response( array( 'ok' => true, 'message' => 'Inscrição confirmada! Obrigado.' ), 200 );
 	}

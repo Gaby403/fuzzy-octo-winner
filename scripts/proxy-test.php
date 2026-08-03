@@ -117,7 +117,7 @@ function chamar( $caminho, $metodo = 'GET', $corpo = null, $seguir = false ) {
 }
 
 echo "\n== Rotas liberadas ==\n";
-foreach ( array( 'content', 'pages', 'posts', 'categories', 'sitemap', 'page/sobre', 'post/meu-artigo' ) as $rota ) {
+foreach ( array( 'content', 'pages', 'posts', 'categories', 'sitemap', 'page/sobre', 'post/meu-artigo', 'unsubscribe' ) as $rota ) {
 	$r = chamar( "/wp-json/studio-tabi/v1/{$rota}" );
 	$j = json_decode( $r['corpo'], true );
 	checa( "GET {$rota} chega ao CMS", 200 === $r['status'] && isset( $j['path'] ) && $j['path'] === "/wp-json/studio-tabi/v1/{$rota}", $r['corpo'] );
@@ -147,6 +147,15 @@ checa( 'page passa', '2' === ( $j['query']['page'] ?? '' ) );
 checa( 'per_page passa', '9' === ( $j['query']['per_page'] ?? '' ) );
 checa( 'category passa', 'design' === ( $j['query']['category'] ?? '' ) );
 checa( 'search passa', 'marca' === ( $j['query']['search'] ?? '' ) );
+$r = chamar( '/wp-json/studio-tabi/v1/unsubscribe?e=leitor%40exemplo.com&t=Abc123Xyz789' );
+$j = json_decode( $r['corpo'], true );
+checa( 'e passa no descadastro', 'leitor@exemplo.com' === ( $j['query']['e'] ?? '' ), $j['query']['e'] ?? '(sumiu)' );
+checa( 't passa no descadastro', 'Abc123Xyz789' === ( $j['query']['t'] ?? '' ), $j['query']['t'] ?? '(sumiu)' );
+$r = chamar( '/wp-json/studio-tabi/v1/unsubscribe?t=curto' );
+$j = json_decode( $r['corpo'], true );
+checa( 'token malformado é descartado', ! isset( $j['query']['t'] ) );
+$r = chamar( '/wp-json/studio-tabi/v1/unsubscribe', 'POST', '{}' );
+checa( 'descadastro só aceita GET', 405 === $r['status'], 'status ' . $r['status'] );
 
 $r = chamar( '/wp-json/studio-tabi/v1/posts?lang=de&page=abc&_fields=id&rest_route=/wp/v2/users' );
 $j = json_decode( $r['corpo'], true );
