@@ -4,11 +4,12 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "vite build && node scripts/prerender.mjs && node scripts/sitemap.mjs",
+    "build": "npm run typecheck && vite build && node scripts/prerender.mjs && node scripts/sitemap.mjs",
     "dev": "vite",
     "prerender": "node scripts/prerender.mjs",
     "sitemap": "node scripts/sitemap.mjs",
-    "verify:i18n": "node scripts/i18n-verify.mjs"
+    "verify:i18n": "node scripts/i18n-verify.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

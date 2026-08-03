@@ -29,7 +29,7 @@ const EASE_OUT_EXPO: [
 const PRERENDERED = typeof window !== "undefined" && !!(window as unknown as {
     __PRERENDERED__?: number;
 }).__PRERENDERED__;
-const entrada = (inicial: Record<string, unknown>) => (PRERENDERED ? false : inicial);
+const entrada = <T,>(inicial: T) => (PRERENDERED ? false : inicial);
 function projectSlug(p: {
     id: string;
     name: string;

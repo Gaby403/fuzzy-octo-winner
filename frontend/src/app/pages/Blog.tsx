@@ -97,7 +97,7 @@ export default function Blog() {
           {state === "ready" && data && data.items.length === 0 && (<Msg text={search ? `${t("blog.semResultado")} “${search}”.` : t("blog.vazio")}/>)}
           {state === "ready" && data && data.items.length > 0 && (<>
               <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ listStyle: "none", margin: 0, padding: 0, gap: "clamp(20px,2.5vw,32px)" }}>
-                {data.items.map((p, i) => <li key={p.id}><ArticleCard p={p} index={i} to={rota("artigo", p.slug)} t={t}/></li>)}
+                {data.items.map((p, i) => <li key={p.id}><ArticleCard p={p} index={i} to={rota("artigo", p.slug)} t={t} locale={locale}/></li>)}
               </ul>
               {data.totalPages > 1 && (<nav aria-label={t("blog.paginacao")} style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: "clamp(40px,5vw,64px)" }}>
                   <PageBtn disabled={page <= 1} onClick={() => setParams(p => { const n = new URLSearchParams(p); n.set("page", String(page - 1)); return n; })}>{t("blog.anterior")}</PageBtn>
@@ -109,11 +109,12 @@ export default function Blog() {
       </main>
     </div>);
 }
-function ArticleCard({ p, index, to, t }: {
+function ArticleCard({ p, index, to, t, locale }: {
     p: PostCard;
     index: number;
     to: string;
     t: (chave: ChaveTexto) => string;
+    locale: "pt" | "en";
 }) {
     return (<m.article initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: 0.6, delay: (index % 3) * 0.06, ease: EASE }} style={{ height: "100%" }}>
       <Link to={to} style={{ textDecoration: "none", color: WHITE, display: "flex", flexDirection: "column", height: "100%", border: "1px solid rgba(239,239,239,0.1)", borderRadius: 12, overflow: "hidden", background: "rgba(239,239,239,0.02)" }}>
