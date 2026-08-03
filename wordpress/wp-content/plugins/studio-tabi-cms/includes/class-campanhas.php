@@ -9,8 +9,9 @@ class STCMS_Campanhas {
 	const OPCAO      = 'stcms_campanha';
 	const OPCAO_AUTO = 'stcms_auto_newsletter';
 	const META_ENVIO = '_stcms_newsletter_enviada';
-	const TICK       = 'stcms_campanha_tick';
-	const OPCAO_TICK = 'stcms_cron_ultimo';
+	const TICK        = 'stcms_campanha_tick';
+	const OPCAO_TICK  = 'stcms_cron_ultimo';
+	const OPCAO_TESTE = 'stcms_teste_email';
 	const POR_VEZ    = 15;
 	const SEGUNDOS   = 20;
 
@@ -26,6 +27,8 @@ class STCMS_Campanhas {
 		add_action( 'admin_post_stcms_campanha_iniciar', array( __CLASS__, 'iniciar' ) );
 		add_action( 'admin_post_stcms_campanha_parar', array( __CLASS__, 'parar' ) );
 		add_action( 'admin_post_stcms_campanha_post', array( __CLASS__, 'enviar_post' ) );
+		add_action( 'admin_post_stcms_campanha_teste_post', array( __CLASS__, 'teste_post' ) );
+		add_action( 'admin_post_stcms_campanha_previa', array( __CLASS__, 'previa' ) );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'metabox' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'aviso_no_post' ) );
 	}
@@ -251,6 +254,10 @@ class STCMS_Campanhas {
 			}
 			return wp_nonce_url( $url, 'stcms_campanha_post_' . (int) $post->ID );
 		};
+		$teste = function ( $lang ) use ( $post ) {
+			$url = admin_url( 'admin-post.php?action=stcms_campanha_teste_post&lang=' . $lang . '&post=' . (int) $post->ID );
+			return wp_nonce_url( $url, 'stcms_campanha_post_' . (int) $post->ID );
+		};
 		?>
 		<div style="font-size:13px;line-height:1.6">
 			<?php if ( $deste ) : ?>
@@ -285,6 +292,30 @@ class STCMS_Campanhas {
 						onclick="return confirm('Enviar para <?php echo (int) $lista; ?> pessoas? Não dá para voltar atrás.');">Enviar para a lista</a>
 				</p>
 			<?php endif; ?>
+
+			<?php if ( $publicado ) : ?>
+				<hr style="margin:14px 0;border:none;border-top:1px solid #e0e0e0" />
+				<p style="margin:0 0 6px;font-weight:600">Conferir antes</p>
+				<p style="margin:0 0 6px">
+					Ver como fica:
+					<a href="<?php echo esc_url( self::url_previa( $post->ID, 'pt' ) ); ?>" target="_blank" rel="noopener">português</a> ·
+					<a href="<?php echo esc_url( self::url_previa( $post->ID, 'en' ) ); ?>" target="_blank" rel="noopener">inglês</a>
+				</p>
+				<?php $meu = self::email_teste(); ?>
+				<?php if ( $meu ) : ?>
+					<p style="margin:0">
+						Enviar teste para <code style="font-size:11px"><?php echo esc_html( $meu ); ?></code>:
+						<a href="<?php echo esc_url( $teste( 'pt' ) ); ?>">português</a> ·
+						<a href="<?php echo esc_url( $teste( 'en' ) ); ?>">inglês</a>
+					</p>
+				<?php else : ?>
+					<p style="margin:0;color:#666">
+						Para enviar um teste, informe um endereço em
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=studio-tabi-newsletter' ) ); ?>">Newsletter</a>.
+					</p>
+				<?php endif; ?>
+			<?php endif; ?>
+
 			<p style="margin:10px 0 0;color:#666;font-size:12px">
 				<?php if ( self::auto_ligado() ) : ?>
 					O aviso automático está ligado: artigos novos saem sozinhos ao publicar.
@@ -310,6 +341,11 @@ class STCMS_Campanhas {
 			'sem_lista'     => array( 'error', 'Não há ninguém inscrito na newsletter.' ),
 			'sem_modelo'    => array( 'error', 'Preencha o modelo em Conteúdo → E-mails automáticos antes de disparar.' ),
 			'post_invalido' => array( 'error', 'Só artigos do blog podem ser enviados para a lista.' ),
+			'teste_ok'      => array( 'success', 'E-mail de teste enviado.' ),
+			'teste_falhou'  => array( 'error', 'Não foi possível enviar o teste.' ),
+			'teste_invalido' => array( 'error', 'Endereço de teste inválido.' ),
+			'teste_sem_texto' => array( 'error', 'Preencha o modelo em Conteúdo → E-mails automáticos antes de testar.' ),
+			'teste_sem_endereco' => array( 'error', 'Informe um endereço de teste na tela Newsletter primeiro.' ),
 		);
 		$chave = isset( $_GET['stcms_aviso'] ) ? sanitize_key( wp_unslash( $_GET['stcms_aviso'] ) ) : '';
 		if ( ! isset( $mapa[ $chave ] ) ) {
@@ -403,26 +439,126 @@ class STCMS_Campanhas {
 		self::voltar( 'salvo' );
 	}
 
+	/**
+	 * Para onde vai o teste quando ninguém digitou nada: o último endereço
+	 * usado, senão o e-mail de quem está logado.
+	 */
+	public static function email_teste() {
+		$salvo = trim( (string) get_option( self::OPCAO_TESTE, '' ) );
+		if ( '' !== $salvo && is_email( $salvo ) ) {
+			return $salvo;
+		}
+		$u = function_exists( 'wp_get_current_user' ) ? wp_get_current_user() : null;
+		$e = $u && ! empty( $u->user_email ) ? (string) $u->user_email : '';
+		return is_email( $e ) ? $e : '';
+	}
+
+	/**
+	 * Um artigo vira campanha só no papel: os textos são montados na hora, no
+	 * idioma pedido, a partir do próprio post.
+	 */
+	private static function campanha_do_post( $post_id ) {
+		$c            = self::campanha();
+		$c['post_id'] = (int) $post_id;
+		return $c;
+	}
+
+	private static function enviar_teste( $para, $lang, $post_id = 0 ) {
+		$c = $post_id ? self::campanha_do_post( $post_id ) : self::campanha();
+		if ( ! $post_id && '' === trim( (string) $c['assunto'] ) ) {
+			return 'teste_sem_texto';
+		}
+		if ( $post_id && ! get_post( $post_id ) ) {
+			return 'teste_invalido';
+		}
+		$assunto = self::assunto( $c, $lang );
+		if ( '' === trim( (string) $assunto ) ) {
+			return 'teste_sem_texto';
+		}
+		update_option( self::OPCAO_TESTE, $para );
+
+		$GLOBALS['stcms_email_html'] = true;
+		$enviado = wp_mail(
+			$para,
+			'[teste] ' . $assunto,
+			self::corpo( $c, $lang, $para, 'token-de-teste-000000' ),
+			array( 'Content-Type: text/html; charset=UTF-8' )
+		);
+		unset( $GLOBALS['stcms_email_html'] );
+		return $enviado ? 'teste_ok' : 'teste_falhou';
+	}
+
+	private static function lang_pedida( $bruto ) {
+		return 'en' === sanitize_key( (string) $bruto ) ? 'en' : 'pt';
+	}
+
 	public static function teste() {
 		check_admin_referer( 'stcms_campanha' );
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( 'Sem permissão.' );
 		}
 		$para = sanitize_email( wp_unslash( $_POST['teste_email'] ?? '' ) );
-		$c    = self::campanha();
-		if ( ! is_email( $para ) || '' === trim( $c['assunto'] ) ) {
+		if ( '' === $para ) {
+			$para = self::email_teste();
+		}
+		if ( ! is_email( $para ) ) {
 			self::voltar( 'teste_invalido' );
 		}
-		$lang = 'en' === $c['idioma'] ? 'en' : 'pt';
-		$GLOBALS['stcms_email_html'] = true;
-		$enviado = wp_mail(
-			$para,
-			'[teste] ' . $c['assunto'],
-			self::corpo( $c, $lang, $para, 'token-de-teste-000000' ),
-			array( 'Content-Type: text/html; charset=UTF-8' )
-		);
-		unset( $GLOBALS['stcms_email_html'] );
-		self::voltar( $enviado ? 'teste_ok' : 'teste_falhou' );
+		$lang = self::lang_pedida( wp_unslash( $_POST['teste_lang'] ?? '' ) );
+		self::voltar( self::enviar_teste( $para, $lang ) );
+	}
+
+	/**
+	 * Teste disparado de dentro do artigo. Vai para o e-mail de quem está
+	 * logado, porque a tela de edição já é um formulário e não cabe um campo
+	 * de texto ali dentro.
+	 */
+	public static function teste_post() {
+		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0;
+		check_admin_referer( 'stcms_campanha_post_' . $post_id );
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_die( 'Sem permissão.' );
+		}
+		$para = self::email_teste();
+		$lang = self::lang_pedida( wp_unslash( $_GET['lang'] ?? '' ) );
+		$aviso = is_email( $para ) ? self::enviar_teste( $para, $lang, $post_id ) : 'teste_sem_endereco';
+
+		$volta = get_edit_post_link( $post_id, 'raw' );
+		if ( ! $volta ) {
+			$volta = admin_url( 'admin.php?page=studio-tabi-newsletter' );
+		}
+		wp_safe_redirect( add_query_arg( 'stcms_aviso', $aviso, $volta ) );
+		exit;
+	}
+
+	/**
+	 * Mostra o e-mail montado numa aba, sem gastar um envio de verdade.
+	 */
+	public static function previa() {
+		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0;
+		check_admin_referer( 'stcms_campanha_previa' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'Sem permissão.' );
+		}
+		$lang = self::lang_pedida( wp_unslash( $_GET['lang'] ?? '' ) );
+		$c    = $post_id ? self::campanha_do_post( $post_id ) : self::campanha();
+		if ( $post_id && ! get_post( $post_id ) ) {
+			wp_die( 'Artigo não encontrado.' );
+		}
+		nocache_headers();
+		header( 'Content-Type: text/html; charset=utf-8' );
+		header( 'X-Content-Type-Options: nosniff' );
+		header( "Content-Security-Policy: default-src 'none'; img-src https: data:; style-src 'unsafe-inline'" );
+		echo self::corpo( $c, $lang, 'exemplo@exemplo.com', 'exemplo' );
+		exit;
+	}
+
+	public static function url_previa( $post_id, $lang ) {
+		$url = admin_url( 'admin-post.php?action=stcms_campanha_previa&lang=' . $lang );
+		if ( $post_id ) {
+			$url .= '&post=' . (int) $post_id;
+		}
+		return wp_nonce_url( $url, 'stcms_campanha_previa' );
 	}
 
 	public static function iniciar() {
@@ -532,7 +668,8 @@ class STCMS_Campanhas {
 			'pausado'        => array( 'warning', 'Envio pausado. Quem já recebeu não recebe de novo.' ),
 			'teste_ok'       => array( 'success', 'E-mail de teste enviado.' ),
 			'teste_falhou'   => array( 'error', 'Não foi possível enviar o teste.' ),
-			'teste_invalido' => array( 'error', 'Informe um e-mail válido e preencha o assunto antes de testar.' ),
+			'teste_invalido' => array( 'error', 'Informe um e-mail válido para receber o teste.' ),
+			'teste_sem_texto' => array( 'error', 'Preencha pelo menos o assunto da campanha antes de testar.' ),
 			'faltando'       => array( 'error', 'Preencha pelo menos o assunto e o título.' ),
 			'sem_lista'      => array( 'error', 'Não há ninguém inscrito nesse idioma.' ),
 			'ocupado'        => array( 'error', 'Há um envio em andamento. Pause antes de editar.' ),
@@ -719,31 +856,50 @@ class STCMS_Campanhas {
 				</div>
 			</form>
 
-			<?php if ( ! $enviando ) : ?>
 			<div class="stcms-card" style="margin-top:16px">
 				<div class="stcms-card-body" style="padding:18px 20px">
 					<h2 style="margin:0 0 12px;font-size:15px">Antes de disparar</h2>
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom:16px">
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom:6px">
 						<input type="hidden" name="action" value="stcms_campanha_teste" />
 						<?php wp_nonce_field( 'stcms_campanha' ); ?>
-						<input type="email" name="teste_email" placeholder="seu@email.com" style="width:260px" />
-						<button type="submit" class="button">Enviar teste para mim</button>
-						<span class="description" style="margin-left:8px">Manda uma cópia só para este endereço.</span>
+						<input type="email" name="teste_email" value="<?php echo esc_attr( self::email_teste() ); ?>" placeholder="seu@email.com" style="width:260px" />
+						<select name="teste_lang" style="margin-left:6px">
+							<option value="pt">em português</option>
+							<option value="en">em inglês</option>
+						</select>
+						<button type="submit" class="button" style="margin-left:6px">Enviar teste</button>
 					</form>
+					<p class="description" style="margin:0 0 16px">
+						Manda uma cópia só para este endereço e guarda ele para a próxima vez.
+						O link de descadastro vai com um código falso e não remove ninguém da lista.
+					</p>
+
+					<p style="margin:0 0 10px;font-size:13px">
+						Abrir a prévia numa aba:
+						<a href="<?php echo esc_url( self::url_previa( 0, 'pt' ) ); ?>" target="_blank" rel="noopener">português</a> ·
+						<a href="<?php echo esc_url( self::url_previa( 0, 'en' ) ); ?>" target="_blank" rel="noopener">inglês</a>
+					</p>
 					<details>
-						<summary style="cursor:pointer;font-weight:600">Ver como vai ficar</summary>
-						<iframe style="width:100%;max-width:620px;height:520px;border:1px solid #dcdcdc;border-radius:8px;margin-top:12px"
+						<summary style="cursor:pointer;font-weight:600">Ver aqui mesmo — português</summary>
+						<iframe title="Prévia em português" style="width:100%;max-width:620px;height:520px;border:1px solid #dcdcdc;border-radius:8px;margin-top:12px"
 							srcdoc="<?php echo esc_attr( self::corpo( $c, 'pt', 'exemplo@exemplo.com', 'exemplo' ) ); ?>"></iframe>
 					</details>
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:18px"
-						onsubmit="return confirm('Enviar para <?php echo (int) count( self::destinatarios( $c['idioma'] ) ); ?> pessoas? Não dá para voltar atrás.');">
-						<input type="hidden" name="action" value="stcms_campanha_iniciar" />
-						<?php wp_nonce_field( 'stcms_campanha' ); ?>
-						<button type="submit" class="button button-primary">Enviar para a lista</button>
-					</form>
+					<details style="margin-top:6px">
+						<summary style="cursor:pointer;font-weight:600">Ver aqui mesmo — inglês</summary>
+						<iframe title="Prévia em inglês" style="width:100%;max-width:620px;height:520px;border:1px solid #dcdcdc;border-radius:8px;margin-top:12px"
+							srcdoc="<?php echo esc_attr( self::corpo( $c, 'en', 'exemplo@exemplo.com', 'exemplo' ) ); ?>"></iframe>
+					</details>
+
+					<?php if ( ! $enviando ) : ?>
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:18px"
+							onsubmit="return confirm('Enviar para <?php echo (int) count( self::destinatarios( $c['idioma'] ) ); ?> pessoas? Não dá para voltar atrás.');">
+							<input type="hidden" name="action" value="stcms_campanha_iniciar" />
+							<?php wp_nonce_field( 'stcms_campanha' ); ?>
+							<button type="submit" class="button button-primary">Enviar para a lista</button>
+						</form>
+					<?php endif; ?>
 				</div>
 			</div>
-			<?php endif; ?>
 		</div>
 		<?php
 	}

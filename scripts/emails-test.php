@@ -134,6 +134,12 @@ function get_edit_post_link( $i, $ctx = '' ) { return get_post( $i ) ? "/wp-admi
 function wp_nonce_url( $u, $a = -1 ) { return $u . ( false === strpos( $u, '?' ) ? '?' : '&' ) . '_wpnonce=nonce'; }
 function get_date_from_gmt( $d, $f = 'Y-m-d H:i:s' ) { return gmdate( $f, strtotime( $d . ' UTC' ) ); }
 function get_current_screen() { return $GLOBALS['__screen'] ?? null; }
+function nocache_headers() { return true; }
+function wp_get_current_user() {
+	$u = new stdClass();
+	$u->user_email = $GLOBALS['__usuario'] ?? '';
+	return $u;
+}
 require_once "$P/includes/class-campanhas.php";
 
 function metabox_html( $post ) {
@@ -145,6 +151,16 @@ function disparar_post( $id, $forcar = false ) {
 	$_GET = array( 'post' => $id, '_wpnonce' => 'nonce' );
 	if ( $forcar ) { $_GET['forcar'] = '1'; }
 	try { STCMS_Campanhas::enviar_post(); } catch ( Redirecionou $e ) { return $e->getMessage(); }
+	return '';
+}
+function testar_post( $id, $lang ) {
+	$_GET = array( 'post' => $id, 'lang' => $lang, '_wpnonce' => 'nonce' );
+	try { STCMS_Campanhas::teste_post(); } catch ( Redirecionou $e ) { return $e->getMessage(); }
+	return '';
+}
+function testar_campanha( $email, $lang = 'pt' ) {
+	$_POST = array( 'teste_email' => $email, 'teste_lang' => $lang );
+	try { STCMS_Campanhas::teste(); } catch ( Redirecionou $e ) { return $e->getMessage(); }
 	return '';
 }
 function aviso_html( $chave ) {
@@ -609,10 +625,96 @@ ok( 'modelo em branco não dispara e-mail vazio', 'sem_modelo' === STCMS_Campanh
 ok( 'nem marca o artigo', '' === get_post_meta( 914, '_stcms_newsletter_enviada', true ) );
 $GLOBALS['__o']['stcms_options'] = array();
 
+echo "\n== Teste no painel ==\n";
+$GLOBALS['__o']['stcms_options']  = array();
+$GLOBALS['__o']['stcms_campanha'] = array( 'assunto' => 'Boletim de agosto', 'titulo' => 'Agosto', 'texto' => 'Novidades.', 'estado' => 'rascunho' );
+delete_option( 'stcms_teste_email' );
+$GLOBALS['__usuario'] = 'gaby@studiotabi.com.br';
+
+ok( 'sem endereço salvo usa o de quem está logado', 'gaby@studiotabi.com.br' === STCMS_Campanhas::email_teste(), STCMS_Campanhas::email_teste() );
+
+limpar();
+$destino = testar_campanha( 'confere@exemplo.com', 'pt' );
+$t = ultimo_para( 'confere@exemplo.com' );
+ok( 'teste da campanha sai', null !== $t );
+ok( 'assunto marcado como teste', 0 === strpos( (string) $t['assunto'], '[teste] ' ), (string) $t['assunto'] );
+ok( 'usa o assunto da campanha', false !== strpos( (string) $t['assunto'], 'Boletim de agosto' ) );
+ok( 'avisa que foi', false !== strpos( $destino, 'teste_ok' ), $destino );
+ok( 'guarda o endereço para a próxima', 'confere@exemplo.com' === STCMS_Campanhas::email_teste() );
+
+limpar();
+testar_campanha( 'confere@exemplo.com', 'en' );
+$t = ultimo_para( 'confere@exemplo.com' );
+ok( 'teste em inglês vem com html em inglês', false !== strpos( (string) $t['corpo'], 'lang="en"' ) );
+
+limpar();
+$destino = testar_campanha( 'não é e-mail' );
+ok( 'endereço inválido não envia', 0 === count( $GLOBALS['__enviados'] ) );
+ok( 'e explica o motivo', false !== strpos( $destino, 'teste_invalido' ), $destino );
+
+$GLOBALS['__o']['stcms_campanha']['assunto'] = '';
+limpar();
+$destino = testar_campanha( 'confere@exemplo.com' );
+ok( 'campanha sem assunto não vira teste', 0 === count( $GLOBALS['__enviados'] ) );
+ok( 'e pede para preencher', false !== strpos( $destino, 'teste_sem_texto' ), $destino );
+$GLOBALS['__o']['stcms_campanha']['assunto'] = 'Boletim de agosto';
+
+echo "\n== Teste e prévia dentro do artigo ==\n";
+$GLOBALS['__pmeta'][910] = array( 'stcms_en_title' => 'Manual send', 'stcms_en_excerpt' => 'Article summary.' );
+limpar();
+$destino = testar_post( 910, 'pt' );
+$t = ultimo_para( 'confere@exemplo.com' );
+ok( 'teste do artigo vai para o endereço guardado', null !== $t );
+ok( 'com o título do artigo', false !== strpos( (string) $t['assunto'], 'Envio manual' ), (string) $t['assunto'] );
+ok( 'e marcado como teste', 0 === strpos( (string) $t['assunto'], '[teste] ' ) );
+ok( 'volta para a tela do artigo', false !== strpos( $destino, 'post.php?post=910' ), $destino );
+
+limpar();
+testar_post( 910, 'en' );
+$t = ultimo_para( 'confere@exemplo.com' );
+ok( 'teste em inglês usa a tradução do post', false !== strpos( (string) $t['assunto'], 'Manual send' ), (string) $t['assunto'] );
+ok( 'e o link do artigo em /en/blog/', false !== strpos( (string) $t['corpo'], '/en/blog/manual' ) );
+
+ok( 'testar não marca o artigo como enviado', '' === get_post_meta( 911, '_stcms_newsletter_enviada', true ) );
+limpar();
+$antes = get_post_meta( 910, '_stcms_newsletter_enviada', true );
+testar_post( 910, 'pt' );
+ok( 'nem mexe na data de quem já foi enviado', $antes === get_post_meta( 910, '_stcms_newsletter_enviada', true ) );
+
+limpar();
+$destino = testar_post( 99999, 'pt' );
+ok( 'artigo inexistente não envia teste', 0 === count( $GLOBALS['__enviados'] ) );
+ok( 'e cai na tela da newsletter', false !== strpos( $destino, 'studio-tabi-newsletter' ), $destino );
+
+update_option( 'stcms_teste_email', '' );
+$GLOBALS['__usuario'] = '';
+limpar();
+$destino = testar_post( 910, 'pt' );
+ok( 'sem endereço nenhum não envia', 0 === count( $GLOBALS['__enviados'] ) );
+ok( 'e diz onde configurar', false !== strpos( $destino, 'teste_sem_endereco' ), $destino );
+
+$html = metabox_html( $manual );
+ok( 'a caixa avisa que falta o endereço', false !== strpos( $html, 'informe um endereço' ) );
+update_option( 'stcms_teste_email', 'confere@exemplo.com' );
+
+$html = metabox_html( $manual );
+ok( 'a caixa mostra o endereço do teste', false !== strpos( $html, 'confere@exemplo.com' ) );
+ok( 'oferece teste em português', false !== strpos( $html, 'lang=pt' ) );
+ok( 'oferece teste em inglês', false !== strpos( $html, 'lang=en' ) );
+ok( 'oferece a prévia', false !== strpos( $html, 'action=stcms_campanha_previa' ) );
+ok( 'prévia abre em outra aba', false !== strpos( $html, 'target="_blank"' ) );
+ok( 'prévia leva o artigo junto', false !== strpos( $html, 'previa&lang=pt&post=910' ) );
+ok( 'rascunho não oferece teste', false === strpos( metabox_html( $rascunho ), 'Conferir antes' ) );
+
+ok( 'prévia da campanha manual não leva artigo', false === strpos( STCMS_Campanhas::url_previa( 0, 'pt' ), 'post=' ), STCMS_Campanhas::url_previa( 0, 'pt' ) );
+ok( 'e a prévia sempre carrega nonce', false !== strpos( STCMS_Campanhas::url_previa( 0, 'en' ), '_wpnonce=' ) );
+
 echo "\n== Avisos na tela do artigo ==\n";
 ok( 'iniciado aparece como sucesso', false !== strpos( aviso_html( 'iniciado' ), 'notice-success' ) );
 ok( 'sem lista aparece como erro', false !== strpos( aviso_html( 'sem_lista' ), 'notice-error' ) );
 ok( 'já enviado é só aviso', false !== strpos( aviso_html( 'ja_enviado' ), 'notice-warning' ) );
+ok( 'teste enviado aparece como sucesso', false !== strpos( aviso_html( 'teste_ok' ), 'notice-success' ) );
+ok( 'teste sem endereço aparece como erro', false !== strpos( aviso_html( 'teste_sem_endereco' ), 'notice-error' ) );
 ok( 'chave desconhecida não imprime nada', '' === aviso_html( 'inventado' ) );
 $GLOBALS['__screen'] = null;
 $_GET = array( 'stcms_aviso' => 'iniciado' );
