@@ -29,7 +29,10 @@ function nome_remetente_atual() {
 }
 function remove_filter( ...$a ) { return true; }
 function register_rest_route( ...$a ) { return true; }
-function apply_filters( $t, $v ) { return $v; }
+function apply_filters( $t, $v ) {
+	foreach ( $GLOBALS['__filtros'][ $t ] ?? array() as $cb ) { $v = call_user_func( $cb, $v ); }
+	return $v;
+}
 function sanitize_text_field( $s ) { return trim( strip_tags( (string) $s ) ); }
 function sanitize_textarea_field( $s ) { return trim( strip_tags( (string) $s ) ); }
 function sanitize_title( $s ) { return strtolower( preg_replace( '/[^a-z0-9]+/i', '-', (string) $s ) ); }
@@ -72,6 +75,8 @@ function get_post( $i ) { return $GLOBALS['__posts'][ $i ] ?? null; }
 function wp_next_scheduled( $h ) { return $GLOBALS['__cron'][ $h ] ?? false; }
 function wp_schedule_single_event( $t, $h ) { $GLOBALS['__cron'][ $h ] = $t; return true; }
 function checked( $a, $b = true, $e = true ) { return $a == $b ? ' checked' : ''; }
+function human_time_diff( $de, $ate = 0 ) { return (string) abs( ( $ate ?: time() ) - $de ) . 's'; }
+function home_url( $p = '' ) { return 'https://cms.studiotabi.com.br' . $p; }
 function wp_get_post_categories( $i ) { return array(); }
 function wp_mail( $para, $assunto, $corpo, $headers = array() ) {
 	$GLOBALS['__enviados'][] = array( 'para' => $para, 'assunto' => $assunto, 'corpo' => $corpo, 'headers' => $headers );
@@ -425,6 +430,9 @@ $GLOBALS['__o']['stcms_campanha'] = array( 'assunto' => 'A', 'titulo' => 'B', 't
 try { STCMS_Campanhas::iniciar(); } catch ( Redirecionou $e ) {}
 limpar();
 $GLOBALS['__cron'] = array();
+// Orçamento zerado: cada visita manda exatamente um lote, que é o caminho em
+// que o reagendamento importa.
+add_filter( 'stcms_cron_segundos', function () { return 0; } );
 STCMS_Campanhas::processar_tick();
 ok( 'o cron envia um lote', 15 === count( $GLOBALS['__enviados'] ), (string) count( $GLOBALS['__enviados'] ) );
 ok( 'e reagenda porque sobrou fila', false !== wp_next_scheduled( 'stcms_campanha_tick' ) );
@@ -432,6 +440,45 @@ $GLOBALS['__cron'] = array();
 STCMS_Campanhas::processar_tick();
 ok( 'termina no lote seguinte', 'concluido' === STCMS_Campanhas::campanha()['estado'] );
 ok( 'e não reagenda mais', false === wp_next_scheduled( 'stcms_campanha_tick' ) );
+$GLOBALS['__filtros']['stcms_cron_segundos'] = array();
+
+echo "\n== Cron: aproveita a visita inteira ==\n";
+$GLOBALS['__o']['stcms_newsletter'] = array();
+foreach ( range( 1, 60 ) as $i ) { STCMS_Emails::inscrever( "m{$i}@exemplo.com", 'pt' ); }
+$GLOBALS['__o']['stcms_campanha'] = array( 'assunto' => 'A', 'titulo' => 'B', 'texto' => 'C', 'estado' => 'rascunho' );
+try { STCMS_Campanhas::iniciar(); } catch ( Redirecionou $e ) {}
+limpar();
+$GLOBALS['__cron'] = array();
+STCMS_Campanhas::processar_tick();
+ok( 'uma visita do cron manda mais que um lote', count( $GLOBALS['__enviados'] ) === 60, (string) count( $GLOBALS['__enviados'] ) );
+ok( 'e conclui a campanha', 'concluido' === STCMS_Campanhas::campanha()['estado'] );
+ok( 'não deixa agendamento pendente', false === wp_next_scheduled( 'stcms_campanha_tick' ) );
+
+echo "\n== Registro de execução ==\n";
+ok( 'grava quando rodou', (int) get_option( 'stcms_cron_ultimo' ) > 0 );
+$s = STCMS_Campanhas::saude_cron();
+ok( 'saúde reporta o último', $s['ultimo'] > 0 );
+ok( 'nada parado quando não há envio', false === $s['parado'] );
+
+echo "\n== Detecta fila parada ==\n";
+$GLOBALS['__o']['stcms_campanha']['estado'] = 'enviando';
+$GLOBALS['__o']['stcms_campanha']['fila']   = array_slice( STCMS_Emails::lista(), 0, 5 );
+$GLOBALS['__cron']['stcms_campanha_tick']   = time() - 600;
+update_option( 'stcms_cron_ultimo', time() - 600 );
+$s = STCMS_Campanhas::saude_cron();
+ok( 'acusa parada com envio pendente e cron atrasado', true === $s['parado'] );
+
+update_option( 'stcms_cron_ultimo', time() );
+$s = STCMS_Campanhas::saude_cron();
+ok( 'não acusa se acabou de rodar', false === $s['parado'] );
+
+echo "\n== Processar agora ==\n";
+$GLOBALS['__o']['stcms_campanha']['estado'] = 'enviando';
+$GLOBALS['__o']['stcms_campanha']['fila']   = array_slice( STCMS_Emails::lista(), 0, 5 );
+limpar();
+try { STCMS_Campanhas::processar_agora(); } catch ( Redirecionou $e ) { $destino = $e->getMessage(); }
+ok( 'envia o que estava parado', 5 === count( $GLOBALS['__enviados'] ), (string) count( $GLOBALS['__enviados'] ) );
+ok( 'e avisa na volta', false !== strpos( $destino, 'processado' ), $destino );
 
 echo "\n$ok passaram, $ko falharam\n";
 exit( $ko ? 1 : 0 );

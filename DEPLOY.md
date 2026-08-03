@@ -254,3 +254,51 @@ Para conferir o que os robôs veem:
 **Se precisar desligar:** no `.htaccess`, troque a última regra de reescrita
 `RewriteRule ^ /seo.php [L,QSA]` por `RewriteRule ^ index.html [L]`. O site volta
 ao comportamento anterior na hora; só a prévia deixa de acompanhar o CMS.
+
+---
+
+## Cron do WordPress headless
+
+O WordPress não tem agendador próprio: ele finge ter, disparando as tarefas
+pendentes **quando alguém visita o site**. Num CMS headless isso não funciona —
+o site é outro domínio, e o WordPress fica sem visita nenhuma. A fila da
+newsletter pode ficar parada por dias.
+
+A correção tem duas partes. Enquanto não fizer, o envio continua funcionando:
+só depende de você manter a tela da Newsletter aberta.
+
+### 1. Desligar o cron por visita
+
+No `wp-config.php` do CMS (Gerenciador de Arquivos), antes de
+`/* That's all, stop editing! */`:
+
+```php
+define( 'DISABLE_WP_CRON', true );
+```
+
+### 2. Criar o cron de verdade
+
+No hPanel: **Avançado → Cron Jobs**, a cada **5 minutos**:
+
+```
+/usr/bin/php /home/USUARIO/domains/cms.studiotabi.com.br/public_html/wp-cron.php
+```
+
+Troque `USUARIO` pelo seu — o caminho exato aparece na própria tela
+**Studio Tabi → Newsletter**, já preenchido. Se a Hostinger não aceitar comando
+PHP, use a versão por URL:
+
+```
+curl -s https://cms.studiotabi.com.br/wp-cron.php?doing_wp_cron > /dev/null
+```
+
+### Como saber se funcionou
+
+Em **Studio Tabi → Newsletter**, o painel *Agendamento* mostra quando rodou pela
+última vez. Poucos minutos atrás significa que está certo. Se um envio estiver
+em andamento e nada for processado por 5 minutos, a tela avisa em vermelho e
+oferece o botão **Processar agora**.
+
+> A cada visita o cron manda o quanto couber em ~20 segundos, não um lote só.
+> Com 200 inscritos e o cron a cada 5 minutos, o envio termina em poucos ciclos.
+

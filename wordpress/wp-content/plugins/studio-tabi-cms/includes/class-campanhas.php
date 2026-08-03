@@ -10,13 +10,16 @@ class STCMS_Campanhas {
 	const OPCAO_AUTO = 'stcms_auto_newsletter';
 	const META_ENVIO = '_stcms_newsletter_enviada';
 	const TICK       = 'stcms_campanha_tick';
+	const OPCAO_TICK = 'stcms_cron_ultimo';
 	const POR_VEZ    = 15;
+	const SEGUNDOS   = 20;
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ), 20 );
 		add_action( 'transition_post_status', array( __CLASS__, 'ao_publicar' ), 10, 3 );
 		add_action( self::TICK, array( __CLASS__, 'processar_tick' ) );
 		add_action( 'admin_post_stcms_campanha_auto', array( __CLASS__, 'alternar_auto' ) );
+		add_action( 'admin_post_stcms_campanha_agora', array( __CLASS__, 'processar_agora' ) );
 		add_action( 'wp_ajax_stcms_campanha_lote', array( __CLASS__, 'ajax_lote' ) );
 		add_action( 'admin_post_stcms_campanha_salvar', array( __CLASS__, 'salvar' ) );
 		add_action( 'admin_post_stcms_campanha_teste', array( __CLASS__, 'teste' ) );
@@ -193,14 +196,53 @@ class STCMS_Campanhas {
 	 * ainda tiver gente no fim do lote, agenda o próximo.
 	 */
 	public static function processar_tick() {
+		update_option( self::OPCAO_TICK, time() );
 		$c = self::campanha();
 		if ( 'enviando' !== $c['estado'] ) {
 			return;
 		}
-		self::enviar_lote( $c );
-		if ( 'enviando' === self::campanha()['estado'] ) {
+		// Manda o quanto couber no orçamento em vez de um lote só: um cron de
+		// servidor a cada 5 minutos não daria conta se cada visita enviasse 15.
+		$orcamento = (int) apply_filters( 'stcms_cron_segundos', self::SEGUNDOS );
+		$comeco    = time();
+		do {
+			$c = self::enviar_lote( $c );
+		} while ( 'enviando' === $c['estado'] && ( time() - $comeco ) < $orcamento );
+
+		if ( 'enviando' === $c['estado'] ) {
 			wp_schedule_single_event( time() + 60, self::TICK );
 		}
+	}
+
+	public static function processar_agora() {
+		check_admin_referer( 'stcms_campanha' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'Sem permissão.' );
+		}
+		self::processar_tick();
+		self::voltar( 'processado' );
+	}
+
+	/**
+	 * Diz se o agendamento está de fato sendo executado. Num WordPress headless
+	 * o cron interno depende de visita ao site, e visita é o que não há — então
+	 * uma fila parada precisa ser visível, não silenciosa.
+	 */
+	public static function saude_cron() {
+		$ultimo   = (int) get_option( self::OPCAO_TICK, 0 );
+		$proximo  = wp_next_scheduled( self::TICK );
+		$campanha = self::campanha();
+		$parado   = 'enviando' === $campanha['estado']
+			&& $proximo
+			&& $proximo < ( time() - 300 )
+			&& ( ! $ultimo || $ultimo < ( time() - 300 ) );
+
+		return array(
+			'ultimo'   => $ultimo,
+			'proximo'  => $proximo ? (int) $proximo : 0,
+			'parado'   => $parado,
+			'desligado' => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON,
+		);
 	}
 
 	public static function salvar() {
@@ -358,6 +400,7 @@ class STCMS_Campanhas {
 			'sem_lista'      => array( 'error', 'Não há ninguém inscrito nesse idioma.' ),
 			'ocupado'        => array( 'error', 'Há um envio em andamento. Pause antes de editar.' ),
 			'auto'           => array( 'success', 'Preferência de disparo automático salva.' ),
+			'processado'     => array( 'success', 'Fila processada.' ),
 		);
 		$chave = isset( $_GET['stcms_aviso'] ) ? sanitize_key( wp_unslash( $_GET['stcms_aviso'] ) ) : '';
 		if ( ! isset( $mapa[ $chave ] ) ) {
@@ -413,6 +456,64 @@ class STCMS_Campanhas {
 						</label>
 						<p style="margin:12px 0 0"><button type="submit" class="button">Salvar preferência</button></p>
 					</form>
+				</div>
+			</div>
+
+			<?php
+			$saude = self::saude_cron();
+			$caminho = defined( 'ABSPATH' ) ? rtrim( ABSPATH, '/' ) . '/wp-cron.php' : 'wp-cron.php';
+			$url_cron = home_url( '/wp-cron.php?doing_wp_cron' );
+			?>
+			<div class="stcms-card" style="margin-top:16px">
+				<div class="stcms-card-body" style="padding:18px 20px">
+					<h2 style="margin:0 0 10px;font-size:15px">Agendamento</h2>
+					<?php if ( $saude['parado'] ) : ?>
+						<div class="notice notice-error inline" style="margin:0 0 12px;padding:8px 12px"><p style="margin:0">
+							<strong>A fila está parada.</strong> O envio está em andamento mas nada foi processado
+							nos últimos 5 minutos. Use “Processar agora” abaixo e configure o cron do servidor.
+						</p></div>
+					<?php endif; ?>
+					<p style="margin:0 0 4px;font-size:13px">
+						Último processamento:
+						<strong><?php echo $saude['ultimo'] ? esc_html( human_time_diff( $saude['ultimo'] ) ) . ' atrás' : 'nunca'; ?></strong>
+						<?php if ( $saude['proximo'] ) : ?>
+							· próximo previsto: <strong><?php
+								echo $saude['proximo'] > time()
+									? 'em ' . esc_html( human_time_diff( time(), $saude['proximo'] ) )
+									: 'atrasado';
+							?></strong>
+						<?php endif; ?>
+					</p>
+					<p style="margin:0 0 12px;font-size:13px;color:#666">
+						Cron interno do WordPress:
+						<strong><?php echo $saude['desligado'] ? 'desligado (recomendado)' : 'ligado'; ?></strong>.
+						<?php if ( ! $saude['desligado'] ) : ?>
+							Neste modo ele só roda quando alguém visita o CMS — e num site headless quase ninguém visita.
+						<?php endif; ?>
+					</p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline">
+						<input type="hidden" name="action" value="stcms_campanha_agora" />
+						<?php wp_nonce_field( 'stcms_campanha' ); ?>
+						<button type="submit" class="button">Processar agora</button>
+					</form>
+					<details style="margin-top:14px">
+						<summary style="cursor:pointer;font-weight:600">Como configurar o cron na Hostinger</summary>
+						<div style="font-size:13px;line-height:1.7;margin-top:10px">
+							<p style="margin:0 0 8px"><strong>1.</strong> No <code>wp-config.php</code>, antes de
+							<code>/* That's all, stop editing! */</code>, acrescente:</p>
+							<p style="margin:0 0 12px"><code style="display:block;padding:8px 10px;background:#f6f7f7;border-radius:6px">define( 'DISABLE_WP_CRON', true );</code></p>
+							<p style="margin:0 0 8px"><strong>2.</strong> No hPanel: <em>Avançado → Cron Jobs</em>, a cada
+							<strong>5 minutos</strong>, com o comando:</p>
+							<p style="margin:0 0 12px"><code style="display:block;padding:8px 10px;background:#f6f7f7;border-radius:6px;word-break:break-all">/usr/bin/php <?php echo esc_html( $caminho ); ?></code></p>
+							<p style="margin:0 0 8px">Se a Hostinger não aceitar comando de PHP, use a versão por URL:</p>
+							<p style="margin:0 0 12px"><code style="display:block;padding:8px 10px;background:#f6f7f7;border-radius:6px;word-break:break-all">curl -s <?php echo esc_html( $url_cron ); ?> &gt; /dev/null</code></p>
+							<p style="margin:0">
+								Feito isso, esta tela deve mostrar “último processamento” de poucos minutos atrás.
+								Enquanto não configurar, o envio continua funcionando — só depende de você manter
+								esta página aberta.
+							</p>
+						</div>
+					</details>
 				</div>
 			</div>
 
