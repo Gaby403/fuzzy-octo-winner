@@ -227,6 +227,7 @@ class STCMS_Options {
 						self::row_text( 'reCAPTCHA v3 — Site Key', 'site][recaptcha_site', $o['site']['recaptcha_site'], 'Chave pública (client). Ativa a proteção anti-spam nos formulários.' );
 						self::row_text( 'reCAPTCHA v3 — Secret Key', 'site][recaptcha_secret', $o['site']['recaptcha_secret'], 'Chave secreta (server). Nunca é exposta na API pública.' );
 						self::row_text( 'E-mail que RECEBE os formulários', 'site][form_email', $o['site']['form_email'] ?? '', 'Para onde vão contato e newsletter. Se vazio, usa o e-mail do Rodapé; se este também estiver vazio, usa o e-mail do administrador do WordPress.' );
+						self::row_text( 'E-mail que ENVIA (remetente)', 'site][from_email', $o['site']['from_email'] ?? '', 'Aparece como remetente para quem recebe. Use um endereço do domínio do site, como contato@studiotabi.com.br. Se vazio, usa o e-mail acima. Sem isso o WordPress envia como wordpress@ do servidor do CMS.' );
 						self::row_proxy_token();
 						?>
 					</table>
@@ -996,6 +997,7 @@ class STCMS_Options {
 			$out['site']['recaptcha_site']  = sanitize_text_field( $input['site']['recaptcha_site'] ?? '' );
 			$out['site']['recaptcha_secret'] = sanitize_text_field( $input['site']['recaptcha_secret'] ?? '' );
 			$out['site']['form_email']      = sanitize_email( $input['site']['form_email'] ?? '' );
+			$out['site']['from_email']      = sanitize_email( $input['site']['from_email'] ?? '' );
 		}
 
 		if ( isset( $input['emails'] ) ) {

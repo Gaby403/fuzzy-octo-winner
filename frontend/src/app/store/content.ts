@@ -647,10 +647,10 @@ export interface ContactResult {
 }
 export async function submitContact(payload: ContactPayload, lang: "pt" | "en" = "pt"): Promise<ContactResult> {
     try {
-        const res = await fetch(`${WP_API}/wp-json/studio-tabi/v1/contact`, {
+        const res = await fetch(`${WP_API}/wp-json/studio-tabi/v1/contact?lang=${lang}`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Accept: "application/json" },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({ ...payload, lang }),
         });
         const data = (await res.json().catch(() => ({}))) as Partial<ContactResult>;
         if (!res.ok || !data.ok) {

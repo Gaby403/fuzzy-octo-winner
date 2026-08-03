@@ -88,10 +88,10 @@ export async function subscribeNewsletter(email: string, recaptchaToken = "", la
     message: string;
 }> {
     try {
-        const res = await fetch(`${WP_API}${NS}/subscribe`, {
+        const res = await fetch(`${WP_API}${NS}/subscribe?lang=${lang}`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Accept: "application/json" },
-            body: JSON.stringify({ email, recaptchaToken }),
+            body: JSON.stringify({ email, recaptchaToken, lang }),
         });
         const data = (await res.json().catch(() => ({}))) as {
             ok?: boolean;

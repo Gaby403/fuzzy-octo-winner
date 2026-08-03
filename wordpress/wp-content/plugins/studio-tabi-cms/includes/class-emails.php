@@ -11,6 +11,32 @@ class STCMS_Emails {
 	public static function init() {
 		add_filter( 'wp_mail_content_type', array( __CLASS__, 'tipo_html' ) );
 		add_filter( 'wp_mail_from_name', array( __CLASS__, 'nome_remetente' ) );
+		add_filter( 'wp_mail_from', array( __CLASS__, 'endereco_remetente' ) );
+	}
+
+	/**
+	 * Sem isto o WordPress usa wordpress@<host-do-servidor>, que entrega o CMS
+	 * e ainda anuncia a plataforma na caixa de entrada de quem recebe.
+	 */
+	public static function endereco_remetente( $padrao ) {
+		$o    = STCMS_Options::get();
+		$host = wp_parse_url( self::url_site(), PHP_URL_HOST );
+		$host = preg_replace( '/^www\./', '', (string) $host );
+
+		// Um endereço com erro de digitação cai para o próximo da lista, e não
+		// para o padrão do WordPress — que é o que se quer evitar aqui.
+		$candidatos = array(
+			(string) ( $o['site']['from_email'] ?? '' ),
+			(string) ( $o['site']['form_email'] ?? '' ),
+			$host ? 'contato@' . $host : '',
+		);
+		foreach ( $candidatos as $c ) {
+			$c = trim( $c );
+			if ( '' !== $c && is_email( $c ) ) {
+				return $c;
+			}
+		}
+		return $padrao;
 	}
 
 	public static function tipo_html( $tipo ) {

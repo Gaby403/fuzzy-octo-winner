@@ -19,6 +19,7 @@ function stcms_default_options() {
 			'recaptcha_secret' => '',
 
 			'form_email'       => '',
+			'from_email'       => '',
 		),
 		'nav'    => array(
 			'brand'     => 'STUDIO TABI',

@@ -133,6 +133,10 @@ class STCMS_Rest {
 		$l = '';
 		if ( $req instanceof WP_REST_Request ) {
 			$l = (string) $req->get_param( 'lang' );
+			if ( '' === $l ) {
+				$corpo = $req->get_json_params();
+				$l     = is_array( $corpo ) ? (string) ( $corpo['lang'] ?? '' ) : '';
+			}
 		}
 		if ( '' === $l && isset( $_GET['lang'] ) ) {
 			$l = sanitize_key( wp_unslash( $_GET['lang'] ) );

@@ -14,7 +14,17 @@ function delete_option( $k ) { unset( $GLOBALS['__o'][ $k ] ); return true; }
 function get_transient( $k ) { return false; }
 function set_transient( $k, $v, $t ) { return true; }
 function add_action( ...$a ) { return true; }
-function add_filter( ...$a ) { return true; }
+function add_filter( $hook, $cb = null, ...$r ) { if ( $cb ) { $GLOBALS['__filtros'][ $hook ][] = $cb; } return true; }
+function remetente_atual() {
+	$v = 'wordpress@srv952.main-hosting.eu';
+	foreach ( $GLOBALS['__filtros']['wp_mail_from'] ?? array() as $cb ) { $v = call_user_func( $cb, $v ); }
+	return $v;
+}
+function nome_remetente_atual() {
+	$v = 'WordPress';
+	foreach ( $GLOBALS['__filtros']['wp_mail_from_name'] ?? array() as $cb ) { $v = call_user_func( $cb, $v ); }
+	return $v;
+}
 function remove_filter( ...$a ) { return true; }
 function register_rest_route( ...$a ) { return true; }
 function apply_filters( $t, $v ) { return $v; }
@@ -278,6 +288,48 @@ $GLOBALS['__o']['stcms_campanha'] = array( 'assunto' => '', 'titulo' => '', 'est
 $destino = '';
 try { STCMS_Campanhas::iniciar(); } catch ( Redirecionou $e ) { $destino = $e->getMessage(); }
 ok( 'recusa e avisa', false !== strpos( $destino, 'faltando' ), $destino );
+
+echo "\n== Idioma chega do formulário ==\n";
+$GLOBALS['__o']['stcms_options'] = array();
+limpar();
+// Como o site manda agora: lang no corpo do JSON.
+STCMS_Rest::submit_contact( new WP_REST_Request( array_merge( $payload, array( 'email' => 'en-body@exemplo.com', 'lang' => 'en' ) ) ) );
+$v = ultimo_para( 'en-body@exemplo.com' );
+ok( 'lang no corpo vira e-mail em inglês', null !== $v && false !== strpos( $v['corpo'], 'lang="en"' ) );
+
+limpar();
+STCMS_Rest::submit_contact( new WP_REST_Request( array_merge( $payload, array( 'email' => 'pt-sem@exemplo.com' ) ) ) );
+$v = ultimo_para( 'pt-sem@exemplo.com' );
+ok( 'sem lang continua português', null !== $v && false !== strpos( $v['corpo'], 'lang="pt-BR"' ) );
+
+limpar();
+STCMS_Rest::subscribe_newsletter( new WP_REST_Request( array( 'email' => 'assina-en@exemplo.com', 'lang' => 'en' ) ) );
+$v = ultimo_para( 'assina-en@exemplo.com' );
+ok( 'newsletter em inglês', null !== $v && false !== strpos( $v['corpo'], 'lang="en"' ) );
+$achou = null;
+foreach ( STCMS_Emails::lista() as $i ) { if ( 'assina-en@exemplo.com' === $i['email'] ) { $achou = $i; } }
+ok( 'lista guarda o idioma inglês', null !== $achou && 'en' === $achou['lang'], $achou['lang'] ?? '?' );
+
+echo "\n== Remetente ==\n";
+STCMS_Emails::init();
+$GLOBALS['__o']['stcms_options'] = array( 'site' => array( 'title' => 'Studio Tabi', 'from_email' => 'contato@studiotabi.com.br' ) );
+$de = remetente_atual();
+ok( 'usa o endereço configurado', 'contato@studiotabi.com.br' === $de, $de );
+ok( 'não contém wordpress', false === stripos( $de, 'wordpress' ), $de );
+ok( 'não contém cms', false === stripos( $de, 'cms' ), $de );
+ok( 'não é do servidor de hospedagem', false === stripos( $de, 'main-hosting' ), $de );
+ok( 'nome do remetente é o do site', 'Studio Tabi' === nome_remetente_atual(), nome_remetente_atual() );
+
+$GLOBALS['__o']['stcms_options'] = array( 'site' => array( 'title' => 'Studio Tabi', 'from_email' => '', 'form_email' => 'oi@studiotabi.com.br' ) );
+ok( 'sem remetente, cai no e-mail que recebe', 'oi@studiotabi.com.br' === remetente_atual(), remetente_atual() );
+
+$GLOBALS['__o']['stcms_options'] = array( 'site' => array( 'title' => 'Studio Tabi' ) );
+$de = remetente_atual();
+ok( 'sem nada configurado, monta pelo domínio do site', 'contato@studiotabi.com.br' === $de, $de );
+ok( 'e ainda assim sem wordpress nem cms', false === stripos( $de, 'wordpress' ) && false === stripos( $de, 'cms' ), $de );
+
+$GLOBALS['__o']['stcms_options'] = array( 'site' => array( 'from_email' => 'isso não é e-mail' ) );
+ok( 'endereço inválido não é usado', 'contato@studiotabi.com.br' === remetente_atual(), remetente_atual() );
 
 echo "\n$ok passaram, $ko falharam\n";
 exit( $ko ? 1 : 0 );
