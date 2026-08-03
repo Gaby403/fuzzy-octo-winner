@@ -46,17 +46,12 @@ if (preg_match('#^/wp-json/studio-tabi/v1/#', $caminho)) {
     require __DIR__ . '/public/api.php';
     return true;
 }
-if ('/painel' === rtrim($caminho, '/')) {
-    require __DIR__ . '/public/admin.php';
-    return true;
-}
 return false;
 PHP
 );
 
 @mkdir( $tmp . '/public', 0777, true );
 copy( $publico . '/api.php', $tmp . '/public/api.php' );
-copy( $publico . '/admin.php', $tmp . '/public/admin.php' );
 
 function porta_livre() {
 	$s = stream_socket_server( 'tcp://127.0.0.1:0', $errno, $errstr );
@@ -176,10 +171,6 @@ checa( 'leitura é cacheável', (bool) preg_match( '/Cache-Control:\s*public/i',
 $r = chamar( '/wp-json/studio-tabi/v1/subscribe', 'POST', '{"email":"a@b.co"}' );
 checa( 'escrita não é cacheável', (bool) preg_match( '/Cache-Control:\s*no-store/i', $r['cabecalhos'] ) );
 
-echo "\n== Painel ==\n";
-$r = chamar( '/painel' );
-checa( '/painel redireciona', in_array( $r['status'], array( 301, 302, 307 ), true ), 'status ' . $r['status'] );
-checa( '/painel aponta para o wp-admin do CMS', (bool) preg_match( '#Location:\s*http://127\.0\.0\.1:' . $porta_cms . '/wp-admin/#i', $r['cabecalhos'] ), $r['cabecalhos'] );
 
 echo "\n== Configuração inválida ==\n";
 file_put_contents( $tmp . '/public/cms-config.php', "<?php return array( 'url' => '', 'token' => '' );\n" );
@@ -191,13 +182,9 @@ file_put_contents( $tmp . '/public/cms-config.php', "<?php return array( 'url' =
 clearstatcache();
 $r = chamar( '/wp-json/studio-tabi/v1/content' );
 checa( 'http em domínio público é recusado', 503 === $r['status'], 'status ' . $r['status'] );
-$r = chamar( '/painel' );
-checa( '/painel também recusa http público', 503 === $r['status'], 'status ' . $r['status'] );
 
 file_put_contents( $tmp . '/public/cms-config.php', "<?php return array( 'url' => 'javascript:alert(1)', 'token' => '' );\n" );
 clearstatcache();
-$r = chamar( '/painel' );
-checa( '/painel não redireciona para esquema estranho', 503 === $r['status'], 'status ' . $r['status'] );
 
 foreach ( array( $p1, $p2 ) as $p ) {
 	if ( is_resource( $p ) ) {

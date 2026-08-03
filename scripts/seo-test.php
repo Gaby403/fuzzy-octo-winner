@@ -147,7 +147,26 @@ echo "\n== Segurança ==\n";
 $r = pegar( '/../../etc/passwd' );
 checa( 'travessia de caminho não escapa da pasta', false === strpos( $r['html'], 'root:x:' ), 'vazou /etc/passwd' );
 $r = pegar( '/rota-que-nao-existe' );
-checa( 'rota desconhecida cai no index (SPA cuida do 404)', 200 === $r['status'] && false !== strpos( $r['html'], '<div id="root">' ) );
+checa( 'rota desconhecida devolve 404 com a página do app', 404 === $r['status'] && false !== strpos( $r['html'], '<div id="root">' ), 'status ' . $r['status'] );
+
+
+echo "\n== Status 404 em rota que não existe ==\n";
+foreach ( array( '/login', '/wp-login.php', '/wp-admin', '/painel', '/admin', '/nao-existe', '/en/login' ) as $rota ) {
+	$r = pegar( $rota );
+	checa( "{$rota} devolve 404", 404 === $r['status'], 'status ' . $r['status'] );
+}
+
+echo "\n== As rotas de verdade continuam 200 ==\n";
+$reais = array(
+	'/', '/sobre', '/servicos', '/projetos', '/blog', '/contato', '/obrigado',
+	'/en', '/en/about', '/en/services', '/en/work', '/en/blog', '/en/contact', '/en/thank-you',
+	'/servicos/branding-identidade-visual', '/processo/diagnostico', '/blog/um-artigo', '/p/politica-de-privacidade',
+	'/en/services/branding-identidade-visual', '/en/process/diagnosis', '/en/blog/an-article', '/en/p/privacy',
+);
+foreach ( $reais as $rota ) {
+	$r = pegar( $rota );
+	checa( "{$rota} responde 200", 200 === $r['status'], 'status ' . $r['status'] );
+}
 
 echo "\n== CMS fora do ar ==\n";
 // Derruba o CMS e limpa o cache para forçar o caminho de falha.

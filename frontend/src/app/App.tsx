@@ -1116,7 +1116,6 @@ const paginas = (l: "pt" | "en") => {
         { path: `${S("artigo")}/:slug`, lazy: lazyPage(() => import("./pages/Article")) },
         { path: S("contato"), lazy: lazyPage(() => import("./pages/Contact")) },
         { path: S("obrigado"), lazy: lazyPage(() => import("./pages/ThankYou")) },
-        { path: "admin", lazy: lazyPage(() => import("./pages/Admin")) },
         { path: `${S("pagina")}/:slug`, lazy: lazyPage(() => import("./pages/Page")) },
         { path: "*", lazy: lazyPage(() => import("./pages/NotFound")) },
     ];

@@ -572,7 +572,6 @@ function resolveApiBase(): string {
 }
 export const WP_API: string = resolveApiBase();
 const CONTENT_ENDPOINT = "/wp-json/studio-tabi/v1/content";
-export const WP_ADMIN_URL: string = WP_API ? `${WP_API}/wp-admin/` : "/painel";
 function mergeContent(remote: Partial<SiteContent> | null | undefined, lang: "pt" | "en" = "pt"): SiteContent {
     const base = defaultContent(lang);
     if (!remote)

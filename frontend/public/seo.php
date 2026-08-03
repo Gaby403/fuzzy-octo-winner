@@ -25,9 +25,32 @@ function stcms_arquivo( $raiz, $rota ) {
 	return null;
 }
 
-$rota    = stcms_rota();
-$arquivo = stcms_arquivo( $raiz, $rota );
-$html    = $arquivo ? file_get_contents( $arquivo ) : false;
+function stcms_rota_conhecida( $raiz, $rota ) {
+	if ( is_dir( $raiz . rtrim( $rota, '/' ) ) && is_readable( $raiz . rtrim( $rota, '/' ) . '/index.html' ) ) {
+		return true;
+	}
+	$dinamicas = array(
+		'#^/servicos/[^/]+$#',
+		'#^/processo/[^/]+$#',
+		'#^/blog/[^/]+$#',
+		'#^/p/[^/]+$#',
+		'#^/en/services/[^/]+$#',
+		'#^/en/process/[^/]+$#',
+		'#^/en/blog/[^/]+$#',
+		'#^/en/p/[^/]+$#',
+	);
+	foreach ( $dinamicas as $padrao ) {
+		if ( preg_match( $padrao, $rota ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+$rota      = stcms_rota();
+$arquivo   = stcms_arquivo( $raiz, $rota );
+$html      = $arquivo ? file_get_contents( $arquivo ) : false;
+$conhecida = ( '/' === $rota ) || stcms_rota_conhecida( $raiz, $rota );
 
 if ( false === $html ) {
 	http_response_code( 404 );
@@ -62,6 +85,9 @@ try {
 }
 
 $GLOBALS['stcms_entregue'] = true;
+if ( ! $conhecida ) {
+	http_response_code( 404 );
+}
 header( 'Content-Type: text/html; charset=UTF-8' );
 header( 'Cache-Control: no-cache, no-store, must-revalidate' );
 echo $html;

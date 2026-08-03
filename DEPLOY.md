@@ -118,9 +118,9 @@ domínio principal:
 - **FTP** (FileZilla): arraste os arquivos de `dist/` para `public_html`.
 
 > O `.htaccess` incluído faz o roteamento do lado do cliente funcionar — assim
-> `/admin` e `/p/{slug}` funcionam mesmo ao recarregar a página. Ele também
-> manda `/wp-json/studio-tabi/v1/…` para o `api.php` e `/painel` para o
-> `admin.php`.
+> `/p/{slug}` e as demais rotas funcionam mesmo ao recarregar a página. Ele
+> também manda `/wp-json/studio-tabi/v1/…` para o `api.php`. Caminho que não
+> existe devolve 404 de verdade, não 200.
 
 ### 2.4 Apontar para o WordPress (`cms-config.php`)
 
@@ -152,7 +152,8 @@ chamada e conta o limite por visitante.
 ### 2.5 Pronto
 Acesse `https://seudominio.com.br`. O site carrega e busca o conteúdo do
 WordPress. Qualquer alteração feita no admin aparece ao recarregar.
-O painel do WordPress fica em `https://seudominio.com.br/painel`.
+O painel do WordPress fica em `https://cms.seudominio.com.br/wp-admin` — o site
+não tem atalho para ele, de propósito. Salve nos favoritos.
 
 ---
 
@@ -161,7 +162,7 @@ O painel do WordPress fica em `https://seudominio.com.br/painel`.
 | Item | URL |
 |------|-----|
 | Site (front-end) | `https://seudominio.com.br` |
-| WordPress (admin) | `https://seudominio.com.br/painel` (atalho) ou `https://cms.seudominio.com.br/wp-admin` |
+| WordPress (admin) | `https://cms.seudominio.com.br/wp-admin` |
 | API de conteúdo (o que o navegador chama) | `https://seudominio.com.br/wp-json/studio-tabi/v1/content` |
 | Página no site | `https://seudominio.com.br/p/{slug}` |
 

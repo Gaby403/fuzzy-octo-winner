@@ -9,8 +9,6 @@ DirectoryIndex index.html
 
   RewriteRule ^wp-json/studio-tabi/v1/.+$ /api.php [L,QSA]
 
-  RewriteRule ^painel/?$ /admin.php [L]
-
   RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^ - [L]
 
