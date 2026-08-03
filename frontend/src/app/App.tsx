@@ -6,6 +6,7 @@ import { useContent, type SiteContent } from "./store/content";
 import { fetchPosts, type PostCard } from "./store/blog";
 import Root from "./Root";
 import { TabiMark } from "./components/TabiMark";
+import { TabiDivider } from "./components/system/TabiDivider";
 import { SLUGS } from "./i18n/locale";
 import { useLocale } from "./i18n/useLocale";
 const ProjectDetail = lazy(() => import("./components/ProjectDetail"));
@@ -616,7 +617,7 @@ function ServicesSection() {
     const sec = content.sections.services;
     const pad = "clamp(20px, 4vw, 82px)";
     return (<section id="servicos" style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', position: "relative", overflow: "hidden" }}>
-      <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }}/>
+      <TabiDivider margem="clamp(40px,6vw,76px)"/>
 
       
       <div aria-hidden="true" style={{ position: "absolute", right: "-2%", top: "4%", fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(120px, 22vw, 400px)", lineHeight: 1, letterSpacing: "-0.08em", color: WHITE, opacity: 0.025, userSelect: "none", pointerEvents: "none" }}>
@@ -928,7 +929,7 @@ function BlogSection() {
     if (!posts.length)
         return null;
     return (<section id="blog" style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', position: "relative" }}>
-      <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }}/>
+      <TabiDivider margem="clamp(40px,6vw,76px)"/>
 
       <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad} clamp(64px, 10vw, 120px)` }}>
         <Reveal delay={0}>
