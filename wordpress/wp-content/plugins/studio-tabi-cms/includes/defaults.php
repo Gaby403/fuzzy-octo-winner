@@ -59,6 +59,10 @@ function stcms_default_options() {
 			'news_assunto'    => 'Inscrição confirmada — {site}',
 			'news_titulo'     => 'Bem-vindo à newsletter.',
 			'news_texto'      => "Sua inscrição está confirmada.\n\nDe tempos em tempos enviamos ideias sobre design, estratégia e tecnologia — direto de quem constrói. Sem spam, e você cancela quando quiser.",
+			'auto_assunto'    => 'Novo no blog: {titulo}',
+			'auto_titulo'     => '{titulo}',
+			'auto_texto'      => "{resumo}",
+			'auto_cta'        => 'Ler o artigo',
 		),
 		'contact' => array(
 			'title'       => 'VAMOS',
@@ -280,6 +284,10 @@ function stcms_default_options_en() {
 			'news_assunto'    => 'Subscription confirmed — {site}',
 			'news_titulo'     => 'Welcome to the newsletter.',
 			'news_texto'      => "Your subscription is confirmed.\n\nEvery now and then we send ideas on design, strategy and technology — straight from the people building it. No spam, and you can unsubscribe whenever you like.",
+			'auto_assunto'    => 'New on the blog: {titulo}',
+			'auto_titulo'     => '{titulo}',
+			'auto_texto'      => "{resumo}",
+			'auto_cta'        => 'Read the article',
 		),
 		'contact' => array(
 			'title'       => "LET'S",

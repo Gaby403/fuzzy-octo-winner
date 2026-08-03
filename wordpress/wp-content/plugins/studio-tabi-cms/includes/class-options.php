@@ -242,6 +242,10 @@ class STCMS_Options {
 						self::row_text( 'Newsletter — assunto', 'emails][news_assunto', $o['emails']['news_assunto'] ?? '' );
 						self::row_text( 'Newsletter — título', 'emails][news_titulo', $o['emails']['news_titulo'] ?? '' );
 						self::row_textarea( 'Newsletter — mensagem', 'emails][news_texto', $o['emails']['news_texto'] ?? '', 'O link de cancelar inscrição entra sozinho no rodapé — é exigido por lei.' );
+						self::row_text( 'Artigo novo — assunto', 'emails][auto_assunto', $o['emails']['auto_assunto'] ?? '', 'Use {titulo} e {resumo} do artigo.' );
+						self::row_text( 'Artigo novo — título', 'emails][auto_titulo', $o['emails']['auto_titulo'] ?? '' );
+						self::row_textarea( 'Artigo novo — mensagem', 'emails][auto_texto', $o['emails']['auto_texto'] ?? '' );
+						self::row_text( 'Artigo novo — texto do botão', 'emails][auto_cta', $o['emails']['auto_cta'] ?? '', 'O link vai para o artigo, no idioma de cada inscrito.' );
 						?>
 					</table>
 					<p class="description" style="padding:0 4px 4px">
@@ -1001,10 +1005,10 @@ class STCMS_Options {
 		}
 
 		if ( isset( $input['emails'] ) ) {
-			foreach ( array( 'contato_assunto', 'contato_titulo', 'news_assunto', 'news_titulo' ) as $c ) {
+			foreach ( array( 'contato_assunto', 'contato_titulo', 'news_assunto', 'news_titulo', 'auto_assunto', 'auto_titulo', 'auto_cta' ) as $c ) {
 				$out['emails'][ $c ] = sanitize_text_field( $input['emails'][ $c ] ?? '' );
 			}
-			foreach ( array( 'contato_texto', 'news_texto' ) as $c ) {
+			foreach ( array( 'contato_texto', 'news_texto', 'auto_texto' ) as $c ) {
 				$out['emails'][ $c ] = sanitize_textarea_field( $input['emails'][ $c ] ?? '' );
 			}
 		}

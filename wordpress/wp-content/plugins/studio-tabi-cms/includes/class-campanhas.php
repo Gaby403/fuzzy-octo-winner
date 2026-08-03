@@ -6,11 +6,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class STCMS_Campanhas {
 
-	const OPCAO   = 'stcms_campanha';
-	const POR_VEZ = 15;
+	const OPCAO      = 'stcms_campanha';
+	const OPCAO_AUTO = 'stcms_auto_newsletter';
+	const META_ENVIO = '_stcms_newsletter_enviada';
+	const TICK       = 'stcms_campanha_tick';
+	const POR_VEZ    = 15;
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ), 20 );
+		add_action( 'transition_post_status', array( __CLASS__, 'ao_publicar' ), 10, 3 );
+		add_action( self::TICK, array( __CLASS__, 'processar_tick' ) );
+		add_action( 'admin_post_stcms_campanha_auto', array( __CLASS__, 'alternar_auto' ) );
 		add_action( 'wp_ajax_stcms_campanha_lote', array( __CLASS__, 'ajax_lote' ) );
 		add_action( 'admin_post_stcms_campanha_salvar', array( __CLASS__, 'salvar' ) );
 		add_action( 'admin_post_stcms_campanha_teste', array( __CLASS__, 'teste' ) );
@@ -69,12 +75,132 @@ class STCMS_Campanhas {
 	}
 
 	public static function corpo( $c, $lang, $email = '', $token = '' ) {
+		$c      = self::resolver( $c, $lang );
 		$blocos = array( wpautop( $c['texto'] ) );
 		if ( '' !== trim( (string) $c['cta_label'] ) && '' !== trim( (string) $c['cta_url'] ) ) {
 			$blocos[] = array( 'cta' => $c['cta_label'], 'url' => $c['cta_url'] );
 		}
 		$rodape = ( '' !== $email && '' !== $token ) ? STCMS_Emails::rodape_descadastro( $email, $token, $lang ) : '';
 		return STCMS_Emails::modelo( $lang, $c['titulo'], $blocos, $rodape );
+	}
+
+	public static function assunto( $c, $lang ) {
+		$c = self::resolver( $c, $lang );
+		return $c['assunto'];
+	}
+
+	/**
+	 * Campanha vinda de um artigo é montada na hora de enviar, no idioma de
+	 * cada inscrito, aproveitando a tradução guardada no próprio post.
+	 */
+	private static function resolver( $c, $lang ) {
+		if ( empty( $c['post_id'] ) ) {
+			return $c;
+		}
+		$post = get_post( (int) $c['post_id'] );
+		if ( ! $post ) {
+			return $c;
+		}
+		$o = STCMS_Options::get( $lang );
+		$e = isset( $o['emails'] ) ? $o['emails'] : array();
+
+		$titulo = (string) STCMS_Traducao::texto( $post, 'title', $lang );
+		$resumo = (string) STCMS_Traducao::texto( $post, 'excerpt', $lang );
+		if ( '' === trim( $resumo ) ) {
+			$resumo = wp_trim_words( wp_strip_all_tags( (string) STCMS_Traducao::texto( $post, 'body', $lang ) ), 45, '…' );
+		}
+
+		$valores = array(
+			'titulo' => $titulo,
+			'resumo' => $resumo,
+			'site'   => (string) ( $o['site']['title'] ?? '' ),
+		);
+		$aplicar = function ( $texto ) use ( $valores ) {
+			foreach ( $valores as $k => $v ) {
+				$texto = str_replace( '{' . $k . '}', $v, (string) $texto );
+			}
+			return $texto;
+		};
+
+		$c['assunto']   = $aplicar( $e['auto_assunto'] ?? '' );
+		$c['titulo']    = $aplicar( $e['auto_titulo'] ?? '' );
+		$c['texto']     = $aplicar( $e['auto_texto'] ?? '' );
+		$c['cta_label'] = (string) ( $e['auto_cta'] ?? '' );
+		$c['cta_url']   = STCMS_Emails::url_site() . ( 'en' === $lang ? '/en/blog/' : '/blog/' ) . $post->post_name;
+		return $c;
+	}
+
+	public static function auto_ligado() {
+		return '1' === (string) get_option( self::OPCAO_AUTO, '' );
+	}
+
+	public static function alternar_auto() {
+		check_admin_referer( 'stcms_campanha' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'Sem permissão.' );
+		}
+		update_option( self::OPCAO_AUTO, empty( $_POST['auto'] ) ? '' : '1' );
+		self::voltar( 'auto' );
+	}
+
+	/**
+	 * Só dispara quando um artigo sai de qualquer estado para publicado, uma
+	 * única vez por artigo. Editar depois não reenvia.
+	 */
+	public static function ao_publicar( $novo, $antigo, $post ) {
+		if ( 'publish' !== $novo || 'publish' === $antigo ) {
+			return;
+		}
+		if ( ! $post || 'post' !== $post->post_type ) {
+			return;
+		}
+		if ( ! self::auto_ligado() ) {
+			return;
+		}
+		if ( get_post_meta( $post->ID, self::META_ENVIO, true ) ) {
+			return;
+		}
+		$c = self::campanha();
+		if ( 'enviando' === $c['estado'] ) {
+			return;
+		}
+		$destinos = self::destinatarios( 'todos' );
+		if ( ! $destinos ) {
+			return;
+		}
+		update_post_meta( $post->ID, self::META_ENVIO, gmdate( 'Y-m-d H:i:s' ) );
+
+		$c['post_id']  = $post->ID;
+		$c['idioma']   = 'todos';
+		$c['fila']     = $destinos;
+		$c['total']    = count( $destinos );
+		$c['enviados'] = 0;
+		$c['falhas']   = 0;
+		$c['estado']   = 'enviando';
+		$c['quando']   = gmdate( 'Y-m-d H:i:s' );
+		self::guardar( $c );
+		self::agendar();
+	}
+
+	private static function agendar() {
+		if ( ! wp_next_scheduled( self::TICK ) ) {
+			wp_schedule_single_event( time() + 60, self::TICK );
+		}
+	}
+
+	/**
+	 * Continua o envio sem depender de alguém com o painel aberto. Se a fila
+	 * ainda tiver gente no fim do lote, agenda o próximo.
+	 */
+	public static function processar_tick() {
+		$c = self::campanha();
+		if ( 'enviando' !== $c['estado'] ) {
+			return;
+		}
+		self::enviar_lote( $c );
+		if ( 'enviando' === self::campanha()['estado'] ) {
+			wp_schedule_single_event( time() + 60, self::TICK );
+		}
 	}
 
 	public static function salvar() {
@@ -133,6 +259,7 @@ class STCMS_Campanhas {
 		if ( ! $destinos ) {
 			self::voltar( 'sem_lista' );
 		}
+		$c['post_id']  = 0;
 		$c['fila']     = $destinos;
 		$c['total']    = count( $destinos );
 		$c['enviados'] = 0;
@@ -140,6 +267,7 @@ class STCMS_Campanhas {
 		$c['estado']   = 'enviando';
 		$c['quando']   = gmdate( 'Y-m-d H:i:s' );
 		self::guardar( $c );
+		self::agendar();
 		self::voltar( 'iniciado' );
 	}
 
@@ -171,6 +299,11 @@ class STCMS_Campanhas {
 			return;
 		}
 
+		$c = self::enviar_lote( $c );
+		wp_send_json_success( self::progresso( $c ) );
+	}
+
+	private static function enviar_lote( $c ) {
 		$GLOBALS['stcms_email_html'] = true;
 		$n = 0;
 		while ( $c['fila'] && $n < self::POR_VEZ ) {
@@ -178,7 +311,7 @@ class STCMS_Campanhas {
 			$lang = 'en' === ( $item['lang'] ?? 'pt' ) ? 'en' : 'pt';
 			$ok   = wp_mail(
 				$item['email'],
-				$c['assunto'],
+				self::assunto( $c, $lang ),
 				self::corpo( $c, $lang, $item['email'], $item['token'] ),
 				array( 'Content-Type: text/html; charset=UTF-8' )
 			);
@@ -195,7 +328,7 @@ class STCMS_Campanhas {
 			$c['estado'] = 'concluido';
 		}
 		self::guardar( $c );
-		wp_send_json_success( self::progresso( $c ) );
+		return $c;
 	}
 
 	private static function progresso( $c ) {
@@ -224,6 +357,7 @@ class STCMS_Campanhas {
 			'faltando'       => array( 'error', 'Preencha pelo menos o assunto e o título.' ),
 			'sem_lista'      => array( 'error', 'Não há ninguém inscrito nesse idioma.' ),
 			'ocupado'        => array( 'error', 'Há um envio em andamento. Pause antes de editar.' ),
+			'auto'           => array( 'success', 'Preferência de disparo automático salva.' ),
 		);
 		$chave = isset( $_GET['stcms_aviso'] ) ? sanitize_key( wp_unslash( $_GET['stcms_aviso'] ) ) : '';
 		if ( ! isset( $mapa[ $chave ] ) ) {
@@ -259,10 +393,26 @@ class STCMS_Campanhas {
 
 			<div class="stcms-card" style="margin-top:16px">
 				<div class="stcms-card-body" style="padding:18px 20px">
-					<p style="margin:0;font-size:14px">
+					<p style="margin:0 0 14px;font-size:14px">
 						<strong><?php echo (int) count( $lista ); ?></strong> inscritos —
 						<?php echo (int) $pt; ?> em português, <?php echo (int) $en; ?> em inglês.
 					</p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="stcms_campanha_auto" />
+						<?php wp_nonce_field( 'stcms_campanha' ); ?>
+						<label style="display:flex;gap:8px;align-items:flex-start;font-size:14px">
+							<input type="checkbox" name="auto" value="1" <?php checked( self::auto_ligado() ); ?> style="margin-top:3px" />
+							<span>
+								<strong>Avisar a lista quando eu publicar um artigo</strong><br />
+								<span class="description">
+									O e-mail sai sozinho ao publicar, com o título e o resumo do artigo, no
+									idioma de cada inscrito. Cada artigo dispara uma vez só — editar depois
+									não reenvia. O texto está em Conteúdo → E-mails automáticos.
+								</span>
+							</span>
+						</label>
+						<p style="margin:12px 0 0"><button type="submit" class="button">Salvar preferência</button></p>
+					</form>
 				</div>
 			</div>
 

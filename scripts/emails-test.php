@@ -6,6 +6,8 @@ $P = dirname( __DIR__ ) . '/wordpress/wp-content/plugins/studio-tabi-cms';
 
 $GLOBALS['__o'] = array();
 $GLOBALS['__enviados'] = array();
+$GLOBALS['__posts'] = array();
+$GLOBALS['__cron'] = array();
 
 function get_option( $k, $d = false ) { return $GLOBALS['__o'][ $k ] ?? $d; }
 function update_option( $k, $v ) { $GLOBALS['__o'][ $k ] = $v; return true; }
@@ -48,7 +50,8 @@ function wp_generate_password( $n = 12, ...$r ) { return substr( str_replace( ar
 function wpautop( $s ) { return '<p>' . str_replace( "\n\n", '</p><p>', (string) $s ) . '</p>'; }
 function add_query_arg( $args, $url ) { return $url . ( false === strpos( $url, '?' ) ? '?' : '&' ) . http_build_query( $args ); }
 function wp_get_attachment_image_url( $i, $s = null ) { return ''; }
-function get_post_meta( $i, $k = '', $s = true ) { return ''; }
+function get_post_meta( $i, $k = '', $s = true ) { return $GLOBALS['__pmeta'][ $i ][ $k ] ?? ''; }
+function update_post_meta( $i, $k, $v ) { $GLOBALS['__pmeta'][ $i ][ $k ] = $v; return true; }
 function get_page_by_path( ...$a ) { return null; }
 function get_posts( $a ) { return array(); }
 function get_the_title( $p ) { return ''; }
@@ -65,7 +68,10 @@ function get_the_author_meta( $c, $i ) { return ''; }
 function get_the_post_thumbnail_url( $p, $s = null ) { return ''; }
 function get_avatar_url( $i, $a = array() ) { return ''; }
 function wp_reset_postdata() { return true; }
-function get_post( $i ) { return null; }
+function get_post( $i ) { return $GLOBALS['__posts'][ $i ] ?? null; }
+function wp_next_scheduled( $h ) { return $GLOBALS['__cron'][ $h ] ?? false; }
+function wp_schedule_single_event( $t, $h ) { $GLOBALS['__cron'][ $h ] = $t; return true; }
+function checked( $a, $b = true, $e = true ) { return $a == $b ? ' checked' : ''; }
 function wp_get_post_categories( $i ) { return array(); }
 function wp_mail( $para, $assunto, $corpo, $headers = array() ) {
 	$GLOBALS['__enviados'][] = array( 'para' => $para, 'assunto' => $assunto, 'corpo' => $corpo, 'headers' => $headers );
@@ -330,6 +336,102 @@ ok( 'e ainda assim sem wordpress nem cms', false === stripos( $de, 'wordpress' )
 
 $GLOBALS['__o']['stcms_options'] = array( 'site' => array( 'from_email' => 'isso não é e-mail' ) );
 ok( 'endereço inválido não é usado', 'contato@studiotabi.com.br' === remetente_atual(), remetente_atual() );
+
+echo "\n== Disparo ao publicar artigo ==\n";
+$GLOBALS['__o']['stcms_options'] = array();
+$GLOBALS['__pmeta'] = array();
+$GLOBALS['__o']['stcms_newsletter'] = array();
+STCMS_Emails::inscrever( 'pt1@exemplo.com', 'pt' );
+STCMS_Emails::inscrever( 'en1@exemplo.com', 'en' );
+$GLOBALS['__o']['stcms_campanha'] = array();
+
+$artigo = new stdClass();
+$artigo->ID = 900; $artigo->post_type = 'post'; $artigo->post_status = 'publish';
+$artigo->post_name = 'tipografia-que-vende'; $artigo->post_title = 'Tipografia que vende';
+$artigo->post_excerpt = 'Como a tipografia muda a decisão.'; $artigo->post_content = '<p>Texto.</p>';
+$GLOBALS['__posts'][900] = $artigo;
+$GLOBALS['__pmeta'][900] = array( 'stcms_en_title' => 'Typography that sells', 'stcms_en_excerpt' => 'How type shapes the decision.' );
+
+// Desligado por padrão: publicar não pode disparar nada.
+limpar();
+STCMS_Campanhas::ao_publicar( 'publish', 'draft', $artigo );
+ok( 'desligado, publicar não enfileira', 'rascunho' === STCMS_Campanhas::campanha()['estado'], STCMS_Campanhas::campanha()['estado'] );
+
+update_option( 'stcms_auto_newsletter', '1' );
+ok( 'interruptor lê ligado', true === STCMS_Campanhas::auto_ligado() );
+
+STCMS_Campanhas::ao_publicar( 'publish', 'draft', $artigo );
+$c = STCMS_Campanhas::campanha();
+ok( 'publicar enfileira a lista', 2 === $c['total'], (string) $c['total'] );
+ok( 'guarda o artigo de origem', 900 === (int) $c['post_id'], (string) $c['post_id'] );
+ok( 'agendou a continuação', false !== wp_next_scheduled( 'stcms_campanha_tick' ) );
+
+limpar();
+lote();
+ok( 'os dois receberam', 2 === count( $GLOBALS['__enviados'] ), (string) count( $GLOBALS['__enviados'] ) );
+$em_pt = ultimo_para( 'pt1@exemplo.com' );
+$em_en = ultimo_para( 'en1@exemplo.com' );
+ok( 'assunto em português traz o título', false !== strpos( $em_pt['assunto'], 'Tipografia que vende' ), $em_pt['assunto'] );
+ok( 'assunto em inglês usa a tradução do post', false !== strpos( $em_en['assunto'], 'Typography that sells' ), $em_en['assunto'] );
+ok( 'corpo em inglês traz o resumo traduzido', false !== strpos( $em_en['corpo'], 'How type shapes' ) );
+ok( 'link em português vai para /blog/', false !== strpos( $em_pt['corpo'], '/blog/tipografia-que-vende' ) );
+ok( 'link em inglês vai para /en/blog/', false !== strpos( $em_en['corpo'], '/en/blog/tipografia-que-vende' ) );
+ok( 'cada um com o seu descadastro', false !== strpos( $em_pt['corpo'], '/unsubscribe' ) );
+
+echo "\n== Não dispara duas vezes ==\n";
+$GLOBALS['__o']['stcms_campanha']['estado'] = 'rascunho';
+limpar();
+STCMS_Campanhas::ao_publicar( 'publish', 'draft', $artigo );
+ok( 'mesmo artigo não reenfileira', 'rascunho' === STCMS_Campanhas::campanha()['estado'], STCMS_Campanhas::campanha()['estado'] );
+STCMS_Campanhas::ao_publicar( 'publish', 'publish', $artigo );
+ok( 'editar artigo publicado não dispara', 'rascunho' === STCMS_Campanhas::campanha()['estado'] );
+
+echo "\n== Só artigos do blog ==\n";
+$pagina = clone $artigo;
+$pagina->ID = 901; $pagina->post_type = 'page'; $pagina->post_name = 'sobre';
+$GLOBALS['__posts'][901] = $pagina;
+STCMS_Campanhas::ao_publicar( 'publish', 'draft', $pagina );
+ok( 'página não dispara newsletter', 'rascunho' === STCMS_Campanhas::campanha()['estado'] );
+$servico = clone $artigo;
+$servico->ID = 902; $servico->post_type = 'st_service';
+$GLOBALS['__posts'][902] = $servico;
+STCMS_Campanhas::ao_publicar( 'publish', 'draft', $servico );
+ok( 'serviço não dispara newsletter', 'rascunho' === STCMS_Campanhas::campanha()['estado'] );
+
+echo "\n== Não atropela um envio em andamento ==\n";
+$novo_artigo = clone $artigo;
+$novo_artigo->ID = 903; $novo_artigo->post_name = 'outro';
+$GLOBALS['__posts'][903] = $novo_artigo;
+$GLOBALS['__o']['stcms_campanha']['estado'] = 'enviando';
+$GLOBALS['__o']['stcms_campanha']['post_id'] = 900;
+STCMS_Campanhas::ao_publicar( 'publish', 'draft', $novo_artigo );
+ok( 'espera o envio atual terminar', 900 === (int) STCMS_Campanhas::campanha()['post_id'], (string) STCMS_Campanhas::campanha()['post_id'] );
+ok( 'e não marca o artigo como enviado', '' === get_post_meta( 903, '_stcms_newsletter_enviada', true ) );
+
+echo "\n== Sem inscritos não enfileira ==\n";
+$GLOBALS['__o']['stcms_newsletter'] = array();
+$GLOBALS['__o']['stcms_campanha']['estado'] = 'rascunho';
+$so_agora = clone $artigo;
+$so_agora->ID = 904; $so_agora->post_name = 'terceiro';
+$GLOBALS['__posts'][904] = $so_agora;
+STCMS_Campanhas::ao_publicar( 'publish', 'draft', $so_agora );
+ok( 'lista vazia não vira campanha', 'rascunho' === STCMS_Campanhas::campanha()['estado'] );
+ok( 'nem marca o artigo', '' === get_post_meta( 904, '_stcms_newsletter_enviada', true ) );
+
+echo "\n== Continuação sem o painel aberto ==\n";
+$GLOBALS['__o']['stcms_newsletter'] = array();
+foreach ( range( 1, 20 ) as $i ) { STCMS_Emails::inscrever( "c{$i}@exemplo.com", 'pt' ); }
+$GLOBALS['__o']['stcms_campanha'] = array( 'assunto' => 'A', 'titulo' => 'B', 'texto' => 'C', 'estado' => 'rascunho' );
+try { STCMS_Campanhas::iniciar(); } catch ( Redirecionou $e ) {}
+limpar();
+$GLOBALS['__cron'] = array();
+STCMS_Campanhas::processar_tick();
+ok( 'o cron envia um lote', 15 === count( $GLOBALS['__enviados'] ), (string) count( $GLOBALS['__enviados'] ) );
+ok( 'e reagenda porque sobrou fila', false !== wp_next_scheduled( 'stcms_campanha_tick' ) );
+$GLOBALS['__cron'] = array();
+STCMS_Campanhas::processar_tick();
+ok( 'termina no lote seguinte', 'concluido' === STCMS_Campanhas::campanha()['estado'] );
+ok( 'e não reagenda mais', false === wp_next_scheduled( 'stcms_campanha_tick' ) );
 
 echo "\n$ok passaram, $ko falharam\n";
 exit( $ko ? 1 : 0 );
