@@ -32,13 +32,11 @@ function ensureDataLayer(): unknown[] {
 export function initAnalytics(opts: {
     ga4Id?: string;
     gtmId?: string;
-    recaptchaSite?: string;
 }) {
     if (typeof window === "undefined")
         return;
     const gtmId = (opts.gtmId || "").trim();
     const ga4Id = (opts.ga4Id || "").trim();
-    const recaptchaSite = (opts.recaptchaSite || "").trim();
     if (gtmId && injectedGtm !== gtmId) {
         injectedGtm = gtmId;
         const dl = ensureDataLayer();
@@ -73,14 +71,17 @@ export function initAnalytics(opts: {
         window.gtag("js", new Date());
         window.gtag("config", ga4Id, { anonymize_ip: true });
     }
-    if (recaptchaSite && injectedRecaptcha !== recaptchaSite) {
-        injectedRecaptcha = recaptchaSite;
-        loadScript("recaptcha-v3", {
-            async: true,
-            defer: true,
-            src: `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaSite)}`,
-        });
-    }
+}
+export function prepararRecaptcha(siteKey: string) {
+    const key = (siteKey || "").trim();
+    if (!key || typeof window === "undefined" || injectedRecaptcha === key)
+        return;
+    injectedRecaptcha = key;
+    loadScript("recaptcha-v3", {
+        async: true,
+        defer: true,
+        src: `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(key)}`,
+    });
 }
 export function trackEvent(event: string, params: Record<string, unknown> = {}) {
     if (typeof window === "undefined")

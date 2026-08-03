@@ -65,9 +65,8 @@ export default function Root() {
         const opts = {
             ga4Id: content.site.ga4Id,
             gtmId: content.site.gtmId,
-            recaptchaSite: content.site.recaptchaSite,
         };
-        if (!opts.ga4Id && !opts.gtmId && !opts.recaptchaSite)
+        if (!opts.ga4Id && !opts.gtmId)
             return;
         const start = () => initAnalytics(opts);
         const ric = (window as unknown as {
@@ -85,7 +84,7 @@ export default function Root() {
             else
                 window.clearTimeout(id);
         };
-    }, [content.site.ga4Id, content.site.gtmId, content.site.recaptchaSite]);
+    }, [content.site.ga4Id, content.site.gtmId]);
     useEffect(() => {
         trackEvent("page_view", {
             page_path: location.pathname + location.search,

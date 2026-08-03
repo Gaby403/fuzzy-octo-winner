@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useContent, submitContact } from "../store/content";
-import { getRecaptchaToken, trackEvent } from "../utils/analytics";
+import { getRecaptchaToken, prepararRecaptcha, trackEvent } from "../utils/analytics";
 import { TabiDetail } from "../components/TabiDetail";
 import { useLocale } from "../i18n/useLocale";
 const RED = "#F20C25";
@@ -99,7 +99,7 @@ export default function Contact() {
         </div>
 
         
-        <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <form onSubmit={onSubmit} onFocus={() => prepararRecaptcha(content.site.recaptchaSite)} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div>
             <label style={label} htmlFor="c-name">{t("form.nome")}</label>
             <input id="c-name" style={field} type="text" value={form.name} onChange={set("name")} required placeholder={t("form.seuNome")} autoComplete="name"/>
