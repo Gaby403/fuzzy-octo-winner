@@ -14,8 +14,8 @@ const RED_BTN = "#DA0A20";
 const WHITE = "#EFEFEF";
 const PURE_WHITE = "#FFFFFF";
 const BLACK = "#111111";
-const FONT_HEAD = '"Roboto Condensed", sans-serif';
-const FONT_BODY = '"Be Vietnam Pro", sans-serif';
+const FONT_HEAD = '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif';
+const FONT_BODY = '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif';
 const pad = "clamp(20px, 4vw, 82px)";
 interface Heading {
     id: string;

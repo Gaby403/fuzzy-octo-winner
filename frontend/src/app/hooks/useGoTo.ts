@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import { trackEvent } from "../utils/analytics";
-import { scrollToEl } from "../components/system/SmoothScroll";
+import { scrollToEl } from "../components/system/rolagem";
 export function useGoTo() {
     const navigate = useNavigate();
     return (url: string, e?: {

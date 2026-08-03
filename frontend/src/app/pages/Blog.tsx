@@ -12,8 +12,8 @@ const RED = "#F20C25";
 const RED_INK = "#FF3547";
 const WHITE = "#EFEFEF";
 const BLACK = "#111111";
-const FONT_HEAD = '"Roboto Condensed", sans-serif';
-const FONT_BODY = '"Be Vietnam Pro", sans-serif';
+const FONT_HEAD = '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif';
+const FONT_BODY = '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif';
 const EASE: [
     number,
     number,

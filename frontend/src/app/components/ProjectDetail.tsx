@@ -68,7 +68,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
     }, [docPreview]);
     useEffect(() => { scrollRef.current?.scrollTo(0, 0); setLightbox(null); setDocPreview(null); }, [proj.id]);
     const stagger = (i: number) => ({ initial: { opacity: 0, y: 28 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.75, delay: 0.18 + i * 0.08, ease: EASE_OUT_EXPO } });
-    return (<m.div ref={scrollRef} data-lenis-prevent style={{ position: "fixed", inset: 0, zIndex: 200, overflowY: "auto", backgroundColor: "#080808", fontFamily: '"Be Vietnam Pro", sans-serif' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
+    return (<m.div ref={scrollRef} data-lenis-prevent style={{ position: "fixed", inset: 0, zIndex: 200, overflowY: "auto", backgroundColor: "#080808", fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
       
       <div style={{ position: "relative", height: "clamp(380px, 55vh, 620px)", overflow: "hidden" }}>
         
@@ -78,7 +78,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
         
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)`, backgroundSize: "60px 60px" }}/>
         
-        <div aria-hidden="true" style={{ position: "absolute", right: "-2%", bottom: "-8%", fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(160px, 22vw, 340px)", lineHeight: 0.85, letterSpacing: "-0.08em", color: WHITE, opacity: 0.05, userSelect: "none" }}>
+        <div aria-hidden="true" style={{ position: "absolute", right: "-2%", bottom: "-8%", fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(160px, 22vw, 340px)", lineHeight: 0.85, letterSpacing: "-0.08em", color: WHITE, opacity: 0.05, userSelect: "none" }}>
           {proj.id}
         </div>
         
@@ -93,7 +93,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
               </div>))}
           </div>)}
         
-        <button onClick={onClose} style={{ position: "absolute", top: "clamp(18px, 3vw, 32px)", left: pad, background: "rgba(0,0,0,0.45)", border: "1px solid rgba(239,239,239,0.14)", borderRadius: 999, color: WHITE, fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", padding: "10px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: '"Be Vietnam Pro", sans-serif', backdropFilter: "blur(8px)" }}>
+        <button onClick={onClose} style={{ position: "absolute", top: "clamp(18px, 3vw, 32px)", left: pad, background: "rgba(0,0,0,0.45)", border: "1px solid rgba(239,239,239,0.14)", borderRadius: 999, color: WHITE, fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", padding: "10px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', backdropFilter: "blur(8px)" }}>
           ← VOLTAR
         </button>
         
@@ -101,7 +101,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
           <m.p {...stagger(0)} style={{ margin: "0 0 8px", fontSize: 9, fontWeight: 600, letterSpacing: "0.16em", color: `${proj.accent}` }}>
             {proj.category.toUpperCase()} — {proj.year}
           </m.p>
-          <m.h1 {...stagger(1)} style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(36px, 5.5vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", color: WHITE, margin: 0, lineHeight: 0.85 }}>
+          <m.h1 {...stagger(1)} style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(36px, 5.5vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", color: WHITE, margin: 0, lineHeight: 0.85 }}>
             {proj.name}
           </m.h1>
         </div>
@@ -121,7 +121,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
             { label: "Ano", value: proj.year },
         ].map((item) => (<div key={item.label} style={{ padding: "clamp(18px,2.5vw,28px)", backgroundColor: "#0D0D0D" }}>
               <p style={{ margin: "0 0 6px", fontSize: 8, fontWeight: 600, letterSpacing: "0.16em", color: "rgba(239,239,239,0.30)" }}>{item.label.toUpperCase()}</p>
-              <p style={{ margin: 0, fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 700, fontSize: "clamp(14px,1.4vw,20px)", letterSpacing: "-0.03em", color: WHITE }}>{item.value}</p>
+              <p style={{ margin: 0, fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 700, fontSize: "clamp(14px,1.4vw,20px)", letterSpacing: "-0.03em", color: WHITE }}>{item.value}</p>
             </div>))}
         </m.div>
 
@@ -133,7 +133,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
         </m.div>
 
         
-        {proj.url && (<m.a {...stagger(3)} href={proj.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 12, background: proj.accent, color: WHITE, textDecoration: "none", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", padding: "15px 30px", borderRadius: 999, marginBottom: "clamp(56px, 8vw, 100px)" }} whileHover={{ scale: 1.03 } as any} transition={{ duration: 0.2 }}>
+        {proj.url && (<m.a {...stagger(3)} href={proj.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 12, background: proj.accent, color: WHITE, textDecoration: "none", fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", padding: "15px 30px", borderRadius: 999, marginBottom: "clamp(56px, 8vw, 100px)" }} whileHover={{ scale: 1.03 } as any} transition={{ duration: 0.2 }}>
             {t("projeto.completo")} <span style={{ fontSize: 14 }}>↗</span>
           </m.a>)}
 
@@ -160,7 +160,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
           <p style={{ margin: "0 0 32px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{t("projeto.resultados")}</p>
           <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: "clamp(16px, 2vw, 24px)" }}>
             {detail.results.map((r, i) => (<m.div key={r.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.65, delay: i * 0.08, ease: EASE_OUT_EXPO }} style={{ padding: "clamp(20px,2.5vw,32px)", backgroundColor: "#0D0D0D", border: "1px solid rgba(239,239,239,0.07)", borderRadius: 6 }}>
-                <p style={{ margin: "0 0 8px", fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(28px, 3.5vw, 48px)", letterSpacing: "-0.06em", color: proj.accent, lineHeight: 1 }}>
+                <p style={{ margin: "0 0 8px", fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(28px, 3.5vw, 48px)", letterSpacing: "-0.06em", color: proj.accent, lineHeight: 1 }}>
                   {r.value}
                 </p>
                 <p style={{ margin: 0, fontSize: 10, fontWeight: 500, color: "rgba(239,239,239,0.40)", lineHeight: 1.4 }}>
@@ -183,7 +183,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
             <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 30% 50%, ${proj.accent}28 0%, transparent 60%)` }}/>
             <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`, backgroundSize: "50px 50px" }}/>
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(48px, 8vw, 120px)", letterSpacing: "-0.06em", color: WHITE, opacity: 0.08, userSelect: "none", textTransform: "uppercase" }}>
+              <span style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(48px, 8vw, 120px)", letterSpacing: "-0.06em", color: WHITE, opacity: 0.08, userSelect: "none", textTransform: "uppercase" }}>
                 {proj.name}
               </span>
             </div>
@@ -194,7 +194,7 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
             <p style={{ margin: "0 0 28px", fontSize: 8, fontWeight: 600, letterSpacing: "0.18em", color: "rgba(239,239,239,0.30)" }}>{t("projeto.documentos")}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "clamp(12px, 1.5vw, 16px)" }}>
               {documents.map((doc, i) => (<m.button key={i} type="button" onClick={() => setDocPreview(doc.url)} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.05, ease: EASE_OUT_EXPO }} style={{ display: "flex", alignItems: "center", gap: 14, textAlign: "left", cursor: "pointer", padding: "16px 18px", background: "#0D0D0D", border: "1px solid rgba(239,239,239,0.08)", borderRadius: 10 }} whileHover={{ borderColor: `${proj.accent}66` } as any}>
-                  <span style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 8, background: `${proj.accent}1A`, color: proj.accent, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: 12, letterSpacing: "0.04em" }}>PDF</span>
+                  <span style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 8, background: `${proj.accent}1A`, color: proj.accent, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: 12, letterSpacing: "0.04em" }}>PDF</span>
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: WHITE, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{doc.title}</span>
                     <span style={{ display: "block", fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", color: "rgba(239,239,239,0.35)", marginTop: 3 }}>VISUALIZAR ↗</span>
@@ -205,13 +205,13 @@ export default function ProjectDetail({ proj, onClose, onPrev, onNext }: {
 
         
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "clamp(24px,3vw,40px)", borderTop: "1px solid rgba(239,239,239,0.08)" }}>
-          <button onClick={onPrev} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10, padding: 0, transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = WHITE)} onMouseLeave={e => (e.currentTarget.style.color = "rgba(239,239,239,0.40)")}>
+          <button onClick={onPrev} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10, padding: 0, transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = WHITE)} onMouseLeave={e => (e.currentTarget.style.color = "rgba(239,239,239,0.40)")}>
             {t("projeto.anterior")}
           </button>
-          <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.25)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", padding: 0 }}>
+          <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.25)", fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", padding: 0 }}>
             {t("projeto.todos")}
           </button>
-          <button onClick={onNext} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10, padding: 0, transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = WHITE)} onMouseLeave={e => (e.currentTarget.style.color = "rgba(239,239,239,0.40)")}>
+          <button onClick={onNext} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(239,239,239,0.40)", fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: 10, padding: 0, transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = WHITE)} onMouseLeave={e => (e.currentTarget.style.color = "rgba(239,239,239,0.40)")}>
             {t("projeto.proximo")}
           </button>
         </div>

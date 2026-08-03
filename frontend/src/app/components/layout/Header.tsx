@@ -11,8 +11,8 @@ const RED_INK = "#FF3547";
 const WHITE = "#EFEFEF";
 const PURE_WHITE = "#FFFFFF";
 const BLACK = "#111111";
-const FONT_HEAD = '"Roboto Condensed", sans-serif';
-const FONT_BODY = '"Be Vietnam Pro", sans-serif';
+const FONT_HEAD = '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif';
+const FONT_BODY = '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif';
 export const HEADER_HEIGHT = 68;
 function isActive(url: string, pathname: string): boolean {
     if (!url || url.startsWith("#") || /^https?:\/\//.test(url))

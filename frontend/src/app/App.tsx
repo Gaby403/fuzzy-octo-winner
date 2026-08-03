@@ -245,7 +245,7 @@ export function HomeSite() {
             height: "100svh",
             minHeight: "600px",
             backgroundColor: heroBg,
-            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif',
         }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
           
           <m.div aria-hidden="true" className="absolute pointer-events-none" style={{
@@ -313,7 +313,7 @@ export function HomeSite() {
               <span>{content.hero.eyebrow}</span>
             </m.div>
 
-            <h1 className="hero-title m-0" style={{ fontFamily: '"Roboto Condensed", sans-serif', fontSize: "clamp(52px, 5.2vw, 100px)", fontWeight: 900, lineHeight: 0.88, letterSpacing: "-0.05em", textTransform: "uppercase", maxWidth: 760, display: "flex", flexDirection: "column", gap: "0.06em" }}>
+            <h1 className="hero-title m-0" style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontSize: "clamp(52px, 5.2vw, 100px)", fontWeight: 900, lineHeight: 0.88, letterSpacing: "-0.05em", textTransform: "uppercase", maxWidth: 760, display: "flex", flexDirection: "column", gap: "0.06em" }}>
               {content.hero.titleLines.map((line, i) => (<m.span key={line} className="hero-title-line block" style={{ color: titleColor }} initial={entrada({ y: "108%", opacity: 0 })} animate={{ y: "0%", opacity: 1 }} transition={{ duration: 1, delay: 0.25 + i * 0.07, ease: EASE_OUT_EXPO }}>
                   {line}
                 </m.span>))}
@@ -322,17 +322,17 @@ export function HomeSite() {
                 </m.span>)}
             </h1>
 
-            <m.p className="hero-desc" style={{ fontSize: "clamp(12px, 0.9vw, 16px)", fontWeight: 400, lineHeight: 1.65, color: descColor, width: "min(88%, 500px)", marginTop: 34, marginBottom: 0 }} initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.85, delay: 0.65, ease: "easeOut" }}>
+            <m.p className="hero-desc" style={{ fontSize: "clamp(12px, 0.9vw, 16px)", fontWeight: 400, lineHeight: 1.65, color: descColor, width: "min(88%, 500px)", marginTop: 34, marginBottom: 0 }} initial={entrada({ y: 16, opacity: 0 })} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.85, delay: 0.65, ease: "easeOut" }}>
               {content.hero.description}
             </m.p>
 
             <m.div className="flex flex-wrap items-center gap-4 mt-9 pointer-events-auto" initial={entrada({ y: 14, opacity: 0 })} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.85, delay: 0.80, ease: "easeOut" }}>
-              <m.button className="group flex items-center gap-3 rounded-full border font-semibold" style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", letterSpacing: "0.13em", padding: "13px 26px", borderColor: RED_BTN, color: RED_BTN, backgroundColor: "rgba(0,0,0,0)", cursor: "pointer" }} whileHover={{ backgroundColor: RED_BTN, color: PURE_WHITE }} transition={{ duration: 0.22 }} onClick={(e) => goTo(content.hero.ctaPrimary.url, e)}>
+              <m.button className="group flex items-center gap-3 rounded-full border font-semibold" style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9.5px", letterSpacing: "0.13em", padding: "13px 26px", borderColor: RED_BTN, color: RED_BTN, backgroundColor: "rgba(0,0,0,0)", cursor: "pointer" }} whileHover={{ backgroundColor: RED_BTN, color: PURE_WHITE }} transition={{ duration: 0.22 }} onClick={(e) => goTo(content.hero.ctaPrimary.url, e)}>
                 {content.hero.ctaPrimary.label}
                 <span className="inline-block transition-transform duration-300 group-hover:translate-x-0.5" style={{ fontSize: 13 }}>→</span>
               </m.button>
 
-              <m.button className="hero-cta-secondary" style={{ fontSize: "9.5px", letterSpacing: "0.13em", color: ctaColorFg, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif', fontWeight: 600, opacity: 1, textDecorationLine: "underline", textDecorationColor: "rgba(0,0,0,0)", textUnderlineOffset: 4 }} whileHover={{ textDecorationColor: "currentColor" } as any} transition={{ duration: 0.2 }} onClick={(e) => goTo(content.hero.ctaSecondary.url, e)}>
+              <m.button className="hero-cta-secondary" style={{ fontSize: "9.5px", letterSpacing: "0.13em", color: ctaColorFg, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontWeight: 600, opacity: 1, textDecorationLine: "underline", textDecorationColor: "rgba(0,0,0,0)", textUnderlineOffset: 4 }} whileHover={{ textDecorationColor: "currentColor" } as any} transition={{ duration: 0.2 }} onClick={(e) => goTo(content.hero.ctaSecondary.url, e)}>
                 {content.hero.ctaSecondary.label}
               </m.button>
             </m.div>
@@ -414,11 +414,11 @@ function Stat({ numeric, suffix, label, delay }: {
       <div style={{ position: "relative", height: "1px", backgroundColor: "rgba(239,239,239,0.08)", marginBottom: 20 }}>
         <m.div style={{ position: "absolute", inset: 0, backgroundColor: RED, transformOrigin: "left" }} initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}/>
       </div>
-      <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(36px, 4.5vw, 72px)", lineHeight: 0.85, letterSpacing: "-0.04em", color: WHITE, display: "flex", alignItems: "baseline", gap: "2px" }}>
+      <span style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(36px, 4.5vw, 72px)", lineHeight: 0.85, letterSpacing: "-0.04em", color: WHITE, display: "flex", alignItems: "baseline", gap: "2px" }}>
         <m.span>{rounded}</m.span>
         <span>{suffix}</span>
       </span>
-      <span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "10px", fontWeight: 600, letterSpacing: "0.14em", color: "rgba(239,239,239,0.40)" }}>
+      <span style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "10px", fontWeight: 600, letterSpacing: "0.14em", color: "rgba(239,239,239,0.40)" }}>
         {label}
       </span>
     </m.div>);
@@ -454,14 +454,14 @@ function Pillar({ index, title, body, delay, icon, to, onNavigate }: {
         {icon && (<m.span aria-hidden="true" className="hidden sm:flex" style={{ flexShrink: 0, alignItems: "center", justifyContent: "center" }} animate={{ color: active ? RED : "rgba(239,239,239,0.4)" }} transition={{ duration: 0.35 }}>
             <ProcessIcon name={icon} size={30}/>
           </m.span>)}
-        <m.span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(26px, 3vw, 46px)", lineHeight: 1, letterSpacing: "-0.05em", flexShrink: 0, width: "clamp(40px, 4vw, 70px)" }} animate={{ color: active ? RED : "rgba(239,239,239,0.18)", scale: active ? 1.06 : 1 }} transition={{ duration: 0.35 }}>
+        <m.span style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(26px, 3vw, 46px)", lineHeight: 1, letterSpacing: "-0.05em", flexShrink: 0, width: "clamp(40px, 4vw, 70px)" }} animate={{ color: active ? RED : "rgba(239,239,239,0.18)", scale: active ? 1.06 : 1 }} transition={{ duration: 0.35 }}>
           {index}
         </m.span>
         <div className="flex flex-col gap-1.5 flex-1" style={{ minWidth: 0 }}>
-          <m.h3 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 2vw, 32px)", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.02, margin: 0 }} animate={{ x: active ? 6 : 0, color: active ? WHITE : "rgba(239,239,239,0.82)" }} transition={{ duration: 0.35, ease: EASE }}>
+          <m.h3 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 2vw, 32px)", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.02, margin: 0 }} animate={{ x: active ? 6 : 0, color: active ? WHITE : "rgba(239,239,239,0.82)" }} transition={{ duration: 0.35, ease: EASE }}>
             {title}
           </m.h3>
-          <m.p style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(11px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.65, margin: 0, maxWidth: 560 }} animate={{ x: active ? 6 : 0, color: active ? "rgba(239,239,239,0.72)" : "rgba(239,239,239,0.42)" }} transition={{ duration: 0.35, ease: EASE }}>
+          <m.p style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "clamp(11px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.65, margin: 0, maxWidth: 560 }} animate={{ x: active ? 6 : 0, color: active ? "rgba(239,239,239,0.72)" : "rgba(239,239,239,0.42)" }} transition={{ duration: 0.35, ease: EASE }}>
             {body}
           </m.p>
         </div>
@@ -484,7 +484,7 @@ function AboutSection() {
     const STATS = content.about.stats;
     const STEPS = content.process;
     const pad = "clamp(20px, 4vw, 82px)";
-    return (<section id="sobre" ref={sectionRef} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
+    return (<section id="sobre" ref={sectionRef} style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', position: "relative", overflow: "hidden" }}>
 
       
       <m.div aria-hidden="true" className="absolute pointer-events-none" style={{ opacity: kanjiOpacity, right: "-5%", top: "6%", y: kanjiY, rotate: kanjiRotate, width: "clamp(260px, 38vw, 680px)" }}>
@@ -509,7 +509,7 @@ function AboutSection() {
         
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(32px, 6vw, 100px)", alignItems: "start" }}>
 
-          <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(42px, 5.4vw, 92px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, display: "flex", flexDirection: "column", gap: "0.06em" }}>
+          <h2 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(42px, 5.4vw, 92px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, display: "flex", flexDirection: "column", gap: "0.06em" }}>
             <HeadlineLine delay={0.05}>{t("home.sobre1")}</HeadlineLine>
             <HeadlineLine delay={0.12}>{t("home.sobre2")}</HeadlineLine>
             <HeadlineLine delay={0.19} color={RED}>{t("home.sobre3")}</HeadlineLine>
@@ -520,7 +520,7 @@ function AboutSection() {
             <TextReveal text={content.about.paragraph1} delay={0.1} style={{ fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.62)", margin: 0 }}/>
             <TextReveal text={content.about.paragraph2} delay={0.16} style={{ fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.62)", margin: 0 }}/>
             <Reveal delay={0.24}>
-              <m.button className="flex items-center gap-3 self-start" style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", sans-serif' }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(sec.ctaUrl, e)}>
+              <m.button className="flex items-center gap-3 self-start" style={{ fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif' }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(sec.ctaUrl, e)}>
                 {sec.ctaLabel}
                 <span style={{ fontSize: 13 }}>→</span>
               </m.button>
@@ -579,13 +579,13 @@ function ServiceCard({ num, title, body, delay, to, onNavigate }: {
     return (<m.a ref={ref} href={to || undefined} onClick={to && onNavigate ? (e) => onNavigate(to, e) : undefined} aria-label={to ? `${t("servico.ver")}: ${title}` : undefined} style={{ display: "block", textDecoration: "none", borderTop: "1px solid rgba(239,239,239,0.10)", paddingTop: "clamp(24px,3vw,36px)", paddingBottom: "clamp(24px,3vw,36px)", position: "relative", overflow: "hidden", cursor: to ? "pointer" : "default" }} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}>
       
       <m.div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", backgroundColor: RED, transformOrigin: "left" }} initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}/>
-      <span style={{ display: "block", fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED_INK, marginBottom: 16 }}>{num}</span>
+      <span style={{ display: "block", fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.16em", color: RED_INK, marginBottom: 16 }}>{num}</span>
       <div style={{ overflow: "hidden", marginBottom: 14 }}>
-        <m.h3 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 1.7vw, 28px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, lineHeight: 0.95, margin: 0 }} initial={{ y: "105%" }} animate={inView ? { y: "0%" } : {}} transition={{ duration: 0.75, delay: delay + 0.12, ease: [0.16, 1, 0.3, 1] }}>
+        <m.h3 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 1.7vw, 28px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, lineHeight: 0.95, margin: 0 }} initial={{ y: "105%" }} animate={inView ? { y: "0%" } : {}} transition={{ duration: 0.75, delay: delay + 0.12, ease: [0.16, 1, 0.3, 1] }}>
           {title}
         </m.h3>
       </div>
-      <m.p style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.65, color: "rgba(239,239,239,0.45)", margin: 0 }} initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.7, delay: delay + 0.22 }}>
+      <m.p style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.65, color: "rgba(239,239,239,0.45)", margin: 0 }} initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.7, delay: delay + 0.22 }}>
         {body}
       </m.p>
       <m.span style={{ display: "block", marginTop: 20, fontSize: 11, color: "rgba(239,239,239,0.20)" }} initial={{ opacity: 0, x: -6 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.5, delay: delay + 0.30 }}>
@@ -599,11 +599,11 @@ function ServicesSection() {
     const { t, rota } = useLocale();
     const sec = content.sections.services;
     const pad = "clamp(20px, 4vw, 82px)";
-    return (<section id="servicos" style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative", overflow: "hidden" }}>
+    return (<section id="servicos" style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', position: "relative", overflow: "hidden" }}>
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }}/>
 
       
-      <div aria-hidden="true" style={{ position: "absolute", right: "-2%", top: "4%", fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(120px, 22vw, 400px)", lineHeight: 1, letterSpacing: "-0.08em", color: WHITE, opacity: 0.025, userSelect: "none", pointerEvents: "none" }}>
+      <div aria-hidden="true" style={{ position: "absolute", right: "-2%", top: "4%", fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(120px, 22vw, 400px)", lineHeight: 1, letterSpacing: "-0.08em", color: WHITE, opacity: 0.025, userSelect: "none", pointerEvents: "none" }}>
         06
       </div>
 
@@ -616,12 +616,12 @@ function ServicesSection() {
         </Reveal>
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-0" style={{ marginBottom: "clamp(40px, 6vw, 80px)" }}>
-          <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
+          <h2 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
             <HeadlineLine delay={0.05}>{t("servicos.titulo")}</HeadlineLine>
             <HeadlineLine delay={0.12}>{t("servicos.destaque")}</HeadlineLine>
           </h2>
           <Reveal delay={0.18}>
-            <m.button style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", paddingBottom: 8 }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(sec.ctaUrl, e)}>
+            <m.button style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", paddingBottom: 8 }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(sec.ctaUrl, e)}>
               {sec.ctaLabel} <span style={{ fontSize: 13 }}>→</span>
             </m.button>
           </Reveal>
@@ -733,7 +733,7 @@ function ProjectCard({ proj, index, onClick }: {
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`, backgroundSize: "40px 40px" }}/>
 
       
-      <div style={{ position: "absolute", top: "clamp(20px,3vw,32px)", right: "clamp(20px,3vw,32px)", fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(48px,6vw,90px)", lineHeight: 1, letterSpacing: "-0.08em", color: WHITE, opacity: 0.06, userSelect: "none" }}>
+      <div style={{ position: "absolute", top: "clamp(20px,3vw,32px)", right: "clamp(20px,3vw,32px)", fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(48px,6vw,90px)", lineHeight: 1, letterSpacing: "-0.08em", color: WHITE, opacity: 0.06, userSelect: "none" }}>
         {proj.id}
       </div>
 
@@ -743,15 +743,15 @@ function ProjectCard({ proj, index, onClick }: {
       
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "clamp(20px,3vw,32px)", background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)" }}>
         <div style={{ overflow: "visible", paddingTop: 6 }}>
-          <m.h3 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 2vw, 32px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, margin: 0, lineHeight: 1.08, paddingBottom: 2 }} animate={{ y: hovered ? -4 : 0 }} transition={{ duration: 0.3 }}>
+          <m.h3 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(18px, 2vw, 32px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: WHITE, margin: 0, lineHeight: 1.08, paddingBottom: 2 }} animate={{ y: hovered ? -4 : 0 }} transition={{ duration: 0.3 }}>
             {proj.name}
           </m.h3>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.14em", color: "rgba(239,239,239,0.50)" }}>
+          <span style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.14em", color: "rgba(239,239,239,0.50)" }}>
             {proj.category}
           </span>
-          <span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.30)" }}>
+          <span style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.30)" }}>
             {proj.year}
           </span>
         </div>
@@ -805,7 +805,7 @@ function ProjectsSection() {
     <AnimatePresence>
       {selectedProj && (<Suspense fallback={null}><ProjectDetail key={selectedProj.id} proj={selectedProj} onClose={handleClose} onPrev={handlePrev} onNext={handleNext}/></Suspense>)}
     </AnimatePresence>
-    <section id="trabalhos" style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative" }}>
+    <section id="trabalhos" style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', position: "relative" }}>
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }}/>
 
       <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad} 0`, position: "relative", zIndex: 1 }}>
@@ -817,14 +817,14 @@ function ProjectsSection() {
         </Reveal>
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-0" style={{ marginBottom: "clamp(32px, 5vw, 60px)" }}>
-          <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
+          <h2 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
             <HeadlineLine delay={0.05}>{t("home.projetos1")}</HeadlineLine>
             <HeadlineLine delay={0.12} color={RED}>{t("home.projetos2")}</HeadlineLine>
           </h2>
           <Reveal delay={0.18}>
             <div className="flex items-center gap-6 pb-2">
               <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)" }}>{sec.note}</span>
-              <m.button style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(content.projectsCta.url, e)}>
+              <m.button style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(content.projectsCta.url, e)}>
                 {content.projectsCta.label} <span style={{ fontSize: 13 }}>→</span>
               </m.button>
             </div>
@@ -844,12 +844,12 @@ function ProjectsSection() {
         
         <Reveal delay={0.3}>
           <m.div className="flex flex-col items-start justify-between" style={{ border: `1px solid rgba(239,239,239,0.10)`, borderRadius: 4, padding: "clamp(28px, 3vw, 40px)", aspectRatio: "1/1", cursor: "pointer", position: "relative", overflow: "hidden" }} whileHover={{ borderColor: RED }} transition={{ duration: 0.25 }} onClick={(e) => goTo(content.projectsCta.url, e)}>
-            <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(32px, 4vw, 60px)", letterSpacing: "-0.06em", color: "rgba(239,239,239,0.08)", lineHeight: 1 }}>120+</span>
+            <span style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(32px, 4vw, 60px)", letterSpacing: "-0.06em", color: "rgba(239,239,239,0.08)", lineHeight: 1 }}>120+</span>
             <div>
-              <p style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.6, color: "rgba(239,239,239,0.55)", margin: "0 0 20px" }}>
+              <p style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "clamp(13px, 1vw, 17px)", fontWeight: 400, lineHeight: 1.6, color: "rgba(239,239,239,0.55)", margin: "0 0 20px" }}>
                 {sec.cardText}
               </p>
-              <m.button style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(content.projectsCta.url, e)}>
+              <m.button style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(content.projectsCta.url, e)}>
                 {content.projectsCta.label} <span style={{ fontSize: 13 }}>→</span>
               </m.button>
             </div>
@@ -887,7 +887,7 @@ function BlogCard({ post, index }: {
             <time dateTime={post.dateISO}>{post.date}</time>
             {post.readingTime > 0 && <><span aria-hidden="true">·</span><span>{post.readingTime} min</span></>}
           </div>
-          <m.h3 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(19px, 1.7vw, 27px)", letterSpacing: "-0.035em", textTransform: "uppercase", lineHeight: 1.04, margin: "0 0 10px" }} animate={{ color: hovered ? RED_INK : WHITE }} transition={{ duration: 0.25 }}>
+          <m.h3 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(19px, 1.7vw, 27px)", letterSpacing: "-0.035em", textTransform: "uppercase", lineHeight: 1.04, margin: "0 0 10px" }} animate={{ color: hovered ? RED_INK : WHITE }} transition={{ duration: 0.25 }}>
             {post.title}
           </m.h3>
           <p style={{ fontSize: "clamp(12px, 0.92vw, 14.5px)", lineHeight: 1.65, color: "rgba(239,239,239,0.50)", margin: 0 }}>
@@ -911,7 +911,7 @@ function BlogSection() {
     }, [locale]);
     if (!posts.length)
         return null;
-    return (<section id="blog" style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative" }}>
+    return (<section id="blog" style={{ backgroundColor: BLACK, fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', position: "relative" }}>
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }}/>
 
       <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad} clamp(64px, 10vw, 120px)` }}>
@@ -923,14 +923,14 @@ function BlogSection() {
         </Reveal>
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-0" style={{ marginBottom: "clamp(32px, 5vw, 60px)" }}>
-          <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
+          <h2 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(40px, 5.4vw, 88px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.85 }}>
             <HeadlineLine delay={0.05}>{sec.title}</HeadlineLine>
             <HeadlineLine delay={0.12} color={RED}>{sec.highlight}</HeadlineLine>
           </h2>
           <Reveal delay={0.18}>
             <div className="flex items-center gap-6 pb-2">
               <span style={{ fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", color: "rgba(239,239,239,0.25)", maxWidth: 300 }}>{sec.note}</span>
-              <Link to={rota("blog")} style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, textDecoration: "none", display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap" }}>
+              <Link to={rota("blog")} style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, textDecoration: "none", display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap" }}>
                 {sec.ctaLabel} <span aria-hidden="true" style={{ fontSize: 13 }}>→</span>
               </Link>
             </div>
@@ -982,7 +982,7 @@ function AllProjects() {
         const idx = projects.findIndex(p => p.id === selectedProj.id);
         openProject(projects[(idx + 1) % projects.length], true);
     }, [selectedProj, projects, openProject]);
-    return (<div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+    return (<div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif' }}>
       <AnimatePresence>
         {selectedProj && (<Suspense fallback={null}><ProjectDetail key={selectedProj.id} proj={selectedProj} onClose={handleClose} onPrev={handlePrev} onNext={handleNext}/></Suspense>)}
       </AnimatePresence>
@@ -994,7 +994,7 @@ function AllProjects() {
             <span className="block rounded-full flex-shrink-0" style={{ width: 7, height: 7, backgroundColor: RED }}/>
             <span>{content.sections.projects.eyebrow}</span>
           </div>
-          <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 7vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.92 }}>
+          <h1 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(44px, 7vw, 96px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: 0, lineHeight: 0.92 }}>
             {t("projetos.titulo")} <span style={{ color: RED }}>{t("projetos.destaque")}</span>
           </h1>
         </div>
@@ -1029,20 +1029,20 @@ function FaqItem({ question, answer, index, isOpen, onToggle }: {
 
       <button onClick={onToggle} style={{ width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "clamp(22px,3vw,32px) 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, textAlign: "left" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 16, flex: 1 }}>
-          <span style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.14em", color: isOpen ? RED : "rgba(239,239,239,0.30)", flexShrink: 0, paddingTop: 2 }}>
+          <span style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9px", fontWeight: 600, letterSpacing: "0.14em", color: isOpen ? RED : "rgba(239,239,239,0.30)", flexShrink: 0, paddingTop: 2 }}>
             {String(index + 1).padStart(2, "0")}
           </span>
-          <span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 700, fontSize: "clamp(15px, 1.5vw, 22px)", letterSpacing: "-0.03em", textTransform: "uppercase", color: isOpen ? WHITE : "rgba(239,239,239,0.70)", lineHeight: 1.1, transition: "color 0.25s" }}>
+          <span style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 700, fontSize: "clamp(15px, 1.5vw, 22px)", letterSpacing: "-0.03em", textTransform: "uppercase", color: isOpen ? WHITE : "rgba(239,239,239,0.70)", lineHeight: 1.1, transition: "color 0.25s" }}>
             {question}
           </span>
         </div>
-        <m.span style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: 18, color: isOpen ? RED : "rgba(239,239,239,0.30)", flexShrink: 0, lineHeight: 1 }} animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+        <m.span style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: 18, color: isOpen ? RED : "rgba(239,239,239,0.30)", flexShrink: 0, lineHeight: 1 }} animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
           +
         </m.span>
       </button>
 
       <m.div style={{ overflow: "hidden" }} initial={{ height: 0 }} animate={{ height: isOpen ? "auto" : 0 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
-        <p style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "clamp(13px, 0.95vw, 16px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.52)", paddingBottom: "clamp(22px,3vw,32px)", paddingLeft: "clamp(0px, 2vw, 36px)", margin: 0, maxWidth: 720 }}>
+        <p style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "clamp(13px, 0.95vw, 16px)", fontWeight: 400, lineHeight: 1.72, color: "rgba(239,239,239,0.52)", paddingBottom: "clamp(22px,3vw,32px)", paddingLeft: "clamp(0px, 2vw, 36px)", margin: 0, maxWidth: 720 }}>
           {answer}
         </p>
       </m.div>
@@ -1055,7 +1055,7 @@ function FaqSection() {
     const sec = content.sections.faq;
     const [openIndex, setOpenIndex] = useState<number | null>(null);
     const pad = "clamp(20px, 4vw, 82px)";
-    return (<section style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", sans-serif', position: "relative" }}>
+    return (<section style={{ backgroundColor: "#0D0D0D", fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', position: "relative" }}>
       <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(239,239,239,0.06)" }}/>
 
       <div style={{ padding: `clamp(56px, 9vw, 120px) ${pad}`, maxWidth: 1400, margin: "0 auto" }}>
@@ -1071,7 +1071,7 @@ function FaqSection() {
             </Reveal>
 
             
-            <h2 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(38px, 4.5vw, 64px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 24px", lineHeight: 0.85 }}>
+            <h2 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(38px, 4.5vw, 64px)", letterSpacing: "-0.05em", textTransform: "uppercase", margin: "0 0 24px", lineHeight: 0.85 }}>
               <HeadlineLine delay={0.05}>{t("faq.titulo")}</HeadlineLine>
               
               <HeadlineLine delay={0.12}>{t("faq.destaque")}<span style={{ color: RED }}>.</span></HeadlineLine>
@@ -1081,7 +1081,7 @@ function FaqSection() {
               <p style={{ fontSize: "clamp(12px, 0.85vw, 14px)", fontWeight: 400, lineHeight: 1.7, color: "rgba(239,239,239,0.42)", marginBottom: 28 }}>
                 {sec.note}
               </p>
-              <m.button style={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(sec.ctaUrl, e)}>
+              <m.button style={{ fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif', fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.13em", color: RED_INK, background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }} whileHover={{ gap: "18px" } as any} transition={{ duration: 0.22 }} onClick={(e) => goTo(sec.ctaUrl, e)}>
                 {sec.ctaLabel} <span style={{ fontSize: 13 }}>→</span>
               </m.button>
             </Reveal>

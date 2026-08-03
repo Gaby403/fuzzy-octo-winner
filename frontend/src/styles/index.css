@@ -12,7 +12,7 @@
   padding: 10px 16px;
   background: #F20C25;
   color: #fff;
-  font-family: "Be Vietnam Pro", sans-serif;
+  font-family: "Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;

@@ -31,13 +31,13 @@ export default function Page() {
             alive = false;
         };
     }, [slug, content.site.title, locale]);
-    return (<div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+    return (<div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: '"Be Vietnam Pro", "Be Vietnam Pro Fallback", sans-serif' }}>
 
       <main id="conteudo" style={{ maxWidth: 760, margin: "0 auto", padding: "clamp(48px,8vw,96px) clamp(20px,5vw,32px) 120px" }}>
         {state === "loading" && (<p style={{ color: "rgba(239,239,239,0.4)", fontSize: 13, letterSpacing: "0.1em" }}>{t("geral.carregando").toUpperCase()}</p>)}
 
         {state === "missing" && (<div>
-            <h1 style={{ fontFamily: '"Roboto Condensed", sans-serif', fontWeight: 900, fontSize: "clamp(36px,7vw,64px)", letterSpacing: "-0.04em", textTransform: "uppercase", margin: "0 0 16px" }}>
+            <h1 style={{ fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif', fontWeight: 900, fontSize: "clamp(36px,7vw,64px)", letterSpacing: "-0.04em", textTransform: "uppercase", margin: "0 0 16px" }}>
               {t("erro.404")}
             </h1>
             <p style={{ color: "rgba(239,239,239,0.55)", lineHeight: 1.7 }}>
@@ -47,7 +47,7 @@ export default function Page() {
 
         {state === "ready" && page && (<article>
             <h1 style={{
-                fontFamily: '"Roboto Condensed", sans-serif',
+                fontFamily: '"Roboto Condensed", "Roboto Condensed Fallback", sans-serif',
                 fontWeight: 900,
                 fontSize: "clamp(36px,7vw,64px)",
                 letterSpacing: "-0.04em",

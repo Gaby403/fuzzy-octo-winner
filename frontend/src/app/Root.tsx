@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { Outlet, useLocation } from "react-router";
 import { ContentContext, fetchContent, DEFAULT_CONTENT, SiteContent } from "./store/content";
 import { UIProvider } from "./contexts/UIContext";
 import { Header, HEADER_HEIGHT } from "./components/layout/Header";
 import { Footer } from "./components/layout/Footer";
-import { SmoothScroll } from "./components/system/SmoothScroll";
-import { CustomCursor } from "./components/system/CustomCursor";
 import { PageTransition } from "./components/system/PageTransition";
 import { DeferUntilIdle } from "./components/system/DeferUntilIdle";
+const SmoothScroll = lazy(() => import("./components/system/SmoothScroll").then(m => ({ default: m.SmoothScroll })));
+const CustomCursor = lazy(() => import("./components/system/CustomCursor").then(m => ({ default: m.CustomCursor })));
 import { initAnalytics, trackEvent } from "./utils/analytics";
 import { localeFromPath, switchLocalePath, path as rotaDe, HTML_LANG, siteOrigin } from "./i18n/locale";
 import { traduzir } from "./i18n/dicionario";
@@ -200,8 +200,10 @@ export default function Root() {
       <UIProvider>
         
         <DeferUntilIdle>
-          <SmoothScroll />
-          <CustomCursor />
+          <Suspense fallback={null}>
+            <SmoothScroll />
+            <CustomCursor />
+          </Suspense>
           <PageTransition />
         </DeferUntilIdle>
         <a href="#conteudo" className="skip-link">{traduzir(locale, "nav.pular")}</a>

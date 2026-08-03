@@ -18,7 +18,7 @@
 .wp-page-content h4,
 .wp-page-content h5,
 .wp-page-content h6 {
-  font-family: "Roboto Condensed", sans-serif;
+  font-family: "Roboto Condensed", "Roboto Condensed Fallback", sans-serif;
   font-weight: 900;
   letter-spacing: -0.03em;
   text-transform: uppercase;
@@ -102,7 +102,7 @@
   text-align: center;
 }
 .wp-page-content .wp-block-pullquote p {
-  font-family: "Roboto Condensed", sans-serif;
+  font-family: "Roboto Condensed", "Roboto Condensed Fallback", sans-serif;
   font-size: clamp(20px, 2.2vw, 30px);
   font-weight: 900;
   line-height: 1.18;
@@ -271,7 +271,7 @@
 
 .wp-page-content .has-drop-cap:first-letter {
   float: left;
-  font-family: "Roboto Condensed", sans-serif;
+  font-family: "Roboto Condensed", "Roboto Condensed Fallback", sans-serif;
   font-size: 3.4em;
   font-weight: 900;
   line-height: 0.82;
