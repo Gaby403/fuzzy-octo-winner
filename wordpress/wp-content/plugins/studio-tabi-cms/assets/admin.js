@@ -301,3 +301,40 @@
 		if (cabeca && cabeca.getAttribute('aria-expanded') === 'false') { cabeca.click(); }
 	});
 })();
+
+(function () {
+	var cfg = window.stcmsCampanha;
+	if (!cfg || !cfg.ativo) { return; }
+	var barra = document.getElementById('stcms-barra');
+	var texto = document.getElementById('stcms-progresso');
+
+	function pintar(p) {
+		var pct = p.total ? Math.round((p.enviados + p.falhas) * 100 / p.total) : 0;
+		if (barra) { barra.style.width = pct + '%'; }
+		if (texto) {
+			texto.textContent = p.enviados + ' de ' + p.total + ' enviados'
+				+ (p.falhas ? ', ' + p.falhas + ' falharam' : '')
+				+ (p.estado === 'concluido' ? '. Concluído.' : '.');
+		}
+	}
+
+	function lote() {
+		var corpo = new FormData();
+		corpo.append('action', 'stcms_campanha_lote');
+		corpo.append('nonce', cfg.nonce);
+		fetch(cfg.ajax, { method: 'POST', body: corpo, credentials: 'same-origin' })
+			.then(function (r) { return r.json(); })
+			.then(function (r) {
+				if (!r || !r.success) { return; }
+				pintar(r.data);
+				if (r.data.estado === 'enviando' && r.data.restam > 0) {
+					setTimeout(lote, 900);
+				} else {
+					setTimeout(function () { window.location.reload(); }, 1200);
+				}
+			})
+			.catch(function () {});
+	}
+
+	lote();
+})();

@@ -3,7 +3,7 @@
  * Plugin Name:       Studio Tabi CMS (Headless)
  * Plugin URI:        https://studiotabi.com.br
  * Description:        CMS nativo headless para o site Studio Tabi. Adiciona Serviços, Projetos, FAQ, páginas e blocos de conteúdo (Hero, Sobre, Rodapé, favicon) editáveis no WordPress e expostos via API REST para o front-end React.
- * Version:           1.27.0
+ * Version:           1.28.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Studio Tabi
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'STCMS_VERSION', '1.27.0' );
+define( 'STCMS_VERSION', '1.28.0' );
 define( 'STCMS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'STCMS_URL', plugin_dir_url( __FILE__ ) );
 
@@ -25,6 +25,7 @@ require_once STCMS_DIR . 'includes/class-cpt.php';
 require_once STCMS_DIR . 'includes/class-meta.php';
 require_once STCMS_DIR . 'includes/class-options.php';
 require_once STCMS_DIR . 'includes/class-emails.php';
+require_once STCMS_DIR . 'includes/class-campanhas.php';
 require_once STCMS_DIR . 'includes/class-rest.php';
 require_once STCMS_DIR . 'includes/class-seed.php';
 require_once STCMS_DIR . 'includes/class-traducao.php';
@@ -35,6 +36,7 @@ function stcms_boot() {
 	STCMS_Options::init();
 	STCMS_Rest::init();
 	STCMS_Emails::init();
+	STCMS_Campanhas::init();
 	STCMS_Traducao::init();
 }
 add_action( 'plugins_loaded', 'stcms_boot' );

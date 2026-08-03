@@ -83,6 +83,26 @@ require_once "$P/includes/class-traducao.php";
 require_once "$P/includes/class-emails.php";
 require_once "$P/includes/class-rest.php";
 
+function add_submenu_page( ...$a ) { return true; }
+function current_user_can( ...$a ) { return true; }
+function check_admin_referer( ...$a ) { return true; }
+function check_ajax_referer( ...$a ) { return true; }
+class RespondeuJson extends Exception {}
+function wp_send_json_success( $d ) { $GLOBALS['__json'] = $d; throw new RespondeuJson(); }
+function wp_send_json_error( $d, $s = 400 ) { $GLOBALS['__json'] = $d; throw new RespondeuJson(); }
+function lote() { try { STCMS_Campanhas::ajax_lote(); } catch ( RespondeuJson $e ) {} return $GLOBALS['__json']; }
+function admin_url( $p = '' ) { return '/wp-admin/' . $p; }
+function wp_create_nonce( $a ) { return 'nonce'; }
+function wp_json_encode( $v ) { return json_encode( $v ); }
+function wp_nonce_field( ...$a ) { return true; }
+function disabled( ...$a ) { return ''; }
+function selected( $a, $b, $e = true ) { return (string) $a === (string) $b ? ' selected' : ''; }
+function esc_textarea( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES, 'UTF-8' ); }
+class Redirecionou extends Exception {}
+function wp_safe_redirect( $u ) { throw new Redirecionou( $u ); }
+function wp_die( $m ) { throw new Exception( $m ); }
+require_once "$P/includes/class-campanhas.php";
+
 $ok = 0; $ko = 0;
 function ok( $r, $c, $v = '' ) { global $ok, $ko; $c ? $ok++ : $ko++; echo '  ' . ( $c ? '✓' : '✗' ) . "  $r" . ( '' !== $v ? ": $v" : '' ) . "\n"; }
 function limpar() { $GLOBALS['__enviados'] = array(); }
@@ -181,6 +201,83 @@ STCMS_Rest::submit_contact( new WP_REST_Request( array(
 $v = ultimo_para( 'xss@exemplo.com' );
 ok( 'nome com script não vira tag', false === strpos( (string) ( $v['corpo'] ?? '' ), '<script>' ), 'vazou script' );
 ok( 'mensagem com html não vira tag', false === strpos( (string) ( $v['corpo'] ?? '' ), '<img src=x' ), 'vazou img' );
+
+echo "\n== Campanha: envio em lotes ==\n";
+limpar();
+$GLOBALS['__o']['stcms_newsletter'] = array();
+foreach ( range( 1, 32 ) as $i ) {
+	STCMS_Emails::inscrever( "pessoa{$i}@exemplo.com", $i % 4 === 0 ? 'en' : 'pt' );
+}
+limpar();
+$GLOBALS['__o']['stcms_campanha'] = array(
+	'assunto' => 'Novidades do estúdio',
+	'titulo'  => 'O que andamos construindo',
+	'texto'   => "Primeiro parágrafo.\n\nSegundo parágrafo.",
+	'cta_label' => 'Ler no blog',
+	'cta_url'   => 'https://studiotabi.com.br/blog',
+	'idioma'  => 'todos',
+);
+try { STCMS_Campanhas::iniciar(); } catch ( Redirecionou $e ) {}
+$c = STCMS_Campanhas::campanha();
+ok( 'fila montada com todos', 32 === $c['total'], (string) $c['total'] );
+ok( 'estado é enviando', 'enviando' === $c['estado'], $c['estado'] );
+
+$p1 = lote();
+ok( 'primeiro lote envia 15', 15 === $p1['enviados'], (string) $p1['enviados'] );
+ok( 'não envia a lista toda de uma vez', $p1['restam'] > 0, (string) $p1['restam'] );
+ok( 'contou os e-mails de verdade', 15 === count( $GLOBALS['__enviados'] ), (string) count( $GLOBALS['__enviados'] ) );
+
+lote();
+$fim = lote();
+ok( 'termina a fila', 32 === $fim['enviados'], (string) $fim['enviados'] );
+ok( 'estado vira concluido', 'concluido' === $fim['estado'], $fim['estado'] );
+ok( 'ninguém recebeu duas vezes', 32 === count( array_unique( array_column( $GLOBALS['__enviados'], 'para' ) ) ), (string) count( $GLOBALS['__enviados'] ) );
+
+echo "\n== Cada um recebe o seu link de descadastro ==\n";
+$lista = STCMS_Emails::lista();
+$primeiro = null;
+foreach ( $GLOBALS['__enviados'] as $e ) {
+	if ( $e['para'] === $lista[0]['email'] ) { $primeiro = $e; break; }
+}
+ok( 'e-mail tem o token do próprio inscrito', null !== $primeiro && false !== strpos( $primeiro['corpo'], $lista[0]['token'] ) );
+ok( 'não carrega o token de outro', false === strpos( (string) ( $primeiro['corpo'] ?? '' ), $lista[1]['token'] ) );
+ok( 'tem o botão configurado', false !== strpos( (string) ( $primeiro['corpo'] ?? '' ), 'Ler no blog' ) );
+
+echo "\n== Idioma por destinatário ==\n";
+$em_ingles = null;
+foreach ( $lista as $i ) { if ( 'en' === $i['lang'] ) { $em_ingles = $i['email']; break; } }
+$e = null;
+foreach ( $GLOBALS['__enviados'] as $x ) { if ( $x['para'] === $em_ingles ) { $e = $x; break; } }
+ok( 'quem assinou em inglês recebe em inglês', null !== $e && false !== strpos( $e['corpo'], 'lang="en"' ) );
+ok( 'e o rodapé em inglês', null !== $e && false !== strpos( $e['corpo'], 'Unsubscribe' ) );
+
+echo "\n== Pausar e retomar ==\n";
+limpar();
+$GLOBALS['__o']['stcms_campanha']['estado'] = 'enviando';
+$GLOBALS['__o']['stcms_campanha']['fila']   = array_slice( $lista, 0, 20 );
+$GLOBALS['__o']['stcms_campanha']['total']  = 20;
+$GLOBALS['__o']['stcms_campanha']['enviados'] = 0;
+lote();
+ok( 'enviou o primeiro lote', 15 === count( $GLOBALS['__enviados'] ), (string) count( $GLOBALS['__enviados'] ) );
+try { STCMS_Campanhas::parar(); } catch ( Redirecionou $e ) {}
+limpar();
+lote();
+ok( 'pausado não envia mais nada', 0 === count( $GLOBALS['__enviados'] ), (string) count( $GLOBALS['__enviados'] ) );
+$c = STCMS_Campanhas::campanha();
+ok( 'a fila que sobrou é preservada', 5 === count( $c['fila'] ), (string) count( $c['fila'] ) );
+
+echo "\n== Segmento por idioma ==\n";
+$GLOBALS['__o']['stcms_campanha']['idioma'] = 'en';
+$GLOBALS['__o']['stcms_campanha']['estado'] = 'rascunho';
+try { STCMS_Campanhas::iniciar(); } catch ( Redirecionou $e ) {}
+$c = STCMS_Campanhas::campanha();
+ok( 'só os inscritos em inglês entram', 8 === $c['total'], (string) $c['total'] );
+
+echo "\n== Sem assunto não dispara ==\n";
+$GLOBALS['__o']['stcms_campanha'] = array( 'assunto' => '', 'titulo' => '', 'estado' => 'rascunho' );
+$destino = '';
+try { STCMS_Campanhas::iniciar(); } catch ( Redirecionou $e ) { $destino = $e->getMessage(); }
+ok( 'recusa e avisa', false !== strpos( $destino, 'faltando' ), $destino );
 
 echo "\n$ok passaram, $ko falharam\n";
 exit( $ko ? 1 : 0 );
