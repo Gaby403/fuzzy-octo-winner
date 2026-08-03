@@ -30,6 +30,9 @@ function wp_kses_post( $s ) { return $s; }
 function wp_is_post_revision( $id ) { return false; }
 function current_user_can( ...$a ) { return true; }
 function get_page_by_path( ...$a ) { return null; }
+function get_term_meta( $id, $k = '', $s = true ) { return $GLOBALS['__termmeta'][ $id ][ $k ] ?? ''; }
+function update_term_meta( $id, $k, $v ) { $GLOBALS['__termmeta'][ $id ][ $k ] = $v; return true; }
+function delete_term_meta( $id, $k ) { unset( $GLOBALS['__termmeta'][ $id ][ $k ] ); return true; }
 function get_posts( $a ) { return array(); }
 function get_edit_post_link( $id, $c = null ) { return '/wp-admin/post.php?post=' . $id; }
 function admin_url( $p = '' ) { return '/wp-admin/' . $p; }
@@ -139,6 +142,45 @@ ok( 'PT segue intacto', 'Título PT' === STCMS_Traducao::texto( $post, 'title', 
 $_POST['stcms_en_title'] = '';
 STCMS_Traducao::save( 200, $post );
 ok( 'campo esvaziado volta a herdar o PT', 'Título PT' === STCMS_Traducao::texto( $post, 'title', 'en' ), STCMS_Traducao::texto( $post, 'title', 'en' ) );
+
+echo "\n== Nome da categoria em inglês ==\n";
+$GLOBALS['__termmeta'] = array();
+$termo = (object) array( 'term_id' => 7, 'name' => 'Estratégia', 'slug' => 'estrategia' );
+
+ob_start();
+STCMS_Traducao::campo_termo( $termo );
+$html = ob_get_clean();
+ok( 'campo aparece na edição da categoria', (bool) preg_match( '/name="stcms_en_name"/', $html ) );
+ok( 'campo não é readonly', ! preg_match( '/(readonly|disabled)/i', $html ) );
+
+ob_start();
+STCMS_Traducao::campo_termo_novo();
+$html = ob_get_clean();
+ok( 'campo aparece ao criar categoria', (bool) preg_match( '/name="stcms_en_name"/', $html ) );
+
+$colunas = STCMS_Traducao::coluna_termo( array( 'cb' => '', 'name' => 'Nome', 'slug' => 'Slug', 'posts' => 'Contagem' ) );
+ok( 'coluna acrescentada na lista', isset( $colunas['stcms_en'] ), implode( ',', array_keys( $colunas ) ) );
+ok( 'coluna vem logo depois do nome', array_keys( $colunas )[2] === 'stcms_en', implode( ',', array_keys( $colunas ) ) );
+ok( 'colunas originais preservadas', isset( $colunas['cb'], $colunas['name'], $colunas['slug'], $colunas['posts'] ) );
+
+ok( 'sem tradução a célula avisa', false !== strpos( STCMS_Traducao::celula_termo( '', 'stcms_en', 7 ), 'usando o português' ) );
+
+$_POST = array( 'stcms_en_termo_nonce' => 'x', 'stcms_en_name' => 'Strategy' );
+STCMS_Traducao::salvar_termo( 7 );
+ok( 'nome em inglês gravado', 'Strategy' === get_term_meta( 7, 'stcms_en_name' ), get_term_meta( 7, 'stcms_en_name' ) );
+ok( 'célula mostra o valor', 'Strategy' === STCMS_Traducao::celula_termo( '', 'stcms_en', 7 ) );
+ok( 'lido em EN', 'Strategy' === STCMS_Traducao::nome_termo( $termo, 'en' ) );
+ok( 'PT continua o português', 'Estratégia' === STCMS_Traducao::nome_termo( $termo, 'pt' ) );
+
+$_POST['stcms_en_name'] = '';
+STCMS_Traducao::salvar_termo( 7 );
+ok( 'esvaziar volta a herdar o português', 'Estratégia' === STCMS_Traducao::nome_termo( $termo, 'en' ), STCMS_Traducao::nome_termo( $termo, 'en' ) );
+
+$_POST = array( 'stcms_en_name' => 'Sem nonce' );
+STCMS_Traducao::salvar_termo( 7 );
+ok( 'sem nonce não grava', '' === get_term_meta( 7, 'stcms_en_name' ), get_term_meta( 7, 'stcms_en_name' ) );
+
+ok( 'outra coluna não é afetada', 'intacto' === STCMS_Traducao::celula_termo( 'intacto', 'slug', 7 ) );
 
 echo "\n$ok passaram, $ko falharam\n";
 exit( $ko ? 1 : 0 );

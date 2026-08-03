@@ -176,6 +176,8 @@ class STCMS_Options {
 					<a class="stcms-chip" href="<?php echo esc_url( admin_url( 'edit.php?post_type=st_project' ) ); ?>"><span class="dashicons dashicons-portfolio"></span> Projetos</a>
 					<a class="stcms-chip" href="<?php echo esc_url( admin_url( 'edit.php?post_type=st_faq' ) ); ?>"><span class="dashicons dashicons-editor-help"></span> FAQ</a>
 					<a class="stcms-chip" href="<?php echo esc_url( admin_url( 'edit.php?post_type=page' ) ); ?>"><span class="dashicons dashicons-admin-page"></span> Páginas</a>
+					<a class="stcms-chip" href="<?php echo esc_url( admin_url( 'edit.php' ) ); ?>"><span class="dashicons dashicons-admin-post"></span> Blog</a>
+					<a class="stcms-chip" href="<?php echo esc_url( admin_url( 'edit-tags.php?taxonomy=category' ) ); ?>"><span class="dashicons dashicons-category"></span> Categorias</a>
 					<a class="stcms-chip" href="<?php echo esc_url( admin_url( 'upload.php' ) ); ?>"><span class="dashicons dashicons-format-image"></span> Mídia</a>
 				</div>
 			</div>

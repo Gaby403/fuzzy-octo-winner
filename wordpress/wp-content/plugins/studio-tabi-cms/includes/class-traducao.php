@@ -18,6 +18,8 @@ class STCMS_Traducao {
 			add_action( $tax . '_add_form_fields', array( __CLASS__, 'campo_termo_novo' ) );
 			add_action( 'edited_' . $tax, array( __CLASS__, 'salvar_termo' ) );
 			add_action( 'created_' . $tax, array( __CLASS__, 'salvar_termo' ) );
+			add_filter( 'manage_edit-' . $tax . '_columns', array( __CLASS__, 'coluna_termo' ) );
+			add_filter( 'manage_' . $tax . '_custom_column', array( __CLASS__, 'celula_termo' ), 10, 3 );
 		}
 	}
 
@@ -29,6 +31,28 @@ class STCMS_Traducao {
 		}
 		$en = get_term_meta( $id, self::PREFIXO . 'name', true );
 		return ( '' === $en || null === $en ) ? $pt : $en;
+	}
+
+	public static function coluna_termo( $colunas ) {
+		$saida = array();
+		foreach ( $colunas as $chave => $rotulo ) {
+			$saida[ $chave ] = $rotulo;
+			if ( 'name' === $chave ) {
+				$saida['stcms_en'] = 'Nome em inglês';
+			}
+		}
+		return isset( $saida['stcms_en'] ) ? $saida : array_merge( $colunas, array( 'stcms_en' => 'Nome em inglês' ) );
+	}
+
+	public static function celula_termo( $conteudo, $coluna, $term_id ) {
+		if ( 'stcms_en' !== $coluna ) {
+			return $conteudo;
+		}
+		$valor = get_term_meta( $term_id, self::PREFIXO . 'name', true );
+		if ( '' === (string) $valor ) {
+			return '<span style="color:#b32d2e">— usando o português</span>';
+		}
+		return esc_html( $valor );
 	}
 
 	public static function campo_termo( $termo ) {
