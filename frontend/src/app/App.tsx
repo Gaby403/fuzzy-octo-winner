@@ -117,10 +117,10 @@ const RESPONSIVE_CSS = `
       left: -10% !important;
       width: 120% !important;
     }
-    .hero-mountain-haze   { bottom: 9%  !important; height: 25%   !important; }
-    .hero-mountain-far    { bottom: 6%  !important; height: 22%   !important; }
-    .hero-mountain-middle { bottom: 2%  !important; height: 18.5% !important; }
-    .hero-mountain-front  { bottom: -1px !important; height: 14% !important; }
+    .hero-mountain-haze   { bottom: 7%   !important; height: 16%   !important; }
+    .hero-mountain-far    { bottom: 4.5% !important; height: 14%   !important; }
+    .hero-mountain-middle { bottom: 1%   !important; height: 11.5% !important; }
+    .hero-mountain-front  { bottom: -1px !important; height: 9%    !important; }
     .hero-footer {
       padding: 0 20px max(18px, env(safe-area-inset-bottom)) !important;
       font-size: 8px !important;
@@ -147,13 +147,13 @@ const RESPONSIVE_CSS = `
       white-space: nowrap !important;
       word-break: normal !important;
     }
-    .hero-mountain-haze   { height: 37% !important; }
-    .hero-mountain-far    { height: 33% !important; }
-    .hero-mountain-middle { height: 28% !important; }
-    .hero-mountain-front  { height: 21% !important; }
+    .hero-mountain-haze   { bottom: 14%  !important; height: 26% !important; }
+    .hero-mountain-far    { bottom: 9%   !important; height: 23% !important; }
+    .hero-mountain-middle { bottom: 3%   !important; height: 20% !important; }
+    .hero-mountain-front  { bottom: -2px !important; height: 15% !important; }
   }
 
-  
+
   @media (max-width: 380px) {
     .hero-sun-anchor {
       top: 76% !important;
@@ -163,6 +163,22 @@ const RESPONSIVE_CSS = `
     .hero-content {
       padding-top: clamp(56px, 8svh, 70px) !important;
     }
+    .hero-mountain-haze   { bottom: 5%   !important; height: 11%  !important; }
+    .hero-mountain-far    { bottom: 3.5% !important; height: 9.5% !important; }
+    .hero-mountain-middle { bottom: 1%   !important; height: 8%   !important; }
+    .hero-mountain-front  { bottom: -1px !important; height: 6.5% !important; }
+  }
+
+
+  @media (max-width: 380px) and (max-height: 640px) {
+    .hero-sun-anchor {
+      top: 79% !important;
+      width: 44vw !important;
+    }
+    .hero-mountain-haze   { bottom: 4%   !important; height: 9%   !important; }
+    .hero-mountain-far    { bottom: 2.5% !important; height: 8%   !important; }
+    .hero-mountain-middle { bottom: 1%   !important; height: 6.5% !important; }
+    .hero-mountain-front  { bottom: -1px !important; height: 5.5% !important; }
   }
 `;
 export function HomeSite() {
