@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { m, useMotionValue, useSpring, AnimatePresence } from "motion/react";
-import { TabiMark } from "../TabiMark";
 const RED_INK = "#FF3547";
 export function CustomCursor() {
     const [enabled, setEnabled] = useState(false);
@@ -51,17 +50,6 @@ export function CustomCursor() {
               </m.span>)}
           </AnimatePresence>
         </m.div>
-      </m.div>
-
-      {/* Fora do anel, senão o glifo tapa justamente o rótulo que a pessoa vai
-          clicar. Sombra em vez de mix-blend: sobrevive ao vermelho do botão e
-          ao cinza claro do hero sem virar ciano. */}
-      <m.div aria-hidden style={{ position: "fixed", top: 0, left: 0, x: ringX, y: ringY, zIndex: 9998, pointerEvents: "none" }}>
-        <AnimatePresence>
-          {hovering && !label && (<m.div initial={{ opacity: 0, scale: 0.4, rotate: -22 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} exit={{ opacity: 0, scale: 0.4, rotate: 22 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} style={{ marginLeft: 24, marginTop: 20, filter: "drop-shadow(0 0 1.5px rgba(0,0,0,0.9)) drop-shadow(0 1px 3px rgba(0,0,0,0.55))" }}>
-              <TabiMark width={15} color="#fff"/>
-            </m.div>)}
-        </AnimatePresence>
       </m.div>
     </>);
 }

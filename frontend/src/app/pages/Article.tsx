@@ -4,7 +4,6 @@ import { m, useScroll, useSpring } from "motion/react";
 import { useContent } from "../store/content";
 import { fetchPost, PostFull } from "../store/blog";
 import { Breadcrumbs } from "../components/Breadcrumbs";
-import { ProgressoTabi } from "../components/system/ProgressoTabi";
 import { subscribeNewsletter } from "../store/blog";
 import { useLocale } from "../i18n/useLocale";
 import { siteOrigin, formatarData } from "../i18n/locale";
@@ -102,7 +101,6 @@ export default function Article() {
     return (<div style={{ minHeight: "100svh", background: BLACK, color: WHITE, fontFamily: FONT_BODY }}>
       
       <m.div aria-hidden="true" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, background: RED, transformOrigin: "left", scaleX: progress, zIndex: 60 }}/>
-      <ProgressoTabi progresso={progress}/>
 
       <main id="conteudo" className={hasToc ? "article-page has-toc-page" : "article-page"} style={{ ["--pad" as string]: pad } as React.CSSProperties}>
         <div className="article-hero" style={{ paddingTop: "clamp(32px,5vw,56px)" }}>
